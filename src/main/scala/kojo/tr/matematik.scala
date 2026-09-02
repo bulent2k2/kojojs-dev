@@ -29,8 +29,8 @@ trait MatematikYöntemleri extends TemelTürler {
   def doğalLogu(x: Kesir): Kesir = math.log(x)
   def logaritması(x: Kesir): Kesir = math.log(x)
   def logTabanlı(x: Kesir, t: Kesir): Kesir = math.log(x) / math.log(t)
-  private lazy val log2_e = math.log(2)
-  def log2tabanlı(x: Kesir): Kesir = math.log(x) / log2_e
+  private lazy val ln2 = math.log(2)
+  def log2tabanlı(x: Kesir): Kesir = math.log(x) / ln2
 
   def radyana(açı: Kesir): Kesir = math.toRadians(açı)
   def dereceye(açı: Kesir): Kesir = math.toDegrees(açı)
