@@ -7,7 +7,46 @@ import scala.scalajs.js
 object KojoMain {
 
   def main(args: Array[String]): Unit = {
-    centeredMessage()
+    kocoDemo()
+  }
+
+  // Türkçe (Koco) tanıtım programı -- statik olarak yayınlanan sayfada çalışan budur.
+  def kocoDemo(): Unit = {
+    import kojo.{KojoWorldImpl, Picture}
+    import kojo.syntax.Builtins
+    implicit val kojoWorld = new KojoWorldImpl()
+    val builtins = new Builtins()
+    import builtins._
+    import turtle._
+    import trTurtle._
+
+    disablePanAndZoom()
+    artalanıKur(siyah)
+    hızıKur(çokHızlı) // animationDelay = 0 -> anında çizim, kare kare canlandırma yok
+
+    val renkler = Vector(kırmızı, turuncu, sarı, yeşil, mavi, mor, pembe)
+
+    // renkli çiçek
+    kalemKalınlığınıKur(2)
+    yineleDizinli(72) { i =>
+      kalemRenginiKur(renkler(i % renkler.length))
+      yinele(4) {
+        ileri(120)
+        sağ(90)
+      }
+      sağ(5)
+    }
+
+    // ortada beyaz üçgen yıldızı
+    ev()
+    kalemRenginiKur(beyaz)
+    kalemKalınlığınıKur(3)
+    yinele(12) {
+      üçgen(60)
+      sağ(30)
+    }
+
+    gizle()
   }
 
   def hunted(): Unit = {
