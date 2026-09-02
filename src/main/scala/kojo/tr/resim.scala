@@ -86,12 +86,20 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def kaydır(yöney: Yöney2B): Birim = r.offset(yöney.x, yöney.y)
 
     /**
-     * Resmi KENDİ çerçevesinde taşır: dx,dy önce resmin dönme/ölçek dönüşümünden
-     * geçirilir. Döndürülmüş bir resmi "ileri" itmek için uygun; düz hareket
-     * için `kaydır` daha güvenli.
+     * `kaydır` ile AYNI (ikisi de offset).
+     *
+     * Neden translate DEĞİL: KojoJS'in `Picture.translate`'i tekrarlı
+     * canlandırmada bozuk. Konumu `localTransform.apply(dx, dy)` ile
+     * hesaplıyor, ama localTransform kareler arasında tazelenmediği için her
+     * karede AYNI hedefi buluyor -- resim bir kez kıpırdayıp donuyor.
+     * Kullanıcı 05-sekme-oyunu'nda bunu yaşadı; offset ile akıcı çalışıyor.
+     *
+     * `taşı` çocuğun ilk aklına gelen sözcük, o yüzden bozuk olana değil
+     * çalışana bağlı. Gerçekten yerel çerçevede taşıma gerekirse
+     * `resim.translate(...)` hâlâ erişilebilir.
      */
-    def taşı(dx: Kesir, dy: Kesir): Birim = r.translate(dx, dy)
-    def taşı(yöney: Yöney2B): Birim = r.translate(yöney.x, yöney.y)
+    def taşı(dx: Kesir, dy: Kesir): Birim = r.offset(dx, dy)
+    def taşı(yöney: Yöney2B): Birim = r.offset(yöney.x, yöney.y)
     def büyüt(oran: Kesir): Birim = r.scale(oran)
     def büyüklüğünüKur(oran: Kesir): Birim = r.setScale(oran)
     def yansıtX(): Birim = r.flipX()
