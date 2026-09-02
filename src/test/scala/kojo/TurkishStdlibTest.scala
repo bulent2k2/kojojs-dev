@@ -138,9 +138,25 @@ class TurkishStdlibTest extends FunSuite with Matchers {
     Yazı.olarak(42) should be("42")
   }
 
-  test("harf: Char'ın Türkçesi") {
+  test("Türkçe i/İ kuralı (noktalı-noktasız i)") {
+    // Java/JS varsayılanı İNGİLİZCE: 'i'.toUpper = 'I', 'I'.toLower = 'i'.
+    // Türkçede i -> İ ve I -> ı olmalı.
+    'i'.büyükHarfe should be('İ')
+    'ı'.büyükHarfe should be('I')
+    'I'.küçükHarfe should be('ı')
+    'İ'.küçükHarfe should be('i')
+    // diğer harfler değişmemeli
     'a'.büyükHarfe should be('A')
-    'A'.küçükHarfe should be('a')
+    'Z'.küçükHarfe should be('z')
+
+    "istanbul".büyükHarfe should be("İSTANBUL")
+    "ışık".büyükHarfe should be("IŞIK")
+    "IRMAK".küçükHarfe should be("ırmak")
+    "İZMİR".küçükHarfe should be("izmir")
+    "izmir".ilkHarfiBüyült should be("İzmir")
+  }
+
+  test("harf: Char'ın Türkçesi") {
     '5'.sayıMı should be(doğru)
     'a'.sayıMı should be(yanlış)
     'a'.harfMi should be(doğru)

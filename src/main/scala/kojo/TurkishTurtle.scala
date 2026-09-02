@@ -20,6 +20,7 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
     with kojo.tr.BelkiYöntemleri
     with kojo.tr.BölümselİşlevYöntemleri
     with kojo.tr.YazıYöntemleri
+    with kojo.tr.HarfYöntemleri
     with kojo.tr.AralıkYöntemleri
     with kojo.tr.KümeYöntemleri
     with kojo.tr.DiziYöntemleri

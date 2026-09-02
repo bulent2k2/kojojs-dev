@@ -12,7 +12,7 @@ object KojoMain {
 
   // Türkçe (Koco) tanıtım programı -- statik olarak yayınlanan sayfada çalışan budur.
   def kocoDemo(): Unit = {
-    import kojo.{KojoWorldImpl, Picture}
+    import kojo.KojoWorldImpl
     import kojo.syntax.Builtins
     implicit val kojoWorld = new KojoWorldImpl()
     val builtins = new Builtins()
