@@ -84,6 +84,32 @@ class TurkishPreludeTest extends FunSuite with Matchers {
     yakınlaştırmayıKapat()
     kareSüresi
 
+    // ---- Nokta / Dikdörtgen (PIXI türleri, bu yüzden burada) ----
+    val n = Nokta(3, 4)
+    n.uzaklığı(Nokta(0, 0)) should be(5.0)
+    n.açısı(Nokta(4, 5)) should be(45.0 +- 1e-9)
+    n.taşınmış(1, 1).x should be(4.0)
+    Nokta.sıfır.x should be(0.0)
+    val Nokta(nx, ny) = Nokta(7, 8)
+    nx should be(7.0); ny should be(8.0)
+    // PIXI.Point'in x/y'si var -- kopyası bağımsız olmalı
+    val kopya = n.kopyası
+    n.x = 99
+    kopya.x should be(3.0)
+    uzaklık(Nokta(0, 0), Nokta(3, 4)) should be(5.0)
+    açı(Nokta(0, 0), Nokta(1, 1)) should be(45.0 +- 1e-9)
+
+    val dd = Dikdörtgen(0, 0, 10, 20)
+    dd.eni should be(10.0)
+    dd.merkezi.x should be(5.0)
+    dd.içeriyorMu(Nokta(5, 5)) should be(doğru)
+    dd.içeriyorMu(Nokta(50, 5)) should be(yanlış)
+
+    // Türkçe API'den artık çevrilmemiş tür sızmıyor
+    val k: Nokta = Resim.daire(5).konum
+    val s2: Dikdörtgen = Resim.daire(5).sınırları
+    val tb: Dikdörtgen = tuvalSınırları
+
     yuvarla(3.14159, 2) should be(3.14)
     yuvarla(2.5) should be(3.0)
 

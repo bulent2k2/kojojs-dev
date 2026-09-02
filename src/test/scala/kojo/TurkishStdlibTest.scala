@@ -381,6 +381,12 @@ class TurkishStdlibTest extends FunSuite with Matchers {
     new Nokta(3).toString should be("Nokta(3)")
   }
 
+  // NOT: Nokta/Dikdörtgen testleri burada DEĞİL, TurkishPreludeTest'te.
+  // Nokta = PIXI.Point, yani gerçek PIXI kütüphanesi gerekiyor; bu süit ise
+  // PIXI'siz düz Node'da koşuyor (jsDependencies := Seq()), çünkü PIXI DOM
+  // olmadan yüklenmiyor. Burada denenince "Cannot read properties of
+  // undefined (reading 'Point')" alınıyor.
+
   test("bölümsel işlev") {
     val bi: Bölümselİşlev[Sayı, Yazı] = { case 1 => "bir"; case 2 => "iki" }
     bi.tanımlıMı(1) should be(doğru)
