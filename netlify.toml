@@ -1,0 +1,4 @@
+# Statik Koco demosu. Netlify'da derleme yok -- site/ klasörü olduğu gibi yayınlanır.
+[build]
+  publish = "site"
+  command = ""
