@@ -22,6 +22,7 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
     with kojo.tr.YazıYöntemleri
     with kojo.tr.HarfYöntemleri
     with kojo.tr.NoktaYöntemleri
+    with kojo.tr.Yöney2BYöntemleri
     with kojo.tr.AralıkYöntemleri
     with kojo.tr.KümeYöntemleri
     with kojo.tr.DiziYöntemleri
@@ -191,4 +192,14 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   def tuvaliEtkinleştir(): Birim = builtins.activateCanvas()
   def yakınlaştırmayıKapat(): Birim = builtins.disablePanAndZoom()
   def kareSüresi: Kesir = builtins.frameDeltaTime
+
+  // ---- sekme (oyun fiziği) ----
+  def sahnedenSek(resim: Resim, hız: Yöney2B): Yöney2B = builtins.bouncePicOffStage(resim, hız)
+  def resimdenSek(resim: Resim, hız: Yöney2B, engel: Resim): Yöney2B =
+    builtins.bouncePicOffPic(resim, hız, engel)
+  def sahneKenarı: Resim = builtins.stageBorder
+  def sahneÜstü: Resim = builtins.stageTop
+  def sahneAltı: Resim = builtins.stageBot
+  def sahneSolu: Resim = builtins.stageLeft
+  def sahneSağı: Resim = builtins.stageRight
 }

@@ -110,6 +110,31 @@ class TurkishPreludeTest extends FunSuite with Matchers {
     val s2: Dikdörtgen = Resim.daire(5).sınırları
     val tb: Dikdörtgen = tuvalSınırları
 
+    // ---- Yöney2B (oyun fiziği) ----
+    // Nokta gibi burada: kojo.Vector2D JTS'e devrediyor (vec.rotate/normalize),
+    // stdlib süiti ise JTS'siz düz Node'da koşuyor.
+    val h = Yöney2B(3, 4)
+    h.boyu should be(5.0 +- 1e-9)
+    h.boyunKaresi should be(25.0 +- 1e-9)
+    h.boyunuBirYap.boyu should be(1.0 +- 1e-9)
+    h.içÇarpım(Yöney2B(1, 0)) should be(3.0 +- 1e-9)
+    h.uzaklığı(Yöney2B(0, 0)) should be(5.0 +- 1e-9)
+    h.sınırla(1).boyu should be(1.0 +- 1e-9)
+    (h + Yöney2B(1, 1)).x should be(4.0 +- 1e-9)
+    (h * 2).x should be(6.0 +- 1e-9)
+    (-h).x should be(-3.0 +- 1e-9)
+    Yöney2B.sıfır.boyu should be(0.0)
+    Yöney2B.açıdan(0).x should be(1.0 +- 1e-9)
+    Yöney2B.açıdan(90).y should be(1.0 +- 1e-9)
+    val Yöney2B(hx, hy) = Yöney2B(7, 8)
+    hx should be(7.0); hy should be(8.0)
+
+    // sekme: KojoJS'in gerçek imzalarıyla uyumlu mu
+    val top = Resim.daire(10)
+    val yeniHız: Yöney2B = sahnedenSek(top, Yöney2B(2, 3))
+    val yeniHız2: Yöney2B = resimdenSek(top, Yöney2B(2, 3), sahneKenarı)
+    val kenar: Resim = sahneÜstü
+
     yuvarla(3.14159, 2) should be(3.14)
     yuvarla(2.5) should be(3.0)
 
