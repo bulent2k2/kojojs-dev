@@ -2,15 +2,20 @@
 // Hız bir yöney; her karede resmi o kadar taşıyoruz ve kenara
 // çarpınca sahnedenSek yeni hızı veriyor.
 
-artalanıKur(siyah)
+// çizSahne: sahneyi boyar VE kenarlarını kurar. sahnedenSek bu kenarlara
+// bakıyor -- artalanıKur yalnızca rengi değiştirdiği için yetmiyor.
+çizSahne(siyah)
 yakınlaştırmayıKapat()
 
-val top = Resim.daire(12).boyalı(Renkler.mercan)
+// konumlu(...) ile merkezden uzakta başlıyoruz: merkezde kaplumbağa
+// simgesinin altında kalıyor ve hareket ettiği ilk anda fark edilmiyor.
+val top = Resim.daire(12).boyalı(Renkler.mercan).konumlu(-100, 60)
 çiz(top)
 
 var hız = Yöney2B(3, 2)
 
 canlandır {
-  top.taşı(hız.x, hız.y)
+  // kaydır ve taşı aynı şey: dünya koordinatlarında hareket
+  top.kaydır(hız)
   hız = sahnedenSek(top, hız)
 }

@@ -66,6 +66,10 @@ class TurkishPreludeTest extends FunSuite with Matchers {
     tuşBasılıMı(tuşlar.boşluk)
 
     // resimler
+    // blok biçimi: Türkçe komutlarla resim
+    val rBlok = Resim { yinele(4) { ileri(20); sağ() } }
+    çiz(rBlok.boyalı(kırmızı))
+
     val r1 = Resim.dikdörtgen(50, 30)
     val r2 = Resim.daire(20).boyalı(kırmızı).kalemRenkli(mavi)
     val r3 = Resim.yazı("merhaba", 20).döndürülmüş(45).saydamlıklı(0.5)
@@ -75,9 +79,35 @@ class TurkishPreludeTest extends FunSuite with Matchers {
     çizSahne(siyah)
     çizMerkezdeYazı("selam", beyaz, 24)
     r2.çarpışıyorMu(r1)
-    r4.döndür(10); r4.taşı(5, 5); r4.gizle(); r4.göster(); r4.sil()
+    r4.döndür(10); r4.taşı(5, 5); r4.kaydır(5, 5); r4.kaydır(Yöney2B(1, 1)); r4.gizle(); r4.göster(); r4.sil()
     r1.sınırları
     Resim.yatayÇizgi(50); Resim.kare(20); Resim.dikeyBoşluk(5)
+
+    // ---- kuyruktan okuma: konum / yön / değme ----
+    konumuOku { n => yaz(n.x + ", " + n.y) }
+    yönüOku { açı => yaz(açı) }
+    dokunuyorMu(r1) { değdi => if (değdi) yaz("değdi") }
+
+    // ---- Faz 3 kalanı: kumanda kolu + gelecek ----
+    val kol = kumandaKolu(50)
+    kol.çiz()
+    kol.konumuKur(-200, -150)
+    kol.kondur(-200, -150)
+    kol.çevreRenginiKur(Renkler.gri)
+    kol.kolRenginiKur(kırmızı)
+    kol.çevreKalemRenginiKur(siyah)
+    val kolYöney: Yöney2B = kol.yöney
+    kol.oynat(r1)
+    kol.oynat(r1, 2.0)
+    kol.oynat(r1, 2.0, Yöney2B(1, 0))
+    kol.oynatSahneİçinde(r1)
+    kol.oynatSahneİçinde(r1, 2.0, Yöney2B(0, 1))
+
+    // örtük işletim bağlamı trTurtle'dan geliyor -- kullanıcı tanımlamıyor
+    val ib: İşletimBağlamı = İşletimBağlamı.küresel
+    val g: Gelecek[Sayı] = Gelecek.başarılı(5)
+    g.işle(_ * 2).düzİşle(n => Gelecek.başarılı(n + 1)).ele(_ > 0)
+    val gh: Gelecek[Sayı] = Gelecek.başarısız(new KuralDışı("olmadı"))
 
     // oyun/etkileşim
     tuvalSınırları

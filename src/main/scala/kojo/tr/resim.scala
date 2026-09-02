@@ -12,7 +12,7 @@ package kojo.tr
  * `builtins`e ihtiyaç var (Picture fabrikası onun içinde bir iç nesne), o yüzden
  * soyut `kb` üyesi TurkishTurtle tarafından sağlanıyor.
  */
-trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYöntemleri {
+trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYöntemleri with Yöney2BYöntemleri {
   protected def kb: kojo.syntax.Builtins
   // Picture.image / draw gibi metotlar örtük KojoWorld istiyor; Builtins'in
   // kendi kojoWorld'ü dışarıdan erişilebilir değil, o yüzden ayrıca alıyoruz.
@@ -21,6 +21,19 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
   type Resim = kojo.Picture
 
   object Resim {
+    /**
+     * Blok biçimi: kaplumbağa komutlarıyla resim yapar --
+     * `Resim { yinele(4) { ileri(60); sağ() } }`
+     *
+     * İngilizce `Picture { ... }` ile aynı şey. Bu OLMADAN kullanıcı Türkçe
+     * yazarken İngilizce `Picture` yazmak zorunda kalıyordu.
+     *
+     * Çalışması TurkishTurtle'ın turtle0'a değil GlobalTurtleForPicture'a
+     * bağlanmasına dayanıyor: blok içindeki Türkçe komutların resme yönlenmesi
+     * için TurtlePicture globalTurtle'ı takas ediyor.
+     */
+    def apply(komutlar: => Birim): Resim = kb.Picture(komutlar)
+
     def dikdörtgen(en: Kesir, boy: Kesir): Resim = kb.Picture.rectangle(en, boy)
     def kare(en: Kesir): Resim = kb.Picture.rectangle(en, en)
     def daire(yarıçap: Kesir): Resim = kb.Picture.circle(yarıçap)
@@ -65,7 +78,31 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def açıyaDön(açı: Kesir): Birim = r.setHeading(açı)
     def döndür(açı: Kesir): Birim = r.rotate(açı)
     def döndürMerkezli(açı: Kesir, x: Kesir, y: Kesir): Birim = r.rotateAboutPoint(açı, x, y)
-    def taşı(dx: Kesir, dy: Kesir): Birim = r.translate(dx, dy)
+    /**
+     * Resmi DÜNYA koordinatlarında kaydırır -- konuma dx,dy ekler, başka
+     * hiçbir şeye bakmaz. Hareket eden nesneler (oyunlar) için doğru olan bu.
+     */
+    def kaydır(dx: Kesir, dy: Kesir): Birim = r.offset(dx, dy)
+    def kaydır(yöney: Yöney2B): Birim = r.offset(yöney.x, yöney.y)
+
+    /**
+     * `kaydır` ile AYNI (ikisi de offset).
+     *
+     * Neden `translate` değil: `translate` resmin KENDİ çerçevesinde taşıyor --
+     * resim döndürülmüşse "sağa 5" ekranda eğik çıkıyor. Çocuğun `taşı`dan
+     * beklediği dünya çerçevesinde hareket, o da `offset`.
+     *
+     * DÜZELTME (2026-09-02): burada önce "translate tekrarlı canlandırmada
+     * bozuk" yazıyordu. Yanlıştı. 05-sekme-oyunu'ndaki donma translate'ten
+     * değil, `sahnedenSek`in sahne kenarları kurulmadan çağrılıp TypeError
+     * atmasından geliyordu; yan yana ölçümde translate ile offset aynı
+     * hareketi verdi. Gerçek nedeni TurkishTurtle.sahneKurulduMu anlatıyor.
+     *
+     * Gerçekten yerel çerçevede taşıma gerekirse `resim.translate(...)`
+     * hâlâ erişilebilir.
+     */
+    def taşı(dx: Kesir, dy: Kesir): Birim = r.offset(dx, dy)
+    def taşı(yöney: Yöney2B): Birim = r.offset(yöney.x, yöney.y)
     def büyüt(oran: Kesir): Birim = r.scale(oran)
     def büyüklüğünüKur(oran: Kesir): Birim = r.setScale(oran)
     def yansıtX(): Birim = r.flipX()
@@ -78,6 +115,16 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     // yeni resim döndüren dönüşümler (zincirlenebilir)
     def döndürülmüş(açı: Kesir): Resim = r.withRotation(açı)
     def döndürülmüşMerkezli(açı: Kesir, x: Kesir, y: Kesir): Resim = r.withRotationAround(açı, x, y)
+    /**
+     * DİKKAT: `taşı` ile AYNI ÇERÇEVEDE DEĞİL. `taşı`/`kaydır` dünya
+     * koordinatlarında hareket ettiriyor (offset), `taşınmış` ise resmin kendi
+     * çerçevesinde (translate). Döndürülmemiş bir resimde ikisi aynı; 45 derece
+     * döndürülmüş bir resimde `taşı(10, 0)` ekranda sağa, `taşınmış(10, 0)`
+     * çapraza gider.
+     *
+     * `taşınmış` tek seferlik ve zincirlenebilir olduğu için yerel çerçeve
+     * burada genelde istenen şey (resmi kendi yönünde kaydırmak).
+     */
     def taşınmış(x: Kesir, y: Kesir): Resim = r.withTranslation(x, y)
     def büyütülmüş(oran: Kesir): Resim = r.withScaling(oran)
     def boyalı(renk: Renk): Resim = r.withFillColor(renk)
