@@ -5,12 +5,16 @@
 artalanıKur(siyah)
 yakınlaştırmayıKapat()
 
-val top = Resim.daire(12).boyalı(Renkler.mercan)
+// konumlu(...) ile merkezden uzakta başlıyoruz: merkezde kaplumbağa
+// simgesinin altında kalıyor ve hareket ettiği ilk anda fark edilmiyor.
+val top = Resim.daire(12).boyalı(Renkler.mercan).konumlu(-100, 60)
 çiz(top)
 
 var hız = Yöney2B(3, 2)
 
 canlandır {
-  top.taşı(hız.x, hız.y)
+  // kaydır: dünya koordinatlarında hareket (taşı, resmin KENDİ çerçevesinde
+  // taşır; dönmeyen bir top için ikisi aynı ama kaydır daha doğrudan)
+  top.kaydır(hız)
   hız = sahnedenSek(top, hız)
 }

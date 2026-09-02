@@ -79,7 +79,7 @@ class TurkishPreludeTest extends FunSuite with Matchers {
     çizSahne(siyah)
     çizMerkezdeYazı("selam", beyaz, 24)
     r2.çarpışıyorMu(r1)
-    r4.döndür(10); r4.taşı(5, 5); r4.gizle(); r4.göster(); r4.sil()
+    r4.döndür(10); r4.taşı(5, 5); r4.kaydır(5, 5); r4.kaydır(Yöney2B(1, 1)); r4.gizle(); r4.göster(); r4.sil()
     r1.sınırları
     Resim.yatayÇizgi(50); Resim.kare(20); Resim.dikeyBoşluk(5)
 

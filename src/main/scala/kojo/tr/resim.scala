@@ -12,7 +12,7 @@ package kojo.tr
  * `builtins`e ihtiyaç var (Picture fabrikası onun içinde bir iç nesne), o yüzden
  * soyut `kb` üyesi TurkishTurtle tarafından sağlanıyor.
  */
-trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYöntemleri {
+trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYöntemleri with Yöney2BYöntemleri {
   protected def kb: kojo.syntax.Builtins
   // Picture.image / draw gibi metotlar örtük KojoWorld istiyor; Builtins'in
   // kendi kojoWorld'ü dışarıdan erişilebilir değil, o yüzden ayrıca alıyoruz.
@@ -78,7 +78,20 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def açıyaDön(açı: Kesir): Birim = r.setHeading(açı)
     def döndür(açı: Kesir): Birim = r.rotate(açı)
     def döndürMerkezli(açı: Kesir, x: Kesir, y: Kesir): Birim = r.rotateAboutPoint(açı, x, y)
+    /**
+     * Resmi DÜNYA koordinatlarında kaydırır -- konuma dx,dy ekler, başka
+     * hiçbir şeye bakmaz. Hareket eden nesneler (oyunlar) için doğru olan bu.
+     */
+    def kaydır(dx: Kesir, dy: Kesir): Birim = r.offset(dx, dy)
+    def kaydır(yöney: Yöney2B): Birim = r.offset(yöney.x, yöney.y)
+
+    /**
+     * Resmi KENDİ çerçevesinde taşır: dx,dy önce resmin dönme/ölçek dönüşümünden
+     * geçirilir. Döndürülmüş bir resmi "ileri" itmek için uygun; düz hareket
+     * için `kaydır` daha güvenli.
+     */
     def taşı(dx: Kesir, dy: Kesir): Birim = r.translate(dx, dy)
+    def taşı(yöney: Yöney2B): Birim = r.translate(yöney.x, yöney.y)
     def büyüt(oran: Kesir): Birim = r.scale(oran)
     def büyüklüğünüKur(oran: Kesir): Birim = r.setScale(oran)
     def yansıtX(): Birim = r.flipX()
