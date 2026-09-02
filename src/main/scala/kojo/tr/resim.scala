@@ -21,6 +21,19 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
   type Resim = kojo.Picture
 
   object Resim {
+    /**
+     * Blok biçimi: kaplumbağa komutlarıyla resim yapar --
+     * `Resim { yinele(4) { ileri(60); sağ() } }`
+     *
+     * İngilizce `Picture { ... }` ile aynı şey. Bu OLMADAN kullanıcı Türkçe
+     * yazarken İngilizce `Picture` yazmak zorunda kalıyordu.
+     *
+     * Çalışması TurkishTurtle'ın turtle0'a değil GlobalTurtleForPicture'a
+     * bağlanmasına dayanıyor: blok içindeki Türkçe komutların resme yönlenmesi
+     * için TurtlePicture globalTurtle'ı takas ediyor.
+     */
+    def apply(komutlar: => Birim): Resim = kb.Picture(komutlar)
+
     def dikdörtgen(en: Kesir, boy: Kesir): Resim = kb.Picture.rectangle(en, boy)
     def kare(en: Kesir): Resim = kb.Picture.rectangle(en, en)
     def daire(yarıçap: Kesir): Resim = kb.Picture.circle(yarıçap)

@@ -66,6 +66,10 @@ class TurkishPreludeTest extends FunSuite with Matchers {
     tuşBasılıMı(tuşlar.boşluk)
 
     // resimler
+    // blok biçimi: Türkçe komutlarla resim
+    val rBlok = Resim { yinele(4) { ileri(20); sağ() } }
+    çiz(rBlok.boyalı(kırmızı))
+
     val r1 = Resim.dikdörtgen(50, 30)
     val r2 = Resim.daire(20).boyalı(kırmızı).kalemRenkli(mavi)
     val r3 = Resim.yazı("merhaba", 20).döndürülmüş(45).saydamlıklı(0.5)
