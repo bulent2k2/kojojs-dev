@@ -83,6 +83,11 @@ class TurkishPreludeTest extends FunSuite with Matchers {
     r1.sınırları
     Resim.yatayÇizgi(50); Resim.kare(20); Resim.dikeyBoşluk(5)
 
+    // ---- kuyruktan okuma: konum / yön / değme ----
+    konumuOku { n => yaz(n.x + ", " + n.y) }
+    yönüOku { açı => yaz(açı) }
+    dokunuyorMu(r1) { değdi => if (değdi) yaz("değdi") }
+
     // ---- Faz 3 kalanı: kumanda kolu + gelecek ----
     val kol = kumandaKolu(50)
     kol.çiz()
