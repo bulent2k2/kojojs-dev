@@ -53,6 +53,37 @@ class TurkishPreludeTest extends FunSuite with Matchers {
     yineleDizinli(3) { i => yaz(i) }
     yineleİlktenSona(1, 3) { i => yaz(i) }
 
+    // ---- Faz 3: grafik sözcükleri ----
+    // renkler (RenkYöntemleri)
+    kalemRenginiKur(Renkler.turkuaz)
+    kalemRenginiKur(renkKur(10, 20, 30))
+    artalanıKur(Renkler.gökMavisi)
+    val r0: Renk = Renkler.mercan
+    r0.kırmızısı
+
+    // klavye
+    tuşBasılıMı(tuşlar.sol)
+    tuşBasılıMı(tuşlar.boşluk)
+
+    // resimler
+    val r1 = Resim.dikdörtgen(50, 30)
+    val r2 = Resim.daire(20).boyalı(kırmızı).kalemRenkli(mavi)
+    val r3 = Resim.yazı("merhaba", 20).döndürülmüş(45).saydamlıklı(0.5)
+    val r4 = Resim.elips(30, 15).büyütülmüş(2).konumlu(10, 10)
+    çiz(r1, r2)
+    çizMerkezde(r3)
+    çizSahne(siyah)
+    çizMerkezdeYazı("selam", beyaz, 24)
+    r2.çarpışıyorMu(r1)
+    r4.döndür(10); r4.taşı(5, 5); r4.gizle(); r4.göster(); r4.sil()
+    r1.sınırları
+    Resim.yatayÇizgi(50); Resim.kare(20); Resim.dikeyBoşluk(5)
+
+    // oyun/etkileşim
+    tuvalSınırları
+    yakınlaştırmayıKapat()
+    kareSüresi
+
     yuvarla(3.14159, 2) should be(3.14)
     yuvarla(2.5) should be(3.0)
 
