@@ -160,10 +160,73 @@ imaj da üretilebilir (ikojo.fly.dev = en, ikojo-tr = tr gibi).
 - `temel.scala`'daki `val doğru/yanlış` KALIR (stok derleyiciyle de derlensin
   diye) — yamalı derleyicide kullanıcı kodundaki `doğru` keyword olarak lex
   edilir, val'ler zararsız gölgede kalır; masaüstüyle aynı kombinasyon.
-- İsteğe bağlı: Ace editör moduna Türkçe anahtar kelime vurgusu (saf JS,
-  istendiği zaman ayrıca yapılır).
+- Sözdizimi vurgulaması: bkz. Bölüm 5 — yamalı derleyiciyle AYNI deploy'da
+  çıkmalı (derleyicinin kabul etmediği sözcüğü anahtar kelime renginde
+  göstermek, ya da tersi, çocuğu yanıltır).
 
-## 5. Riskler
+## 5. Vurgulama, biçimlendirme, tamamlama
+
+Yamalı derleyici işin yalnızca "kabul etme" yarısı; editör deneyiminin üç
+parçası ayrıca ele alınmalı. Envanter (koda bakılarak çıkarıldı):
+
+| Parça | ikojo'da bugün | Türkçe anahtar kelimelerle |
+|---|---|---|
+| Vurgulama | Ace, STOK `mode-scala.js` — iki ayrı yükleme yeri | Türkçe sözcükler düz tanımlayıcı renginde kalır → yapılacak iş var |
+| Biçimlendirme | **YOK** (düğmeler: Run/Reset; scalariform/scalafmt izi yok) | bozulacak bir şey yok; istenirse ayrı iş |
+| Tamamlama | compilerServer'daki presentation compiler (`initInteractiveGlobal`) | yamalı derleyiciyle kendiliğinden çalışır |
+
+### 5a. Vurgulama (Faz 4-5 ile birlikte, ~½–1 gün)
+
+Masaüstünde vurgulama yamalı **scalariform** + `ScalariformTokenMaker`
+(RSyntaxTextArea) ile olur — o mekanizmanın ikojo'da karşılığı YOK ve
+gerekmiyor: ikojo'da vurgulama tamamen tarayıcıda, Ace'in düzenli-ifade
+tabanlı `mode-scala.js`'iyle. Stok modda Türkçe anahtar kelimeler düz
+tanımlayıcı görünür.
+
+Ace modu iki ayrı yerden yükleniyor; ikisi de değişmeli:
+
+1. **Editör arayüzü** — `kojojs-editor/server/src/main/twirl/views/index.scala.html`
+   (ve `listfiddles.scala.html`): Ace 1.2.4'ü **cdnjs CDN'inden** alıyor,
+   `mode-scala.js` dahil.
+2. **Gömülü/codeframe görünümleri** — `kojojs-core/router/.../Static.scala`
+   `extJSFiles`: Ace 1.2.2 **webjar'ından** `mode-scala.js` (+
+   `ext-static_highlight.js` statik vurgulama da aynı modu kullanır).
+
+**Plan:** Tek bir `mode-scala-tr.js` dosyası: Ace'in `mode-scala.js`
+kopyasında anahtar kelime listesine `turkish-keywords.patch`'teki ~40 sözcük
+eklenir; modül adı `ace/mode/scala` olarak KORUNUR ki `setMode` çağrılan iki
+istemcide (kojojs-editor `FiddleEditor.scala`, kojojs-core `Editor.scala`)
+tek satır bile değişmesin. Servis tarafında: router'da `extJSFiles`'ın webjar
+yolu yerine `/web/mode-scala-tr.js`; editörde cdnjs `mode-scala.js` script
+etiketi yerine yerel kopya. Sözcük listesi TEK kaynaktan türetilmeli
+(`turkish-keywords.patch` — dosya başına çapraz referans yorumu).
+
+İki not: (a) Bu iş mekanik olarak Scala göçünden bağımsız (saf JS) ama yamalı
+derleyiciyle aynı deploy'da çıkmalı — önce çıkarsa derleyicinin reddettiği
+sözcükler anahtar kelime renginde görünür. (b) Aynı dosyaya Türkçe API
+sözcüklerini (`yinele`, `ileri`, `sağ`, …) `support.function` olarak eklemek
+bedava bir iyileştirme — isteğe bağlı.
+
+### 5b. Biçimlendirme (kapsam dışı — bilinçli)
+
+ikojo'da bugün kod biçimlendirme özelliği YOK; dolayısıyla geçişin bozacağı
+bir şey de yok ve masaüstünün yamalı `scalariform.jar`'ının buraya taşınması
+GEREKMİYOR (o, masaüstü editörünün hem biçimlendiricisi hem vurgulayıcısı).
+
+İleride bir "Biçimle" düğmesi istenirse (ayrı iş, ~1–2 gün): doğru yol,
+compilerServer'a küçük bir uç ekleyip **kojo'nun yamalı scalariform'unu**
+sunucu tarafında çalıştırmak — scalariform kendi lexer'ını taşıdığı için tr
+fork'u Türkçe anahtar kelimeleri zaten tanıyor. scalafmt bir seçenek DEĞİL:
+scalameta'nın parser'ı Türkçe sözcükleri bilmez, o da ayrıca fork gerektirir.
+
+### 5c. Tamamlama (kendiliğinden)
+
+Tamamlamalar compilerServer'daki presentation compiler'dan geliyor; yamalı
+derleyiciyle aynen çalışır, ek iş yok. Masaüstündeki Türkçe anahtar kelime
+şablonları (`CodeCompletionUtils`/`CodeTemplates`) gibi tamamlama listesine
+keyword eklemek isteğe bağlı bir gelecek parite kalemi.
+
+## 6. Riskler
 
 | Risk | Etki | Önlem |
 |---|---|---|
@@ -174,13 +237,14 @@ imaj da üretilebilir (ikojo.fly.dev = en, ikojo-tr = tr gibi).
 | 2.13'ün Türkçe kimlikli (ı/İ) kaynaklarda farklı uyarıları | gürültü | `-Xlint` ayarını fazlar sırasında gevşet, sonda geri sık |
 | kojojs-dev↔core kilitli adımı | yarım kalmış senkron | Faz 1–2 dalda kalır; core hazır olmadan master'a inmez |
 
-## 6. Hızlı alternatif: yamayı 2.12.10'a backport etmek
+## 7. Hızlı alternatif: yamayı 2.12.10'a backport etmek
 
 Yama küçük ve 2.12'nin Scanners/StdNames'i yapısal olarak çok yakın; masaüstü
 Koco 2.12 çağında da Türkçe çalışıyordu, dolayısıyla `bulent2k2/scala-2`
 fork'unda hazır bir 2.12 yaması da bulunabilir. `scala/scala v2.12.10`'a
 uygulanıp jar'lar üretilir, Faz 4'teki takas bugünkü stack'e aynen yapılır —
 **başka hiçbir şey değişmeden** ikojo-tr anahtar kelimeleri kazanır (~1–2 gün).
+(Bölüm 5a'daki vurgulama işi bu yolda da aynen gerekir ve aynen uygulanabilir.)
 
 Artısı: hız. Eksisi: EOL stack'e yatırım; `tr/` şimleri ve masaüstüyle sürüm
 kopukluğu kalıcılaşır; asıl geçiş yine yapılacaksa iş iki kere yapılır (yamalı
@@ -191,13 +255,13 @@ kopukluğu kalıcılaşır; asıl geçiş yine yapılacaksa iş iki kere yapıl�
 daha az, varış noktası aynı: kojo ile aynı derleyici, aynı yamayla, tek
 bakım hattı.
 
-## 7. Kaba toplam efor
+## 8. Kaba toplam efor
 
 Faz 0–5 toplamı: **~2–3 odaklanmış hafta** (tek kişi). En büyük iki kalem
 compilerServer yeniden yazımı ve 2.13 koleksiyon/`tr/` hizalaması; ikisi de
 geri dönüşü olan, dalda ilerleyen işler.
 
-## 8. İlk somut adım
+## 9. İlk somut adım
 
 Faz 0 PoC'si: sbt 1 + Scala.js 1.x + `scalaHome → kojo/scala-tr/build/pack`
 ile `eğer (doğru) println("çalıştı")` — yarım saatte planın en kritik
