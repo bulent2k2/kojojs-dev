@@ -3,9 +3,9 @@ import org.scalajs.jsenv.selenium.SeleniumJSEnv
 enablePlugins(ScalaJSPlugin, JSDependenciesPlugin)
 
 name := "Kojo Dev"
-// 2.12.20: Scala.js 1.x'in desteklediği güncel 2.12 (0.6'daki 2.12.10'dan bump).
-// Faz 2'de 2.13.18 olacak -- bkz. oneri-scala-2.13.md
-scalaVersion := "2.12.20"
+// 2.13.18: masaüstü kojo ile aynı sürüm (Faz 2) -- yamalı scala-tr derleyicisi
+// bu sürümden üretiliyor. Bkz. oneri-scala-2.13.md
+scalaVersion := "2.13.18"
 
 // This is an application with a main method
 scalaJSUseMainModuleInitializer := true

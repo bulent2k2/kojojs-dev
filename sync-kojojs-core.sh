@@ -6,6 +6,16 @@
 # are not checked out side by side.
 set -eu
 
+# KİLİTLİ ADIM (Faz 2, bkz. oneri-scala-2.13.md): bu repo artık Scala 2.13.18;
+# kaynaklar 2.13'e özgü API kullanıyor (distinctBy, LazyList, toIntOption...).
+# kojojs-core'un build'i 2.13'e geçene (Faz 3) kadar senkron ONU KIRAR.
+# Core hazır olduğunda KOJOJS_CORE_213=1 ile çalıştırıp bu korumayı kaldırın.
+if [ "${KOJOJS_CORE_213:-}" != "1" ]; then
+  echo "error: kojojs-core henüz Scala 2.13'te değil; senkron core build'ini kırar." >&2
+  echo "       Faz 3 tamamlanınca: KOJOJS_CORE_213=1 $0" >&2
+  exit 1
+fi
+
 HERE=$(cd "$(dirname "$0")" && pwd)
 CORE=${KOJOJS_CORE:-$HERE/../kojojs-core}
 

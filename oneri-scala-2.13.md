@@ -4,7 +4,10 @@
 `doğru`, `özellik`, …) ikojo-tr'de de çalışsın — çocuklar tarayıcıda da tam
 Türkçe Scala yazabilsin.
 
-**Durum:** Öneri — henüz uygulanmadı. Tarih: 2026-09-02.
+**Durum (2026-09-03):** Faz 0 (PoC — `poc/faz0-yamali-derleyici/SONUC.md`),
+Faz 1 (sbt 1 + Scala.js 1.20) ve Faz 2'nin kojojs-dev ayağı (2.13.18 + `tr/`
+hizalaması) PR #3'te uygulandı. Sırada: Faz 3 (kojojs-core).
+`sync-kojojs-core.sh` Faz 3 bitene dek korumalı.
 
 ---
 
