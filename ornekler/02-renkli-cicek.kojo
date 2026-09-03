@@ -5,7 +5,7 @@ hızıKur(çokHızlı)      // animasyonsuz, anında çizer
 artalanıKur(siyah)
 kalemKalınlığınıKur(2)
 
-val renkler = Dizi(kırmızı, turuncu, sarı, yeşil, mavi, mor, pembe)
+dez renkler = Dizi(kırmızı, turuncu, sarı, yeşil, mavi, mor, pembe)
 
 yineleDizinli(72) { i =>
   kalemRenginiKur(renkler(i % renkler.boyu))

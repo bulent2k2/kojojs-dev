@@ -7,10 +7,10 @@
 çizSahne(siyah)
 yakınlaştırmayıKapat()
 
-val top = Resim.daire(15).boyalı(sarı).kalemRenkli(turuncu)
+dez top = Resim.daire(15).boyalı(sarı).kalemRenkli(turuncu)
 çizMerkezde(top)
 
-val kol = kumandaKolu(60)
+dez kol = kumandaKolu(60)
 kol.çevreRenginiKur(saydam)
 kol.çevreKalemRenginiKur(gri)
 kol.kolRenginiKur(Renkler.gökMavisi)

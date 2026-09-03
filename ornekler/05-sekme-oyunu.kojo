@@ -9,10 +9,10 @@ yakınlaştırmayıKapat()
 
 // konumlu(...) ile merkezden uzakta başlıyoruz: merkezde kaplumbağa
 // simgesinin altında kalıyor ve hareket ettiği ilk anda fark edilmiyor.
-val top = Resim.daire(12).boyalı(Renkler.mercan).konumlu(-100, 60)
+dez top = Resim.daire(12).boyalı(Renkler.mercan).konumlu(-100, 60)
 çiz(top)
 
-var hız = Yöney2B(3, 2)
+den hız = Yöney2B(3, 2)
 
 canlandır {
   // kaydır ve taşı aynı şey: dünya koordinatlarında hareket

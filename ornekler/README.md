@@ -3,6 +3,10 @@
 Türkçe Kojo (Koco) ile yazılmış örnek programlar. Her dosya doğrudan
 **https://ikojo.fly.dev** adresine yapıştırılıp çalıştırılabilir.
 
+Örnekler Türkçe anahtar kelimeleri (`dez`, `den`, `eğer`, `için`…) kullanır;
+bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
+çalıştırır. Stok bir Scala derleyicisi bu dosyaları derleyemez.
+
 | Dosya | Ne öğretiyor |
 |---|---|
 | `01-ilk-adimlar.kojo` | `ileri`, `sağ`, `yinele`, `ev` — kaplumbağanın temeli |
@@ -14,7 +18,7 @@ Türkçe Kojo (Koco) ile yazılmış örnek programlar. Her dosya doğrudan
 | `07-nokta-ve-yoney.kojo` | `Nokta`, `Dikdörtgen`, `Yöney2B` |
 | `08-kumanda-kolu.kojo` | `kumandaKolu`, `oynatSahneİçinde` — fareyle sürülen top |
 | `09-nerede-ve-dokunma.kojo` | `konumuOku`, `yönüOku`, `dokunuyorMu` — kuyruktan okuma |
-| `10-anahtar-kelimeler.kojo` | Türkçe **anahtar kelimeler** (`tanım`, `dez`, `eğer`, `için`, `eşle`…) — yalnız yamalı derleyicide |
+| `10-anahtar-kelimeler.kojo` | Türkçe **anahtar kelimeleri** bir arada gösterir: `tanım`, `dez`, `den`, `eğer`/`yoksa`, `için`, `eşle`/`durum` |
 
 ## Nasıl çalıştırılır
 

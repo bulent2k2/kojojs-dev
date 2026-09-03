@@ -4,7 +4,7 @@
 artalanıKur(siyah)
 
 // Türkçe komutlarla resim yapmak
-val kare = Resim { yinele(4) { ileri(60); sağ() } }
+dez kare = Resim { yinele(4) { ileri(60); sağ() } }
 çiz(kare.boyalı(kırmızı).döndürülmüş(30))
 
 // hazır şekiller

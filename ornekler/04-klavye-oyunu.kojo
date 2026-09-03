@@ -4,14 +4,14 @@
 artalanıKur(siyah)
 yakınlaştırmayıKapat()
 
-val top = Resim.daire(15).boyalı(sarı)
+dez top = Resim.daire(15).boyalı(sarı)
 çiz(top)
 
-val adım = 4.0
+dez adım = 4.0
 
 canlandır {
-  if (tuşBasılıMı(tuşlar.sağ))    top.kaydır(adım, 0)
-  if (tuşBasılıMı(tuşlar.sol))    top.kaydır(-adım, 0)
-  if (tuşBasılıMı(tuşlar.yukarı)) top.kaydır(0, adım)
-  if (tuşBasılıMı(tuşlar.aşağı))  top.kaydır(0, -adım)
+  eğer (tuşBasılıMı(tuşlar.sağ))    top.kaydır(adım, 0)
+  eğer (tuşBasılıMı(tuşlar.sol))    top.kaydır(-adım, 0)
+  eğer (tuşBasılıMı(tuşlar.yukarı)) top.kaydır(0, adım)
+  eğer (tuşBasılıMı(tuşlar.aşağı))  top.kaydır(0, -adım)
 }

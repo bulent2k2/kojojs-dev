@@ -11,7 +11,7 @@
 yakınlaştırmayıKapat()
 hızıKur(hızlı)
 
-val duvar = Resim.kare(80).boyalı(Renkler.mercan).konumlu(120, -40)
+dez duvar = Resim.kare(80).boyalı(Renkler.mercan).konumlu(120, -40)
 çiz(duvar)
 
 // bir kare çiz, sonra nerede bittiğimizi sor
@@ -24,6 +24,6 @@ noktayaDön(160, 0)
 yinele(40) {
   ileri(5)
   dokunuyorMu(duvar) { değdi =>
-    if (değdi) satıryaz("duvara değdim!")
+    eğer (değdi) satıryaz("duvara değdim!")
   }
 }
