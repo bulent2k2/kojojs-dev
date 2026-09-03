@@ -4,10 +4,15 @@
 `doğru`, `özellik`, …) ikojo-tr'de de çalışsın — çocuklar tarayıcıda da tam
 Türkçe Scala yazabilsin.
 
-**Durum (2026-09-03):** Faz 0 (PoC — `poc/faz0-yamali-derleyici/SONUC.md`),
-Faz 1 (sbt 1 + Scala.js 1.20) ve Faz 2'nin kojojs-dev ayağı (2.13.18 + `tr/`
-hizalaması) PR #3'te uygulandı. Sırada: Faz 3 (kojojs-core).
-`sync-kojojs-core.sh` Faz 3 bitene dek korumalı.
+**Durum (2026-09-03):** Faz 0–3 uygulandı. Faz 0–2: kojojs-dev PR #3.
+Faz 3: kojojs-core `claude/kojojs-dev-pr-review-7s1fmw` dalı — beş modül de
+2.13.18 + Scala.js 1.20.2'de; compilerServer scalajs-linker 1.x'e yeniden
+yazıldı ve yerelde router+compilerServer ayağa kaldırılarak uçtan uca
+doğrulandı: Türkçe API fiddle'ı stok derleyiciyle, TÜRKÇE ANAHTAR KELİMELİ
+fiddle (`örtük dez`/`yeni`/`getir`/`tanım`/`eğer`/`için`/`doğru`) yamalı
+jar takasıyla ~5 saniyede derlenip 1 MB JS üretti; fullOpt (Closure) dahil.
+Kalan: Faz 4 (koco-deploy'a jar takası + `LANG=C.UTF-8` + editörün
+`/libraries/2.13` yapılandırması) ve Faz 5 (vurgulama + içerik).
 
 ---
 
