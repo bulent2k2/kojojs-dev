@@ -1,7 +1,7 @@
 package kojo
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 /**
  * Türkçe stdlib sözcük dağarcığının DAVRANIŞ testi.
@@ -34,7 +34,7 @@ object TRDeneme
     with kojo.tr.MiskinDizinYöntemleri
     with kojo.tr.KuyrukYöntemleri
 
-class TurkishStdlibTest extends FunSuite with Matchers {
+class TurkishStdlibTest extends AnyFunSuite with Matchers {
   import TRDeneme._
 
   test("matematik: elle yazılan işlevler (Commons Math yerine)") {

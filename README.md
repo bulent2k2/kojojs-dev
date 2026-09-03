@@ -14,8 +14,8 @@ npm install source-map-support
 
 # How to run
 ```
-$ sbt
-> fastOptJS
+$ sbt        # sbt 1.x; UTF-8 yereli şart (LANG=C.UTF-8) -- Türkçe adlı sınıflar
+> fastLinkJS
 ```
 In another terminal, navigate to the root dir and:
 ```

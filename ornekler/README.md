@@ -14,6 +14,7 @@ Türkçe Kojo (Koco) ile yazılmış örnek programlar. Her dosya doğrudan
 | `07-nokta-ve-yoney.kojo` | `Nokta`, `Dikdörtgen`, `Yöney2B` |
 | `08-kumanda-kolu.kojo` | `kumandaKolu`, `oynatSahneİçinde` — fareyle sürülen top |
 | `09-nerede-ve-dokunma.kojo` | `konumuOku`, `yönüOku`, `dokunuyorMu` — kuyruktan okuma |
+| `10-anahtar-kelimeler.kojo` | Türkçe **anahtar kelimeler** (`tanım`, `dez`, `eğer`, `için`, `eşle`…) — yalnız yamalı derleyicide |
 
 ## Nasıl çalıştırılır
 

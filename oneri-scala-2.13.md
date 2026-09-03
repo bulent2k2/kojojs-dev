@@ -4,7 +4,14 @@
 `doğru`, `özellik`, …) ikojo-tr'de de çalışsın — çocuklar tarayıcıda da tam
 Türkçe Scala yazabilsin.
 
-**Durum:** Öneri — henüz uygulanmadı. Tarih: 2026-09-02.
+**Durum (2026-09-03): Faz 0–5 uygulandı.** Faz 0–2 + örnekler: kojojs-dev
+PR #3. Faz 3+5 (çekirdek): kojojs-core; Faz 4: koco-deploy; editör ayarları:
+kojojs-editor — hepsi `claude/kojojs-dev-pr-review-7s1fmw` dallarında.
+Uçtan uca doğrulama: router + compilerServer yerelde ayağa kaldırıldı,
+9 örneğin 9'u (Türkçe ANAHTAR KELİMELİ `09-anahtar-kelimeler.kojo` dahil)
+yamalı derleyiciyle temiz derlendi; Ace vurgulaması gerçek Chromium'da
+tokenizer düzeyinde doğrulandı. Kalan: canlıya alma (build.sh + deploy) ve
+canlıda bir duman testi.
 
 ---
 
@@ -158,8 +165,10 @@ imaj da üretilebilir (ikojo.fly.dev = en, ikojo-tr = tr gibi).
 - yeni duman örneği: `09-anahtar-kelimeler.kojo` (`tanım`, `eğer`/`yoksa`,
   `dez`/`den`, `doğru`/`yanlış`, `yinele` birlikte);
 - `temel.scala`'daki `val doğru/yanlış` KALIR (stok derleyiciyle de derlensin
-  diye) — yamalı derleyicide kullanıcı kodundaki `doğru` keyword olarak lex
-  edilir, val'ler zararsız gölgede kalır; masaüstüyle aynı kombinasyon.
+  diye). Faz 2'de doğrulanan ince ayrıntı: yamalı derleyici o satırları
+  `val true = true` gibi LİTERAL DESEN olarak ayrıştırır (üye bağlamaz ama
+  derlenir); kullanıcı kodundaki `doğru` ise anahtar kelime olarak çözülür.
+  İki derleyicide de her şey çalışır — temel.scala'daki yoruma bakın.
 - Sözdizimi vurgulaması: bkz. Bölüm 5 — yamalı derleyiciyle AYNI deploy'da
   çıkmalı (derleyicinin kabul etmediği sözcüğü anahtar kelime renginde
   göstermek, ya da tersi, çocuğu yanıltır).

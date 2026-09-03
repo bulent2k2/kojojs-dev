@@ -19,7 +19,7 @@ object ScalaFiddle {
     import kojo.Speed._
     import kojo.RepeatCommands._
     import kojo.syntax.Builtins
-    implicit val kojoWorld = new KojoWorldImpl()
+    implicit val kojoWorld: kojo.KojoWorld = new KojoWorldImpl()
     val builtins = new Builtins()
     import builtins._
     import turtle._
@@ -38,7 +38,7 @@ for f in "$DIR"/*.kojo; do
   for i in 1 2 3 4 5 6 7 8 9 10; do
     kod=$(curl -s -m 300 -X POST --data-binary @"$govde" \
       -H "Content-Type: text/plain; charset=utf-8" \
-      "$KOCO/compile?opt=fast&scalaVersion=2.12" -o /tmp/koco-out.bin -w "%{http_code}")
+      "$KOCO/compile?opt=fast" -o /tmp/koco-out.bin -w "%{http_code}")
     [ "$kod" = "200" ] && break
     sleep 8
   done
