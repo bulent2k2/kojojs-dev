@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kojo Localization Dictionaries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #F4F2ED;
+  --surface: #FFFFFF;
+  --ink: #24221D;
+  --muted: #6B665C;
+  --line: #E0DCD2;
+  --code-bg: #ECE9E1;
+  --shadow: 0 1px 3px rgba(36, 34, 29, 0.09);
+  --shadow-lg: 0 6px 24px rgba(36, 34, 29, 0.11);
+  --tr: #237A46;
+  --sv: #1F6DA8;
+  --de: #B0791B;
+  --it: #B03A5B;
+  --pl: #B0243F;
+  --nl: #C85A1E;
+  --ru: #574FA6;
+  --hr: #157F7A;
+  --es: #C0463A;
+  --en: #7A6A55;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14130F;
+    --surface: #1C1B16;
+    --ink: #E9E5DB;
+    --muted: #9E988A;
+    --line: #2B2922;
+    --code-bg: #232219;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 6px 26px rgba(0, 0, 0, 0.5);
+    --tr: #52C081;
+    --sv: #5FA8DC;
+    --de: #D9A63F;
+    --it: #E27E99;
+    --pl: #E27089;
+    --nl: #E8934E;
+    --ru: #948CD4;
+    --hr: #54B7B0;
+    --es: #E58379;
+    --en: #B3A588;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14130F;
+  --surface: #1C1B16;
+  --ink: #E9E5DB;
+  --muted: #9E988A;
+  --line: #2B2922;
+  --code-bg: #232219;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 6px 26px rgba(0, 0, 0, 0.5);
+  --tr: #52C081;
+  --sv: #5FA8DC;
+  --de: #D9A63F;
+  --it: #E27E99;
+  --pl: #E27089;
+  --nl: #E8934E;
+  --ru: #948CD4;
+  --hr: #54B7B0;
+  --es: #E58379;
+  --en: #B3A588;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  font-size: 15.5px; line-height: 1.6;
+}
+.wrap { max-width: 940px; margin: 0 auto; padding: 0 22px 90px; }
+
+/* Hero */
+header.hero { padding: 56px 0 8px; }
+.eyebrow {
+  font-size: 12px; letter-spacing: 0.11em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600; margin-bottom: 14px;
+}
+h1 {
+  font-family: "Bitter", Georgia, serif;
+  font-size: clamp(38px, 7vw, 62px); font-weight: 800;
+  margin: 0 0 16px; line-height: 1.05; letter-spacing: -0.01em; text-wrap: balance;
+}
+.lede { font-size: 18px; color: var(--muted); max-width: 60ch; margin: 0 0 32px; }
+.lede b { color: var(--ink); font-weight: 600; }
+
+/* One command, four languages */
+.polyglot {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; box-shadow: var(--shadow-lg); overflow: hidden;
+  margin: 0 0 10px;
+}
+.polyglot .pg-head {
+  font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600;
+  padding: 12px 20px; border-bottom: 1px solid var(--line);
+}
+.pg-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+.pg-cell { padding: 18px 20px 20px; border-right: 1px solid var(--line); }
+.pg-cell:last-child { border-right: 0; }
+.pg-lang {
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; margin-bottom: 9px;
+}
+.pg-cell.en .pg-lang { color: var(--en); }
+.pg-cell.tr .pg-lang { color: var(--tr); }
+.pg-cell.sv .pg-lang { color: var(--sv); }
+.pg-cell.de .pg-lang { color: var(--de); }
+.pg-code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 15px; color: var(--ink); white-space: nowrap;
+}
+.pg-caption { font-size: 13px; color: var(--muted); margin: 12px 2px 40px; text-align: center; }
+.pg-caption code { font-family: "IBM Plex Mono", monospace; font-size: 12px; background: var(--code-bg); padding: 1px 6px; border-radius: 4px; }
+
+/* Section heading */
+h2.sec {
+  font-family: "Bitter", Georgia, serif;
+  font-size: 15px; font-weight: 600; letter-spacing: 0.02em;
+  color: var(--muted); text-transform: uppercase;
+  margin: 48px 0 18px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+}
+
+/* Language cards */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+a.card {
+  display: block; text-decoration: none; color: inherit;
+  background: var(--surface); border: 1px solid var(--line);
+  border-top: 3px solid var(--card); border-radius: 12px;
+  padding: 22px 22px 20px; box-shadow: var(--shadow);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+a.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+a.card:focus-visible { outline: 2px solid var(--card); outline-offset: 3px; }
+.card.tr { --card: var(--tr); }
+.card.sv { --card: var(--sv); }
+.card.de { --card: var(--de); }
+.card.it { --card: var(--it); }
+.card.pl { --card: var(--pl); }
+.card.nl { --card: var(--nl); }
+.card.ru { --card: var(--ru); }
+.card.hr { --card: var(--hr); }
+.card.es { --card: var(--es); }
+.card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.card-lang { font-family: "Bitter", Georgia, serif; font-size: 24px; font-weight: 700; }
+.card-emoji { font-size: 22px; }
+.card-turtle { font-size: 13.5px; color: var(--muted); margin: 3px 0 16px; }
+.card-turtle b { color: var(--card); font-weight: 600; font-family: "IBM Plex Mono", monospace; font-size: 13px; }
+.card-meta { display: flex; flex-direction: column; gap: 7px; }
+.card-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.card-row .k { color: var(--muted); width: 78px; flex: 0 0 auto; }
+.card-row .v { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.pill {
+  display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.03em;
+  padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line);
+}
+.pill.yes { color: var(--card); border-color: color-mix(in srgb, var(--card) 45%, var(--line)); background: color-mix(in srgb, var(--card) 12%, transparent); }
+.pill.no { color: var(--muted); }
+.card-open {
+  margin-top: 17px; font-size: 13px; font-weight: 600; color: var(--card);
+  display: flex; align-items: center; gap: 5px;
+}
+a.card:hover .card-open .arw { transform: translateX(3px); }
+.arw { transition: transform 0.16s ease; display: inline-block; }
+
+/* Levels explainer */
+.levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.level {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 16px 18px; box-shadow: var(--shadow);
+}
+.level .lv-n {
+  font-family: "Bitter", serif; font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+  font-variant-numeric: tabular-nums;
+}
+.level h3 { font-size: 15px; margin: 0 0 6px; font-weight: 600; }
+.level p { font-size: 13px; color: var(--muted); margin: 0; }
+.level.special { border-left: 3px solid var(--tr); }
+
+/* Comparison table */
+.tablewrap { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { padding: 10px 15px; text-align: left; border-top: 1px solid var(--line); white-space: nowrap; }
+thead th { border-top: 0; color: var(--muted); font-weight: 600; font-size: 12px; letter-spacing: 0.03em; text-transform: uppercase; }
+td.lang { font-weight: 600; }
+td.lang.tr { color: var(--tr); }
+td.lang.sv { color: var(--sv); }
+td.lang.de { color: var(--de); }
+td.lang.it { color: var(--it); }
+td.lang.pl { color: var(--pl); }
+td.lang.nl { color: var(--nl); }
+td.lang.ru { color: var(--ru); }
+td.lang.hr { color: var(--hr); }
+td.lang.es { color: var(--es); }
+td .n { font-variant-numeric: tabular-nums; }
+.ck { color: var(--tr); font-weight: 600; }
+.dash { color: var(--muted); }
+
+footer {
+  margin-top: 54px; padding-top: 20px; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 13px; line-height: 1.7;
+}
+footer a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+footer a:hover { border-color: currentColor; }
+footer code { font-family: "IBM Plex Mono", monospace; font-size: 12px; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+@media (max-width: 640px) {
+  .pg-grid { grid-template-columns: repeat(2, 1fr); }
+  .pg-cell:nth-child(2) { border-right: 0; }
+  .pg-cell:nth-child(1), .pg-cell:nth-child(2) { border-bottom: 1px solid var(--line); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Kojo &middot; the learning environment</div>
+  <h1>Kojo Localization Dictionaries</h1>
+  <p class="lede">Kojo lets children program a turtle in their own language. These are two-way reference
+  dictionaries for that translated vocabulary — <b>nine languages</b>, each drawn straight from the source.</p>
+
+  <div class="polyglot">
+    <div class="pg-head">Move the turtle 100 steps — in four languages</div>
+    <div class="pg-grid">
+      <div class="pg-cell en"><div class="pg-lang">English</div><div class="pg-code">forward(100)</div></div>
+      <div class="pg-cell tr"><div class="pg-lang">Türkçe</div><div class="pg-code">ileri(100)</div></div>
+      <div class="pg-cell sv"><div class="pg-lang">Svenska</div><div class="pg-code">fram(100)</div></div>
+      <div class="pg-cell de"><div class="pg-lang">Deutsch</div><div class="pg-code">vor(100)</div></div>
+    </div>
+  </div>
+  <p class="pg-caption">Same turtle, same step. Only the word changes — and in Turkish, so do <code>val</code>, <code>if</code> and <code>def</code>.</p>
+</header>
+
+<h2 class="sec">The dictionaries · nine languages</h2>
+<div class="cards">
+  <a class="card tr" href="https://claude.ai/code/artifact/c0d067a5-4df9-4761-b7ba-19ac95304372">
+    <div class="card-top"><span class="card-lang">Türkçe</span><span class="card-emoji">🐢</span></div>
+    <div class="card-turtle">the turtle is <b>Kaplumbağa</b> &middot; Koco</div>
+    <div class="card-meta">
+      <div class="card-row"><span class="k">Entries</span><span class="v">754</span></div>
+      <div class="card-row"><span class="k">Scope</span><span class="v">Levels 1–3, full</span></div>
+      <div class="card-row"><span class="k">Keywords</span><span class="pill yes">translated</span></div>
+    </div>
+    <div class="card-open">Open dictionary <span class="arw">→</span></div>
+  </a>
+  <a class="card it" href="https://claude.ai/code/artifact/9f298e5e-16c2-4f16-82cc-6c22fe733c9f">
+    <div class="card-top"><span class="card-lang">Italiano</span><span class="card-emoji">🐞</span></div>
+    <div class="card-turtle">the turtle is <b>Tartaruga</b> &middot; richest level 2</div>
+    <div class="card-meta">
+      <div class="card-row"><span class="k">Entries</span><span class="v">89</span></div>
+      <div class="card-row"><span class="k">Scope</span><span class="v">Level 2 +</span></div>
+      <div class="card-row"><span class="k">Keywords</span><span class="pill no">English</span></div>
+    </div>
+    <div class="card-open">Open dictionary <span class="arw">→</span></div>
+  </a>
+  <a class="card de" href="https://claude.ai/code/artifact/4a8c198f-2336-479d-9d53-c1bda3f21e33">
+    <div class="card-top"><span class="card-lang">Deutsch</span><span class="card-emoji">🦎</span></div>
+    <div class="card-turtle">the turtle is <b>Kröte</b> (a toad)</div>
+    <div class="card-meta">
+      <div class="card-row"><span class="k">Entries</span><span class="v">77</span></div>
+      <div class="card-row"><span class="k">Scope</span><span class="v">Level 2</span></div>
+      <div class="card-row"><span class="k">Keywords</span><span class="pill no">English</span></div>
+    </div>
+    <div class="card-open">Open dictionary <span class="arw">→</span></div>
+  </a>
+  <a class="card pl" href="https://claude.ai/code/artifact/7cb86763-1fb4-4aca-a314-3b4aa8d6d54c">
+    <div class="card-top"><span class="card-lang">Polski</span><span class="card-emoji">🦅</span></div>
+    <div class="card-turtle">the turtle is <b>Żółw</b></div>
+    <div class="card-meta">
+      <div class="card-row"><span class="k">Entries</span><span class="v">74</span></div>
+      <div class="card-row"><span class="k">Scope</span><span class="v">Level 2</span></div>
+      <div class="card-row"><span class="k">Keywords</span><span class="pill no">English</span></div>
+    </div>
+    <div class="card-open">Open dictionary <span class="arw">→</span></div>
+  </a>
+  <a class="card sv" href="https://claude.ai/code/artifact/2e35acfa-4105-4e55-a1b8-5147fc7bcbb3">
+    <div class="card-top"><span class="card-lang">Svenska</span><span class="card-emoji">🐸</span></div>
+    <div class="card-turtle">the turtle is <b>Padda</b> (a toad)</div>
+    <div class="card-meta">
+      <div class="card-row"><span class="k">Entries</span><span class="v">71</span></div>
+      <div class="card-row"><span class="k">Scope</span><span class="v">Level 2</span></div>
+      <div class="card-row"><span class="k">Keywords</span><span class="pill no">English</span></div>
+    </div>
+    <div class="card-open">Open dictionary <span class="arw">→</span></div>
+  </a>
+  <a class="card nl" href="https://claude.ai/code/artifact/7f07f957-3019-4809-bd5f-d2ac64f4994e">
+    <div class="card-top"><span class="card-lang">Nederlands</span><span class="card-emoji">🌷</span></div>
+    <div class="card-turtle">the turtle is <b>Schildpad</b></div>
+    <div class="card-meta">
+      <div class="card-row"><span class="k">Entries</span><span class="v">62</span></div>
+      <div class="card-row"><span class="k">Scope</span><span class="v">Level 2</span></div>
+      <div class="card-row"><span class="k">Keywords</span><span class="pill no">English</span></div>
+    </div>
+    <div class="card-open">Open dictionary <span class="arw">→</span></div>
+  </a>
+  <a class="card ru" href="https://claude.ai/code/artifact/6cc42844-63a0-4eb9-ad4d-908fbe983836">
+    <div class="card-top"><span class="card-lang">Русский</span><span class="card-emoji">🐻</span></div>
+    <div class="card-turtle">the turtle is <b>Черепашка</b></div>
+    <div class="card-meta">
+      <div class="card-row"><span class="k">Entries</span><span class="v">61</span></div>
+      <div class="card-row"><span class="k">Scope</span><span class="v">Level 2</span></div>
+      <div class="card-row"><span class="k">Keywords</span><span class="pill no">English</span></div>
+    </div>
+    <div class="card-open">Open dictionary <span class="arw">→</span></div>
+  </a>
+  <a class="card hr" href="https://claude.ai/code/artifact/4f9aff16-c6ae-4410-bac3-c27d38152c31">
+    <div class="card-top"><span class="card-lang">Hrvatski</span><span class="card-emoji">🦋</span></div>
+    <div class="card-turtle">the turtle is <b>Kornjača</b></div>
+    <div class="card-meta">
+      <div class="card-row"><span class="k">Entries</span><span class="v">60</span></div>
+      <div class="card-row"><span class="k">Scope</span><span class="v">Level 2</span></div>
+      <div class="card-row"><span class="k">Keywords</span><span class="pill no">English</span></div>
+    </div>
+    <div class="card-open">Open dictionary <span class="arw">→</span></div>
+  </a>
+  <a class="card es" href="https://claude.ai/code/artifact/e3d93124-d9d8-48d6-b442-2659467cb427">
+    <div class="card-top"><span class="card-lang">Español</span><span class="card-emoji">🌻</span></div>
+    <div class="card-turtle">the turtle is <b>Tortuga</b></div>
+    <div class="card-meta">
+      <div class="card-row"><span class="k">Entries</span><span class="v">59</span></div>
+      <div class="card-row"><span class="k">Scope</span><span class="v">Level 2</span></div>
+      <div class="card-row"><span class="k">Keywords</span><span class="pill no">English</span></div>
+    </div>
+    <div class="card-open">Open dictionary <span class="arw">→</span></div>
+  </a>
+</div>
+
+<h2 class="sec">Why the sizes differ — three levels of localization</h2>
+<div class="levels">
+  <div class="level">
+    <div class="lv-n">Level 1</div>
+    <h3>The interface</h3>
+    <p>Menus, buttons, messages. A <code>Bundle_xx.properties</code> file per language. Every supported language reaches this level; it is not in these dictionaries.</p>
+  </div>
+  <div class="level">
+    <div class="lv-n">Level 2</div>
+    <h3>The vocabulary</h3>
+    <p>The turtle commands, colours and types a child actually writes. <b>This is what the dictionaries capture.</b> Swedish and German stop here.</p>
+  </div>
+  <div class="level">
+    <div class="lv-n">Level 3</div>
+    <h3>The samples</h3>
+    <p>Example programs rewritten in the language. Turkish has 82; German six, Spanish two, Dutch one; the other five, none yet.</p>
+  </div>
+  <div class="level special">
+    <div class="lv-n">Turkish only</div>
+    <h3>The keywords</h3>
+    <p>A patched Scala compiler so <code>val</code>→<code>dez</code>, <code>if</code>→<code>eğer</code>, <code>def</code>→<code>tanım</code>. No other language does this — hence Turkish is far larger.</p>
+  </div>
+</div>
+
+<h2 class="sec">At a glance</h2>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Language</th><th>Turtle</th><th>Entries</th><th>Level 2 vocab</th><th>Keywords</th><th>Samples</th></tr></thead>
+<tbody>
+<tr><td class="lang tr">Türkçe</td><td>Kaplumbağa</td><td class="n">754</td><td class="ck">✓ full</td><td class="ck">✓</td><td class="ck">✓ 82</td></tr>
+<tr><td class="lang it">Italiano</td><td>Tartaruga</td><td class="n">89</td><td class="ck">✓ +</td><td class="dash">—</td><td class="dash">—</td></tr>
+<tr><td class="lang de">Deutsch</td><td>Kröte</td><td class="n">77</td><td class="ck">✓</td><td class="dash">—</td><td class="ck">✓ 6</td></tr>
+<tr><td class="lang pl">Polski</td><td>Żółw</td><td class="n">74</td><td class="ck">✓</td><td class="dash">—</td><td class="dash">—</td></tr>
+<tr><td class="lang sv">Svenska</td><td>Padda</td><td class="n">71</td><td class="ck">✓</td><td class="dash">—</td><td class="dash">—</td></tr>
+<tr><td class="lang nl">Nederlands</td><td>Schildpad</td><td class="n">62</td><td class="ck">✓</td><td class="dash">—</td><td class="ck">✓ 1</td></tr>
+<tr><td class="lang ru">Русский</td><td>Черепашка</td><td class="n">61</td><td class="ck">✓</td><td class="dash">—</td><td class="dash">—</td></tr>
+<tr><td class="lang hr">Hrvatski</td><td>Kornjača</td><td class="n">60</td><td class="ck">✓</td><td class="dash">—</td><td class="dash">—</td></tr>
+<tr><td class="lang es">Español</td><td>Tortuga</td><td class="n">59</td><td class="ck">✓</td><td class="dash">—</td><td class="ck">✓ 2</td></tr>
+</tbody>
+</table>
+</div>
+
+<footer>
+  Extracted from the <a href="https://github.com/litan/kojo">litan/kojo</a> repository and its Turkish fork
+  <a href="https://github.com/bulent2k2/kojo">bulent2k2/kojo</a> (Koco): the patched compiler, <code>lite/i18n/*Init.scala</code>,
+  <code>lite/i18n/tr/</code>, the <code>level2_xx.properties</code> files, and the parallel sample programs.
+  Each dictionary is searchable in both directions and folds diacritics, so <code>cizim</code> finds <code>çizim</code>,
+  <code>weiss</code> finds <code>weiß</code>, and <code>zolw</code> finds <code>żółw</code>. Every language with an
+  <code>xInit.scala</code> is here. Two more — French and Esperanto — localize the interface (level 1) but not yet the
+  vocabulary; when an <code>frInit.scala</code> or <code>eoInit.scala</code> appears, they join the shelf.
+</footer>
+</div>
+</body>
+</html>
