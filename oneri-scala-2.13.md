@@ -4,15 +4,14 @@
 `doğru`, `özellik`, …) ikojo-tr'de de çalışsın — çocuklar tarayıcıda da tam
 Türkçe Scala yazabilsin.
 
-**Durum (2026-09-03):** Faz 0–3 uygulandı. Faz 0–2: kojojs-dev PR #3.
-Faz 3: kojojs-core `claude/kojojs-dev-pr-review-7s1fmw` dalı — beş modül de
-2.13.18 + Scala.js 1.20.2'de; compilerServer scalajs-linker 1.x'e yeniden
-yazıldı ve yerelde router+compilerServer ayağa kaldırılarak uçtan uca
-doğrulandı: Türkçe API fiddle'ı stok derleyiciyle, TÜRKÇE ANAHTAR KELİMELİ
-fiddle (`örtük dez`/`yeni`/`getir`/`tanım`/`eğer`/`için`/`doğru`) yamalı
-jar takasıyla ~5 saniyede derlenip 1 MB JS üretti; fullOpt (Closure) dahil.
-Kalan: Faz 4 (koco-deploy'a jar takası + `LANG=C.UTF-8` + editörün
-`/libraries/2.13` yapılandırması) ve Faz 5 (vurgulama + içerik).
+**Durum (2026-09-03): Faz 0–5 uygulandı.** Faz 0–2 + örnekler: kojojs-dev
+PR #3. Faz 3+5 (çekirdek): kojojs-core; Faz 4: koco-deploy; editör ayarları:
+kojojs-editor — hepsi `claude/kojojs-dev-pr-review-7s1fmw` dallarında.
+Uçtan uca doğrulama: router + compilerServer yerelde ayağa kaldırıldı,
+9 örneğin 9'u (Türkçe ANAHTAR KELİMELİ `09-anahtar-kelimeler.kojo` dahil)
+yamalı derleyiciyle temiz derlendi; Ace vurgulaması gerçek Chromium'da
+tokenizer düzeyinde doğrulandı. Kalan: canlıya alma (build.sh + deploy) ve
+canlıda bir duman testi.
 
 ---
 
