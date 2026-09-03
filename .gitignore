@@ -3,8 +3,9 @@ target/
 .metals/
 .vscode/
 node_modules/**
-# Statik Netlify/demo iskeleti: site/kojo.js `sbt fullOptJS` ÇIKTISI, kaynak
-# değil. İki kez `git add -A` ile kazara commit'lendi. Yeniden üretmek için:
-#   sbt fullOptJS && cp target/scala-2.12/kojo-dev-opt.js site/kojo.js
+# Statik Netlify/demo iskeleti: site/kojo.js `sbt fullLinkJS` ÇIKTISI, kaynak
+# değil. İki kez `git add -A` ile kazara commit'lendi. Yeniden üretmek için
+# (Scala.js 1.x çıktı düzeni):
+#   sbt fullLinkJS && cp target/scala-2.12/kojo-dev-opt/main.js site/kojo.js
 site/
 netlify.toml

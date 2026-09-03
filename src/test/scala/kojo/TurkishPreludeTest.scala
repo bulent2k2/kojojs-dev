@@ -1,7 +1,7 @@
 package kojo
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 // Guards the Turkish (Koco) seam. The import stack below is a verbatim copy of
 // `scalafiddle.defaultSource` in kojojs-editor's application.conf (with
@@ -11,7 +11,7 @@ import org.scalatest.Matchers
 // imports -- builtins, turtle, svTurtle, trTurtle -- coexist without ambiguity
 // and that the Turkish names typecheck against the real runtime. That is
 // exactly the check the compiler-server performs on every fiddle.
-class TurkishPreludeTest extends FunSuite with Matchers {
+class TurkishPreludeTest extends AnyFunSuite with Matchers {
 
   test("a Turkish script compiles and runs against the editor prelude") {
     import kojo.{SwedishTurtle, TurkishTurtle, Turtle, Vector2D, Picture}
