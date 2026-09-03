@@ -25,6 +25,14 @@ trait TemelTürler {
 
   type İkil = Boolean
   type Seçim = Boolean
+  // İki derleyicide iki farklı okunuş (Faz 2'de doğrulandı):
+  //  - STOK derleyici: sıradan iki üye tanımı.
+  //  - YAMALI (scala-tr) derleyici: doğru/yanlış anahtar kelime olduğundan bu
+  //    satırlar `val true = true` gibi LİTERAL DESEN olarak ayrıştırılır --
+  //    hep eşleşir, hiçbir üye BAĞLAMAZ. Sorun değil: o derleyicide kullanıcı
+  //    kodundaki doğru/yanlış zaten anahtar kelime olarak çözülür.
+  // Yani iki dünyada da `doğru` çalışır; satırları silme (stok derleyici için
+  // gerekli), üyeymiş gibi başka yerden de çağırma (yamalıda yoklar).
   val doğru = true
   val yanlış = false
 

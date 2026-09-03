@@ -161,8 +161,10 @@ imaj da üretilebilir (ikojo.fly.dev = en, ikojo-tr = tr gibi).
 - yeni duman örneği: `09-anahtar-kelimeler.kojo` (`tanım`, `eğer`/`yoksa`,
   `dez`/`den`, `doğru`/`yanlış`, `yinele` birlikte);
 - `temel.scala`'daki `val doğru/yanlış` KALIR (stok derleyiciyle de derlensin
-  diye) — yamalı derleyicide kullanıcı kodundaki `doğru` keyword olarak lex
-  edilir, val'ler zararsız gölgede kalır; masaüstüyle aynı kombinasyon.
+  diye). Faz 2'de doğrulanan ince ayrıntı: yamalı derleyici o satırları
+  `val true = true` gibi LİTERAL DESEN olarak ayrıştırır (üye bağlamaz ama
+  derlenir); kullanıcı kodundaki `doğru` ise anahtar kelime olarak çözülür.
+  İki derleyicide de her şey çalışır — temel.scala'daki yoruma bakın.
 - Sözdizimi vurgulaması: bkz. Bölüm 5 — yamalı derleyiciyle AYNI deploy'da
   çıkmalı (derleyicinin kabul etmediği sözcüğü anahtar kelime renginde
   göstermek, ya da tersi, çocuğu yanıltır).
