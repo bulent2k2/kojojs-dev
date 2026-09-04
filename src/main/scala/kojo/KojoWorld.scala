@@ -313,17 +313,31 @@ class KojoWorldImpl extends KojoWorld {
   // hepsi transformDone -> render zincirinden geçer). Eskiden her çağrı ANINDA
   // tam bir sahne çizimiydi; canlandır döngüsündeki tipik bir kare 5-10 tam
   // çizim yapıyordu (üç-cisim benzetiminde ölçüldü: kare başına 6). Artık
-  // render() yalnızca işaret koyar; gerçek renderer.render(stage) bir sonraki
-  // requestAnimationFrame'de, kare başına EN FAZLA BİR kez koşar (~7 kat
-  // hızlanma). Görsel fark yok: tarayıcı zaten kareler arasında boyamaz.
+  // render() yalnızca işaret koyar; gerçek renderer.render(stage) kare başına
+  // EN FAZLA BİR kez koşar. Ölçülen etki: kare başına çizim 6 -> 1, üç-cisim
+  // fiddle'ında ~2 kat FPS. Görsel fark yok: tarayıcı zaten kareler arasında
+  // boyamaz.
+  //
+  // Bekleyen çizim iki yoldan boşalır:
+  //  - canlandır DIŞINDA (tek seferlik çizim/etkileşim): kaydedilen rAF'te.
+  //  - canlandır İÇİNDE: animateHelper her kare fn'den sonra flushRender()
+  //    çağırır. Bu olmadan, rAF geri çağrısı içinde kaydedilen istek tarayıcı
+  //    tarafından BİR SONRAKİ kareye kuyruklanır ve ekran hep bir adım geride
+  //    kalırdı (~16 ms gecikme). flushRender bekleyeni aynı karede boşaltır.
   private var renderPending = false
+  private var renderHandle = 0
   def render(): Unit = {
     if (!renderPending) {
       renderPending = true
-      window.requestAnimationFrame { _ =>
-        renderPending = false
-        renderer.render(stage)
-      }
+      renderHandle = window.requestAnimationFrame(_ => flushRender())
+    }
+  }
+
+  private def flushRender(): Unit = {
+    if (renderPending) {
+      renderPending = false
+      window.cancelAnimationFrame(renderHandle)
+      renderer.render(stage)
     }
   }
 
@@ -389,6 +403,7 @@ class KojoWorldImpl extends KojoWorld {
         frameCount += 1
         fn
         maybeBake()
+        flushRender() // bu karede birikeni hemen boşalt (bir kare gecikme olmasın)
       }
       if (animating) {
         animateHelper(fn)
