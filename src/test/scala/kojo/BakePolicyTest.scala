@@ -44,4 +44,17 @@ class BakePolicyTest extends AnyFunSuite with Matchers {
     isStaleCandidate(name = null, interactive = false, lastMut = -1, frame = 0) shouldBe false // 0 - (-1) = 1, not > 3
     isStaleCandidate(name = null, interactive = false, lastMut = -1, frame = 5) shouldBe true  // 5 - (-1) = 6 > 3
   }
+
+  test("isStaleByName ucuz ön kontrol: ad + durağanlık (etkileşimden bağımsız)") {
+    isStaleByName(name = null, lastMut = 0, frame = 10) shouldBe true
+    isStaleByName(name = "Turtle Layer", lastMut = 0, frame = 10) shouldBe false
+    isStaleByName(name = null, lastMut = 9, frame = 10) shouldBe false
+  }
+
+  test("çırpınma sigortası: art arda geri alma eşiği aşınca pişirme kapanır") {
+    shouldDisableAfterUnbake(0) shouldBe false
+    shouldDisableAfterUnbake(maxUnbakeStreak - 1) shouldBe false
+    shouldDisableAfterUnbake(maxUnbakeStreak) shouldBe true
+    shouldDisableAfterUnbake(maxUnbakeStreak + 3) shouldBe true
+  }
 }

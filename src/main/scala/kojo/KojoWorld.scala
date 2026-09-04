@@ -69,11 +69,23 @@ object BakePolicy {
   def shouldConsider(childCount: Int, unzoomed: Boolean): Boolean =
     childCount >= bakeChildThreshold && unzoomed
 
+  // Ucuz ön kontrol (ad + durağanlık). Etkileşim kontrolü pahalı (ağaç
+  // dolaşımı) olduğundan ayrı: yalnız bunu geçen adaylar için hesaplanır.
+  def isStaleByName(name: String, lastMut: Long, frame: Long): Boolean =
+    name != "Turtle Layer" && (frame - lastMut > bakeAfterFrames)
+
   // Bir sahne çocuğu pişmeye aday mı? Kaplumbağa katmanı ve etkileşimli
   // düğümler muaf; yalnızca bakeAfterFrames karedir damgalanmayanlar aday.
-  // lastMut: son değişim karesi (hiç yoksa çok eski say, ör. -1).
   def isStaleCandidate(name: String, interactive: Boolean, lastMut: Long, frame: Long): Boolean =
-    name != "Turtle Layer" && !interactive && (frame - lastMut > bakeAfterFrames)
+    isStaleByName(name, lastMut, frame) && !interactive
+
+  // Çırpınma sigortası: "en eski izi her kare sil" gibi kalıplar her kare
+  // geri almaya yol açar (pişir->sil->geri al->pişir); bu tabandan yavaş.
+  // Kısa pencerede art arda bu kadar geri alma olursa pişirmeyi kapat, taban
+  // davranışa (hepsi canlı) dön.
+  val unbakeStreakWindow = 10 // kare
+  val maxUnbakeStreak = 5
+  def shouldDisableAfterUnbake(streak: Int): Boolean = streak >= maxUnbakeStreak
 }
 
 class KojoWorldImpl extends KojoWorld {
@@ -290,7 +302,9 @@ class KojoWorldImpl extends KojoWorld {
         val last = if (js.isUndefined(stamp)) -1L else stamp.asInstanceOf[Double].toLong
         // "Turtle Layer": kaplumbağa/Picture{} katmanları (Turtle.init hepsine
         // bu adı verir) muaf. Etkileşimli düğümler de muaf (isabet testi).
-        if (BakePolicy.isStaleCandidate(c.name, hasInteractive(c), last, frameCount)) {
+        // Ucuz ad/durağanlık kontrolünü ÖNCE yap; pahalı hasInteractive ağaç
+        // dolaşımını yalnız o kontrolü geçen adaylar için çalıştır.
+        if (BakePolicy.isStaleByName(c.name, last, frameCount) && !hasInteractive(c)) {
           toBake += c
         }
       }
@@ -320,8 +334,13 @@ class KojoWorldImpl extends KojoWorld {
   // Sınırlama (bilinçli): geri alma ya hep ya hiç. Kalabalık sahnede yanıp
   // sönen (görünür/görünmez) tek bir durağan resim her geçişte tüm dokuyu
   // yeniden pişirtir. İleride düğüm-bazlı geri alma düşünülebilir.
+  private var lastUnbakeFrame = -1000L
+  private var unbakeStreak = 0
   private def unbakeAll(): Unit = {
     if (bakedNodes.isEmpty) return
+    // çırpınma takibi: kısa pencerede art arda geri alma sayılır
+    unbakeStreak = if (frameCount - lastUnbakeFrame < BakePolicy.unbakeStreakWindow) unbakeStreak + 1 else 0
+    lastUnbakeFrame = frameCount
     try {
       // pişirme sırasını koruyarak bakeSprite'ın hemen üstüne (dibe) koy;
       // canlı çocuklar üstte kalır -- pişmeden önceki z-sırasıyla tutarlı
@@ -329,11 +348,19 @@ class KojoWorldImpl extends KojoWorld {
       bakedNodes.foreach { c => stage.addChildAt(c, i); i += 1 }
       bakedNodes.clear()
       if (bakeSprite != null) { stage.removeChild(bakeSprite); bakeSprite = null }
-      if (bakeTexture != null) { bakeTexture.destroy(); bakeTexture = null }
+      // destroy(true): BaseRenderTexture + GL framebuffer'ını da bırak. Argümansız
+      // destroy yalnız Texture kabuğunu koparır, render hedefi GL belleği sızar
+      // (PIXI doku çöp toplayıcısı render hedeflerini atlar). RenderTexture'ın
+      // no-arg destroy'unu gölgelememek için Texture'a yükselt.
+      if (bakeTexture != null) { bakeTexture.asInstanceOf[PIXI.Texture].destroy(true); bakeTexture = null }
       render()
+      // sürekli geri alma pişirmeyi kârsızlaştırır -> tabana dön (kalıcı).
+      if (BakePolicy.shouldDisableAfterUnbake(unbakeStreak)) bakeDisabled = true
     }
     catch {
       case _: Throwable =>
+        // son çare: ortada patlarsa geri eklenemeyen düğümler sahneden düşebilir
+        // (kabul edilebilir; pişirme zaten kapanıyor). Animasyon durmaz.
         bakeDisabled = true
         bakedNodes.clear()
     }
@@ -348,7 +375,7 @@ class KojoWorldImpl extends KojoWorld {
       bakeSprite = null
     }
     if (bakeTexture != null) {
-      bakeTexture.destroy()
+      bakeTexture.asInstanceOf[PIXI.Texture].destroy(true) // GL framebuffer'ı da bırak (sızıntı)
       bakeTexture = null
     }
   }
