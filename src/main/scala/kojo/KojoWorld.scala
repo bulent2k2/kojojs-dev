@@ -338,9 +338,16 @@ class KojoWorldImpl extends KojoWorld {
   private var unbakeStreak = 0
   private def unbakeAll(): Unit = {
     if (bakedNodes.isEmpty) return
-    // çırpınma takibi: kısa pencerede art arda geri alma sayılır
-    unbakeStreak = if (frameCount - lastUnbakeFrame < BakePolicy.unbakeStreakWindow) unbakeStreak + 1 else 0
-    lastUnbakeFrame = frameCount
+    // çırpınma takibi: kısa pencerede art arda geri alma sayılır. Yalnız
+    // animasyon çalışırken: frameCount yalnız animateHelper'da arttığından,
+    // stopAnimation SONRASI bir betiğin birçok pişmiş resmi silmesi/değiştirmesi
+    // aynı "kare"de sayılıp sigortayı boşuna tetiklerdi (o KojoWorld için
+    // pişirmeyi kalıcı kapatırdı). Animasyon dururken tek-seferlik geri almalar
+    // çırpınma değildir.
+    if (animating) {
+      unbakeStreak = if (frameCount - lastUnbakeFrame < BakePolicy.unbakeStreakWindow) unbakeStreak + 1 else 0
+      lastUnbakeFrame = frameCount
+    }
     try {
       // pişirme sırasını koruyarak bakeSprite'ın hemen üstüne (dibe) koy;
       // canlı çocuklar üstte kalır -- pişmeden önceki z-sırasıyla tutarlı
