@@ -27,6 +27,8 @@ class TestKojoWorld extends KojoWorld {
   def removeLayer(layer: Container): Unit = {
     stage.removeChild(layer)
   }
+  def noteMutation(node: DisplayObject): Unit = {
+  }
   def scheduleLater(fn: => Unit): Unit = {
     window.setTimeout(() => fn, 0)
   }

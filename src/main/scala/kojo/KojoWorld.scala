@@ -16,6 +16,9 @@ trait KojoWorld {
   def canvasHeight: Double
   def addLayer(layer: PIXI.Container): Unit
   def removeLayer(layer: PIXI.Container): Unit
+  // Bir resmin değiştiğini (taşındı/döndü/boyandı...) bildirir; pişirme
+  // (bake) katmanı bunu son-değişim damgası olarak kullanır. Bkz. maybeBake.
+  def noteMutation(node: PIXI.DisplayObject): Unit
   def scheduleLater(fn: => Unit): Unit
   def runLater(ms: Double)(fn: => Unit): Unit
   def render(): Unit
@@ -114,6 +117,7 @@ class KojoWorldImpl extends KojoWorld {
     //    stage.height = h
     renderer.resize(w, h)
     stage.setTransform(canvasWidth / 2, canvasHeight / 2, 1, -1, 0, 0, 0, 0, 0)
+    resetBake() // doku eski boyut/dönüşüme göre pişmişti; yeniden kurulsun
     render()
   }
 
@@ -137,6 +141,8 @@ class KojoWorldImpl extends KojoWorld {
     canvasHeight = ch / yfactor.abs
     canvasOriginX = cx - canvasWidth / 2
     canvasOriginY = cy - canvasHeight / 2
+    resetBake() // yakınlaştırma sahne dönüşümünü değiştirir; pişmiş doku
+    // sabit çözünürlükte ekran-uzayı olduğundan geçersiz kalır
     render()
   }
 
@@ -150,11 +156,133 @@ class KojoWorldImpl extends KojoWorld {
   }
 
   def removeLayer(layer: PIXI.Container): Unit = {
+    if (bakedNodes.contains(layer)) {
+      // silinen resim pişmiş dokudaydı -> dokuyu yeniden kur
+      unbakeAll()
+    }
     stage.removeChild(layer)
     render()
   }
 
+  // --- İz/boya pişirme (PERFORMANS 2/2) --------------------------------------
+  // canlandır döngüsünde her karede yeni resim çizen betikler (ör. yörünge izi)
+  // sahneye durmadan çocuk ekliyor; PERFORMANS 1'den (kare başına tek çizim)
+  // sonra bile o tek çizim ekrandaki N nesneyle orantılı, yani iz uzadıkça
+  // yavaşlıyor. Çözüm: bir kaç karedir DEĞİŞMEYEN çocukları tek bir
+  // RenderTexture'a (bakeTexture) pişirip sahneden çıkarmak. Böylece iz, kaç
+  // nokta olursa olsun tek bir sprite (O(1)) olarak çiziliyor; hareket eden
+  // cisimler (her kare konumuKur ile değişenler) canlı kalıyor.
+  //
+  // Sinyal: noteMutation her değişimde çocuğun tnode'una o karenin numarasını
+  // damgalıyor. bakeAfterFrames karedir damgalanmayan bir çocuk "durağan boya"
+  // sayılıp pişiriliyor. Hareketli cisimler her kare damgalandığından hiç
+  // pişmiyor. Pişmiş bir çocuk sonradan değişirse (nadir) unbakeAll ile geri
+  // alınıyor. Pişmiş resim NESNESİ geçerli kalır (çarpışma geometrisi tnode'un
+  // sahnede olmasına bağlı değil), yalnızca ayrı bir DisplayObject olmaktan
+  // çıkar. z-sırası: pişmiş boya en alta (dip katman) düşer.
+  private var frameCount: Long = 0
+  private val bakeAfterFrames = 3
+  private val bakeChildThreshold = 150 // sahne bu kadar kalabalıklaşınca pişir
+  private var bakeSprite: PIXI.Sprite = _
+  private var bakeTexture: PIXI.RenderTexture = _
+  private var bakeMatrix: PIXI.Matrix = _
+  private val bakedNodes = scala.collection.mutable.Set.empty[PIXI.DisplayObject]
+
+  def noteMutation(node: PIXI.DisplayObject): Unit = {
+    node.asInstanceOf[js.Dynamic].__kojoMut = frameCount.toDouble
+    if (bakedNodes.nonEmpty && bakedNodes.contains(node)) {
+      unbakeAll()
+    }
+  }
+
+  private def ensureBakeLayer(): Unit = {
+    if (bakeSprite == null) {
+      bakeTexture = js.Dynamic.global.PIXI.RenderTexture
+        .create(canvasWidth, canvasHeight, js.undefined, renderer.resolution)
+        .asInstanceOf[PIXI.RenderTexture]
+      bakeSprite = new PIXI.Sprite(bakeTexture)
+      bakeSprite.name = "Bake Layer"
+      // bakeTexture ekran uzayında (piksel) birikiyor; bakeSprite sahne
+      // dönüşümünü (öteleme w/2,h/2 + y-ters) tersine çevirsin ki pikseller
+      // yerli yerine otursun.
+      bakeSprite.scale.set(1, -1)
+      bakeSprite.position.set(-canvasWidth / 2, canvasHeight / 2)
+      stage.addChildAt(bakeSprite, 0)
+      // sahne-yerel -> ekran-piksel dönüşümü. renderer.render(c, doku) çocuğu
+      // KİMLİK ebeveyne bağlayıp sahne-yerel çizer; bu matrisi projeksiyon
+      // olarak vererek ekran-uzayına taşıyoruz (sahne dönüşümüyle aynı).
+      bakeMatrix = new PIXI.Matrix()
+      bakeMatrix.set(1, 0, 0, -1, canvasWidth / 2, canvasHeight / 2)
+    }
+  }
+
+  private var bakeDisabled = false
+  private def maybeBake(): Unit = {
+    if (bakeDisabled) return
+    try maybeBakeUnsafe()
+    catch {
+      case t: Throwable =>
+        // pişirme bir performans iyileştirmesi; başarısız olursa animasyonu
+        // ASLA durdurma, sessizce devre dışı bırak (canlı çocuklarla sürer)
+        bakeDisabled = true
+        try resetBake() catch { case _: Throwable => }
+    }
+  }
+
+  private def maybeBakeUnsafe(): Unit = {
+    val kids = stage.children
+    if (kids.length < bakeChildThreshold) return
+    ensureBakeLayer()
+    val toBake = scala.collection.mutable.ArrayBuffer.empty[PIXI.DisplayObject]
+    var i = 0
+    while (i < kids.length) {
+      val c = kids(i)
+      if ((c ne bakeSprite) && c.name != "Turtle Layer") {
+        val stamp = c.asInstanceOf[js.Dynamic].__kojoMut
+        val last = if (js.isUndefined(stamp)) -1.0 else stamp.asInstanceOf[Double]
+        if (frameCount - last.toLong > bakeAfterFrames) {
+          toBake += c
+        }
+      }
+      i += 1
+    }
+    if (toBake.nonEmpty) {
+      toBake.foreach { c =>
+        // bakeMatrix'i projeksiyon olarak ver: çocuk sahne-yerelden ekran
+        // pikseline taşınıp dokuya iner. clear=false -> iz birikir.
+        renderer.asInstanceOf[js.Dynamic].render(c, bakeTexture, false, bakeMatrix, false)
+        stage.removeChild(c)
+        bakedNodes += c
+      }
+      render()
+    }
+  }
+
+  private def unbakeAll(): Unit = {
+    if (bakedNodes.isEmpty) return
+    bakedNodes.foreach { c => stage.addChild(c) }
+    bakedNodes.clear()
+    if (bakeTexture != null) bakeTexture.clear()
+    render()
+  }
+
+  // boyut/yakınlaştırma/silme pişmiş dokuyu geçersiz kılar (doku sabit
+  // çözünürlükte ekran-uzayı; yeni dönüşümde yerinden oynar). Pişmişleri geri
+  // al ve katmanı sıfırla; içerik canlı çocuk olarak yeniden birikip pişer.
+  private def resetBake(): Unit = {
+    unbakeAll()
+    if (bakeSprite != null) {
+      stage.removeChild(bakeSprite)
+      bakeSprite = null
+    }
+    if (bakeTexture != null) {
+      bakeTexture.destroy()
+      bakeTexture = null
+    }
+  }
+
   def erasePictures(): Unit = {
+    resetBake() // pişmiş boyayı da temizle (yoksa dokuda hayalet kalır)
     val children = stage.children.toBuffer
     children.foreach { c =>
       if (c.name != "Turtle Layer") {
@@ -258,7 +386,9 @@ class KojoWorldImpl extends KojoWorld {
   def animateHelper(fn: => Unit): Unit = {
     window.requestAnimationFrame { t =>
       if (notAssetLoading) {
+        frameCount += 1
         fn
+        maybeBake()
       }
       if (animating) {
         animateHelper(fn)
