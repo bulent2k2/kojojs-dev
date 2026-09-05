@@ -51,6 +51,8 @@ class TestKojoWorld extends KojoWorld {
   }
 
   def frameDeltaTime: Double = 0
+  def frameCounter: Long = 0
+  def setRefreshRate(fps: Int): Unit = {}
 
   def animate(fn: => Unit): Unit = {
 
@@ -260,6 +262,7 @@ class TestKojoWorld extends KojoWorld {
   def setup(fn: => Unit): Unit = {}
   def size(width: Double, height: Double): Unit = {}
   def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double): Unit = {}
+  def resetView(): Unit = {}
   def toggleFullScreenCanvas(): Unit = {}
   def canvasBounds: Rectangle = new Rectangle(0, 0, 1, 1)
 }
