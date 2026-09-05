@@ -151,32 +151,8 @@ class TestKojoWorld extends KojoWorld {
     stageBorder.draw()
   }
 
-  def bounceVecOffStage(v: Vector2D, p: Picture): Vector2D = {
-    val topCollides = p.collidesWith(stageTop)
-    val leftCollides = p.collidesWith(stageLeft)
-    val botCollides = p.collidesWith(stageBot)
-    val rightCollides = p.collidesWith(stageRight)
-
-    val c = v.magnitude / math.sqrt(2)
-    if (topCollides && leftCollides)
-      Vector2D(c, -c)
-    else if (topCollides && rightCollides)
-      Vector2D(-c, -c)
-    else if (botCollides && leftCollides)
-      Vector2D(c, c)
-    else if (botCollides && rightCollides)
-      Vector2D(-c, c)
-    else if (topCollides)
-      Vector2D(v.x, -v.y)
-    else if (botCollides)
-      Vector2D(v.x, -v.y)
-    else if (leftCollides)
-      Vector2D(-v.x, v.y)
-    else if (rightCollides)
-      Vector2D(-v.x, v.y)
-    else
-      v
-  }
+  // bounceVecOffStage: KojoWorld trait'inde somut -- eski kopya kaldırıldı,
+  // TestKojoWorld ile KojoWorldImpl artık aynı kodu paylaşır.
 
   def collidesWithStage(p: Picture): Boolean = {
     val stageparts = List(stageTop, stageBot, stageLeft, stageRight)
