@@ -1,0 +1,4 @@
+kaynak: bulent2k2/kojo src/main/resources/media
+commit: ca7a09238054074ccff3a332d2d227899cb056a6
+tarih:  2026-09-05
+dosya:  32

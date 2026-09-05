@@ -41,7 +41,9 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
     with kojo.tr.ResimYöntemleri
     with kojo.tr.KumandaYöntemleri
     with kojo.tr.GelecekYöntemleri
-    with kojo.tr.DizikYöntemleri {
+    with kojo.tr.DizikYöntemleri
+    with kojo.tr.SesYöntemleri
+    with kojo.tr.GörünüşYöntemleri {
   import kojo.doodle.Color
   import kojo.tr._
 
@@ -487,6 +489,13 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   def canlandırmaBaşlayınca(işlev: => Birim): Birim = işlev
   // masaüstünde ayrı iş parçacığı; tarayıcıda tek iş parçacığı var, hemen çalışır
   def artalandaOynat(kod: => Birim): Birim = kod
+
+  // ---- Devre 4: durakla ----
+  // Masaüstünde iş parçacığını uyutur (Thread.sleep); tarayıcıda bloklamak yok.
+  // Kaplumbağa komut kuyruğuna bir bekleme eklenir: sonraki KAPLUMBAĞA komutları
+  // o kadar gecikir; resim/çıktı kodu hemen sürer (bekle ile aynı).
+  def durakla(saniye: Kesir): Birim = englishTurtle.pause(saniye)
+  def duraklaMiliSaniye(miliSaniye: Uzun): Birim = englishTurtle.pause(miliSaniye / 1000.0)
 
   // ---- Devre 2: küçük özellikler ----
   def buAn: Uzun = System.currentTimeMillis()

@@ -250,6 +250,11 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       davran { k => k.ileri(1) }
       val v = sahneKenarındanYansıtma(yz, Yöney2B(1, 1)); engeldenYansıtma(yz, v, dal)
       val t: Uzun = buAn
+      // Devre 4
+      durakla(0.5); duraklaMiliSaniye(20)
+      sesMp3üÇal(Ses.vuruş); müzikMp3üÇalDöngülü(Ses.mağarada)
+      notaÇalgısınıKur(Çalgı.AkustikBas); notaÇal(50, 150)
+      val araba = Resim.imge(Görünüş.araba)
     }
     succeed
   }
