@@ -40,7 +40,8 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
     with kojo.tr.KlavyeYöntemleri
     with kojo.tr.ResimYöntemleri
     with kojo.tr.KumandaYöntemleri
-    with kojo.tr.GelecekYöntemleri {
+    with kojo.tr.GelecekYöntemleri
+    with kojo.tr.DizikYöntemleri {
   import kojo.doodle.Color
   import kojo.tr._
 
@@ -232,12 +233,12 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   def daire(yarıçap: Kesir = 25): Birim = englishTurtle.circle(yarıçap)
   def üçgen(en: Kesir = 25): Birim = yinele(3) { ileri(en); sağ(120) }
   def kare(en: Kesir = 25): Birim = yinele(4) { ileri(en); sağ(90) }
-  // nokta/ışınlar/çıktıyıSil KojoJS'te henüz UYGULANMADI (gövdeleri boş).
+  // nokta/ışınlar KojoJS'te henüz UYGULANMADI (gövdeleri boş).
   // Dosyanın geleneği gereği sessizce çalışmış gibi görünmesinler:
   // def nokta(çap: Sayı) = englishTurtle.dot(çap)      // TurtleAPI.dot gövdesi yorumda
   // def ışınlarıAç() = englishTurtle.beamsOn()          // beamsOn/Off = {}
   // def ışınlarıKapat() = englishTurtle.beamsOff()
-  // def çıktıyıSil() = builtins.clearOutput()           // clearOutput = {}
+  // (çıktıyıSil: masaüstü çıktı paneline özgü; Devre 1 yer tutucuları arasında)
 
   // ---- hız ----
   def hızıKur(hız: Hız): Birim = englishTurtle.setSpeed(hız)
@@ -380,4 +381,111 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   def sahneAltı: Resim = { sahneKurulduMu("sahneAltı'nı"); builtins.stageBot }
   def sahneSolu: Resim = { sahneKurulduMu("sahneSolu'nu"); builtins.stageLeft }
   def sahneSağı: Resim = { sahneKurulduMu("sahneSağı'nı"); builtins.stageRight }
+
+  // ---- masaüstü Koco takma adları ve yer tutucular (Devre 1) ----
+  // Masaüstü betiklerinin (ornekler/masaustu) OLDUĞU GİBİ derlenmesi için
+  // trInit.scala'daki adlar. Her satırın sağında ikojo'daki asıl karşılık;
+  // davranışı farklı olanlar yorumda söyleniyor. Yeni bir ad eklerken önce
+  // araclar/ucurum.py çıktısındaki sıklığa bak.
+
+  // tuval
+  def durdur(): Birim = canlandırmayıDurdur() // stopAnimation
+  def tuşaBasılıMı(tuş: Sayı): İkil = tuşBasılıMı(tuş)
+  def tuşaBasınca(iş: Sayı => Birim): Birim = builtins.onKeyPress(iş)
+  def tuşuBırakınca(iş: Sayı => Birim): Birim = builtins.onKeyRelease(iş)
+  def yaklaş(oran: Kesir): Birim = builtins.zoom(oran)
+  def yaklaş(oran: Kesir, xMerkez: Kesir, yMerkez: Kesir): Birim = builtins.zoom(oran, xMerkez, yMerkez)
+  def eksenleriGöster(): Birim = builtins.showAxes()
+  def gridiGöster(): Birim = builtins.showGrid() // ikojo'da henüz çizmiyor (boş)
+  def ızgarayıGöster(): Birim = gridiGöster()
+  def tümEkranTuval(): Birim = builtins.toggleFullScreenCanvas()
+  def başlangıçNoktasıAltSolKöşeOlsun(): Birim = builtins.originBottomLeft()
+  def ikiÇizimArasıSüre: Kesir = kareSüresi // frameDeltaTime
+  def fareKonumu: Nokta = kojoWorld.mouseXY
+  def silipSakla(): Birim = silVeSakla()
+  def çizVeSakla(resimler: Resim*): Birim = builtins.drawAndHide(resimler: _*)
+  // masaüstünde Future döndürür; burada Birim (tarayıcıda iptal edilebilir sayaç yok)
+  def yineleSayaçla(miliSaniye: Uzun)(işlev: => Birim): Birim = builtins.timer(miliSaniye)(işlev)
+
+  /** Masaüstü `tuvalAlanı`: tuval sınırlarına kısa erişim (`dez ta = tuvalAlanı`). */
+  object tuvalAlanı {
+    def ta: Dikdörtgen = tuvalSınırları
+    def eni: Kesir = en
+    def boyu: Kesir = boy
+    def en: Kesir = ta.width
+    def boy: Kesir = ta.height
+    def x: Kesir = ta.x
+    def y: Kesir = ta.y
+    def X: Kesir = ta.x + ta.width
+    def Y: Kesir = ta.y + ta.height
+  }
+  def yatayMerkezKonumu(uzunluk: Kesir): Kesir = tuvalAlanı.x + (tuvalAlanı.en - uzunluk) / 2
+  def dikeyMerkezKonumu(uzunluk: Kesir): Kesir = tuvalAlanı.y + (tuvalAlanı.boy - uzunluk) / 2
+
+  // canlandırma: her karede önceki resmi silip yenisini çizer (animateWithRedraw)
+  def canlandırYenidenÇizerek[Evre](ilkEvre: Evre, sonrakiEvre: Evre => Evre, işlev: Evre => Resim): Birim = {
+    var önceki: Resim = null
+    builtins.animateWithState(ilkEvre) { evre =>
+      if (önceki != null) önceki.erase()
+      önceki = işlev(evre)
+      önceki.draw()
+      sonrakiEvre(evre)
+    }
+  }
+
+  // kaplumbağalar
+  type Kaplumbağa = TurkishTurtle
+  def kaplumbağa: Kaplumbağa = this
+  def yeniKaplumbağa(x: Kesir, y: Kesir): Kaplumbağa = new TurkishTurtle(new Turtle(x, y)(kojoWorld), builtins)(kojoWorld)
+
+  // sayılar / yardımcılar
+  def rastgeleNormalKesir: Kesir = rastgeleDoğalKesir
+  def rastgeleİkil: İkil = rastgeleSeçim
+  def rastgeleKarıştır[T](xLer: Dizi[T]): Dizi[T] = new scala.util.Random(builtins.Random).shuffle(xLer)
+  def gerekli(gerekçe: İkil, mesaj: => Any = ""): Birim = require(gerekçe, mesaj)
+  def zamanTut[T](başlık: Yazı = "Zaman ölçümü:")(işlev: => T)(bitiş: Yazı = "sürdü."): T = {
+    val t0 = buSaniye
+    val çıktı = işlev
+    val delta = buSaniye - t0
+    val sözcükler = List(başlık, f"$delta%.3f saniye", bitiş).filter(_.nonEmpty)
+    satıryaz(sözcükler.mkString(" "))
+    çıktı
+  }
+  object Matematik extends kojo.tr.MatematikYöntemleri
+
+  // mp3 (howler üzerinden; masaüstüyle aynı adlar)
+  class Mp3Çalar(p: Mp3Player) {
+    def çalıyorMu: İkil = p.isMp3Playing
+    def sesMp3üÇal(mp3dosyası: Yazı): Birim = p.playMp3Sound(mp3dosyası)
+    def çal(mp3dosyası: Yazı): Birim = p.playMp3(mp3dosyası)
+    def durdur(): Birim = p.stopMp3()
+    def önyükle(mp3dosyası: Yazı): Birim = p.preloadMp3(mp3dosyası)
+    def döngülüÇal(mp3dosyası: Yazı): Birim = p.playMp3Loop(mp3dosyası)
+    def döngüyüDurdur(): Birim = p.stopMp3Loop()
+  }
+  def yeniMp3Çalar: Mp3Çalar = new Mp3Çalar(builtins.newMp3Player)
+  def müzikİndir(httpAdresi: Yazı): Birim = builtins.preloadMp3(httpAdresi)
+  def müzikMp3üÇal(mp3dosyası: Yazı): Birim = builtins.playMp3(mp3dosyası)
+  def sesMp3üÇal(mp3dosyası: Yazı): Birim = builtins.playMp3Sound(mp3dosyası)
+  def müzikMp3üÇalDöngülü(mp3dosyası: Yazı): Birim = builtins.playMp3Loop(mp3dosyası)
+  def müzikMp3üÇalıyorMu: İkil = builtins.isMp3Playing
+  def müzikMp3üKapat(): Birim = builtins.stopMp3()
+  def müzikMp3DöngüsünüKapat(): Birim = builtins.stopMp3Loop()
+  def Mp3ÇalıyorMu: İkil = müzikMp3üÇalıyorMu
+  def Mp3üDurdur(): Birim = müzikMp3üKapat()
+  def Mp3DöngüsünüDurdur(): Birim = müzikMp3DöngüsünüKapat()
+
+  // yer tutucular: masaüstü arayüzüne (Swing pencereleri, çıktı paneli) özgü;
+  // tarayıcıda karşılığı yok. Betik derlensin ve akış bozulmasın diye boş.
+  def kojoVarsayılanİkinciBakışaçısınıKur(): Birim = builtins.switchToDefault2Perspective()
+  def kojoÇalışmaSayfalıBakışaçısınıKur(): Birim = {}
+  def tümEkranÇıktı(): Birim = {}
+  def yazılımcıkDüzenleyicisiniEtkinleştir(): Birim = {}
+  def çıktıArtalanınıKur(renk: Renk): Birim = {}
+  def çıktıYazıRenginiKur(renk: Renk): Birim = {}
+  def çıktıyıSil(): Birim = builtins.clearOutput() // clearOutput = {}; 6 betikte ilk hata buydu
+  // masaüstünde canlandırma başlarken çağrılır; burada hemen çalışır
+  def canlandırmaBaşlayınca(işlev: => Birim): Birim = işlev
+  // masaüstünde ayrı iş parçacığı; tarayıcıda tek iş parçacığı var, hemen çalışır
+  def artalandaOynat(kod: => Birim): Birim = kod
 }

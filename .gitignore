@@ -9,3 +9,4 @@ node_modules/**
 #   sbt fullLinkJS && cp target/scala-2.12/kojo-dev-opt/main.js site/kojo.js
 site/
 netlify.toml
+__pycache__/

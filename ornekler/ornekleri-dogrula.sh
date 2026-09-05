@@ -92,6 +92,24 @@ beklenen_oku() { awk -F'\t' -v k="$1" '$1==k {print $2; exit}' "$BEKLENEN"; }
 cikti=$(mktemp); ann_dosya=$(mktemp); sonuc=$(mktemp)
 trap 'rm -f "$cikti" "$ann_dosya" "$sonuc"' EXIT
 
+# Isınma: konteyner yeni kalktıysa derleyiciler kayıt olmadan ilk istekler
+# 5xx döner ve onlarca betik yanlışlıkla "sunucu" olur. Küçük bir gövdeyle
+# ilk 200 gelene kadar bekle (en çok ~2 dk).
+isin() {
+  local govde kod i
+  govde=$(mktemp); printf 'satıryaz(1)\n' | sar /dev/stdin > "$govde"
+  for i in $(seq 1 15); do
+    kod=$(curl -s -m 120 -X POST --data-binary @"$govde" \
+      -H "Content-Type: text/plain; charset=utf-8" \
+      "$KOCO/compile?opt=fast" -o /dev/null -w "%{http_code}")
+    [ "$kod" = "200" ] && { rm -f "$govde"; return 0; }
+    echo "  derleyici hazır değil (HTTP $kod), bekleniyor..." >&2
+    sleep 8
+  done
+  rm -f "$govde"; echo "UYARI: derleyici ısınmadı ($KOCO); sonuçlar 'sunucu' çıkabilir" >&2
+}
+isin
+
 gecti=0; kaldi=0; sunucu=0; gerileme=0; ilerleme=0; eslesen=0
 for f in "${hedefler[@]}"; do
   ad=$(ad_ver "$f")

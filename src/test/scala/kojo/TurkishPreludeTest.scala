@@ -199,4 +199,45 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
     bi.tanımlıMı(1) should be(doğru)
     bi.tanımlıMı(2) should be(yanlış)
   }
+
+  // Devre 1: masaüstü takma adlarının prelude'un dört yıldızlı içe aktarımıyla
+  // ÇAKIŞMADAN derlendiğini kanıtlar (ornekler/masaustu betiklerinin kullandığı
+  // adlar). Çalıştırılmaz -- derlenmesi yeter; bu yüzden gövde `if (false)`.
+  test("Devre 1 takma adları prelude ile belirsizliksiz derlenir") {
+    import kojo.{SwedishTurtle, TurkishTurtle, Turtle, Vector2D, Picture}
+    import kojo.doodle.Color._
+    import kojo.Speed._
+    import kojo.RepeatCommands._
+    import kojo.syntax.Builtins
+    implicit val kojoWorld = new TestKojoWorld()
+    val builtins = new Builtins()
+    import builtins._
+    import turtle._
+    import svTurtle._
+    import trTurtle._
+
+    if (false) {
+      val ta = tuvalAlanı
+      val r = götür(ta.x + 10, ta.y + ta.boyu - 20) -> Resim.yazıRenkli("selam", 20, mavi)
+      val çizgi = kalemBoyu(3) -> Resim.yatay(ta.eni)
+      val k = Resim.küme(r, çizgi)
+      val kap = yeniKaplumbağa(0, 0)
+      kap.ileri(10)
+      tuşaBasınca { t => if (tuşaBasılıMı(t)) durdur() }
+      r.fareyeBasınca { (x, y) => r.veKondur(x, y).veBoya(kırmızı) }
+      val d: Dizik[Sayı] = Dizik(1, 2)
+      val e = EsnekDizik.diziden(d)
+      val karışık = rastgeleKarıştır(e.toList)
+      val z = zamanTut("ölç") { karışık.size }()
+      gerekli(z >= 0)
+      canlandırYenidenÇizerek[Kesir](0.0, _ + 1, x => götür(x, 0) -> Resim.daire(5))
+      if (r.çarptıMı(k) || r.çarpışma(List(k)).isDefined) r.ardaAl()
+      yaklaş(2, 0, 0); eksenleriGöster(); ızgarayıGöster(); başlangıçNoktasıAltSolKöşeOlsun()
+      müzikMp3üÇal("x.mp3"); yeniMp3Çalar.durdur()
+      kojoVarsayılanİkinciBakışaçısınıKur(); çıktıArtalanınıKur(siyah); çıktıyıSil()
+      "a".eşitMiKüçükHarfBüyükHarfAyrımıYapmadan("A")
+      Matematik.piSayısı
+    }
+    succeed
+  }
 }
