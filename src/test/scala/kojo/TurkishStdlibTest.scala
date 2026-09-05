@@ -35,6 +35,8 @@ object TRDeneme
     with kojo.tr.KuyrukYöntemleri
     with kojo.tr.DizikYöntemleri
     with kojo.tr.YazıyüzüYöntemleri
+    with kojo.tr.SesYöntemleri
+    with kojo.tr.GörünüşYöntemleri
 
 class TurkishStdlibTest extends AnyFunSuite with Matchers {
   import TRDeneme._
@@ -401,6 +403,9 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     d.length shouldBe 3
     Dizik.boş[Sayı](4).length shouldBe 4
     Dizik.boş[Sayı]().length shouldBe 0
+    Dizim.boş[Sayı]().boyu shouldBe 0
+    Dizim.boş[Sayı](3).boyu shouldBe 3
+    Dizim.boş[Sayı](2, 3).boyu shouldBe 2
     Dizik.boş[Sayı](2, 3).map(_.length).sum shouldBe 6 // aşırı yükleme: (a, b) örtük liste sanılmasın
     Dizik.doldur(2, 3)(7).map(_.sum).sum shouldBe 42
     val e = EsnekDizik(1, 2)
@@ -420,6 +425,20 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     yazıyüzleri should contain("sans-serif")
     val f: İşlev1[Sayı, Sayı] = _ + 1
     f(1) shouldBe 2
+  }
+
+  test("ses: nota frekansı, çalgı dalgası, Ses/Görünüş sabitleri (Devre 4)") {
+    notaFrekansı(69) shouldBe 440.0 +- 1e-9
+    notaFrekansı(81) shouldBe 880.0 +- 1e-9
+    çalgıDalgası(Çalgı.Piyano) shouldBe "triangle"
+    çalgıDalgası(Çalgı.AkustikBas) shouldBe "sine"
+    Ses.vuruş shouldBe "/media/collidium/hit.mp3"
+    Görünüş.araba shouldBe "/media/costumes/car.png"
+    Çizim.top1 shouldBe Görünüş.top1
+    // Web Audio yok (Node): sessizce geçmeli, patlamamalı
+    notaÇalgısınıKur(Çalgı.AkustikBas)
+    notaÇal(50, 150)
+    an [IllegalArgumentException] should be thrownBy notaÇal(200, 10)
   }
 
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {

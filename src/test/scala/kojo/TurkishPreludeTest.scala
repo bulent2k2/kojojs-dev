@@ -254,6 +254,12 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       yayR.götür(1, 2); yayR.götür(Nokta(1, 2)); yayR.kondur(Nokta(0, 0)); yayR.kondur(3, 4); yayR.konumuKur(Nokta(0, 0))
       val karışıkY: Yöney[Sayı] = rastgeleKarıştır(Yöney(1, 2, 3))
       val karışıkD: Dizin[Sayı] = rastgeleKarıştır(Dizin(1, 2, 3))
+      çiz(Yöney(1, 2).işle(i => Resim.daire(i))); çiz(Dizin(yayR))
+      // Devre 4
+      durakla(0.5); duraklaMiliSaniye(20)
+      sesMp3üÇal(Ses.vuruş); müzikMp3üÇalDöngülü(Ses.mağarada)
+      notaÇalgısınıKur(Çalgı.AkustikBas); notaÇal(50, 150)
+      val araba = Resim.imge(Görünüş.araba)
     }
     succeed
   }

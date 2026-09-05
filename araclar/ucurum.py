@@ -52,9 +52,10 @@ PLATFORM = collections.OrderedDict([
                       'başka dosya içe alır; ikojo tek dosya derler')),
     ('arayüz',       (re.compile(r'\bay\.'),
                       'Swing arayüz nesneleri (ay.*)')),
-    # Mp3 çalma ikojo'da var (howler); engel yalnız MIDI/nota tarafı
-    ('ses',          (re.compile(r'\b(?:notaÇal\w*|vuruş\w*|nota\b|Çalgı|MusicScore|playMusic|müzikÇal|Müzik\b|AkustikBas|basDavul\w*)'),
-                      'MIDI müzik/nota; tarayıcıda Web Audio karşılığı gerekir')),
+    # Mp3 çalma (howler) ve notaÇal (Web Audio) ikojo'da var; engel yalnız MIDI
+    # partisyon çalma (MusicScore/playMusic, jfugue)
+    ('ses',          (re.compile(r'\b(?:MusicScore|playMusic|müzikÇal|Müzik\b|Nota\b|Ritim|Enstrüman)'),
+                      'MIDI partisyon (MusicScore); tarayıcıda karşılığı yok')),
     ('öykü',         (re.compile(r'\b(?:hikaye|Story|öykü\w*|Öykü\w*|stPlayStory|Sayfa|Page)\b'),
                       'öykü anlatıcı (Story/Page)')),
     ('dosya',        (re.compile(r'\b(?:Dosya|dosya\w*|satıroku|sayıOku|kesirOku|readln|readInt|scala\.io|java\.io|Source\.from)\b'),
