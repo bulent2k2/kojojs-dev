@@ -250,6 +250,7 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       davran { k => k.ileri(1) }
       val v = sahneKenarındanYansıtma(yz, Yöney2B(1, 1)); engeldenYansıtma(yz, v, dal)
       val t: Uzun = buAn
+      val yayR = götür(Nokta(1, 2)) * döndür(30) * büyüt(2) * büyüt(1, 2) -> Resim.yay(50, 90)
     }
     succeed
   }
