@@ -54,6 +54,8 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def noktadan(işlev: GeoNokta => Birim): Resim = kb.Picture.fromPath(g => işlev(new GeoNokta(g)))
     // masaüstü: Resim.yazı(içerik, yazıyüzü[, renk]) -- Yazıyüzü ailesi PIXI metin stiline
     def yazı(içerik: Her, yy: Yazıyüzü): Resim = new kojo.TextPic(içerik, yy.boy, Renkler.siyah, yy.ad)
+    // masaüstü Picture.arc: kaplumbağa yayı (başlangıç merkezde, kuzeye bakar)
+    def yay(yarıçap: Kesir, açı: Kesir): Resim = kb.PictureT(t => t.arc(yarıçap, açı))
     def yazı(içerik: Her, yy: Yazıyüzü, renk: Renk): Resim = new kojo.TextPic(içerik, yy.boy, renk, yy.ad)
 
     def çiz(r: Resim): Birim = r.draw()
@@ -116,6 +118,12 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
   def boyaRengi(renk: Renk): Dönüştürücü = kb.fillColor(renk)
   def kalemKalınlığı(k: Kesir): Dönüştürücü = kb.penThickness(k)
   def kalemBoyu(k: Kesir): Dönüştürücü = kb.penThickness(k) // masaüstü adı (resim.scala KalemBoyuBD)
+  // masaüstünün bağımsız dönüştürücü adları (trInit: döndür/büyüt/götür = *BD)
+  def döndür(açı: Kesir): Dönüştürücü = kb.rot(açı)
+  def büyüt(oran: Kesir): Dönüştürücü = kb.scale(oran)
+  def büyüt(xOranı: Kesir, yOranı: Kesir): Dönüştürücü = kb.scaleXY_experimental(xOranı, yOranı)
+  def götür(n: Nokta): Dönüştürücü = kb.trans(n.x, n.y)
+  def götür(yy: Yöney2B): Dönüştürücü = kb.trans(yy.x, yy.y)
   // masaüstünde saydamlığı ÇARPAR (opacMod); burada kurar -- tek katman için aynı sonuç
   def saydamlık(oran: Kesir): Dönüştürücü = kb.postDrawTransform(_.setOpacity(oran))
 
