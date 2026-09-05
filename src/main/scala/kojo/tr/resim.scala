@@ -56,6 +56,36 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def diziDikey(resimler: Resim*): Resim = kb.picCol(resimler: _*)
     def diziYatay(resimler: Resim*): Resim = kb.picRow(resimler: _*)
     def dizi(resimler: Resim*): Resim = kb.picStack(resimler: _*)
+    // masaüstü takma adları (Devre 1) -- sağda ikojo/İngilizce karşılığı
+    def düz(en: Kesir, boy: Kesir): Resim = kb.Picture.line(en, boy)
+    def köşegen(en: Kesir, boy: Kesir): Resim = kb.Picture.line(en, boy)
+    def yatay(boy: Kesir): Resim = kb.Picture.hline(boy)
+    def dikey(boy: Kesir): Resim = kb.Picture.vline(boy)
+    def yazıRenkli(içerik: Her, yazıBoyu: Sayı, renk: Renk): Resim = kb.Picture.textu(içerik, yazıBoyu, renk)
+    def satır(r: => Resim, kaçTane: Sayı): Resim = kb.picRow(Seq.fill(kaçTane)(r): _*) // picture.row
+    def sütun(r: => Resim, kaçTane: Sayı): Resim = kb.picCol(Seq.fill(kaçTane)(r): _*) // picture.col
+    def küme(rd: Resim*): Resim = kb.picBatch(rd: _*) // picBatch
+    def küme(rd: collection.Seq[Resim]): Resim = kb.picBatch(rd.toSeq: _*)
+    def dizi(rd: collection.Seq[Resim]): Resim = kb.picStack(rd.toSeq: _*)
+    def diziDikey(rd: collection.Seq[Resim]): Resim = kb.picCol(rd.toSeq: _*)
+    def diziYatay(rd: collection.Seq[Resim]): Resim = kb.picRow(rd.toSeq: _*)
+    def diziDüzenli(rd: collection.Seq[Resim]): Resim = kb.picStackCentered(rd.toSeq: _*)
+    def diziDikeyDüzenli(rd: collection.Seq[Resim]): Resim = kb.picColCentered(rd.toSeq: _*)
+    def diziYatayDüzenli(rd: collection.Seq[Resim]): Resim = kb.picRowCentered(rd.toSeq: _*)
+    def sil(): Birim = kb.erasePictures()
+    // sahne kenarları: çizSahne(...) çağrılmadan null (bkz. TurkishTurtle.sahneKurulduMu)
+    def tuvalSınırları: Resim = sahne("Resim.tuvalSınırları", kb.stageBorder)
+    def tuvalinSınırları: Resim = tuvalSınırları
+    def tuval: Resim = tuvalSınırları
+    def tuvalinSolu: Resim = sahne("Resim.tuvalinSolu", kb.stageLeft)
+    def tuvalinSağı: Resim = sahne("Resim.tuvalinSağı", kb.stageRight)
+    def tuvalinTavanı: Resim = sahne("Resim.tuvalinTavanı", kb.stageTop)
+    def tuvalinTabanı: Resim = sahne("Resim.tuvalinTabanı", kb.stageBot)
+    def tuvalBölgesi: Resim = sahne("Resim.tuvalBölgesi", kb.stageArea)
+    private def sahne(ad: Yazı, r: Resim): Resim =
+      if (r == null)
+        throw new ÇalışmaSırasıKuralDışı(s"$ad için önce sahneyi çizmelisin: çizSahne(siyah).")
+      else r
     def diziDikeyDüzenli(resimler: Resim*): Resim = kb.picColCentered(resimler: _*)
     def diziYatayDüzenli(resimler: Resim*): Resim = kb.picRowCentered(resimler: _*)
     def diziDüzenli(resimler: Resim*): Resim = kb.picStackCentered(resimler: _*)
@@ -79,6 +109,7 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
   def kalemRengi(renk: Renk): Dönüştürücü = kb.penColor(renk)
   def boyaRengi(renk: Renk): Dönüştürücü = kb.fillColor(renk)
   def kalemKalınlığı(k: Kesir): Dönüştürücü = kb.penThickness(k)
+  def kalemBoyu(k: Kesir): Dönüştürücü = kb.penThickness(k) // masaüstü adı (resim.scala KalemBoyuBD)
   // Sözlük alias'ları (aynı işlevler): götür=öteleme(trans), yaklaşXY=tuvaliYakınlaştır(zoomXY)
   def götür(x: Kesir, y: Kesir): Dönüştürücü = kb.trans(x, y)
   def yaklaşXY(xÇarpan: Kesir, yÇarpan: Kesir, mx: Kesir, my: Kesir): Birim = kb.zoomXY(xÇarpan, yÇarpan, mx, my)
@@ -190,5 +221,30 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def fareyleSürükleyince(işlev: (Kesir, Kesir) => Birim): Birim = r.onMouseDrag((x, y) => işlev(x, y)) // onMouseDrag
     def fareyiSürükleyince(işlev: (Kesir, Kesir) => Birim): Birim = r.onMouseDrag((x, y) => işlev(x, y)) // sözlük adı (fareyle ile aynı)
     def fareBasılınca(işlev: (Kesir, Kesir) => Birim): Birim = r.onMousePress((x, y) => işlev(x, y)) // onMousePress
+    // masaüstü takma adları (Devre 1; kojo lite/i18n/tr/resim.scala)
+    def fareyeBasınca(işlev: (Kesir, Kesir) => Birim): Birim = r.onMousePress((x, y) => işlev(x, y))
+    def fareyiBırakınca(işlev: (Kesir, Kesir) => Birim): Birim = r.onMouseRelease((x, y) => işlev(x, y))
+    def fareGirince(işlev: (Kesir, Kesir) => Birim): Birim = r.onMouseEnter((x, y) => işlev(x, y))
+    def fareÇıkınca(işlev: (Kesir, Kesir) => Birim): Birim = r.onMouseExit((x, y) => işlev(x, y))
+    def fareyeTıklıyınca(işlev: (Kesir, Kesir) => Birim): Birim = r.onMouseClick((x, y) => işlev(x, y)) // masaüstündeki yazım
+    def saydamlığıKur(oran: Kesir): Birim = r.setOpacity(oran)
+    def saydamlık: Kesir = r.tnode.alpha
+    def ardaAl(): Birim = r.moveToBack()
+    def girdiyiAktar(öbürü: Resim): Birim = r.forwardInputTo(öbürü)
+    def sonrakiniGöster(ara: Uzun = 100): Birim = r.showNext(ara)
+    def çarpıştı(öbürü: Resim): İkil = r.collidesWith(öbürü)
+    def çarptıMı(öbürü: Resim): İkil = r.collidesWith(öbürü)
+    def çarpışma(başkaları: Dizi[Resim]): Option[Resim] = r.collision(başkaları) // Belki[Resim]
+    def çarpışmalar(başkaları: Set[Resim]): Set[Resim] = r.collisions(başkaları) // Küme[Resim]
+    def uzaklık(öbürü: Resim): Kesir = r.distanceTo(öbürü)
+    def çizili: İkil = r.made // isDrawn
+    def büyütmeOranı: (Kesir, Kesir) = (r.tnode.scale.x, r.tnode.scale.y) // scaleFactor
+    // masaüstünde bu dört ad resmi yerinde değiştirir; burada dönüşümlü kopya döner
+    // (aynı zincirleme kullanım: `resim.veBoya(kırmızı).veKondur(10, 10)`)
+    def veBoya(renk: Renk): Resim = r.withFillColor(renk)
+    def veKalemRengiyle(renk: Renk): Resim = r.withPenColor(renk)
+    def veKalemKalınlığıyla(boy: Kesir): Resim = r.withPenThickness(boy)
+    def veKondur(x: Kesir, y: Kesir): Resim = r.withPosition(x, y)
+    def veÇiz(): Birim = r.draw()
   }
 }

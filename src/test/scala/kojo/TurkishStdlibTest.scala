@@ -33,6 +33,7 @@ object TRDeneme
     with kojo.tr.DizimYöntemleri
     with kojo.tr.MiskinDizinYöntemleri
     with kojo.tr.KuyrukYöntemleri
+    with kojo.tr.DizikYöntemleri
 
 class TurkishStdlibTest extends AnyFunSuite with Matchers {
   import TRDeneme._
@@ -392,5 +393,22 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     bi.tanımlıMı(1) should be(doğru)
     bi.tanımlıMı(3) should be(yanlış)
     bi(2) should be("iki")
+  }
+
+  test("dizik: Dizik/EsnekDizik masaüstü kurucuları (Devre 1)") {
+    val d = Dizik(3, 1, 2)
+    d.length shouldBe 3
+    Dizik.boş[Sayı](4).length shouldBe 4
+    Dizik.doldur(2, 3)(7).map(_.sum).sum shouldBe 42
+    val e = EsnekDizik(1, 2)
+    e += 3
+    e.toList shouldBe List(1, 2, 3)
+    EsnekDizik.diziden(List("a", "b")).length shouldBe 2
+    EsnekDizik.doldur(2)("x").toList shouldBe List("x", "x")
+  }
+
+  test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
+    "Kojo".eşitMiKüçükHarfBüyükHarfAyrımıYapmadan("kOJO") shouldBe true
+    "a".kıyaslaKüçükHarfBüyükHarfAyrımıYapmadan("B") should be < 0
   }
 }
