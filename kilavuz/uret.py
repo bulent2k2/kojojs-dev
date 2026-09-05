@@ -236,7 +236,9 @@ def satir_ici(metin, baglam):
     s = re.sub(r'(?<![\w*])\*([^*\n]+?)\*(?![\w*])', r'<i>\1</i>', s)
 
     def baglanti(m):
-        href = m.group(2)
+        # s yukarıda html.escape'ten geçti; href'i geri açıp bir kez, tırnaklı kaçır
+        # (yoksa & içeren adres &amp;amp; olur)
+        href = html.unescape(m.group(2))
         href = href.replace('{skala}', baglam['skala']).replace('{komutlar}', baglam['komutlar'])
         hedef = '' if href.startswith(('#', '/', 'skala.html', 'komutlar.html')) else ' target="_blank" rel="noopener"'
         return '<a href="%s"%s>%s</a>' % (html.escape(href, quote=True), hedef, m.group(1))
