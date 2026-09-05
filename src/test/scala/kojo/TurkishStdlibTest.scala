@@ -34,6 +34,7 @@ object TRDeneme
     with kojo.tr.MiskinDizinYöntemleri
     with kojo.tr.KuyrukYöntemleri
     with kojo.tr.DizikYöntemleri
+    with kojo.tr.YazıyüzüYöntemleri
 
 class TurkishStdlibTest extends AnyFunSuite with Matchers {
   import TRDeneme._
@@ -399,12 +400,26 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     val d = Dizik(3, 1, 2)
     d.length shouldBe 3
     Dizik.boş[Sayı](4).length shouldBe 4
+    Dizik.boş[Sayı]().length shouldBe 0
+    Dizik.boş[Sayı](2, 3).map(_.length).sum shouldBe 6 // aşırı yükleme: (a, b) örtük liste sanılmasın
     Dizik.doldur(2, 3)(7).map(_.sum).sum shouldBe 42
     val e = EsnekDizik(1, 2)
     e += 3
     e.toList shouldBe List(1, 2, 3)
     EsnekDizik.diziden(List("a", "b")).length shouldBe 2
     EsnekDizik.doldur(2)("x").toList shouldBe List("x", "x")
+  }
+
+  test("yazıyüzü: Yazıyüzü ailesi (Devre 2)") {
+    val yy = yazıyüzü("serif", 24, Yazıyüzü.KALIN | Yazıyüzü.EĞİK)
+    yy.ad shouldBe "serif"
+    yy.boy shouldBe 24
+    yy.kalınMı shouldBe true
+    yy.eğikMi shouldBe true
+    yazıyüzü("monospace", 12).kalınMı shouldBe false
+    yazıyüzleri should contain("sans-serif")
+    val f: İşlev1[Sayı, Sayı] = _ + 1
+    f(1) shouldBe 2
   }
 
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
