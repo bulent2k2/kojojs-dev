@@ -10,7 +10,8 @@ dosya söyler:
 - `tarama.tsv` — `araclar/ucurum.py` çıktısı: betik başına `çalışır` / `eksik-ad` /
   `platform`, eksik adlar ve engeller. Statik tarama; her API değişikliğinde yenilenir.
 - `derleme.tsv` — `../ornekleri-dogrula.sh -g masaustu/derleme.tsv masaustu`
-  çıktısı: gerçek `/compile` sonucu, betik başına `geçti` / `kaldı`. **Henüz
+  çıktısı: gerçek `/compile` sonucu, betik başına `geçti` / `kaldı` / `sunucu`
+  (HTTP 200 dönmedi; betiğin değil sunucunun sorunu, gerileme sayılmaz). **Henüz
   üretilmedi**; ilk kez canlı ya da yerel sunucuya karşı koşulup repoya alınmalı.
   Sonraki koşular `-b masaustu/derleme.tsv` ile karşılaştırılır: gerileme varsa
   çıkış kodu 1, ilerleme varsa ⬆ ile yazılır.

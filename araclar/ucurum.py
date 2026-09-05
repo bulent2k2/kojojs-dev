@@ -33,6 +33,8 @@ IKOJO = os.path.dirname(BURASI)
 
 # def/val/var/object/class/trait/type tanımlarından ad çıkarır (geri tırnaklılar dahil)
 TANIM = re.compile(r'\b(?:def|val|var|object|class|trait|type|lazy\s+val)\s+(`[^`]+`|[^\s(\[:=,)]+)')
+# betiklerdeki tanımlar Türkçe anahtar kelimelerle (scala-tr): tanım/dez/den/nesne/sınıf/...
+TANIM_TR = re.compile(r'\b(?:def|val|var|object|class|trait|type|lazy\s+val|tanım|dez|den|nesne|sınıf|özellik|tür|miskin\s+dez)\s+(`[^`]+`|[^\s(\[:=,)]+)', re.U)
 TANIMLAYICI = re.compile(r'[^\W\d]\w*', re.U)
 
 # Yamalı scala-tr derleyicisinin tanıdığı Türkçe anahtar kelimeler
@@ -76,7 +78,7 @@ GENEL = {'apply', 'toString', 'length', 'size', 'map', 'foreach', 'filter', 'to'
          'x', 'y', 'z', 'a', 'b', 'n', 'i', 'j', 'k'}
 
 
-def tanimlar(yollar):
+def tanimlar(yollar, rx=TANIM):
     adlar = set()
     for y in yollar:
         try:
@@ -84,7 +86,7 @@ def tanimlar(yollar):
                 s = f.read()
         except OSError:
             continue
-        for m in TANIM.finditer(s):
+        for m in rx.finditer(s):
             ad = m.group(1).strip('`')
             if ad and ad != '_' and not ad.startswith('$'):
                 adlar.add(ad)
@@ -135,8 +137,10 @@ def olc(kojo, ikojo, kok):
         kod = soy(ham)
         tokenler = set(TANIMLAYICI.findall(kod))
         kullanilan = tokenler & (masa_tr | ANAHTAR)
+        kendi = tanimlar([y], TANIM_TR)  # betiğin kendi tanımladığı adlar eksik sayılmaz
         eksik = sorted(t for t in kullanilan
-                       if t not in ikojo_tr and t not in ikojo_en and t not in ANAHTAR and t not in GENEL)
+                       if t not in ikojo_tr and t not in ikojo_en and t not in ANAHTAR
+                       and t not in GENEL and t not in kendi)
         # #yükle/#include satırları yorum içindedir; ham metinde ara
         engeller = [ad for ad, (rx, _) in PLATFORM.items() if rx.search(ham if ad == 'yükle' else kod)]
         if engeller:
