@@ -237,6 +237,19 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       kojoVarsayılanİkinciBakışaçısınıKur(); çıktıArtalanınıKur(siyah)
       "a".eşitMiKüçükHarfBüyükHarfAyrımıYapmadan("A")
       Matematik.piSayısı
+      // Devre 2
+      val yy = yazıyüzü("serif", 20)
+      yazıYüzünüKur(yy)
+      val yz = Resim.yazı("selam", yy, mavi)
+      val dal = Resim.noktadan { gn => gn.başla(); gn.nokta(0, 0); gn.nokta(0, 100); gn.bitir() }
+      val yol = Resim.yoldan { y => y.kondur(0, 0); y.doğruÇiz(50, 50); y.başaDön() }
+      val ç = yazıÇerçevesi("selam", 20)
+      tuvalBoyutlarınıKur(400, 300)
+      oyunSüresiniGeriyeSayarakGöster(30, "Bitti", kırmızı)
+      dal.tepkiVer { d => d.kaydır(dal.hızınıDönüştür(Yöney2B(1, 0))) }
+      davran { k => k.ileri(1) }
+      val v = sahneKenarındanYansıtma(yz, Yöney2B(1, 1)); engeldenYansıtma(yz, v, dal)
+      val t: Uzun = buAn
     }
     succeed
   }

@@ -487,4 +487,46 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   def canlandırmaBaşlayınca(işlev: => Birim): Birim = işlev
   // masaüstünde ayrı iş parçacığı; tarayıcıda tek iş parçacığı var, hemen çalışır
   def artalandaOynat(kod: => Birim): Birim = kod
+
+  // ---- Devre 2: küçük özellikler ----
+  def buAn: Uzun = System.currentTimeMillis()
+  def tuvalBoyutlarınıKur(en: Sayı, boy: Sayı): Birim = builtins.size(en, boy)
+  def sahneKenarındanYansıtma(r: Resim, yöney: Yöney2B): Yöney2B = builtins.bouncePicVectorOffStage(r, yöney)
+  def engeldenYansıtma(r: Resim, yöney: Yöney2B, engel: Resim): Yöney2B =
+    builtins.bouncePicVectorOffPic(r, yöney, engel)
+  // yazıyüzü (Yazıyüzü ailesi: kojo.tr.YazıyüzüYöntemleri)
+  def yazıYüzünüKur(yy: Yazıyüzü): Birim = {
+    englishTurtle.setPenFontFamily(yy.ad)
+    englishTurtle.setPenFontSize(yy.boy)
+  }
+  // yazıyüzü adı PIXI ölçümünde yok sayılır; boy belirleyici
+  def yazıÇerçevesi(yazı: Yazı, yazıBoyu: Sayı, yazıyüzüAdı: Yazı = null): Dikdörtgen =
+    builtins.textExtent(yazı, yazıBoyu)
+  // react: kaplumbağa her karede işlevi çalıştırır
+  def davran(işlev: Kaplumbağa => Birim): Birim = builtins.animate(işlev(this))
+  def tepkiVer(işlev: Kaplumbağa => Birim): Birim = davran(işlev)
+  def canlan(işlev: Kaplumbağa => Birim): Birim = davran(işlev)
+  /** Masaüstü showGameTimeCountdown: sol üstte geri sayan sayaç; sıfırda ileti + durdur. */
+  def oyunSüresiniGeriyeSayarakGöster(
+      süreSaniyeOlarak: Sayı,
+      mesaj: Yazı,
+      renk: Renk = Renkler.siyah,
+      yazıBoyu: Sayı = 15,
+      kx: Kesir = 10,
+      ky: Kesir = 50
+  ): Birim = {
+    val ta = tuvalSınırları
+    var kalan = süreSaniyeOlarak
+    val etiket = builtins.Picture.textu(kalan, yazıBoyu, renk)(kojoWorld)
+    etiket.draw()
+    etiket.setPosition(ta.x + kx, ta.y + ky)
+    builtins.timer(1000) {
+      kalan -= 1
+      etiket.update(kalan)
+      if (kalan <= 0) {
+        builtins.drawCenteredMessage(mesaj, renk, yazıBoyu * 2)
+        builtins.stopAnimation()
+      }
+    }
+  }
 }

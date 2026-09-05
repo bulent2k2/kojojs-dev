@@ -12,7 +12,8 @@ package kojo.tr
  * `builtins`e ihtiyaç var (Picture fabrikası onun içinde bir iç nesne), o yüzden
  * soyut `kb` üyesi TurkishTurtle tarafından sağlanıyor.
  */
-trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYöntemleri with Yöney2BYöntemleri {
+trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYöntemleri with Yöney2BYöntemleri
+    with YazıyüzüYöntemleri {
   protected def kb: kojo.syntax.Builtins
   // Picture.image / draw gibi metotlar örtük KojoWorld istiyor; Builtins'in
   // kendi kojoWorld'ü dışarıdan erişilebilir değil, o yüzden ayrıca alıyoruz.
@@ -49,6 +50,11 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def yatayBoşluk(boşluk: Kesir): Resim = kb.Picture.hgap(boşluk)
     def dikeyBoşluk(boşluk: Kesir): Resim = kb.Picture.vgap(boşluk)
     def yoldan(işlev: pixiscalajs.PIXI.Graphics => Birim): Resim = kb.Picture.fromPath(işlev)
+    // masaüstü: Resim.noktadan { gn => gn.başla(); gn.nokta(x, y); ...; gn.bitir() } (VertexShape)
+    def noktadan(işlev: GeoNokta => Birim): Resim = kb.Picture.fromPath(g => işlev(new GeoNokta(g)))
+    // masaüstü: Resim.yazı(içerik, yazıyüzü[, renk]) -- Yazıyüzü ailesi PIXI metin stiline
+    def yazı(içerik: Her, yy: Yazıyüzü): Resim = new kojo.TextPic(içerik, yy.boy, Renkler.siyah, yy.ad)
+    def yazı(içerik: Her, yy: Yazıyüzü, renk: Renk): Resim = new kojo.TextPic(içerik, yy.boy, renk, yy.ad)
 
     def çiz(r: Resim): Birim = r.draw()
     def önyükle(adres: Yazı): Birim = kb.preloadImage(adres)
@@ -110,6 +116,33 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
   def boyaRengi(renk: Renk): Dönüştürücü = kb.fillColor(renk)
   def kalemKalınlığı(k: Kesir): Dönüştürücü = kb.penThickness(k)
   def kalemBoyu(k: Kesir): Dönüştürücü = kb.penThickness(k) // masaüstü adı (resim.scala KalemBoyuBD)
+  // masaüstünde saydamlığı ÇARPAR (opacMod); burada kurar -- tek katman için aynı sonuç
+  def saydamlık(oran: Kesir): Dönüştürücü = kb.postDrawTransform(_.setOpacity(oran))
+
+  /**
+   * Masaüstü `GeoYol` = java.awt.geom.GeneralPath; burada PIXI.Graphics. Türkçe yol
+   * komutları örtük sınıfla geliyor (masaüstündeki GeoYolYöntemleri gibi), böylece
+   * `Resim.yoldan { yol => yol.kondur(0, 0); yol.doğruÇiz(50, 50) }` aynen çalışır.
+   */
+  type GeoYol = pixiscalajs.PIXI.Graphics
+  implicit class GeoYolYöntemleri(yol: GeoYol) {
+    def kondur(x: Kesir, y: Kesir): Birim = yol.moveTo(x, y)
+    def doğruÇiz(x: Kesir, y: Kesir): Birim = yol.lineTo(x, y)
+    def eğriÇiz(x: Kesir, y: Kesir, araX: Kesir, araY: Kesir): Birim = yol.quadraticCurveTo(araX, araY, x, y)
+    def başaDön(): Birim = yol.asInstanceOf[scala.scalajs.js.Dynamic].closePath() // facade'de yok, PIXI'de var
+  }
+
+  /** Masaüstü `GeoNokta` = net.kogics.kojo.core.VertexShape (başla / nokta / bitir). */
+  class GeoNokta(g: pixiscalajs.PIXI.Graphics) {
+    private var ilk = true
+    def başla(): Birim = { ilk = true }
+    def nokta(x: Kesir, y: Kesir): Birim = {
+      if (ilk) { g.moveTo(x, y); ilk = false } else g.lineTo(x, y)
+    }
+    def açısalNokta(boyu: Kesir, açısı: Kesir): Birim =
+      nokta(boyu * math.cos(açısı.toRadians), boyu * math.sin(açısı.toRadians))
+    def bitir(): Birim = {}
+  }
   // Sözlük alias'ları (aynı işlevler): götür=öteleme(trans), yaklaşXY=tuvaliYakınlaştır(zoomXY)
   def götür(x: Kesir, y: Kesir): Dönüştürücü = kb.trans(x, y)
   def yaklaşXY(xÇarpan: Kesir, yÇarpan: Kesir, mx: Kesir, my: Kesir): Birim = kb.zoomXY(xÇarpan, yÇarpan, mx, my)
@@ -246,5 +279,9 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def veKalemKalınlığıyla(boy: Kesir): Resim = r.withPenThickness(boy)
     def veKondur(x: Kesir, y: Kesir): Resim = r.withPosition(x, y)
     def veÇiz(): Birim = r.draw()
+    // Devre 2: küçük özellikler
+    def hızınıDönüştür(yy: Yöney2B): Yöney2B = yy.rotate(r.heading) // transv: yöneyi resmin yönüne çevir
+    def tepkiVer(işlev: Resim => Birim): Birim = kb.animate(işlev(r)) // react: her karede
+    def canlan(işlev: Resim => Birim): Birim = tepkiVer(işlev)
   }
 }
