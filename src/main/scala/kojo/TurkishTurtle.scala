@@ -235,12 +235,12 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   def daire(yarıçap: Kesir = 25): Birim = englishTurtle.circle(yarıçap)
   def üçgen(en: Kesir = 25): Birim = yinele(3) { ileri(en); sağ(120) }
   def kare(en: Kesir = 25): Birim = yinele(4) { ileri(en); sağ(90) }
-  // nokta/ışınlar/çıktıyıSil KojoJS'te henüz UYGULANMADI (gövdeleri boş).
+  // nokta/ışınlar KojoJS'te henüz UYGULANMADI (gövdeleri boş).
   // Dosyanın geleneği gereği sessizce çalışmış gibi görünmesinler:
   // def nokta(çap: Sayı) = englishTurtle.dot(çap)      // TurtleAPI.dot gövdesi yorumda
   // def ışınlarıAç() = englishTurtle.beamsOn()          // beamsOn/Off = {}
   // def ışınlarıKapat() = englishTurtle.beamsOff()
-  // def çıktıyıSil() = builtins.clearOutput()           // clearOutput = {}
+  // (çıktıyıSil: masaüstü çıktı paneline özgü; Devre 1 yer tutucuları arasında)
 
   // ---- hız ----
   def hızıKur(hız: Hız): Birim = englishTurtle.setSpeed(hız)
@@ -485,6 +485,7 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   def yazılımcıkDüzenleyicisiniEtkinleştir(): Birim = {}
   def çıktıArtalanınıKur(renk: Renk): Birim = {}
   def çıktıYazıRenginiKur(renk: Renk): Birim = {}
+  def çıktıyıSil(): Birim = builtins.clearOutput() // clearOutput = {}; 6 betikte ilk hata buydu
   // masaüstünde canlandırma başlarken çağrılır; burada hemen çalışır
   def canlandırmaBaşlayınca(işlev: => Birim): Birim = işlev
   // masaüstünde ayrı iş parçacığı; tarayıcıda tek iş parçacığı var, hemen çalışır

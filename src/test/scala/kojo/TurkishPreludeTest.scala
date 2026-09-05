@@ -234,7 +234,7 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       if (r.çarptıMı(k) || r.çarpışma(List(k)).isDefined) r.ardaAl()
       yaklaş(2, 0, 0); eksenleriGöster(); ızgarayıGöster(); başlangıçNoktasıAltSolKöşeOlsun()
       müzikMp3üÇal("x.mp3"); yeniMp3Çalar.durdur()
-      kojoVarsayılanİkinciBakışaçısınıKur(); çıktıArtalanınıKur(siyah)
+      kojoVarsayılanİkinciBakışaçısınıKur(); çıktıArtalanınıKur(siyah); çıktıyıSil()
       "a".eşitMiKüçükHarfBüyükHarfAyrımıYapmadan("A")
       Matematik.piSayısı
       // Devre 2

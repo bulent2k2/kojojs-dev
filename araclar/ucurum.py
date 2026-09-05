@@ -87,6 +87,7 @@ def tanimlar(yollar, rx=TANIM):
                 s = f.read()
         except OSError:
             continue
+        s = soy(s)  # yorumdaki tanımlar ("// def çıktıyıSil ...") var sayılmasın
         for m in rx.finditer(s):
             ad = m.group(1).strip('`')
             if ad and ad != '_' and not ad.startswith('$'):
