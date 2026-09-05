@@ -10,15 +10,14 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 KOJO="${KOJO:-$DIR/../../../kojo}"
 [ -d "$KOJO/src/main/resources/samples/tr" ] || { echo "kojo klonu bulunamadı: $KOJO (KOJO=... ile göster)" >&2; exit 1; }
 
-# Kaynak dizinler: kojo reposuna göreli yol. installer/examples altında yalnız
-# Türkçe dosyalar (*_tr*, tr/) alınır; İngilizce kardeşleri masaüstünde kalır.
-KAYNAKLAR=(
-  src/main/resources/samples/tr
-  src/main/resources/samples/tr/kojo-kilavuz
-  src/main/resources/robosim/tr
-  src/main/resources/mathgames/tr
-  src/main/resources/challenge/tr
-  src/main/resources/ka-bridge/tr
+# Kaynak dizinler: kojo reposuna göreli yol. src/main/resources altındaki her
+# ".../tr" dizini ve ALT dizinleri (kojo-kilavuz gibi) otomatik bulunur; yeni bir
+# alt klasör sessizce atlanmaz. installer/examples altında yalnız Türkçe dosyalar
+# (*_tr*, tr/) alınır; İngilizce kardeşleri masaüstünde kalır.
+KAYNAKLAR=()
+while IFS= read -r d; do KAYNAKLAR+=("${d#"$KOJO"/}"); done < <(
+  find "$KOJO/src/main/resources" -type d \( -name tr -o -path '*/tr/*' \) | sort)
+KAYNAKLAR+=(
   installer/examples/tiledgame
   installer/examples/othello
   installer/examples/othello/tr
@@ -49,7 +48,8 @@ done
 {
   echo "kaynak: bulent2k2/kojo"
   echo "commit: $(git -C "$KOJO" rev-parse HEAD 2>/dev/null || echo bilinmiyor)"
-  echo "tarih:  $(date -u +%Y-%m-%d)"
+  # kojo'nun commit tarihi: kojo değişmedikçe KAYNAK.txt de değişmez
+  echo "tarih:  $(git -C "$KOJO" log -1 --format=%cs 2>/dev/null || date -u +%Y-%m-%d)"
   echo "betik:  $say"
 } > "$DIR/KAYNAK.txt"
 echo "$say betik kopyalandı -> $DIR"

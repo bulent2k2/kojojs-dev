@@ -1,81 +1,81 @@
 # ucurum.py tarama sonucu (tanımlayıcı taraması, derleme değil)
 betik	durum	satır	engel	eksik
 installer/examples/anagram/anagram_tr.kojo.installed	platform	60	yükle	zamanTut
-installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	platform	48	dosya	f2
+installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	platform	48	dosya	
 installer/examples/othello/menu_tr.kojo.installed	platform	75	yükle,arayüz	Düğme Salındıraç Sütun Sıra Tanıt arayüz ay değeri
-installer/examples/othello/tr/alfabeta.kojo	platform	391	yükle	hepsi zamanTut çıktı
-installer/examples/othello/tr/anaTanimlar.kojo	eksik-ad	58		adı
-installer/examples/othello/tr/araYuz.kojo	platform	474	yükle	artalandaOynat boy boya diziden durakla düğme fareGirince fareÇıkınca girdiyiAktar kalemBoyu saydamlık tuşaBasınca tümEkranTuval yazıRenkli yazıyüzü zamanTut İşlev1
+installer/examples/othello/tr/alfabeta.kojo	platform	391	yükle	zamanTut
+installer/examples/othello/tr/anaTanimlar.kojo	çalışır	58		
+installer/examples/othello/tr/araYuz.kojo	platform	474	yükle	artalandaOynat durakla fareGirince fareÇıkınca girdiyiAktar kalemBoyu saydamlık tuşaBasınca tümEkranTuval yazıRenkli yazıyüzü zamanTut İşlev1
 installer/examples/othello/tr/bellek.kojo	platform	59	yükle	
 installer/examples/othello/tr/durum.kojo	platform	20	yükle	
-installer/examples/othello/tr/eTahta.kojo	platform	153	yükle	diziden gerekli
+installer/examples/othello/tr/eTahta.kojo	platform	153	yükle	gerekli
 installer/examples/othello/tr/otello.kojo	platform	28	yükle	
-installer/examples/othello/tr/tahta.kojo	platform	174	yükle	diziden gerekli satır
-installer/examples/tiledgame/game_tr.kojo.installed	platform	268	çini	BirSayfaKostüm aşağıdakiÇiniyeTaşı aşağıdaÇiniVarMı birAdımİleri durdur kojoVarsayılanİkinciBakışaçısınıKur küme resimSeç saydamlığıKur sağdakiÇiniyeTaşı sağdaÇiniVarMı soldakiÇiniyeTaşı soldaÇiniVarMı sonrakiniGöster ta tuvalAlanı tuvaliKaydır tuşaBasılıMı yukarıdakiÇiniyeTaşı yukarıdaÇiniVarMı ÇiniDünyası ÇiniXY çarptıMı çinidenKojoya çizVeSakla İmge
+installer/examples/othello/tr/tahta.kojo	platform	174	yükle	gerekli
+installer/examples/tiledgame/game_tr.kojo.installed	platform	268	çini	BirSayfaKostüm aşağıdakiÇiniyeTaşı aşağıdaÇiniVarMı durdur kojoVarsayılanİkinciBakışaçısınıKur küme resimSeç saydamlığıKur sağdakiÇiniyeTaşı sağdaÇiniVarMı soldakiÇiniyeTaşı soldaÇiniVarMı sonrakiniGöster tuvalAlanı tuvaliKaydır tuşaBasılıMı yukarıdakiÇiniyeTaşı yukarıdaÇiniVarMı ÇiniDünyası ÇiniXY çarptıMı çinidenKojoya çizVeSakla İmge
 src/main/resources/challenge/tr/get-started.kojo	platform	273	yükle	Matematik Üçgen
-src/main/resources/challenge/tr/oykucu.kojo	platform	307	öykü	end for rp
+src/main/resources/challenge/tr/oykucu.kojo	platform	307	öykü	end for
 src/main/resources/ka-bridge/tr/sample.kojo	platform	29	yükle	
-src/main/resources/mathgames/tr/counting.kojo	platform	292	arayüz	TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi arayüz ardaAl ay buAn değeri değişmez durdur gerekli girdiDinleyiciEkle girdiOdağıOl girdiyiAktar olay sütunSayısınıKur ta tuvalAlanı tuvalBölgesi tuşHarfi tuşKodu tüket tümEkranTuval yatay yatayDüzeniKur yazıRenkli yazıYüzünüKur yazıyüzü yazıyıAl yazıyıKur yazıÇerçevesi yineleSayaçla çerçeveci çerçeveyiKur çizgiKenar önalanıKur
-src/main/resources/mathgames/tr/identify-fractions.kojo	platform	196	arayüz	BölmeÇizgisi Düğme OdakOlayı OdakUyarlayıcısı Satır Sütun Tanıt Yazıgirdisi Yazıyüzü arayüz ay değeri değişmez düğme girdiOdağıOl odakDinleyiciEkle olay sütunSayısınıKur ta tuvalAlanı yatayDüzeniKur yazıYüzünüKur yazıyüzü yazıyıKur önalanıKur
-src/main/resources/mathgames/tr/make-fractions.kojo	platform	192	arayüz	BölmeÇizgisi Düğme OdakOlayı OdakUyarlayıcısı Satır Sütun Tanıt Yazıgirdisi Yazıyüzü arayüz ay değeri değişmez düğme etkinliğiKur girdiOdağıOl odakDinleyiciEkle olay pencereİçindekiOdağıİste sütunSayısınıKur ta tuvalAlanı yatay yatayDüzeniKur yazıYüzünüKur yazıyıKur
+src/main/resources/mathgames/tr/counting.kojo	platform	292	arayüz	TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi ardaAl ay buAn değeri değişmez durdur gerekli girdiDinleyiciEkle girdiOdağıOl girdiyiAktar olay sütunSayısınıKur tuvalAlanı tuvalBölgesi tuşHarfi tuşKodu tüket tümEkranTuval yatay yatayDüzeniKur yazıRenkli yazıYüzünüKur yazıyüzü yazıyıAl yazıyıKur yazıÇerçevesi yineleSayaçla çerçeveci çerçeveyiKur çizgiKenar önalanıKur
+src/main/resources/mathgames/tr/identify-fractions.kojo	platform	196	arayüz	BölmeÇizgisi Düğme OdakOlayı OdakUyarlayıcısı Satır Sütun Tanıt Yazıgirdisi Yazıyüzü arayüz ay değeri değişmez girdiOdağıOl odakDinleyiciEkle olay sütunSayısınıKur tuvalAlanı yatayDüzeniKur yazıYüzünüKur yazıyüzü yazıyıKur önalanıKur
+src/main/resources/mathgames/tr/make-fractions.kojo	platform	192	arayüz	BölmeÇizgisi Düğme OdakOlayı OdakUyarlayıcısı Satır Sütun Tanıt Yazıgirdisi Yazıyüzü arayüz ay değeri değişmez etkinliğiKur girdiOdağıOl odakDinleyiciEkle olay pencereİçindekiOdağıİste sütunSayısınıKur tuvalAlanı yatay yatayDüzeniKur yazıYüzünüKur yazıyıKur
 src/main/resources/robosim/tr/cevre.kojo	eksik-ad	39		boy en
 src/main/resources/robosim/tr/obstacle-furthest.kojo	platform	84	yükle	eksenleriGöster yaklaş çarptıMı ızgarayıGöster
 src/main/resources/robosim/tr/obstacle-greedy.kojo	platform	55	yükle	eksenleriGöster rastgeleİkil yaklaş ızgarayıGöster
-src/main/resources/robosim/tr/robot.kojo	eksik-ad	77		boy durakla eksenleriGöster en kalemBoyu çarptıMı
-src/main/resources/samples/tr/addition-game.kojo	platform	191	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi Yazıyüzü arayüz ay boşKenar buAn değeri değişmez durdur girdiDinleyiciEkle girdiOdağıOl girdiyiAktar olay sakla sütunSayısınıKur ta tuvalAlanı tuvalBölgesi tuşHarfi tuşKodu tüket yatay yatayDüzeniKur yazıRenkli yazıYüzü yazıYüzünüKur yazıyıAl yazıyıKur yazıÇerçevesi yineleSayaçla çerçeveci çerçeveyiKur çizgiKenar önalanıKur
-src/main/resources/samples/tr/angle-experiment.kojo	eksik-ad	72		ardaAl ta tuvalAlanı yazıÇerçevesi
-src/main/resources/samples/tr/angles.kojo	eksik-ad	141		doğruÇiz durakla yatay yayÇiz
-src/main/resources/samples/tr/animated-square-creation.kojo	platform	72	canlandırma	Doğrusal DörtlüGirdiÇıktı Geçiş YumuşakGeçiş başaDön canlandırmaEşzamanlı doğrusalDeğişim doğruÇiz köşegen silipSakla
+src/main/resources/robosim/tr/robot.kojo	eksik-ad	77		durakla eksenleriGöster kalemBoyu
+src/main/resources/samples/tr/addition-game.kojo	platform	191	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi Yazıyüzü arayüz ay boşKenar buAn değeri değişmez durdur girdiDinleyiciEkle girdiOdağıOl girdiyiAktar olay sakla sütunSayısınıKur tuvalAlanı tuvalBölgesi tuşHarfi tuşKodu tüket yatay yatayDüzeniKur yazıRenkli yazıYüzünüKur yazıyıAl yazıyıKur yazıÇerçevesi yineleSayaçla çerçeveci çerçeveyiKur çizgiKenar önalanıKur
+src/main/resources/samples/tr/angle-experiment.kojo	eksik-ad	72		ardaAl tuvalAlanı yazıÇerçevesi
+src/main/resources/samples/tr/angles.kojo	eksik-ad	141		durakla yatay
+src/main/resources/samples/tr/animated-square-creation.kojo	platform	72	canlandırma	Doğrusal DörtlüGirdiÇıktı Geçiş YumuşakGeçiş başaDön canlandırmaEşzamanlı doğrusalDeğişim doğruÇiz silipSakla
 src/main/resources/samples/tr/arduino-prog.kojo	platform	122	öykü,dosya	Dosya başla dosyalar for içinde
-src/main/resources/samples/tr/car-ride.kojo	platform	193	ses	Görünüş Mp3ÇalıyorMu Mp3üDurdur Ses araba araba1 araba2 arabaFrenYapıyor arabaGidiyor arabaHızlanıyor arabaKazaYaptı buAn durdur engeldenYansıtma girdiyiAktar kojoVarsayılanİkinciBakışaçısınıKur müzikMp3üÇalDöngülü saydamlığıKur sesMp3üÇal ta tuvalAlanı tuvalBölgesi tuvalinSağı tuvalinSolu tuvalinTabanı tuvalinTavanı tuşaBasılıMı yazıRenkli yeniMp3Çalar yineleSayaçla çalıyorMu çarptıMı çizVeSakla
+src/main/resources/samples/tr/car-ride.kojo	platform	193	ses	Görünüş Mp3ÇalıyorMu Mp3üDurdur Ses araba1 araba2 arabaFrenYapıyor arabaGidiyor arabaHızlanıyor arabaKazaYaptı buAn durdur engeldenYansıtma girdiyiAktar kojoVarsayılanİkinciBakışaçısınıKur müzikMp3üÇalDöngülü saydamlığıKur sesMp3üÇal tuvalAlanı tuvalBölgesi tuvalinSağı tuvalinSolu tuvalinTabanı tuvalinTavanı tuşaBasılıMı yazıRenkli yeniMp3Çalar yineleSayaçla çalıyorMu çarptıMı çizVeSakla
 src/main/resources/samples/tr/circles.kojo	çalışır	16		
-src/main/resources/samples/tr/collidium.kojo	platform	152	ses	DokumaBoya Ses boy doğruÇiz durdur engeldenYansıtma fareyeBasınca fareyiBırakınca girdiyiAktar kojoVarsayılanİkinciBakışaçısınıKur küme oyunSüresiniGeriyeSayarakGöster sahneKenarındanYansıtma sesMp3üÇal sonrakiniGöster ta top1 top2 top3 top4 tuvalAlanı tuvalBölgesi tuvalinSınırları tuğla vuruş yatay yaşasın Çizim çarptıMı çarpışma çizVeSakla
+src/main/resources/samples/tr/collidium.kojo	platform	152	ses	DokumaBoya Ses durdur engeldenYansıtma fareyeBasınca fareyiBırakınca girdiyiAktar kojoVarsayılanİkinciBakışaçısınıKur küme oyunSüresiniGeriyeSayarakGöster sahneKenarındanYansıtma sesMp3üÇal sonrakiniGöster tuvalAlanı tuvalBölgesi tuvalinSınırları tuğla vuruş yatay yaşasın Çizim çarptıMı çarpışma çizVeSakla
 src/main/resources/samples/tr/crazy-square.kojo	eksik-ad	93		boy durdur tuşaBasılıMı çarptıMı
 src/main/resources/samples/tr/dragon-curve.kojo	çalışır	25		
 src/main/resources/samples/tr/estimating-pi-mc.kojo	çalışır	27		
-src/main/resources/samples/tr/eye-effects.kojo	eksik-ad	22		boya gürültü kalemBoyu merkezdenDışarıDoğruÇokluDeğişim sahneIşığı
-src/main/resources/samples/tr/eye.kojo	eksik-ad	25		boya kyms merkezdenDışarıDoğruÇokluDeğişim
+src/main/resources/samples/tr/eye-effects.kojo	eksik-ad	22		gürültü kalemBoyu merkezdenDışarıDoğruÇokluDeğişim sahneIşığı
+src/main/resources/samples/tr/eye.kojo	eksik-ad	25		kyms merkezdenDışarıDoğruÇokluDeğişim
 src/main/resources/samples/tr/face-multi.kojo	eksik-ad	108		Kaplumbağa boy davran yeniKaplumbağa
 src/main/resources/samples/tr/fern.kojo	eksik-ad	36		bulanık kalemBoyu yatay
-src/main/resources/samples/tr/ferris-wheel.kojo	eksik-ad	44		Kaplumbağa araba artalandaOynat yeniKaplumbağa
+src/main/resources/samples/tr/ferris-wheel.kojo	eksik-ad	44		Kaplumbağa artalandaOynat yeniKaplumbağa
 src/main/resources/samples/tr/fib-tree.kojo	eksik-ad	33		aydınlık
 src/main/resources/samples/tr/fireworks-canvas.kojo	platform	125	ses,tuvalçizim	AkustikBas TuvalÇizim adas başlangıçNoktasıAltSolKöşeOlsun boya canlandırTuvalÇizimle fırça fırçaAğırlığı fırçasız notaÇal notaÇalgısınıKur rastgeleNormalKesir tuval tuvalAlanı Çalgı
 src/main/resources/samples/tr/fireworks.kojo	platform	132	ses	AkustikBas adas başlangıçNoktasıAltSolKöşeOlsun notaÇal notaÇalgısınıKur rastgeleNormalKesir tuvalAlanı Çalgı çizili
-src/main/resources/samples/tr/flappy-ball.kojo	eksik-ad	79		boy durdur küme oyunSüresiniGeriyeSayarakGöster rastgeleİkil saydamlığıKur sonrakiniGöster ta topKanatlı1 topKanatlı2 tuvalAlanı tuvalinSınırları tuşaBasılıMı yineleSayaçla Çizim çarptıMı çizVeSakla
-src/main/resources/samples/tr/genart-cubic-disarray.kojo	eksik-ad	44		boy en kalemBoyu kojoVarsayılanİkinciBakışaçısınıKur rastgeleİkil ta tuvalAlanı
+src/main/resources/samples/tr/flappy-ball.kojo	eksik-ad	79		durdur küme oyunSüresiniGeriyeSayarakGöster rastgeleİkil saydamlığıKur sonrakiniGöster topKanatlı1 topKanatlı2 tuvalAlanı tuvalinSınırları tuşaBasılıMı yineleSayaçla Çizim çarptıMı çizVeSakla
+src/main/resources/samples/tr/genart-cubic-disarray.kojo	eksik-ad	44		boy en kalemBoyu kojoVarsayılanİkinciBakışaçısınıKur rastgeleİkil tuvalAlanı
 src/main/resources/samples/tr/genart-delaunay.kojo	eksik-ad	37		doğrusalDeğişim fareyeTıklıyınca üçgenDöşeme
-src/main/resources/samples/tr/genart-hypnotic-squares.kojo	eksik-ad	51		ta tuvalAlanı tuvalBoyutlarınıKur
-src/main/resources/samples/tr/genart-joy-division.kojo	eksik-ad	56		doğruÇiz eğriÇiz kalemBoyu kojoVarsayılanİkinciBakışaçısınıKur ta tuvalAlanı
-src/main/resources/samples/tr/genart-mondrian.kojo	eksik-ad	63		boy en kalemBoyu kojoVarsayılanİkinciBakışaçısınıKur rastgeleKarıştır rastgeleİkil ta tuvalAlanı yatay çıktı
-src/main/resources/samples/tr/genart-tiled-lines.kojo	eksik-ad	40		kalemBoyu kojoVarsayılanİkinciBakışaçısınıKur köşegen rastgeleİkil satır sütun ta tuvalAlanı
-src/main/resources/samples/tr/genart-tri-mesh.kojo	eksik-ad	67		başaDön doğruÇiz kalemBoyu kojoVarsayılanİkinciBakışaçısınıKur sütun ta tuvalAlanı
+src/main/resources/samples/tr/genart-hypnotic-squares.kojo	eksik-ad	51		tuvalAlanı tuvalBoyutlarınıKur
+src/main/resources/samples/tr/genart-joy-division.kojo	eksik-ad	56		doğruÇiz eğriÇiz kalemBoyu kojoVarsayılanİkinciBakışaçısınıKur tuvalAlanı
+src/main/resources/samples/tr/genart-mondrian.kojo	eksik-ad	63		boy en kalemBoyu kojoVarsayılanİkinciBakışaçısınıKur rastgeleKarıştır rastgeleİkil tuvalAlanı yatay
+src/main/resources/samples/tr/genart-tiled-lines.kojo	eksik-ad	40		kalemBoyu kojoVarsayılanİkinciBakışaçısınıKur köşegen rastgeleİkil satır sütun tuvalAlanı
+src/main/resources/samples/tr/genart-tri-mesh.kojo	eksik-ad	67		başaDön doğruÇiz kalemBoyu kojoVarsayılanİkinciBakışaçısınıKur sütun tuvalAlanı
 src/main/resources/samples/tr/hunted-fp.kojo	çalışır	121		
-src/main/resources/samples/tr/hunted.kojo	platform	172	ses	Ses basDavulVuruşları canlan canlandırmaBaşlayınca durdur hızınıDönüştür mağarada müzikMp3üKapat müzikMp3üÇal müzikMp3üÇalDöngülü müzikMp3üÇalıyorMu oyunSüresiniGeriyeSayarakGöster sahneKenarındanYansıtma silVeÇizimBiriminiKur ta tuvalAlanı tuvalinSınırları tuşaBasılıMı tuşaBasınca tümEkranTuval çarptıMı çarpışma çizVeSakla
-src/main/resources/samples/tr/image-collage.kojo	eksik-ad	25		Görünüş Yazıyüzü araba elSallayanKadın kalem kaplumbağa saydamlık yarasa1 yarasa2 yazıYüzünüKur
+src/main/resources/samples/tr/hunted.kojo	platform	172	ses	Ses basDavulVuruşları canlan canlandırmaBaşlayınca durdur hızınıDönüştür mağarada müzikMp3üKapat müzikMp3üÇal müzikMp3üÇalDöngülü müzikMp3üÇalıyorMu oyunSüresiniGeriyeSayarakGöster sahneKenarındanYansıtma silVeÇizimBiriminiKur tuvalAlanı tuvalinSınırları tuşaBasılıMı tuşaBasınca tümEkranTuval çarptıMı çarpışma çizVeSakla
+src/main/resources/samples/tr/image-collage.kojo	eksik-ad	25		Görünüş Yazıyüzü elSallayanKadın kaplumbağa saydamlık yazıYüzünüKur
 src/main/resources/samples/tr/image-right-split.kojo	eksik-ad	22		kadınElSallarken Çizim
 src/main/resources/samples/tr/instruction-palette.kojo	platform	326	öykü	satır
 src/main/resources/samples/tr/kojo-documentation.kojo	platform	297	yükle,öykü	Kaplumbağa en Çizim çevir
-src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi.kojo	platform	37	ses	dikey düz fareKonumu oyunSüresiniGeriyeSayarakGöster rb vuruş yatay
-src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi0.kojo	platform	33	ses	dikey düz fareKonumu oyunSüresiniGeriyeSayarakGöster rb vuruş yatay
-src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi2.kojo	platform	39	ses	dikey düz fareKonumu oyunSüresiniGeriyeSayarakGöster rb vuruş yatay
+src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi.kojo	platform	37	ses	dikey düz fareKonumu oyunSüresiniGeriyeSayarakGöster yatay
+src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi0.kojo	platform	33	ses	dikey düz fareKonumu oyunSüresiniGeriyeSayarakGöster yatay
+src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi2.kojo	platform	39	ses	dikey düz fareKonumu oyunSüresiniGeriyeSayarakGöster yatay
 src/main/resources/samples/tr/kojo-kilavuz/ek-sayfa.kojo	platform	36	yükle,öykü	
 src/main/resources/samples/tr/kojo-kilavuz/komutlar-genel.kojo	platform	48	öykü	
 src/main/resources/samples/tr/kojo-kilavuz/ornek-yazilimlar.kojo	eksik-ad	244		Görünüş adı araba birsonrakiGiysi buAn durakla eksenleriGöster giysiKur giysileriKur konumuDeğiştir tuvalAlanı tuvaliKaydır yaklaş yarasa1 yarasa2 yazıYüzünüKur yazıyüzleri yazıyüzü yeniKaplumbağa ızgarayıGöster
 src/main/resources/samples/tr/kojo-kilavuz/renklendirilmis-teker.kojo	eksik-ad	32		yaklaş
 src/main/resources/samples/tr/kojo-kilavuz/turler.kojo	platform	227	öykü	
 src/main/resources/samples/tr/l-systems.kojo	eksik-ad	115		büyütmeOranı yaklaş
-src/main/resources/samples/tr/lamp-animation.kojo	eksik-ad	41		büyütmeOranı canlandırYenidenÇizerek doğrusalDeğişim kalemBoyu yayÇiz
+src/main/resources/samples/tr/lamp-animation.kojo	eksik-ad	41		canlandırYenidenÇizerek doğrusalDeğişim kalemBoyu yayÇiz
 src/main/resources/samples/tr/lamp-animation2.kojo	platform	37	canlandırma	DörtlüGirdiÇıktı Geçiş YumuşakGeçiş canlandırmaDizisi doğrusalDeğişim sonsuzYinelenme tersten
 src/main/resources/samples/tr/lighted-star.kojo	eksik-ad	21		SahneIşığı ışıklar
-src/main/resources/samples/tr/lunar-lander.kojo	platform	112	arayüz	ay boy durdur en sahneKenarındanYansıtma ta tuvalAlanı tuvalinTavanı tuşaBasılıMı çarptıMı
-src/main/resources/samples/tr/mandelbrot.kojo	eksik-ad	426		VarsılSayı başla bilgiVer boy durdur en fareKonumu fareyeBasınca fareyiBırakınca imgeNoktasınıKur paralel tuvalAlanı tuşaBasınca yaklaş zamanTut İmge
-src/main/resources/samples/tr/memory-cards.kojo	eksik-ad	117		gerekli rastgeleKarıştır tuvalAlanı yazıÇerçevesi çevir çizVeSakla
-src/main/resources/samples/tr/multiplication-game.kojo	platform	191	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi Yazıyüzü arayüz ay boşKenar buAn değeri değişmez durdur girdiDinleyiciEkle girdiOdağıOl girdiyiAktar olay sakla sütunSayısınıKur ta tuvalAlanı tuvalBölgesi tuşHarfi tuşKodu tüket yatay yatayDüzeniKur yazıRenkli yazıYüzü yazıYüzünüKur yazıyıAl yazıyıKur yazıÇerçevesi yineleSayaçla çerçeveci çerçeveyiKur çizgiKenar önalanıKur
+src/main/resources/samples/tr/lunar-lander.kojo	platform	112	arayüz	boy durdur en sahneKenarındanYansıtma tuvalAlanı tuvalinTavanı tuşaBasılıMı çarptıMı
+src/main/resources/samples/tr/mandelbrot.kojo	eksik-ad	426		durdur fareKonumu fareyeBasınca fareyiBırakınca imgeNoktasınıKur paralel tuvalAlanı tuşaBasınca zamanTut İmge
+src/main/resources/samples/tr/memory-cards.kojo	eksik-ad	117		gerekli rastgeleKarıştır tuvalAlanı yazıÇerçevesi çizVeSakla
+src/main/resources/samples/tr/multiplication-game.kojo	platform	191	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi Yazıyüzü arayüz ay boşKenar buAn değeri değişmez durdur girdiDinleyiciEkle girdiOdağıOl girdiyiAktar olay sakla sütunSayısınıKur tuvalAlanı tuvalBölgesi tuşHarfi tuşKodu tüket yatay yatayDüzeniKur yazıRenkli yazıYüzünüKur yazıyıAl yazıyıKur yazıÇerçevesi yineleSayaçla çerçeveci çerçeveyiKur çizgiKenar önalanıKur
 src/main/resources/samples/tr/oyku-tanimlari.kojo	platform	93	öykü	
 src/main/resources/samples/tr/penta-pattern.kojo	eksik-ad	20		çevir
-src/main/resources/samples/tr/physics-fma.kojo	eksik-ad	35		top1 top2
-src/main/resources/samples/tr/physics-uvats.kojo	eksik-ad	52		Görünüş araba durdur eksenleriGöster kalem tuşaBasınca yaklaş yeniKaplumbağa ızgarayıGöster
-src/main/resources/samples/tr/pong.kojo	platform	144	ses	Ses arabaKazaYaptı başaDön dikey durdur ikiÇizimArasıSüre kym sesMp3üÇal tuvalAlanı tuvalinTabanı tuvalinTavanı tuşaBasılıMı vuruş yazıRenkli çarptıMı çarpışma
+src/main/resources/samples/tr/physics-fma.kojo	çalışır	35		
+src/main/resources/samples/tr/physics-uvats.kojo	eksik-ad	52		Görünüş durdur eksenleriGöster kalem tuşaBasınca yaklaş yeniKaplumbağa ızgarayıGöster
+src/main/resources/samples/tr/pong.kojo	platform	144	ses	Ses arabaKazaYaptı durdur ikiÇizimArasıSüre kym sesMp3üÇal tuvalAlanı tuvalinTabanı tuvalinTavanı tuşaBasılıMı vuruş yazıRenkli çarptıMı çarpışma
 src/main/resources/samples/tr/prime-factors.kojo	eksik-ad	39		kojoÇalışmaSayfalıBakışaçısınıKur
 src/main/resources/samples/tr/primes.kojo	eksik-ad	43		kojoÇalışmaSayfalıBakışaçısınıKur
 src/main/resources/samples/tr/radiance.kojo	eksik-ad	24		merkezdenDışarıDoğruDeğişim tuvalAlanı
@@ -83,12 +83,12 @@ src/main/resources/samples/tr/random-dots.kojo	çalışır	12
 src/main/resources/samples/tr/rangoli.kojo	eksik-ad	83		Kaplumbağa artalandaOynat yeniKaplumbağa
 src/main/resources/samples/tr/read-vector-bargraph.kojo	platform	25	dosya	eksenleriGöster yazılımcıkDüzenleyicisiniEtkinleştir çıktıArtalanınıKur çıktıYazıRenginiKur ızgarayıGöster
 src/main/resources/samples/tr/read-vector-mean.kojo	platform	19	dosya	tümEkranÇıktı çıktıArtalanınıKur çıktıYazıRenginiKur
-src/main/resources/samples/tr/scala-tutorial.kojo	platform	1838	yükle,ses,öykü	adı ay boy değeri düz eksenleriGöster en eşitMiKüçükHarfBüyükHarfAyrımıYapmadan fareKonumu for gün hepsi içinde kıyaslaKüçükHarfBüyükHarfAyrımıYapmadan olay olmaz oyunSüresiniGeriyeSayarakGöster rb silipSakla sınıfı tr vuruş zaman Çizim çıktı üzerinde İngilizce ızgarayıGöster
+src/main/resources/samples/tr/scala-tutorial.kojo	platform	1838	yükle,ses,öykü	ay değeri düz eksenleriGöster eşitMiKüçükHarfBüyükHarfAyrımıYapmadan fareKonumu for gün hepsi içinde kıyaslaKüçükHarfBüyükHarfAyrımıYapmadan olay olmaz oyunSüresiniGeriyeSayarakGöster silipSakla sınıfı tr Çizim çıktı İngilizce ızgarayıGöster
 src/main/resources/samples/tr/shapes-cols.kojo	çalışır	25		
 src/main/resources/samples/tr/sierpinski-tri.kojo	eksik-ad	42		boy
 src/main/resources/samples/tr/snowflake.kojo	çalışır	64		
 src/main/resources/samples/tr/some-notes.kojo	çalışır	7		
-src/main/resources/samples/tr/spiral-effects.kojo	eksik-ad	28		artalan boy en gürültü ta tuvalAlanı örgü
+src/main/resources/samples/tr/spiral-effects.kojo	eksik-ad	28		boy en gürültü tuvalAlanı örgü
 src/main/resources/samples/tr/spiral-hexagon-tiles.kojo	eksik-ad	183		yaklaş
 src/main/resources/samples/tr/spiral-square-tiles.kojo	çalışır	85		
 src/main/resources/samples/tr/spiral.kojo	çalışır	15		
@@ -96,18 +96,18 @@ src/main/resources/samples/tr/sprite-animation.kojo	platform	36	ses	Görünüş 
 src/main/resources/samples/tr/sprite-boundary-polygon.kojo	eksik-ad	71		Dizik EsnekDizik Görünüş başla bitir eksenleriGöster fareyeTıklıyınca kadınElSallarken noktadan silipSakla veBoya veKalemKalınlığıyla veKalemRengiyle veKondur çizBaştan ızgarayıGöster
 src/main/resources/samples/tr/square-pattern.kojo	eksik-ad	19		çevir
 src/main/resources/samples/tr/square.kojo	çalışır	6		
-src/main/resources/samples/tr/subtraction-game.kojo	platform	192	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi Yazıyüzü arayüz ay boşKenar buAn değeri değişmez durdur girdiDinleyiciEkle girdiOdağıOl girdiyiAktar olay sakla sütunSayısınıKur ta tuvalAlanı tuvalBölgesi tuşHarfi tuşKodu tüket yatay yatayDüzeniKur yazıRenkli yazıYüzü yazıYüzünüKur yazıyıAl yazıyıKur yazıÇerçevesi yineleSayaçla çerçeveci çerçeveyiKur çizgiKenar önalanıKur
+src/main/resources/samples/tr/subtraction-game.kojo	platform	192	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi Yazıyüzü arayüz ay boşKenar buAn değeri değişmez durdur girdiDinleyiciEkle girdiOdağıOl girdiyiAktar olay sakla sütunSayısınıKur tuvalAlanı tuvalBölgesi tuşHarfi tuşKodu tüket yatay yatayDüzeniKur yazıRenkli yazıYüzünüKur yazıyıAl yazıyıKur yazıÇerçevesi yineleSayaçla çerçeveci çerçeveyiKur çizgiKenar önalanıKur
 src/main/resources/samples/tr/synchronized-squares.kojo	eksik-ad	29		Kaplumbağa artalandaOynat boy yeniKaplumbağa
 src/main/resources/samples/tr/synchronized-squares2.kojo	eksik-ad	30		Kaplumbağa boy davran yeniKaplumbağa
-src/main/resources/samples/tr/tan-theta.kojo	eksik-ad	22		doğrusalDeğişim çıktı
-src/main/resources/samples/tr/tangram-skier.kojo	eksik-ad	149		boy büyütmeOranı silVeÇizimBiriminiKur yaklaş çarptıMı
-src/main/resources/samples/tr/tic-tac-toe.kojo	eksik-ad	270		artalan bilgiVer boy fareyeBasınca satır sütun ta tuvalAlanı
+src/main/resources/samples/tr/tan-theta.kojo	eksik-ad	22		doğrusalDeğişim
+src/main/resources/samples/tr/tangram-skier.kojo	eksik-ad	149		büyütmeOranı silVeÇizimBiriminiKur yaklaş çarptıMı
+src/main/resources/samples/tr/tic-tac-toe.kojo	eksik-ad	270		fareyeBasınca tuvalAlanı
 src/main/resources/samples/tr/tree0.kojo	eksik-ad	35		boy kym
 src/main/resources/samples/tr/tree1.kojo	eksik-ad	33		aydınlık
 src/main/resources/samples/tr/tree2.kojo	eksik-ad	29		başla bitir doğrusalDeğişim kalemBoyu kym noktadan
 src/main/resources/samples/tr/tune1.kojo	çalışır	9		
 src/main/resources/samples/tr/tune2.kojo	platform	11	ses	
-src/main/resources/samples/tr/turtle-controller.kojo	eksik-ad	77		boy düğme en tuvalAlanı yorumla
+src/main/resources/samples/tr/turtle-controller.kojo	eksik-ad	77		tuvalAlanı yorumla
 src/main/resources/samples/tr/two-turtle-interaction.kojo	eksik-ad	24		davran fareKonumu yeniKaplumbağa çevir
 src/main/resources/samples/tr/two-turtle-interaction2.kojo	eksik-ad	28		fareKonumu tepkiVer yeniKaplumbağa çevir
 src/main/resources/samples/tr/unit-circle.kojo	eksik-ad	106		durdur düz kalemBoyu tümEkranTuval
