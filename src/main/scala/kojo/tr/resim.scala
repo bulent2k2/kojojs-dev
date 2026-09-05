@@ -195,6 +195,13 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def konum: Nokta = r.position
     def doğrultu: Kesir = r.heading
     def konumuKur(x: Kesir, y: Kesir): Birim = r.setPosition(x, y)
+    // masaüstü Resim yöntemleri (sınıf içi): götür = translate, kondur = setPosition
+    def konumuKur(n: Nokta): Birim = r.setPosition(n.x, n.y)
+    def kondur(x: Kesir, y: Kesir): Birim = r.setPosition(x, y)
+    def kondur(n: Nokta): Birim = r.setPosition(n.x, n.y)
+    def götür(x: Kesir, y: Kesir): Birim = r.translate(x, y)
+    def götür(n: Nokta): Birim = r.translate(n.x, n.y)
+    def götür(yy: Yöney2B): Birim = r.translate(yy.x, yy.y)
     def açıyaDön(açı: Kesir): Birim = r.setHeading(açı)
     def döndür(açı: Kesir): Birim = r.rotate(açı)
     def döndürMerkezli(açı: Kesir, x: Kesir, y: Kesir): Birim = r.rotateAboutPoint(açı, x, y)

@@ -87,7 +87,8 @@ trait SesYöntemleri extends TemelTürler {
       osilatör.frequency.value = notaFrekansı(nota)
       val şimdi = ctx.currentTime.asInstanceOf[Double]
       val süre = süreMiliSaniye / 1000.0
-      val düzey = ses / 127.0 * 0.3 // hoparlörü patlatmadan
+      // exponentialRamp sıfırdan başlayamaz (tanımsız); ses = 0 için ufak taban
+      val düzey = math.max(ses / 127.0 * 0.3, 1e-4) // hoparlörü patlatmadan
       kazanç.gain.setValueAtTime(düzey, şimdi)
       kazanç.gain.exponentialRampToValueAtTime(0.001, şimdi + süre)
       osilatör.connect(kazanç)

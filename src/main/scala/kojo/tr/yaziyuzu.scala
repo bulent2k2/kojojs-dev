@@ -15,7 +15,6 @@ trait YazıyüzüYöntemleri extends TemelTürler {
     val DÜZ = 0
     val KALIN = 1
     val EĞİK = 2
-    def apply(ad: Yazı, biçem: Sayı, boy: Sayı, öncelik: Birim): Yazıyüzü = Yazıyüzü(ad, boy, biçem)
   }
   def yazıyüzü(adı: Yazı, boyu: Sayı): Yazıyüzü = Yazıyüzü(adı, boyu)
   def yazıyüzü(adı: Yazı, boyu: Sayı, biçem: Sayı): Yazıyüzü = Yazıyüzü(adı, boyu, biçem)
