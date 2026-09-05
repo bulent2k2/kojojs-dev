@@ -101,6 +101,7 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
 
   // ---- çizim yardımcıları ----
   def çiz(resimler: Resim*): Birim = kb.draw(resimler: _*)
+  def çiz(resimler: collection.Seq[Resim]): Birim = kb.draw(resimler) // masaüstü çiz(Diz[Resim]); çiz(yöney.işle(f))
   def çizMerkezde(r: Resim): Birim = kb.drawCentered(r)
   def çizSahne(boya: Renk): Birim = kb.drawStage(boya)
   // zoomXY: tuvali x ve y'de ölçekle ve (mx,my) merkeze kaydır. Birim çember
