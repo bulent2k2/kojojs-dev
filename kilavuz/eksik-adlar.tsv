@@ -1,65 +1,32 @@
 # uret.py: kılavuz örneklerinde geçen, ikojo'da bulunmayan masaüstü adları
 ad	örnek	bölümler	ikojo karşılığı
-yaklaş	7	b02 b03	yaklaşXY(k, k, x, y)
-silipSakla	5	b02 b18	silVeSakla
-Görünüş	5	b03	
-eksenleriGöster	4	b02 b03 b05	
-ızgarayıGöster	4	b02 b03 b05	
 kaplumbağa0	4	b02 b03 b05	
-gerekli	4	b05 b07	require
 eksenleriGizle	3	b02 b03 b05	
 ızgarayıGizle	3	b02 b03 b05	
-yeniKaplumbağa	3	b02 b03	
 konumuDeğiştir	3	b02 b03	
 tuvaliKaydır	3	b03	
-yazıyüzleri	3	b03	
-yazıYüzünüKur	3	b03	
-yazıyüzü	3	b03	
-durakla	3	b03	
-tuvalAlanı	3	b03 b07	tuvalSınırları
 birsonrakiGiysi	3	b03	
-araba	3	b03	
 giysileriKur	3	b03	
-yarasa1	3	b03	
-yarasa2	3	b03	
 ışınlarıAç	2	b02 b03	
 ışınlarıKapat	2	b02 b03	
 canlandırmaHızı	2	b02 b03	
-fareKonumu	2	b18	
 BuAn	2	b06 b18	buSaniye
 tuvaliDöndür	2	b03	
 giysiKur	2	b03	
 BKK	2	b07	
 ay	2	b07	
 rastgeleÇanEğrisinden	1	b14	rastgeleDoğalKesir
-rastgeleİkil	1	b14	rastgeleSeçim
-rastgeleKarıştır	1	b14	
-kıyaslaKüçükHarfBüyükHarfAyrımıYapmadan	1	b16	
-eşitMiKüçükHarfBüyükHarfAyrımıYapmadan	1	b16	
-oyunSüresiniGeriyeSayarakGöster	1	b18	oyunSüresiniGöster
-tuşaBasınca	1	b18	onKeyPress
-durdur	1	b18	canlandırmayıDurdur
 gridiGizle	1	b03	
-gridiGöster	1	b03	
 yaklaşmayıSil	1	b03	yaklaşXY(1, 1, 0, 0)
 kalemİnikMi	1	b03	
-buAn	1	b03	buSaniye
 giysiyiBüyült	1	b03	
-Dizik	1	b06	
-EsnekDizik	1	b06	
 Boya	1	b06	
-Yazıyüzü	1	b06	
 Üçgen	1	b06	
 Takvim	1	b06	
 Tarih	1	b06	
 SaatDilimi	1	b06	
-İşlev1	1	b06	
-İşlev2	1	b06	
-İşlev3	1	b06	
 UzunlukBirimi	1	b07	
 Biçim	1	b07	
-GeoYol	1	b07	
-GeoNokta	1	b07	
 Grafik2B	1	b07	
 İmge	1	b07	
 İmgeİşlemi	1	b07	
@@ -68,7 +35,6 @@ Bellekteİmgeİşlemi	1	b07
 ÇiniDünyası	1	b07	
 ÇiniXY	1	b07	
 BirSayfaKostüm	1	b07	
-Mp3Çalar	1	b07	
 Canlandırma	1	b07	
 veBüyüt	1	b07	
 BelirtimHatası	1	b07	
