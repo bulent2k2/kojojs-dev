@@ -400,6 +400,8 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     val d = Dizik(3, 1, 2)
     d.length shouldBe 3
     Dizik.boş[Sayı](4).length shouldBe 4
+    Dizik.boş[Sayı]().length shouldBe 0
+    Dizik.boş[Sayı](2, 3).map(_.length).sum shouldBe 6 // aşırı yükleme: (a, b) örtük liste sanılmasın
     Dizik.doldur(2, 3)(7).map(_.sum).sum shouldBe 42
     val e = EsnekDizik(1, 2)
     e += 3

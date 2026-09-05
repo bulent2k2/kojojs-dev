@@ -16,7 +16,9 @@ trait DizikYöntemleri extends TemelTürler {
   type Dizik[T] = Array[T]
   object Dizik {
     def apply[T: ClassTag](ögeler: T*): Dizik[T] = Array(ögeler: _*)
-    def boş[T: ClassTag]: Dizik[T] = Array.empty[T]
+    // parantezli: parantezsiz olsaydı Dizik.boş[Nokta](a, b) çağrısı (a, b)'yi örtük
+    // liste sanır (Scala 2 tuzağı) -- "too many arguments" (genart-tri-mesh)
+    def boş[T: ClassTag](): Dizik[T] = Array.empty[T]
     def boş[T: ClassTag](b1: Sayı): Dizik[T] = Array.ofDim[T](b1)
     def boş[T: ClassTag](b1: Sayı, b2: Sayı): Dizik[Dizik[T]] = Array.ofDim[T](b1, b2)
     def boş[T: ClassTag](b1: Sayı, b2: Sayı, b3: Sayı): Dizik[Dizik[Dizik[T]]] = Array.ofDim[T](b1, b2, b3)
