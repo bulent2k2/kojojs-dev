@@ -31,3 +31,13 @@ terimler de sözlüğe işlendi (koyu renkler, Dönüştürücü, renkliYazı, b
 aliaslar, oyun API'leri, bölünüyorMu/belirt/buSaniye, Yığın koy/al/tane…).
 
 Canlı (Claude artifact): sözlük ve dokuz dilli dizin `/yardim`'den de bağlı.
+
+## ikojo'da: `/yardim/sozluk`
+
+`koco-sozlugu.html` ikojo'da da sunuluyor: <https://ikojo.fly.dev/yardim/sozluk>.
+kojojs-editor bu dosyanın bir kopyasını `server/src/main/public/sozluk/koco-sozlugu.html`
+olarak (statik varlık, `/assets/sozluk/koco-sozlugu.html`) taşır; `yardimSozluk.scala.html`
+şablonu onu yardım sayfalarının gezinti şeridi altında bir iframe içinde açar.
+Buradaki dosya değişince o kopyayı da güncelleyin (`cp sozluk/koco-sozlugu.html
+<kojojs-editor>/server/src/main/public/sozluk/`). Kılavuzlar (`/yardim/skala`,
+`/yardim/komutlar`) için bkz. `../kilavuz/README.md`.
