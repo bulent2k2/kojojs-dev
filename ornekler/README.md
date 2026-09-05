@@ -41,6 +41,19 @@ programlarda `çokHızlı` kullanmak gerekir. Ara değerler: `yavaş`, `orta`,
 kontrol eder — yani bozuk bir örnek fark edilmeden kalmaz:
 
 ```sh
-./ornekleri-dogrula.sh                      # canlı sunucuya karşı
+./ornekleri-dogrula.sh                              # canlı sunucuya karşı, bu dizindeki 10 örnek
 KOCO=http://localhost:7860 ./ornekleri-dogrula.sh   # yerel konteynere karşı
+./ornekleri-dogrula.sh masaustu                     # masaüstü betikleri (özyineli)
+./ornekleri-dogrula.sh -g masaustu/derleme.tsv masaustu   # sonucu TSV'ye yaz
+./ornekleri-dogrula.sh -b masaustu/derleme.tsv masaustu   # öncekiyle karşılaştır; yalnız gerileme hata
 ```
+
+Dosya ya da dizin verilebilir; `-b` olmadan her kaldı çıkış kodu 1'dir (buradaki
+10 örneğin hepsi geçmeli). `-b` ile beklenen durum dosyasına göre yalnız gerileme
+(geçti → kaldı) hata sayılır; ilerleme ⬆ ile işaretlenir.
+
+## Masaüstü betikleri (`masaustu/`)
+
+`bulent2k2/kojo` reposundaki 112 Türkçe betiğin değiştirilmemiş kopyası ve
+uçurum ölçümü (`tarama.tsv`). Ayrıntı: `masaustu/README.md`, ölçüm aracı
+`../araclar/ucurum.py`.

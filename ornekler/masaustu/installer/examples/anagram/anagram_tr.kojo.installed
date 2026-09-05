@@ -1,0 +1,59 @@
+// #yükle tr/sozcuk-dizinini-yukle
+// Yazar: Bulent Basaran
+tür Sözcük = Yazı
+tür Tümce = Dizin[Sözcük]
+tür HarfSayıları = Dizin[(Harf, Sayı)]
+dez sözlük: Dizin[Sözcük] = sözcükDizininiYükle
+tanım sözcüğünHarfSayıları(s: Sözcük): HarfSayıları = s.öbekle(_.küçükHarfe).işle { durum (a, d) => (a, d.boyu) }.dizine.yinelemesiz
+tanım tümceninHarfSayıları(t: Tümce): HarfSayıları = sözcüğünHarfSayıları(t.yazıYap)
+miskin dez harfSayılarındanSözcüklere: Eşlek[HarfSayıları, Dizin[Sözcük]] = sözlük.öbekle(sözcüğünHarfSayıları(_)) varsayılanDeğerle Boş
+tanım evirmeceler(sözcük: Sözcük): Dizin[Sözcük] = harfSayılarındanSözcüklere(sözcüğünHarfSayıları(sözcük))
+tanım kombinasyonlar(harfSayıları: HarfSayıları): Dizin[HarfSayıları] = {
+    tanım tekHarfDurumu(harfVeSayısı: (Harf, Sayı)): Dizin[HarfSayıları] = Dizin() :: (harfVeSayısı eşle {
+        durum (harf, kaçTane) => (için (s <- 1 |-| kaçTane) ver Dizin(harf -> s)).dizine
+    })
+    harfSayıları eşle {
+        durum Boş         => Dizin(Dizin())
+        durum başı :: Boş => tekHarfDurumu(başı)
+        durum başı :: kuyruğu => için {
+            öge <- tekHarfDurumu(başı)
+            altKüme <- kombinasyonlar(kuyruğu)
+        } ver öge ++ altKüme
+    }
+}
+tanım çıkar(birinciDizin: HarfSayıları, ikinciDizin: HarfSayıları): HarfSayıları =
+    ikinciDizin.soldanKatla(birinciDizin.eşleğe) { (eşlek, öge) =>
+        öge eşle {
+            durum (harf, kaçTane) => {
+                dez ilkDeğer = eşlek(harf)
+                eğer (ilkDeğer == kaçTane) eşlek - harf yoksa eşlek.değiştirilmiş(harf, ilkDeğer - kaçTane)
+            }
+        }
+    }.dizine.yinelemesiz
+tanım tümceEvirmece(tümce: Tümce): Dizin[Tümce] = {
+    tanım özyineleme(hs: HarfSayıları): Dizin[Tümce] =
+        hs eşle {
+            durum Boş => Dizin(Boş)
+            durum _ => için {
+                biri <- kombinasyonlar(hs)
+                ilkSözcük <- harfSayılarındanSözcüklere(biri)
+                tümceninGerisi <- özyineleme(çıkar(hs, biri))
+            } ver ilkSözcük :: tümceninGerisi
+        }
+    özyineleme(tümceninHarfSayıları(tümce))
+}
+
+// Döngünün içindeki diziye başka tümceler de ekleyebilirsin.
+// Ama çok uzun olmasın. Yoksa çok zaman alabilir.
+için (
+    tümce <- Dizi(
+        "al ver",
+        "lütfen gel",
+        "sevdim onu"
+    )
+) {
+    dez evrik = zamanTut("Tümcenin evirmecelerinin hepsini bulmak") { tümceEvirmece(tümce.böl(" ").dizine).işle(_.işle(_.küçükHarfe)) }()
+    satıryaz(tümce.yazıYap(
+        "Tümce: ", "", s".\n${evrik.boyu} evirmecesi var: ${evrik.işle(_.yazıYap(" ")).yazıYap("", ", ", ".\n")}"
+    ))
+}

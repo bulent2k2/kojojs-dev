@@ -1,0 +1,74 @@
+//#yükle tr/anaTanimlar
+//#yükle tr/eTahta
+//#yükle tr/araYuz
+//#yükle tr/alfabeta
+
+dez açıklama = <html> 
+ <em> KojOtello'ya hoşgeldin! </em> Bu güzel oyun hakkında bilgi edinmek için
+ <br/>
+ internette "wiki reversi" diye arama yapabilirsin.
+  </html>.yazıya
+
+dez ay_çeşniler = ay.Salındıraç("geleneksel", "bir çeşni")
+dez ay_tahta = ay.Salındıraç(8, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+dez ay_tahta2 = ay.Salındıraç(7, 8, 9, 10, 11, 12) // todo
+dez ay_ilk = ay.Salındıraç("Siyah", "Beyaz")
+dez ay_düzey = ay.Salındıraç("Er", "Çırak", "Kalfa", "Usta", "Doktor", "Deha")
+dez ay_bilgisayar = ay.Salındıraç(
+    "Oynamasın",
+    "Siyahları oynasın",
+    "Beyazları oynasın"
+)
+
+tanım menu: Birim = {
+    silVeSakla
+    çizMerkezde(büyüt(1.8) ->
+        Resim.arayüz(
+            ay.Sütun(
+                ay.Sıra(ay.Tanıt(açıklama)),
+                ay.Sıra(ay.Tanıt("Başlangıç taşları:"), ay_çeşniler),
+                ay.Sıra(ay.Tanıt("Tahta:"), ay_tahta),
+                ay.Sıra(ay.Tanıt("Kim başlar:"), ay_ilk),
+                ay.Sıra(ay.Tanıt("Düzey:"), ay_düzey),
+                ay.Sıra(ay.Tanıt("Bilgisayar:"), ay_bilgisayar),
+                ay.Sıra(ay.Düğme("Oyna!") {
+                    dez odaSayısı = ay_tahta.değeri
+                    dez çeşni = ay_çeşniler.değeri eşle {
+                        durum "geleneksel" => 0
+                        durum _            => 1
+                    }
+                    eğer (çeşni != 0 && odaSayısı < 7) {
+                        satıryaz("Çeşnili başlangıç taşları için 7x7 ya da daha iri bir tahta seç!")
+                    }
+                    yoksa {
+                        dez kimBaşlar = ay_ilk.değeri eşle {
+                            durum "Siyah" => Siyah
+                            durum _       => Beyaz
+                        }
+                        dez düzey = ay_düzey.değeri eşle {
+                            durum "Er"     => Er
+                            durum "Çırak"  => Çırak
+                            durum "Kalfa"  => Kalfa
+                            durum "Usta"   => Usta
+                            durum "Doktor" => Doktor
+                            durum "Deha"   => Deha
+                            durum _        => Kalfa
+                        }
+                        dez bilgisayar = ay_bilgisayar.değeri eşle {
+                            durum "Siyahları oynasın" => Siyah
+                            durum "Beyazları oynasın" => Beyaz
+                            durum "Oynamasın"         => Yok
+                            durum _                   => Yok
+                        }
+                        dez tahta = yeni ETahta(odaSayısı, kimBaşlar, çeşni)
+                        çıktıyıSil
+                        ABa.ustalık(düzey)
+                        yeni Arayüz(tahta, yeni Bellek(tahta), bilgisayar)
+                    }
+                })
+            )
+        )
+    )
+    yaklaşXY(0.8, 1.0, 0, 0)
+}
+menu
