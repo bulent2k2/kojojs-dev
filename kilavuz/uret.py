@@ -113,7 +113,7 @@ KARSILIK = {
     'ızgarayıGizle': '',
     'eksenleriGöster': '',
     'eksenleriGizle': '',
-    'kaplumbağa0': '',
+    'kaplumbağa0': 'kaplumbağa',
     'yeniKaplumbağa': '',
     'fareKonumu': '',
     'tuvaleYaz': 'yazı',

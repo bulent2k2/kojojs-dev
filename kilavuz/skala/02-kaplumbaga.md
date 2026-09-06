@@ -46,7 +46,7 @@ birÜçgenÇiz()
 | `ışınlarıAç()` | Dört yönü belirten farlar yansın |
 | `ışınlarıKapat()` | Farları söndürelim |
 | `satıryaz(canlandırmaHızı)` | 100 adımı şu anda kaç milisaniyede attığını bildirir |
-| `kaplumbağa0.geri(100)` | Başlangıçtaki kaplumbağamızın adı `kaplumbağa0`. Onu yöntemleriyle de çağırabiliriz |
+| `kaplumbağa.geri(100)` | Başlangıçtaki kaplumbağamızın adı `kaplumbağa`. Onu yöntemleriyle de çağırabiliriz |
 
 Tuvali silmek için `sil()` komutunu kullan (masaüstünde tuvale sağ tıklayıp Temizle'ye de basabilirsin). Şimdi biraz daha uzun örnekler:
 

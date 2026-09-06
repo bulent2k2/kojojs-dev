@@ -282,8 +282,8 @@ Scala ve Kojo'daki herşey bir yazılım nesnesi ve bunlara bizim kaplumbağamı
 
 | Komut | Açıklama | Örnekler |
 |---|---|---|
-| `kaplumbağa0` | Kaplumbağamızın nesne adı bu. | `kaplumbağa0.ileri(100)` `kaplumbağa0.ev` |
-| `yeniKaplumbağa(100, 100)` | x=100 y=100 noktasında yeni bir kaplumbağa canlandırır. | `kaplumbağa0.sil` |
+| `kaplumbağa` | Kaplumbağamızın nesne adı bu. | `kaplumbağa.ileri(100)` `kaplumbağa.ev` |
+| `yeniKaplumbağa(100, 100)` | x=100 y=100 noktasında yeni bir kaplumbağa canlandırır. | `dez k = yeniKaplumbağa(50, 50)` `k.ileri(50)` |
 
 ```scala
 sil
