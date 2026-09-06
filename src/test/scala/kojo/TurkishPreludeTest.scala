@@ -260,6 +260,8 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       sesMp3üÇal(Ses.vuruş); müzikMp3üÇalDöngülü(Ses.mağarada)
       notaÇalgısınıKur(Çalgı.AkustikBas); notaÇal(50, 150)
       val araba = Resim.imge(Görünüş.araba)
+      val arabaK = yeniKaplumbağa(0, 0, Görünüş.araba) // giysili kaplumbağa (physics-uvats)
+      arabaK.ileri(1)
       // Devre 6
       nokta(35); nokta()
       val sayaç = Resim.yazıRenkli("0", 20, siyah)
