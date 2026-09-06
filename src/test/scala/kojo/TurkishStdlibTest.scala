@@ -453,6 +453,11 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     Renk(255, 0, 0) shouldBe Renkler.kırmızı
     Renk(0, 0, 255, 128).alpha.get shouldBe (128 / 255.0) +- 1e-6
     Renk(0x365348) shouldBe Renk.kym(0x36, 0x53, 0x48)
+    // renk çemberinde döndürme ve açıklık (masaüstü ColorYöntemleri)
+    Renkler.kırmızı.çevir(120) shouldBe Renkler.kırmızı.spin(120)
+    Renkler.kırmızı.çevirOranla(1.0 / 3) shouldBe Renkler.kırmızı.spin(120)
+    Renkler.gri.dahaAçıkYap(0.2) shouldBe Renkler.gri.lighten(0.2)
+    Renkler.gri.dahaKoyuYap(0.2) shouldBe Renkler.gri.darken(0.2)
     // Font(ad, boy) masaüstündeki java.awt.Font yapıcısının iki değişkenli hâli
     Font("JetBrains Mono", 40) shouldBe yazıyüzü("JetBrains Mono", 40)
     Font("serif", 12).boy shouldBe 12

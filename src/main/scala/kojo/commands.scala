@@ -20,6 +20,10 @@ case class SetPenFontSize(n: Int) extends Command
 case class SetPenFontFamily(name: String) extends Command // yazıyüzü ailesi (Koco Yazıyüzü)
 case class Dot(diameter: Double) extends Command // nokta: kalemin bulunduğu yere dolu daire
 case class Towards(x: Double, y: Double) extends Command
+// Başka bir kaplumbağaya dönme. Hedefin konumu KOMUT ÇALIŞIRKEN okunur:
+// öbür kaplumbağanın kendi kuyruğu var, kuyruğa konurken okunsa eski konuma
+// dönülürdü (masaüstünde de anlık konum okunuyor).
+case class TowardsTurtle(other: Turtle) extends Command
 case object SavePosHe extends Command
 case object RestorePosHe extends Command
 case object SaveStyle extends Command
