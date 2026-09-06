@@ -41,6 +41,45 @@ Harici kütüphane yok; python3 standart kütüphanesi yeter. Çıktılar:
 editörün `decodeSource`'u ile birebir (base64Url → GZIPInputStream). URL 2048
 karakteri aşarsa bağlantı yerine **Kopyala** düğmesi üretilir.
 
+## Örnek listesi sayfası (`ornekler.py`)
+
+`kilavuz/ornekler.py` ayrı bir üreteç: `/yardim/ornekler` sayfasını, yani
+masaüstü Koco'nun Örnekler + Sergi menülerinden ve ikojo'nun kendi
+örneklerinden derlenen betik listesini üretir. Her satır `/ornek/<yol>`
+bağlantısı ve bir durum rozeti taşır.
+
+```sh
+python3 kilavuz/ornekler.py                    # kilavuz/html/ornekler.html
+python3 kilavuz/ornekler.py --twirl ../kojojs-editor/server/src/main/twirl/views
+                                               # + yardimOrnekler.scala.html
+python3 kilavuz/ornekler.py --kojo ~/src/kojo  # masaüstü klonunu göster
+```
+
+Okuduğu kaynaklar:
+
+| Kaynak | Ne için |
+|---|---|
+| kojo klonu `lite/AppMenu.scala` | Örnekler ve Sergi menülerinin sırası/grupları |
+| kojo klonu `Bundle_tr.properties` | menü anahtarlarının Türkçe başlıkları |
+| `ornekler/README.md` | ikojo'nun kendi örnekleri (dosya + açıklama) |
+| `ornekler/masaustu/derleme.tsv` | **varsa yeğlenir**: gerçek derleme sonucu |
+| `ornekler/masaustu/tarama.tsv` | yedek: `araclar/ucurum.py` ad taraması |
+
+Rozetler iki kaynağı **birleştirir**: durum `derleme.tsv`'den gelir, ama bir
+betik derlemede `kaldı` ve taramada `platform` ise "masaüstü" rozeti ve engel
+adı (Swing arayüzü, öykü anlatıcı, MIDI…) korunur — orada eksik olan komut
+değil platformdur. `kaldı` satırlarında derleyicinin hata özeti rozetin
+`title`'ında görünür.
+
+`--twirl` çıktısı `uret.py`nin şablonlarıyla aynı kurallara uyar (elle
+düzenlemeyin, yeniden üretin) ve Twirl'ün 65535 baytlık metot sınırına
+takılmamak için sayfa parçalara bölünür.
+
+> `menuler()` masaüstü `AppMenu.scala` içindeki sabit satırlara
+> (`menuBar.add(samplesMenu)` gibi) dayanır: kojo klonu **master**ta güncel
+> olmalı; upstream orayı değiştirirse üreteç sessizce bozulmak yerine
+> `ValueError` ile durur ve buradaki desen güncellenir.
+
 ## Markdown alt kümesi
 
 `# Başlık` (bölüm adı; dosya başında, bir kez), `##`/`###`/`####` alt başlıklar,

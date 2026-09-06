@@ -90,7 +90,7 @@ KILAVUZLAR = collections.OrderedDict([
 
 # Yardım sayfaları arası gezinti şeridi (mevcut yardim.scala.html ile aynı sıra)
 GEZINTI = [('/yardim', 'Yardım'), ('/yardim/skala', 'Skala'), ('/yardim/komutlar', 'Komutlar'),
-           ('/yardim/sozluk', 'Sözlük'), ('/yardim/farklar', 'Farklar')]
+           ('/yardim/ornekler', 'Örnekler'), ('/yardim/sozluk', 'Sözlük'), ('/yardim/farklar', 'Farklar')]
 
 # ikojo'da olmayan masaüstü adı -> ikojo karşılığı (bilinenler). Boş dizge: karşılığı yok.
 KARSILIK = {
@@ -671,7 +671,7 @@ def sayfa_html(anahtar, bolumler, twirl):
            alt=html.escape(bilgi['alt']), govde='\n'.join(govde), js=JS)
 
 
-def twirl_yap(html_metin, kaynak_dizin):
+def twirl_yap(html_metin, kaynak, komut='python3 kilavuz/uret.py --twirl <editor>/server/src/main/twirl/views'):
     govde = html_metin.replace('@', '@@')
     # Twirl statik metni Scala dizge sabitlerine çevirir; JVM'de bir sabit en çok
     # 65535 bayt olabilir. Twirl'ün yeni sürümleri uzun metni kendisi bölüyor ama
@@ -679,9 +679,9 @@ def twirl_yap(html_metin, kaynak_dizin):
     # ifadesi koyarak metni parçalara ayırıyoruz (etiketler arasında; <pre> dışında).
     govde = govde.replace('</section>\n<section', '</section>\n@("")\n<section')
     govde = govde.replace('</pre><div class="kod-alt">', '</pre>@("")<div class="kod-alt">')
-    return ('@()\n@* ÜRETİLMİŞ DOSYA -- elle düzenleme. Kaynak: kojojs-dev/kilavuz/%s/*.md, üretim:\n'
-            '   python3 kilavuz/uret.py --twirl <editor>/server/src/main/twirl/views\n'
-            '   İçerikteki her "@" Twirl için "@@" yapılmıştır. *@\n' % kaynak_dizin) + govde
+    return ('@()\n@* ÜRETİLMİŞ DOSYA -- elle düzenleme. Kaynak: %s, üretim:\n'
+            '   %s\n'
+            '   İçerikteki her "@" Twirl için "@@" yapılmıştır. *@\n' % (kaynak, komut)) + govde
 
 
 def uret(anahtar, denetci, twirl_dizin):
@@ -705,7 +705,7 @@ def uret(anahtar, denetci, twirl_dizin):
         metin = sayfa_html(anahtar, bolumler, twirl)
         if twirl:
             hedef = os.path.join(twirl_dizin, KILAVUZLAR[anahtar]['twirl'])
-            metin = twirl_yap(metin, anahtar)
+            metin = twirl_yap(metin, 'kojojs-dev/kilavuz/%s/*.md' % anahtar)
         else:
             os.makedirs(os.path.join(BURASI, 'html'), exist_ok=True)
             hedef = os.path.join(BURASI, 'html', anahtar + '.html')
