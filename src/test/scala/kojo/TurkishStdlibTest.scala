@@ -458,6 +458,68 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     Font("serif", 12).boy shouldBe 12
   }
 
+  test("Dizim: çok boyutlu boş/doldur, iç katman Array (tic-tac-toe, genart-tri-mesh)") {
+    // 2 boyutlu doldur: tic-tac-toe'nun `Dizim.doldur[Hane](3, 3)(Boş)` kullanımı
+    val tahta = Dizim.doldur[Yazı](3, 3)("boş")
+    tahta.boyu shouldBe 3
+    tahta(0).length shouldBe 3
+    tahta(1)(2) shouldBe "boş"
+    // asıl mesele: `tahta(x)(y) = değer` derlenebilmeli (Array.update)
+    tahta(1)(2) = "insan"
+    tahta(1)(2) shouldBe "insan"
+    tahta(0)(2) shouldBe "boş" // satırlar paylaşılmıyor
+
+    // 2 boyutlu boş: genart-tri-mesh'in `Dizim.boş[Nokta](n + 2, n + 2)` kullanımı
+    val n = Dizim.boş[Sayı](2, 3)
+    n.boyu shouldBe 2
+    n(0).length shouldBe 3
+    n(1)(0) = 7
+    n(1)(0) shouldBe 7
+
+    // 3 boyutlu, masaüstündeki üçüncü aşırı yükleme
+    val ü = Dizim.doldur[Sayı](2, 2, 2)(0)
+    ü(1)(1)(1) = 5
+    ü(1)(1)(1) shouldBe 5
+    // ara değişken şart: `Dizim.boş[Sayı](1, 1, 1)(0)` yazılırsa Scala 2 `(0)`ı
+    // örtük ClassTag listesi sanıyor (dosyanın başındaki `boş()` notuyla aynı tuzak)
+    val ü3 = Dizim.boş[Sayı](1, 1, 1)
+    ü3(0)(0).length shouldBe 1
+
+    // tek boyutlu imzalar bozulmadı
+    Dizim.doldur[Sayı](3)(9).diziye shouldBe Seq(9, 9, 9)
+    Dizim.boş[Sayı](2).boyu shouldBe 2
+    Dizim.boş[Sayı]().boyu shouldBe 0
+  }
+
+  test("Dizik: Array'in Türkçe yöntemleri (masaüstü ArrayMethods)") {
+    // tic-tac-toe iç satırlara böyle erişiyor: `tahta(x).diziye`
+    val ızgara = Dizim.doldur[Yazı](2, 3)("boş")
+    val satır = ızgara(1)
+    satır.diziye shouldBe Seq("boş", "boş", "boş")
+    satır.boyu shouldBe 3
+
+    val d: Dizik[Sayı] = Dizik(3, 1, 2)
+    d.başı shouldBe 3
+    d.sonu shouldBe 2
+    d.sıralı.diziye shouldBe Seq(1, 2, 3)
+    d.ele(_ > 1).diziye shouldBe Seq(3, 2)
+    d.işle(_ * 2).diziye shouldBe Seq(6, 2, 4)
+    d.topla shouldBe 6
+    d.enİrisi shouldBe 3
+    d.enUfağı shouldBe 1
+    d.say(_ > 1) shouldBe 2
+    d.içeriyorMu(2) shouldBe true
+    d.sırası(1) shouldBe 1
+    d.tersi.diziye shouldBe Seq(2, 1, 3)
+    d.yazıYap("-") shouldBe "3-1-2"
+    d.dizine shouldBe List(3, 1, 2)
+    d.yöneye shouldBe Vector(3, 1, 2)
+    d.kümeye shouldBe Set(1, 2, 3)
+    d.dizime.diziye shouldBe Seq(3, 1, 2) // Dizik -> Dizim köprüsü
+    d.değiştirYerinde(0, 9)
+    d(0) shouldBe 9
+  }
+
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
     "Kojo".eşitMiKüçükHarfBüyükHarfAyrımıYapmadan("kOJO") shouldBe true
     "a".kıyaslaKüçükHarfBüyükHarfAyrımıYapmadan("B") should be < 0
