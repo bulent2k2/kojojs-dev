@@ -336,8 +336,46 @@ def ayirici_mi(satir):
 
 # ---------------------------------------------------------------- html üretimi
 
+# Editörün ?zrc= bağlantısı TAM ScalaFiddle kaynağı bekler: istemci
+# (FiddleEditor.extractCode) kaynağı $FiddleStart / $FiddleEnd işaretlerine göre
+# böler, yalnız gövdeyi gösterir ve derlemeye gönderirken sarmalayıcıyı geri
+# ekler. Yalın gövde gönderilirse işaret yok -> her şey "main" olur -> derleyiciye
+# `object ScalaFiddle` olmadan gider: "expected class or object definition".
+# Bu şablon kojojs-editor application.conf `scalafiddle.defaultSource` ile ve
+# ornekleri-dogrula.sh `sar()` ile AYNI olmalı (aynı ders: OrnekYukleyici.sar).
+SARMAL_BAS = """import fiddle.Fiddle.println
+import scalajs.js
+
+@js.annotation.JSExportTopLevel("ScalaFiddle")
+object ScalaFiddle {
+    import kojo.{SwedishTurtle, TurkishTurtle, Turtle, KojoWorldImpl, Vector2D, Picture}
+    import kojo.doodle.Color._
+    import kojo.Speed._
+    import kojo.RepeatCommands._
+    import kojo.syntax.Builtins
+    implicit val kojoWorld: kojo.KojoWorld = new KojoWorldImpl()
+    val builtins = new Builtins()
+    import builtins._
+    import turtle._
+    import svTurtle._
+    import trTurtle._
+
+  // $FiddleStart
+"""
+SARMAL_SON = """
+  // $FiddleEnd
+}
+"""
+
+
+def sarmala(kod):
+    """Gövdeyi editörün beklediği tam ScalaFiddle kaynağına sarar (işaretler dahil)."""
+    govde = kod.rstrip('\n') or '// (boş betik)'
+    return SARMAL_BAS + govde + '\n' + SARMAL_SON
+
+
 def zrc(kod):
-    return base64.urlsafe_b64encode(gzip.compress(kod.encode('utf-8'), mtime=0)).decode('ascii')
+    return base64.urlsafe_b64encode(gzip.compress(sarmala(kod).encode('utf-8'), mtime=0)).decode('ascii')
 
 
 def isaret_coz(isaret):
