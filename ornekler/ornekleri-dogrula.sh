@@ -68,7 +68,11 @@ object ScalaFiddle {
     import trTurtle._
 PRE
   cat "$1"
-  echo "}"
+  # printf, echo DEĞİL: betik satır sonuyla bitmiyorsa (duvar-tenisi ve
+  # duvar-tenisi2 böyle) ve son satırı yorumsa, `}` yorumun içine giriyor;
+  # object ScalaFiddle hiç kapanmıyor ve derleyici bambaşka bir yerde
+  # "Missing closing brace" diyor. Baştaki \n bunu kesin olarak önler.
+  printf '\n}\n'
 }
 
 # Betik adı: verilen kökün altındaki göreli yol (TSV anahtarı olarak kararlı kalsın)
@@ -141,7 +145,15 @@ if a:
     if isinstance(t, list): t=' '.join(str(s) for s in t)
     sys.stderr.write((str(x.get('row', x.get('line','?')))+': '+str(t)).replace('\n',' ')[:160])
 " "$cikti" 2>"$ann_dosya")
-    if [ "$ann" = "0" ]; then durum="geçti"; else ozet="$ann hata: $(cat "$ann_dosya")"; fi
+    if [ "$ann" = "0" ]; then
+      durum="geçti"
+    else
+      ozet="$ann hata: $(cat "$ann_dosya")"
+      # compiler-server'ın artımlı optimizer durumu ara sıra bozuluyor
+      # ("The Scala.js optimizer crashed while optimizing ..."); aynı betik
+      # tekrarda geçiyor. Betiğin değil sunucunun sorunu -> gerileme sayma.
+      case "$ozet" in *"optimizer crashed"*) durum="sunucu" ;; esac
+    fi
   fi
   case "$durum" in
     geçti) gecti=$((gecti+1)) ;;
