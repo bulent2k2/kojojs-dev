@@ -74,3 +74,13 @@ içindeki `KARSILIK` sözlüğünde (`tuvalAlanı → tuvalSınırları`,
 `silipSakla → silVeSakla`, `yaklaş → yaklaşXY`, `durdur → canlandırmayıDurdur`…).
 Kodun kendisi masaüstündeki gibi bırakılır; okur ikojo'da denerken karşılığı
 kullanır. Farkların özeti: <https://ikojo.fly.dev/yardim/farklar>.
+
+## "Editörde aç" bağlantıları
+
+`/?zrc=` bağlantısı gövdeyi değil, editörün beklediği **tam ScalaFiddle kaynağını**
+(`object ScalaFiddle { ... }` + `$FiddleStart`/`$FiddleEnd` işaretleri) taşır;
+istemci yalnız gövdeyi gösterir. `uret.py` içindeki `SARMAL_BAS`/`SARMAL_SON`
+şablonu kojojs-editor `application.conf` `scalafiddle.defaultSource` ile aynı
+olmalı; prelude değişirse ikisi birden güncellenir (bkz. `ornekler/ornekleri-dogrula.sh`
+`sar()`, aynı şablon). Yalın gövde gönderilirse derleyici "expected class or object
+definition" verir.
