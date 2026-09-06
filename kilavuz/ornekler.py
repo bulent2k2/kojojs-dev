@@ -116,10 +116,35 @@ def menuler(kojo):
     return coz(ornek_govde), coz(sergi_govde, tek_grup='S_Showcase')
 
 
+def tarama_oku(yol):
+    """tarama.tsv: betik -> (durum, engeller). Dosya yoksa boş harita."""
+    d = {}
+    if not os.path.exists(yol):
+        return d
+    with open(yol, encoding='utf-8') as f:
+        for satır in f:
+            if satır.startswith('#'):
+                continue
+            p = satır.rstrip('\n').split('\t')
+            if len(p) >= 4 and p[0] not in ('betik', ''):
+                d[p[0]] = (p[1], p[3])
+    return d
+
+
 def durumlar():
-    """Betik -> (durum, engel). derleme.tsv varsa onu, yoksa tarama.tsv'yi okur."""
+    """
+    Betik -> (durum, ek). derleme.tsv varsa onu yeğler, ama taramayla BİRLEŞTİRİR.
+
+    Gerçek derleme yalnız geçti/kaldı biliyor; tarayıcıda karşılığı olmayan bir
+    özellik (Swing arayüzü, öykü, MIDI...) kullanan betikler de "kaldı" görünür.
+    Bunları "eksik komut" diye göstermek yanıltıcı olur, çünkü eksik olan komut
+    değil platform. Bu yüzden derleme "kaldı" derken tarama "platform" diyorsa
+    "masaüstü" rozetini ve engel adını koruyoruz. `ek`, "platform"da engel
+    listesi, "kaldı"da derleyicinin hata özeti (rozetin title'ında görünür).
+    """
     derleme = os.path.join(MASAUSTU, 'derleme.tsv')
     tarama = os.path.join(MASAUSTU, 'tarama.tsv')
+    tarama_h = tarama_oku(tarama)
     if os.path.exists(derleme):
         d = {}
         with open(derleme, encoding='utf-8') as f:
@@ -130,17 +155,14 @@ def durumlar():
                 if len(p) >= 2 and p[0] not in ('betik', ''):
                     # anahtar "masaustu/<yol>" biçiminde; kırp
                     ad = p[0][len('masaustu/'):] if p[0].startswith('masaustu/') else p[0]
-                    d[ad] = (p[1], p[2] if len(p) > 2 else '')
+                    durum, hata = p[1], (p[2] if len(p) > 2 else '')
+                    t_durum, t_engel = tarama_h.get(ad, ('', ''))
+                    if durum == 'kaldı' and t_durum == 'platform':
+                        d[ad] = ('platform', t_engel)
+                    else:
+                        d[ad] = (durum, hata)
         return d, 'derleme', derleme
-    d = {}
-    with open(tarama, encoding='utf-8') as f:
-        for satır in f:
-            if satır.startswith('#'):
-                continue
-            p = satır.rstrip('\n').split('\t')
-            if len(p) >= 4 and p[0] not in ('betik', ''):
-                d[p[0]] = (p[1], p[3])
-    return d, 'tarama', tarama
+    return tarama_h, 'tarama', tarama
 
 
 def ikojo_ornekleri():
@@ -191,12 +213,15 @@ ENGEL_ADI = {
 }
 
 
-def rozet(durum, engel):
+def rozet(durum, ek):
     sınıf, etiket, açıklama = ROZETLER.get(durum, ('eksik', durum or '?', ''))
-    if durum == 'platform' and engel:
-        adlar = [ENGEL_ADI.get(e, e) for e in engel.split(',') if e]
+    if durum == 'platform' and ek:
+        adlar = [ENGEL_ADI.get(e, e) for e in ek.split(',') if e]
         if adlar:
             açıklama = 'masaüstüne özgü: ' + ', '.join(adlar)
+    elif durum == 'kaldı' and ek:
+        # derleme.tsv'nin 3. sütunu: derleyicinin ilk hata özeti
+        açıklama = '%s: %s' % (açıklama, ek)
     return '<span class="rozet %s" title="%s">%s</span>' % (sınıf, html.escape(açıklama), etiket)
 
 
@@ -205,9 +230,9 @@ def satır_html(baslik, göreli, durum_haritası, ikojo=False, aciklama=None):
         yol, anahtar = göreli, göreli
     else:
         yol, anahtar = 'masaustu/' + göreli, göreli
-    durum, engel = durum_haritası.get(anahtar, ('', ''))
+    durum, ek = durum_haritası.get(anahtar, ('', ''))
     r = '<span class="rozet calisir" title="ikojo için yazıldı">çalışır</span>' if ikojo \
-        else rozet(durum, engel)
+        else rozet(durum, ek)
     ac = '<div class="ac">%s</div>' % aciklama if aciklama else ''
     return ('  <li><a href="/ornek/%s"><span class="ad">%s</span>%s</a>'
             '<span class="sag">%s<code>%s</code></span></li>\n'
@@ -387,7 +412,8 @@ def main():
         d = durum_haritası.get(g, ('', ''))[0]
         sayım[d] = sayım.get(d, 0) + 1
     çalışan = sayım.get('çalışır', 0) + sayım.get('geçti', 0)
-    kaynak_cümlesi = ('Rozetler <b>gerçek derleme</b> sonucundan (<code>derleme.tsv</code>).'
+    kaynak_cümlesi = ('Rozetler <b>gerçek derleme</b> sonucundan (<code>derleme.tsv</code>); '
+                      '"masaüstü" rozeti ad taramasından geliyor.'
                       if kaynak_türü == 'derleme' else
                       'Rozetler bir <b>ad taramasından</b> geliyor (<code>tarama.tsv</code>), '
                       'gerçek derlemeden değil: "çalışır" diyen birkaç betik yine de hata verebilir.')
