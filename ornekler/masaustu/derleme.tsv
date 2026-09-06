@@ -1,8 +1,8 @@
-# yerel derleme ölçümü -- 2026-09-06 -- kojojs-core page sınıfyolu + yamalı scala-tr derleyici
+# yerel derleme ölçümü -- 2026-09-06 -- kojojs-dev master ae39bf3 + kojojs-core page sınıfyolu, yamalı scala-tr derleyici
 # ornekleri-dogrula.sh ile AYNI prelude ve aynı TSV anahtarları, ama canlı /compile yerine
 # yerelde tek bir nsc.Global ile tip denetimi (bu ortamdan ikojo.fly.dev'e erişilemiyor).
 # Doğrulama: ikojo'nun 10 örneği aynı koşumda 10/10 geçti.
-# geçti: 41   kaldı: 71   sunucu: 0
+# geçti: 44   kaldı: 68   sunucu: 0
 betik	durum	özet
 masaustu/installer/examples/anagram/anagram_tr.kojo.installed	kaldı	not found: value sözcükDizininiYükle
 masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	not found: value installDir
@@ -52,7 +52,7 @@ masaustu/src/main/resources/samples/tr/genart-hypnotic-squares.kojo	kaldı	not f
 masaustu/src/main/resources/samples/tr/genart-joy-division.kojo	geçti	
 masaustu/src/main/resources/samples/tr/genart-mondrian.kojo	geçti	
 masaustu/src/main/resources/samples/tr/genart-tiled-lines.kojo	geçti	
-masaustu/src/main/resources/samples/tr/genart-tri-mesh.kojo	kaldı	value update is not a member of ScalaFiddle.builtins.trTurtle.Dizim[ScalaFiddle.Nokta]
+masaustu/src/main/resources/samples/tr/genart-tri-mesh.kojo	geçti	
 masaustu/src/main/resources/samples/tr/hunted-fp.kojo	kaldı	not found: value net; not found: value Subscriptions
 masaustu/src/main/resources/samples/tr/hunted.kojo	kaldı	not found: value yansıtY; not found: value döndürMerkezli
 masaustu/src/main/resources/samples/tr/image-collage.kojo	geçti	
@@ -78,7 +78,7 @@ masaustu/src/main/resources/samples/tr/multiplication-game.kojo	kaldı	not found
 masaustu/src/main/resources/samples/tr/oyku-tanimlari.kojo	kaldı	To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.
 masaustu/src/main/resources/samples/tr/penta-pattern.kojo	kaldı	value çevir is not a member of ScalaFiddle.builtins.trTurtle.Renk
 masaustu/src/main/resources/samples/tr/physics-fma.kojo	geçti	
-masaustu/src/main/resources/samples/tr/physics-uvats.kojo	kaldı	too many arguments (found 3, expected 2) for method yeniKaplumbağa: (x: ScalaFiddle.builtins.trTurtle.Kesir, y: ScalaFiddle.builtins.trTurtle.Kesir): ScalaFiddle.builtins.trTurtle.Kaplumbağa
+masaustu/src/main/resources/samples/tr/physics-uvats.kojo	geçti	
 masaustu/src/main/resources/samples/tr/pong.kojo	geçti	
 masaustu/src/main/resources/samples/tr/prime-factors.kojo	geçti	
 masaustu/src/main/resources/samples/tr/primes.kojo	geçti	
@@ -96,7 +96,7 @@ masaustu/src/main/resources/samples/tr/spiral-effects.kojo	kaldı	not found: val
 masaustu/src/main/resources/samples/tr/spiral-hexagon-tiles.kojo	geçti	
 masaustu/src/main/resources/samples/tr/spiral-square-tiles.kojo	geçti	
 masaustu/src/main/resources/samples/tr/spiral.kojo	geçti	
-masaustu/src/main/resources/samples/tr/sprite-animation.kojo	kaldı	not found: value giysiKur; too many arguments (found 3, expected 2) for method yeniKaplumbağa: (x: ScalaFiddle.builtins.trTurtle.Kesir, y: ScalaFiddle.builtins.trTurtle.Kesir): ScalaFiddle.builtins.tr
+masaustu/src/main/resources/samples/tr/sprite-animation.kojo	kaldı	not found: value giysiKur; value konum is not a member of ScalaFiddle.k1.Kaplumbağa
 masaustu/src/main/resources/samples/tr/sprite-boundary-polygon.kojo	kaldı	value çizBaştan is not a member of ScalaFiddle.builtins.trTurtle.Resim; not found: value fareyeTıklıyınca
 masaustu/src/main/resources/samples/tr/square-pattern.kojo	kaldı	value çevir is not a member of ScalaFiddle.builtins.trTurtle.Renk
 masaustu/src/main/resources/samples/tr/square.kojo	geçti	
@@ -105,7 +105,7 @@ masaustu/src/main/resources/samples/tr/synchronized-squares.kojo	geçti
 masaustu/src/main/resources/samples/tr/synchronized-squares2.kojo	geçti	
 masaustu/src/main/resources/samples/tr/tan-theta.kojo	kaldı	value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk
 masaustu/src/main/resources/samples/tr/tangram-skier.kojo	kaldı	not found: value yansıtY; not found: value döndürMerkezli
-masaustu/src/main/resources/samples/tr/tic-tac-toe.kojo	kaldı	too many arguments (found 2, expected 1) for method doldur: (b1: ScalaFiddle.builtins.trTurtle.Sayı)(e: => ScalaFiddle.Hane)(implicit evidence$6: scala.reflect.ClassTag[ScalaFiddle.Hane]): ScalaFiddle
+masaustu/src/main/resources/samples/tr/tic-tac-toe.kojo	geçti	
 masaustu/src/main/resources/samples/tr/tree0.kojo	geçti	
 masaustu/src/main/resources/samples/tr/tree1.kojo	kaldı	not found: value aydınlık
 masaustu/src/main/resources/samples/tr/tree2.kojo	kaldı	value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk
