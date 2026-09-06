@@ -5,7 +5,7 @@ Bazı basit komutlar çok faydalıdır. Sık kullanılanları burada görelim.
 
 | Komut | Örnekler | | |
 |---|---|---|---|
-| `yaz` | `yaz("Selam!")` | `yaz('a')` | `yaz(kaplumbağa0)` |
+| `yaz` | `yaz("Selam!")` | `yaz('a')` | `yaz(kaplumbağa)` |
 | `satıryaz` | `satıryaz("Merhaba!")` | | |
 | `satıroku` | (aşağıdaki ilk örnek) | | |
 | `belirt(belit, mesaj)` | (ikinci örnek) | | |
