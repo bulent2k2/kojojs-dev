@@ -270,6 +270,11 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       çiz(Resim.yazı("deneme", yy2, Renk.ada(120, 1, 0.5)))
       Resim.daire(5).veBoya(Renk.kym(255, 0, 0)).veKondur(Renk.kyms(1, 2, 3, 4).alpha.get, 0)
       artalanıKur(Renk(255, 232, 181)); kalemRenginiKur(Renk(0, 143, 0, 200)); boyamaRenginiKur(Renk(0x365348))
+      // ağırlıklı rastgele seçim (masaüstü ikinci imzası: dizi + Kesir ağırlıklar).
+      // Dönüş türü de yazılı: yanlış aşırı yükleme seçilirse burada patlar.
+      val seçilen: Yazı = rastgeleDiziden(Dizi("a", "b"), Dizi(0.7, 0.3))
+      val seçilenY: Sayı = rastgeleDiziden(Yöney(1, 2, 3), Yöney(1.0, 1.0, 1.0))
+      val seçilenTek: Sayı = rastgeleDiziden(Dizi(1, 2, 3)) // tek değişkenli imza bozulmadı
     }
     succeed
   }
