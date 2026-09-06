@@ -260,6 +260,14 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       sesMp3üÇal(Ses.vuruş); müzikMp3üÇalDöngülü(Ses.mağarada)
       notaÇalgısınıKur(Çalgı.AkustikBas); notaÇal(50, 150)
       val araba = Resim.imge(Görünüş.araba)
+      // Devre 6
+      nokta(35); nokta()
+      val sayaç = Resim.yazıRenkli("0", 20, siyah)
+      sayaç.güncelle(42)
+      if (sayaç.görünür) sayaç.gizle()
+      val yy2 = Font("JetBrains Mono", 40)
+      çiz(Resim.yazı("deneme", yy2, Renk.ada(120, 1, 0.5)))
+      Resim.daire(5).veBoya(Renk.kym(255, 0, 0)).veKondur(Renk.kyms(1, 2, 3, 4).alpha.get, 0)
     }
     succeed
   }

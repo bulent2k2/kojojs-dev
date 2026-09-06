@@ -295,6 +295,14 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def veKalemKalınlığıyla(boy: Kesir): Resim = r.withPenThickness(boy)
     def veKondur(x: Kesir, y: Kesir): Resim = r.withPosition(x, y)
     def veÇiz(): Birim = r.draw()
+    // Devre 6: küçük kapanışlar
+    def görünür: İkil = r.isVisible // masaüstü adı (görünürMü ile aynı)
+    /** Yazı resminin içeriğini değiştirir (skor, sayaç...); masaüstü Resim.güncelle. */
+    def güncelle(yeniVeri: Her): Birim = r match {
+      case t: kojo.TextPic => t.update(yeniVeri)
+      case _ => throw new ÇalışmaSırasıKuralDışı(
+        "güncelle yalnız yazı resimlerinde çalışır (Resim.yazı / Resim.yazıRenkli ile yapılanlarda)")
+    }
     // Devre 2: küçük özellikler
     def hızınıDönüştür(yy: Yöney2B): Yöney2B = yy.rotate(r.heading) // transv: yöneyi resmin yönüne çevir
     def tepkiVer(işlev: Resim => Birim): Birim = kb.animate(işlev(r)) // react: her karede

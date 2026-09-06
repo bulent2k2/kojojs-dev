@@ -13,7 +13,26 @@ import kojo.doodle.{Color => DRenk}
  */
 trait RenkYöntemleri extends TemelTürler {
   type Renk = DRenk
-  val Renk = DRenk
+  /**
+   * Masaüstündeki `object Renk` (tr/renk.scala): Türkçe renk yapıcıları.
+   * Eskiden burada `val Renk = DRenk` vardı; doodle Color'ın yapıcıları
+   * (rgb/rgba/hsl/hsla) korunuyor, adlandırılmış renkler için `renkler` ya da
+   * Türkçesi için `Renkler` var.
+   */
+  object Renk {
+    def kym(kırmızı: Sayı, yeşil: Sayı, mavi: Sayı): Renk = DRenk.rgb(kırmızı, yeşil, mavi)
+    def kyms(kırmızı: Sayı, yeşil: Sayı, mavi: Sayı, saydamlık: Sayı): Renk =
+      DRenk.rgba(kırmızı, yeşil, mavi, saydamlık)
+    def ada(arıRenk: Kesir, doygunluk: Kesir, açıklık: Kesir): Renk =
+      DRenk.hsl(arıRenk, doygunluk, açıklık)
+    def adas(arıRenk: Kesir, doygunluk: Kesir, açıklık: Kesir, saydamlık: Kesir): Renk =
+      DRenk.hsla(arıRenk, doygunluk, açıklık, saydamlık)
+    // İngilizce yapıcılar (eski `val Renk = DRenk` ile uyum)
+    def rgb(r: Sayı, g: Sayı, b: Sayı): Renk = DRenk.rgb(r, g, b)
+    def rgba(r: Sayı, g: Sayı, b: Sayı, a: Sayı): Renk = DRenk.rgba(r, g, b, a)
+    def hsl(h: Kesir, s: Kesir, l: Kesir): Renk = DRenk.hsl(h, s, l)
+    def hsla(h: Kesir, s: Kesir, l: Kesir, a: Kesir): Renk = DRenk.hsla(h, s, l, a)
+  }
   val renkler = DRenk
 
   object Renkler {
