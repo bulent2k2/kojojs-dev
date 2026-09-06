@@ -34,13 +34,13 @@ src/main/resources/samples/tr/crazy-square.kojo	çalışır	93
 src/main/resources/samples/tr/dragon-curve.kojo	çalışır	25		
 src/main/resources/samples/tr/estimating-pi-mc.kojo	çalışır	27		
 src/main/resources/samples/tr/eye-effects.kojo	eksik-ad	22		gürültü merkezdenDışarıDoğruÇokluDeğişim sahneIşığı
-src/main/resources/samples/tr/eye.kojo	eksik-ad	25		kyms merkezdenDışarıDoğruÇokluDeğişim
+src/main/resources/samples/tr/eye.kojo	eksik-ad	25		merkezdenDışarıDoğruÇokluDeğişim
 src/main/resources/samples/tr/face-multi.kojo	çalışır	108		
 src/main/resources/samples/tr/fern.kojo	eksik-ad	36		bulanık
 src/main/resources/samples/tr/ferris-wheel.kojo	çalışır	44		
 src/main/resources/samples/tr/fib-tree.kojo	eksik-ad	33		aydınlık
-src/main/resources/samples/tr/fireworks-canvas.kojo	platform	125	tuvalçizim	TuvalÇizim adas boya canlandırTuvalÇizimle fırça fırçaAğırlığı fırçasız
-src/main/resources/samples/tr/fireworks.kojo	eksik-ad	132		adas
+src/main/resources/samples/tr/fireworks-canvas.kojo	platform	125	tuvalçizim	TuvalÇizim boya canlandırTuvalÇizimle fırça fırçaAğırlığı fırçasız
+src/main/resources/samples/tr/fireworks.kojo	çalışır	132		
 src/main/resources/samples/tr/flappy-ball.kojo	çalışır	79		
 src/main/resources/samples/tr/genart-cubic-disarray.kojo	çalışır	44		
 src/main/resources/samples/tr/genart-delaunay.kojo	eksik-ad	37		doğrusalDeğişim üçgenDöşeme
@@ -75,7 +75,7 @@ src/main/resources/samples/tr/oyku-tanimlari.kojo	platform	93	öykü
 src/main/resources/samples/tr/penta-pattern.kojo	eksik-ad	20		çevir
 src/main/resources/samples/tr/physics-fma.kojo	çalışır	35		
 src/main/resources/samples/tr/physics-uvats.kojo	çalışır	52		
-src/main/resources/samples/tr/pong.kojo	eksik-ad	144		kym
+src/main/resources/samples/tr/pong.kojo	çalışır	144		
 src/main/resources/samples/tr/prime-factors.kojo	çalışır	39		
 src/main/resources/samples/tr/primes.kojo	çalışır	43		
 src/main/resources/samples/tr/radiance.kojo	eksik-ad	24		merkezdenDışarıDoğruDeğişim
@@ -102,9 +102,9 @@ src/main/resources/samples/tr/synchronized-squares2.kojo	çalışır	30
 src/main/resources/samples/tr/tan-theta.kojo	eksik-ad	22		doğrusalDeğişim
 src/main/resources/samples/tr/tangram-skier.kojo	eksik-ad	149		silVeÇizimBiriminiKur
 src/main/resources/samples/tr/tic-tac-toe.kojo	çalışır	270		
-src/main/resources/samples/tr/tree0.kojo	eksik-ad	35		kym
+src/main/resources/samples/tr/tree0.kojo	çalışır	35		
 src/main/resources/samples/tr/tree1.kojo	eksik-ad	33		aydınlık
-src/main/resources/samples/tr/tree2.kojo	eksik-ad	29		doğrusalDeğişim kym
+src/main/resources/samples/tr/tree2.kojo	eksik-ad	29		doğrusalDeğişim
 src/main/resources/samples/tr/tune1.kojo	platform	9	ses	
 src/main/resources/samples/tr/tune2.kojo	platform	11	ses	
 src/main/resources/samples/tr/turtle-controller.kojo	eksik-ad	77		yorumla ışınlarıAç
