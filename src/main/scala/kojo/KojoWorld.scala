@@ -81,6 +81,12 @@ trait KojoWorld {
   def resetView(): Unit
   def mouseXY: Point
   def erasePictures(): Unit
+  def scroll(x: Double, y: Double): Unit
+  def viewRotate(açı: Double): Unit
+  def showAxes(): Unit
+  def hideAxes(): Unit
+  def showGrid(): Unit
+  def hideGrid(): Unit
   def toggleFullScreenCanvas(): Unit
   def canvasBounds: Rectangle
   def noZoom(): Unit
@@ -789,6 +795,71 @@ class KojoWorldImpl extends KojoWorld {
   // Tuvali başlangıç görünümüne döndür: dünya-(0,0) merkezde, yakınlaştırma 1.
   // (Fareyle kaydırma da stage.position'ı değiştirir; zoomXY onu geri kurar.)
   def resetView(): Unit = zoomXY(1, 1, 0, 0)
+
+  // Tuvali dünya birimiyle kaydırır (masaüstü tCanvas.scroll). Ölçek hesaba
+  // katılır, yoksa yakınlaştırılmışken kaydırma miktarı tutmaz. Ekran merkezini
+  // (x, y) kadar öteleyip zoomXY ile yeniden kuruyoruz: böylece canvasOrigin/
+  // canvasBounds defteri ve pişmiş doku, fareyle kaydırmadaki gibi tazeleniyor.
+  def scroll(x: Double, y: Double): Unit =
+    zoomXY(stage.scale.x, -stage.scale.y, merkezDünyaX + x, merkezDünyaY + y)
+
+  // Tuvali döndürür (masaüstü tCanvas.viewRotate). PIXI dönüşü saat yönünde,
+  // dünya ekseni ise y'de ters; kullanıcı açısı saat yönünün TERSİ olsun diye
+  // işareti çeviriyoruz -- kaplumbağanın sağ/sol anlayışıyla tutarlı.
+  def viewRotate(açı: Double): Unit = {
+    stage.rotation = -Utils.deg2radians(açı)
+    resetBake()
+    render()
+  }
+
+  // Eksen ve ızgara KENDİ katmanlarında: masaüstünde de tuvalin süsü onlar,
+  // kullanıcının çizimi değil. Kaplumbağayla çizilseydi (eski showAxes böyleydi)
+  // "gizle" diye bir şey olamazdı ve `sil()` onları da silerdi.
+  private var axesLayer: PIXI.Graphics = _
+  private var gridLayer: PIXI.Graphics = _
+
+  // Ekranı kaplayacak kadar geniş bir alan: kaydırma/yakınlaştırma sonrası da
+  // dolu görünsün diye görünür tuvalin üç katını çiziyoruz.
+  private def süsAlanı: (Double, Double) = (canvasWidth * 1.5, canvasHeight * 1.5)
+
+  private def süsKatmanı(mevcut: PIXI.Graphics)(çiz: PIXI.Graphics => Unit): PIXI.Graphics = {
+    val g = if (mevcut == null) new PIXI.Graphics() else { mevcut.clear(); mevcut }
+    çiz(g)
+    if (mevcut == null) { g.name = "Decor Layer"; stage.addChildAt(g, 0) } // en altta
+    g.visible = true
+    noteMutation(g)
+    render()
+    g
+  }
+
+  def showAxes(): Unit = {
+    val (w, h) = süsAlanı
+    axesLayer = süsKatmanı(axesLayer) { g =>
+      g.lineStyle(1, 0x555555, 1)
+      g.moveTo(-w, 0); g.lineTo(w, 0)   // x ekseni
+      g.moveTo(0, -h); g.lineTo(0, h)   // y ekseni
+      // 50 birimde bir çentik (masaüstündeki gibi)
+      var x = -w
+      while (x <= w) { if (x != 0) { g.moveTo(x, -3); g.lineTo(x, 3) }; x += 50 }
+      var y = -h
+      while (y <= h) { if (y != 0) { g.moveTo(-3, y); g.lineTo(3, y) }; y += 50 }
+    }
+  }
+
+  def hideAxes(): Unit = if (axesLayer != null) { axesLayer.visible = false; noteMutation(axesLayer); render() }
+
+  def showGrid(): Unit = {
+    val (w, h) = süsAlanı
+    gridLayer = süsKatmanı(gridLayer) { g =>
+      g.lineStyle(1, 0xcccccc, 1)
+      var x = -w
+      while (x <= w) { g.moveTo(x, -h); g.lineTo(x, h); x += 50 }
+      var y = -h
+      while (y <= h) { g.moveTo(-w, y); g.lineTo(w, y); y += 50 }
+    }
+  }
+
+  def hideGrid(): Unit = if (gridLayer != null) { gridLayer.visible = false; noteMutation(gridLayer); render() }
 
   // Şu anda ekran merkezinde duran dünya noktası -- pan/zoom'u o noktadan yapmak
   // için. (screen = pos + scale*world; zoomXY scale.set(xf, -yf) yaptığından

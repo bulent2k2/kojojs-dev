@@ -262,6 +262,31 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       val araba = Resim.imge(Görünüş.araba)
       val arabaK = yeniKaplumbağa(0, 0, Görünüş.araba) // giysili kaplumbağa (physics-uvats)
       arabaK.ileri(1)
+      // eksik-adlar.tsv'den kapatılanlar
+      ışınlarıAç(); ışınlarıKapat()
+      if (kalemİnikMi) satıryaz(canlandırmaHızı)
+      konumuDeğiştir(5, -5)
+      eksenleriGöster(); eksenleriGizle(); ızgarayıGöster(); ızgarayıGizle()
+      gridiGöster(); gridiGizle()
+      yaklaşmayıSil(); tuvaliKaydır(10, 20); tuvaliDöndür(15)
+      val çan: Kesir = rastgeleÇanEğrisinden
+      Resim.daire(3).veBüyüt(2).veGötür(1, 1)
+      arabaK.giysiKur(Görünüş.kalem)
+      arabaK.giysileriKur(Görünüş.yarasa1a, Görünüş.yarasa1b)
+      arabaK.birsonrakiGiysi(); arabaK.giysiyiBüyült(1.5)
+      val şimdi = BuAn()
+      satıryaz(şimdi.saat, şimdi.dakika, şimdi.saniye, şimdi.gün, şimdi.ay, şimdi.yıl, şimdi.hepsi)
+      // hata türleri (bu takım STOK derleyiciyle koşuyor, o yüzden Türkçe
+      // anahtar kelimeler değil düz Scala try/catch)
+      try throw new KuraldışıGirdiHatası("deneme")
+      catch {
+        case _: MatematikselHata | _: BoşGöstergeHatası | _: SınırDışınaTaşmaHatası |
+            _: KuraldışıGirdiHatası =>
+          ()
+      }
+      val hataTürleri: Dizin[Yazı] =
+        Dizin(classOf[BelirtimHatası].getName, classOf[EksikTanımHatası].getName)
+      satıryaz(hataTürleri)
       // Devre 6
       nokta(35); nokta()
       val sayaç = Resim.yazıRenkli("0", 20, siyah)

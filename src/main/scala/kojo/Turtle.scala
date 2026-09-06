@@ -105,6 +105,59 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     turtleHolder
   }
 
+  // Yüklü giysi listesi ve sıradaki (birsonrakiGiysi için); giysi ölçeği
+  // giysi değişince korunsun diye ayrı tutuluyor.
+  private var costumes: Vector[String] = Vector.empty
+  private var costumeIndex = 0
+  private var costumeScale = 1.0
+
+  // Giysiyi yükleyip kaplumbağa simgesinin yerine koyar. Yükleme eşzamansız
+  // olduğu için kuyruğu ANCAK yükleme bittikten sonra sürdürüyoruz; yoksa
+  // sonraki komutlar eski simgeyle çalışırdı.
+  private def realSetCostume(url: String): Unit = {
+    AssetLoader.addAndLoad(url, url, { (loader: PIXI.loaders.Loader, _: Any) =>
+      val s = new PIXI.Sprite(loader.resources(url).texture)
+      // loadTurtle'daki giysi yolunun aynısı: y'de çevir, merkeze otur, ölçekle
+      s.setTransform(
+        -s.width * costumeScale / 2, s.height * costumeScale / 2,
+        costumeScale, -costumeScale, 0, 0, 0, 0, 0)
+      turtleImage.removeChildren()
+      turtleImage.addChild(s)
+      kojoWorld.noteMutation(turtleImage)
+      kojoWorld.render()
+      kojoWorld.scheduleLater(queueHandler)
+    })(kojoWorld)
+  }
+
+  private def realSetCostumes(urls: Vector[String]): Unit = {
+    costumes = urls
+    costumeIndex = 0
+    if (urls.isEmpty) kojoWorld.scheduleLater(queueHandler) else realSetCostume(urls(0))
+  }
+
+  private def realNextCostume(): Unit = {
+    if (costumes.isEmpty) kojoWorld.scheduleLater(queueHandler)
+    else {
+      costumeIndex = (costumeIndex + 1) % costumes.length
+      realSetCostume(costumes(costumeIndex))
+    }
+  }
+
+  private def realScaleCostume(factor: Double): Unit = {
+    costumeScale = costumeScale * factor
+    if (turtleImage.children.length > 0) {
+      val s = turtleImage.getChildAt(0).asInstanceOf[PIXI.Sprite]
+      // Yalnız ölçeği çarpıyoruz; konumu da aynı çarpanla güncelleyince simge
+      // merkezde kalıyor. İşaretlere DOKUNMUYORUZ: kaplumbağa simgesi (+1) ile
+      // giysi (y'de -1, çevrilmiş) farklı işaret taşıyor, ikisi de korunmalı.
+      s.position.set(s.position.x * factor, s.position.y * factor)
+      s.scale.set(s.scale.x * factor, s.scale.y * factor)
+      kojoWorld.noteMutation(turtleImage)
+      kojoWorld.render()
+    }
+    kojoWorld.scheduleLater(queueHandler)
+  }
+
   def forward(n: Double): Unit = {
     commandQ.enqueue(Forward(n))
   }
@@ -144,6 +197,23 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   def setFillColor(color: Color): Unit = {
     commandQ.enqueue(SetFillColor(color))
   }
+
+  // Kalemin şu an inik olup olmadığı ve canlandırma gecikmesi: masaüstünde
+  // kalemİnikMi / canlandırmaHızı bunları okuyor. Kuyruğa GİRMEZ; kuyruktaki
+  // komutlar bunları değiştirebileceği için okunan değer "şu ana kadar
+  // kuyruğa alınanlardan sonraki" değil, "şu anki" durumdur.
+  def penIsDown: Boolean = !penIsUp
+  def animationDelayMs: Long = animationDelay
+
+  def changePosition(x: Double, y: Double): Unit = {
+    commandQ.enqueue(ChangePosition(x, y))
+  }
+
+  // ---- giysi (costume) ----
+  def setCostume(url: String): Unit = commandQ.enqueue(SetCostume(url))
+  def setCostumes(urls: String*): Unit = commandQ.enqueue(SetCostumes(urls.toVector))
+  def nextCostume(): Unit = commandQ.enqueue(NextCostume)
+  def scaleCostume(factor: Double): Unit = commandQ.enqueue(ScaleCostume(factor))
 
   def setPosition(x: Double, y: Double): Unit = {
     commandQ.enqueue(SetPosition(x, y))
@@ -225,6 +295,12 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
         case SetPenColor(c)     => realSetPenColor(c)
         case SetFillColor(c)    => realSetFillColor(c)
         case SetPosition(x, y)  => realSetPosition(x, y)
+        case ChangePosition(x, y) =>
+          realSetPosition(turtleImage.position.x + x, turtleImage.position.y + y)
+        case SetCostume(url)     => realSetCostume(url)
+        case SetCostumes(urls)   => realSetCostumes(urls)
+        case NextCostume         => realNextCostume()
+        case ScaleCostume(f)     => realScaleCostume(f)
         case SetHeading(theta)  => realSetHeading(theta)
         case MoveTo(x, y)       => realMoveTo(x, y)
         case Arc2(r, a)         => realArc2(r, a)
