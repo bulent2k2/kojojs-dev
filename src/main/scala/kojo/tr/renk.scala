@@ -20,6 +20,16 @@ trait RenkYöntemleri extends TemelTürler {
    * Türkçesi için `Renkler` var.
    */
   object Renk {
+    /**
+     * Masaüstündeki `Renk(k, y, m)` / `Renk(k, y, m, s)` / `Renk(0xrrggbb)`
+     * yapıcıları. (Eskiden `val Renk = DRenk` bunları doodle Color'ın
+     * `apply`lerinden alıyordu; `object Renk`e geçince elle eklendi.)
+     */
+    def apply(kırmızı: Sayı, yeşil: Sayı, mavi: Sayı, saydamlık: Sayı = 255): Renk =
+      DRenk.rgba(kırmızı, yeşil, mavi, saydamlık)
+    def apply(onaltılık: Uzun): Renk = DRenk(onaltılık)
+    def apply(onaltılık: Uzun, saydamlıkVar: İkil): Renk = DRenk(onaltılık, saydamlıkVar)
+
     def kym(kırmızı: Sayı, yeşil: Sayı, mavi: Sayı): Renk = DRenk.rgb(kırmızı, yeşil, mavi)
     def kyms(kırmızı: Sayı, yeşil: Sayı, mavi: Sayı, saydamlık: Sayı): Renk =
       DRenk.rgba(kırmızı, yeşil, mavi, saydamlık)

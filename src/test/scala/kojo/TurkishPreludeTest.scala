@@ -264,10 +264,12 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       nokta(35); nokta()
       val sayaç = Resim.yazıRenkli("0", 20, siyah)
       sayaç.güncelle(42)
+      (götür(1, 2) -> Resim.yazı("0")).güncelle(1) // dönüşümle sarılı yazı resmi de güncellenebilmeli
       if (sayaç.görünür) sayaç.gizle()
       val yy2 = Font("JetBrains Mono", 40)
       çiz(Resim.yazı("deneme", yy2, Renk.ada(120, 1, 0.5)))
       Resim.daire(5).veBoya(Renk.kym(255, 0, 0)).veKondur(Renk.kyms(1, 2, 3, 4).alpha.get, 0)
+      artalanıKur(Renk(255, 232, 181)); kalemRenginiKur(Renk(0, 143, 0, 200)); boyamaRenginiKur(Renk(0x365348))
     }
     succeed
   }

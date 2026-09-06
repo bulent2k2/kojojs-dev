@@ -449,6 +449,10 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     val a = Renk.ada(120, 1, 0.5)
     a shouldBe Renk.hsl(120, 1, 0.5)
     Renk.adas(120, 1, 0.5, 0.4).alpha.get shouldBe 0.4 +- 1e-6
+    // masaüstündeki doğrudan yapıcılar (eski `val Renk = DRenk` uyumu)
+    Renk(255, 0, 0) shouldBe Renkler.kırmızı
+    Renk(0, 0, 255, 128).alpha.get shouldBe (128 / 255.0) +- 1e-6
+    Renk(0x365348) shouldBe Renk.kym(0x36, 0x53, 0x48)
     // Font(ad, boy) masaüstündeki java.awt.Font yapıcısının iki değişkenli hâli
     Font("JetBrains Mono", 40) shouldBe yazıyüzü("JetBrains Mono", 40)
     Font("serif", 12).boy shouldBe 12
