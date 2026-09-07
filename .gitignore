@@ -10,3 +10,6 @@ node_modules/**
 site/
 netlify.toml
 __pycache__/
+
+# test-tarayici.sh'ın indirdiği chromedriver'lar (sürüm başına bir dizin)
+.chromedriver/
