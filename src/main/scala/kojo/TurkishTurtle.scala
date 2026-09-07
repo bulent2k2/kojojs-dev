@@ -566,6 +566,13 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
    * işlendiğinden doğrudan çağırmak aynı sonucu veriyor -- birden çok
    * kaplumbağanın kuyrukları kendiliğinden iç içe geçiyor.
    *
+   * AMA bir fark var: gövde ANA iş parçacığında koşuyor. Kaplumbağa
+   * komutlarından (ileri, sağ, ...) oluşan bir gövdede sorun yok, çünkü onlar
+   * kuyruğa girip hemen dönüyor. Bekleyen bir döngü YAZMAYIN --
+   * `yineleDoğruysa(doğru) { ... }` gibi bir şey masaüstünde yalnız kendi iş
+   * parçacığını meşgul ederdi, burada sekmeyi dondurur. Her karede bir şey
+   * yapmak istiyorsanız yeri `tepkiVer`.
+   *
    * {{{
    * dez k1 = yeniKaplumbağa(-200, 0)
    * dez k2 = yeniKaplumbağa(0, 0)
