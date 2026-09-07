@@ -185,7 +185,19 @@ object PixiUyum {
         // hiç görünmüyordu. Yüklemeyi dinleyip bir çizim istiyoruz.
         // (geometry.dirty != cacheDirty kaldığından tazele() gerekmiyor.)
         val bt = dyn(doku).baseTexture
-        if (!bt.valid.asInstanceOf[Boolean]) bt.once("loaded", () => tazeleyici())
+        if (!bt.valid.asInstanceOf[Boolean]) {
+          bt.once("loaded", () => tazeleyici())
+          // Yükleme BAŞARISIZ olursa (404, bozuk imge) "loaded" hiç gelmiyor,
+          // yalnız "error" geliyor ve doku sonsuza dek geçersiz kalıyor --
+          // yani şekil, düz renkli parçaları ve kalemi dahil, hiç çizilmiyor.
+          // Ölçüldü (5.3.12): eksik dosyada gelen tek olay "error", valid=false.
+          // Giysi 404 korumasının (#28) aynı kalıbı: uyar ve düz renge dön.
+          bt.once("error", { () =>
+            println(s"Uyarı: dokuma boyası yüklenemedi, düz renge dönülüyor")
+            düzBoyayaDön(gr, yedek)
+            tazeleyici()
+          })
+        }
         val ters = dyn(matris).clone().invert()
         parçalar(gr).foreach { gd =>
           gd.fillStyle.texture = doku.asInstanceOf[js.Any]
@@ -197,6 +209,20 @@ object PixiUyum {
         }
         tazele(gr)
       }
+  }
+
+  /**
+   * Doku dolgusunu bırakıp düz renge döner. Yalnız rengi kurmak YETMİYOR:
+   * geçersiz doku fillStyle'da kaldığı sürece validateBatching hiçbir batch
+   * kurmuyor ve şekil çizilmiyor. Dokuyu beyaza (yani dolgu-yok anlamına gelen
+   * Texture.WHITE'a) çevirmek gerekiyor.
+   */
+  private def düzBoyayaDön(gr: pixiscalajs.PIXI.Graphics, yedek: kojo.doodle.Color): Unit = {
+    parçalar(gr).foreach { gd =>
+      gd.fillStyle.texture = js.Dynamic.global.PIXI.Texture.WHITE
+      gd.fillStyle.matrix = null
+    }
+    boyayıKur(gr, yedek.toRGBDouble, yedek.alpha.get)
   }
 
   /** Kalem rengi -- boyayıKur'un kalem karşılığı. */

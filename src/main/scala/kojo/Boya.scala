@@ -49,21 +49,32 @@ object Boya {
   private val RampaBoyu = 256
   private val ŞeritYüksekliği = 2
 
+  /**
+   * Tuvalden doku üretir.
+   *
+   * `PIXI.Texture.from` KULLANILMIYOR: o, tuvale bir `_pixiId` verip dokuyu
+   * `TextureCache` ve `BaseTextureCache`'e ekliyor ve bir daha hiç çıkarmıyor.
+   * Her gradyan çağrısı kalıcı bir girdi bırakırdı -- `canlandır` içinde her
+   * kare gradyan üreten bir betikte bu sürekli büyüyen bir sızıntı olurdu.
+   * Ölçüldü (5.3.12): 200 x Texture.from(tuval) -> iki önbellek de 0'dan
+   * 200'e; 200 x new Texture(new BaseTexture(...)) -> ikisi de 200'de kalıyor,
+   * yani önbelleğe hiç girmiyor ve referans düşünce çöp toplanabiliyor.
+   *
+   * Seçenekler kurucuya veriliyor (ikisi de ölçümle doğrulandı):
+   *  - mipmap KAPALI: doku şeklin üstünde çok küçültülerek örneklendiğinde
+   *    mipmap bütün rampayı tek bir ortalama renge indiriyor -- kırmızıdan
+   *    maviye geçiş düz mora, gökkuşağı düz kahverengiye dönüyordu.
+   *  - sarma kipi: dalgalıDevam (masaüstü cyclic) yansıyarak sürsün,
+   *    yoksa uçtaki renk sabitlensin. Varsayılana güvenmiyoruz.
+   */
   private def dokuYap(c: dom.html.Canvas, dalgalıDevam: Boolean): PIXI.Texture = {
-    // facade'daki Texture.from yalnız Image alıyor; tuval de geçerli bir kaynak,
-    // onun için doğrudan global üzerinden çağırıyoruz.
-    val t = js.Dynamic.global.PIXI.Texture.from(c.asInstanceOf[js.Any]).asInstanceOf[PIXI.Texture]
-    // MIPMAP KAPALI olmalı: gradyan dokusu şeklin üstünde çok küçültülerek
-    // örneklendiğinde mipmap bütün rampayı tek bir ortalama renge indiriyor --
-    // kırmızıdan maviye geçiş düz mora, gökkuşağı düz kahverengiye dönüyordu.
-    t.asInstanceOf[js.Dynamic].baseTexture.mipmap = js.Dynamic.global.PIXI.MIPMAP_MODES.OFF
-    // dalgalıDevam = masaüstündeki cyclic: gradyan uçlarından sonra yansıyarak
-    // sürsün. Aksi halde uçtaki renk sabitlensin (CLAMP). İkisini de AÇIKÇA
-    // kuruyoruz; varsayılana güvenmiyoruz (v5'te settings.WRAP_MODE = CLAMP).
-    val td = t.asInstanceOf[js.Dynamic]
-    val mod = js.Dynamic.global.PIXI.WRAP_MODES
-    td.baseTexture.wrapMode = if (dalgalıDevam) mod.MIRRORED_REPEAT else mod.CLAMP
-    t
+    val P = js.Dynamic.global.PIXI
+    val seçenekler = js.Dynamic.literal(
+      mipmap = P.MIPMAP_MODES.OFF,
+      wrapMode = if (dalgalıDevam) P.WRAP_MODES.MIRRORED_REPEAT else P.WRAP_MODES.CLAMP
+    )
+    val taban = js.Dynamic.newInstance(P.BaseTexture)(c.asInstanceOf[js.Any], seçenekler)
+    js.Dynamic.newInstance(P.Texture)(taban).asInstanceOf[PIXI.Texture]
   }
 
   // Girdi denetimi v4 dalında da koşsun diye ayrı: yanlış çağrı iki sürümde de
@@ -169,7 +180,20 @@ object Boya {
   def dokuma(dosya: String, x: Double, y: Double): Boya = {
     if (!PixiUyum.beşVeÜstü) return DüzBoya(Color.gray)
     val t = js.Dynamic.global.PIXI.Texture.from(dosya).asInstanceOf[PIXI.Texture]
-    t.asInstanceOf[js.Dynamic].baseTexture.wrapMode = js.Dynamic.global.PIXI.WRAP_MODES.REPEAT
+    val td = t.asInstanceOf[js.Dynamic]
+    td.baseTexture.wrapMode = js.Dynamic.global.PIXI.WRAP_MODES.REPEAT
+    // PIXI'nin kendi yükleme SÖZÜ dosya bulunamayınca reddediyor ve onu kimse
+    // yakalamıyor: tarayıcı konsoluna anlamsız bir "Uncaught (in promise)
+    // Event" düşüyor. Ölçüldü: dinleyicisiz Texture.from(404) bu hatayı
+    // veriyor, söze bir catch takınca hiç çıkmıyor. Kullanıcıya asıl anlaşılır
+    // uyarıyı PixiUyum'daki "error" dinleyicisi basıyor.
+    try {
+      // js.Promise'in catch imzası Thenable istiyor; js.Dynamic ile çağırmak
+      // hem daha yalın hem de facade'a bağımlı değil.
+      td.baseTexture.resource.load().applyDynamic("catch")(
+        (((_: js.Any) => ()): js.Function1[js.Any, Unit]).asInstanceOf[js.Any])
+    }
+    catch { case _: Throwable => () }
     val m = new PIXI.Matrix()
     m.translate(x, y)
     DokuBoya(t, m, Color.gray)
