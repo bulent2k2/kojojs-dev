@@ -673,6 +673,12 @@ def sayfa_html(anahtar, bolumler, twirl):
 
 def twirl_yap(html_metin, kaynak, komut='python3 kilavuz/uret.py --twirl <editor>/server/src/main/twirl/views'):
     govde = html_metin.replace('@', '@@')
+    # Twirl gövdedeki { } çiftlerini blok ayracı sayar; dengesizse şablon
+    # "Expected ending '}'" ile derlenmez -- ama bu ancak editörde sbt çalışınca
+    # görülür. Burada erken ve adıyla patlasın (kojojs-editor#20'nin dersi).
+    if govde.count('{') != govde.count('}'):
+        raise SystemExit('twirl: gövdede dengesiz ayraç: %d "{" / %d "}" -- metni &#123;/&#125; ile kaçırın (%s)'
+                         % (govde.count('{'), govde.count('}'), kaynak))
     # Twirl statik metni Scala dizge sabitlerine çevirir; JVM'de bir sabit en çok
     # 65535 bayt olabilir. Twirl'ün yeni sürümleri uzun metni kendisi bölüyor ama
     # buna güvenmeyelim: bölüm ve kod bloğu sınırlarına çıktısı boş bir @("")
