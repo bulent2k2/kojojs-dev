@@ -21,8 +21,29 @@ libraryDependencies ++= Seq(
 jsDependencies += ProvidedJS / "pixi.min.js" % "test"
 jsDependencies += ProvidedJS / "jsts.min.js" % "test"
 
-// Selenium tabanlı tarayıcı testleri (varsayılan). Saf mantık testleri için:
+// Selenium tabanlı tarayıcı testleri (varsayılan) -- PIXI/DOM isteyen resim,
+// çarpışma ve prelude testleri ancak burada koşuyor.
+//
+// KOŞMANIN YOLU: ./test-tarayici.sh
+// Betik Chrome'u bulup sürümünü okuyor ve EŞLEŞEN chromedriver'ı indirip
+// -Dwebdriver.chrome.driver ile veriyor. Elle `sbt test` ancak sistemde
+// Chrome ile aynı ana sürümden bir chromedriver PATH'teyse çalışır;
+// uyuşmazlıkta ChromeDriver oturum açmayı reddediyor.
+//
+// Saf mantık testlerini tarayıcısız koşmak için (hızlı, ama PIXI isteyen
+// paketler düşer):
 //   sbt 'set Test/jsEnv := new org.scalajs.jsenv.nodejs.NodeJSEnv()' \
 //       'set jsDependencies := Seq()' 'testOnly *TurkishStdlib*'
-val capabilities = new org.openqa.selenium.chrome.ChromeOptions()
+val capabilities = {
+  val o = new org.openqa.selenium.chrome.ChromeOptions()
+  // Chrome'un yeri: test-tarayici.sh KOJO_CHROME ile veriyor. Verilmezse
+  // Selenium PATH'teki Chrome'u arar (eski davranış).
+  sys.env.get("KOJO_CHROME").filter(_.nonEmpty).foreach(o.setBinary)
+  // Başsız koşu varsayılan: sunucuda/konteynerde ekran yok. Pencereli koşmak
+  // (hata ayıklarken) için KOJO_CHROME_PENCERELI=1.
+  if (sys.env.get("KOJO_CHROME_PENCERELI").forall(_.isEmpty)) {
+    o.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage")
+  }
+  o
+}
 Test / jsEnv := new SeleniumJSEnv(capabilities, SeleniumJSEnv.Config().withKeepAlive(false))
