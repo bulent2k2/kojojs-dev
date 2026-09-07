@@ -337,6 +337,53 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     MiskinDizin.sayalım(1).alDoğruKaldıkça(_ < 4).dizine should be(List(1, 2, 3))
   }
 
+  test("miskin dizin: masaüstüyle eşitlenen yöntemler") {
+    val m = MiskinDizin(3, 1, 2)
+    m.önü.dizine should be(List(3, 1)); m.sonu should be(2)
+    m.başıBelki should be(Some(3)); MiskinDizin.boş[Sayı].sonuBelki should be(None)
+    m.bul(_ > 1) should be(Some(3)); m.bulSondan(_ > 1) should be(Some(2))
+    m.nerede(_ == 1) should be(1); m.neredeSondan(_ > 1) should be(2)
+    m.başındaMı(Seq(3, 1)) should be(doğru); m.sonundaMı(Seq(2)) should be(doğru)
+    m.karşılıklıMı(Seq(6, 2, 4))(_ * 2 == _) should be(doğru)
+    m.sıralar.toList should be(List(0, 1, 2))
+    m.sıralı.dizine should be(List(1, 2, 3)); m.tersi.dizine should be(List(2, 1, 3))
+    m.böl(_ > 1)._1.dizine should be(List(3, 2))
+    m.bölDoğruKaldıkça(_ > 2)._1.dizine should be(List(3)); m.bölYerinden(1)._2.dizine should be(List(1, 2))
+    m.öbekli(2).toList.map(_.dizine) should be(List(List(3, 1), List(2)))
+    m.kayarÖbekli(2).toList.map(_.dizine) should be(List(List(3, 1), List(1, 2)))
+    m.öbekle(_ % 2) should be(Map(1 -> LazyList(3, 1), 0 -> LazyList(2)))
+    m.öbekleİşleİndirge(_ % 2)(x => x)(_ + _) should be(Map(1 -> 4, 0 -> 2))
+    m.katla(0)(_ + _) should be(6); m.soldanKatla("")(_ + _) should be("312")
+    m.indirgeSoldan(_ - _) should be(0); m.indirgeBelki(_ + _) should be(Some(6))
+    m.tara(0)(_ + _).dizine should be(List(0, 3, 4, 6)); m.taraSağdan(0)(_ + _).dizine should be(List(6, 3, 2, 0))
+    m.enUfağı should be(1); m.enİrisiBelki should be(Some(3)); m.enUfağıBelki(x => -x) should be(Some(3))
+    m.çarp should be(6); m.yinelemesiz.dizine should be(List(3, 1, 2)); m.değiştir(0, 9).dizine should be(List(9, 1, 2))
+    m.içeriyorMu(2) should be(doğru); m.sırası(2) should be(2); m.dilim(1, 3).dizine should be(List(1, 2))
+    m.ikileSırayla.dizine should be(List((3, 0), (1, 1), (2, 2))); m.kümeye should be(Set(1, 2, 3))
+    // tembellik: hesaplanmayan parça patlamaz
+    var sayaç = 0
+    val e = m.önüneEkle { sayaç += 1; 0 }
+    sayaç should be(0) // öge ancak ilk erişimde hesaplanır
+    e.başı should be(0); sayaç should be(1)
+    MiskinDizin.sayalım(1).sonunaEkleHepsini(throw new Exception("hesaplanmamalı")).al(3).dizine should be(List(1, 2, 3))
+    m.sonunaEkle(9).dizine should be(List(3, 1, 2, 9)); m.önüneEkleHepsini(Seq(7)).dizine should be(List(7, 3, 1, 2))
+    m.hepsiniHesapla.dizine should be(List(3, 1, 2))
+    m.uzat(5, 0).dizine should be(List(3, 1, 2, 0, 0)); m.yama(1, Seq(8, 9), 1).dizine should be(List(3, 8, 9, 2))
+    m.fark(Seq(1)).dizine should be(List(3, 2)); m.kesişim(Seq(2, 3)).dizine should be(List(3, 2)); m.bileşim(Seq(4)).boyu should be(4)
+    m.seçİşle { case x if x > 1 => x * 10 }.dizine should be(List(30, 20)); m.seçİşleİlk { case x if x < 3 => x } should be(Some(1))
+    MiskinDizin(Seq(1, 2), Seq(3)).düzleştir.dizine should be(List(1, 2, 3))
+    MiskinDizin(Seq(1, 2), Seq(3, 4)).devrik.işle(_.dizine).dizine should be(List(List(1, 3), List(2, 4)))
+    val (sayılar, harfler) = MiskinDizin((1, "a"), (2, "b")).ikiliyiAç
+    sayılar.dizine should be(List(1, 2)); harfler.dizine should be(List("a", "b"))
+    m.ikileHepsini(Seq("x"), -1, "-").dizine should be(List((3, "x"), (1, "-"), (2, "-")))
+    m.tersİşle(_ * 2).dizine should be(List(4, 2, 6))
+    m.kombinasyonlar(2).size should be(3); m.permütasyonlar.size should be(6); m.kuyruklar.size should be(4)
+    MiskinDizin.sıraylaDoldur(3)(_ * 2).dizine should be(List(0, 2, 4))
+    MiskinDizin.aralık(1, 4).dizine should be(List(1, 2, 3)); MiskinDizin.aralık(1, 10, 4).dizine should be(List(1, 5, 9))
+    MiskinDizin.türet(1)(n => if (n > 8) None else Some((n, n * 2))).dizine should be(List(1, 2, 4, 8))
+    MiskinDizin.diziden(List(1, 2)).dizine should be(List(1, 2)); MiskinDizin.ekle(Seq(1), List(2)).dizine should be(List(1, 2))
+  }
+
   test("yığın / kuyruk / öncelik sırası") {
     val y = Yığın.boş[Sayı]
     y.it(1); y.it(2)
