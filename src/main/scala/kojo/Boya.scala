@@ -69,11 +69,27 @@ object Boya {
    */
   private def dokuYap(c: dom.html.Canvas, dalgalıDevam: Boolean): PIXI.Texture = {
     val P = js.Dynamic.global.PIXI
-    val seçenekler = js.Dynamic.literal(
-      mipmap = P.MIPMAP_MODES.OFF,
-      wrapMode = if (dalgalıDevam) P.WRAP_MODES.MIRRORED_REPEAT else P.WRAP_MODES.CLAMP
-    )
+    val kip = if (dalgalıDevam) P.WRAP_MODES.MIRRORED_REPEAT else P.WRAP_MODES.CLAMP
+    val seçenekler = js.Dynamic.literal(mipmap = P.MIPMAP_MODES.OFF, wrapMode = kip)
     val taban = js.Dynamic.newInstance(P.BaseTexture)(c.asInstanceOf[js.Any], seçenekler)
+
+    // Sarma kipini ÇİVİLE. PIXI 5'in GraphicsGeometry.updateBatches'i her batch
+    // kuruluşunda koşulsuzca `nextTexture.wrapMode = WRAP_MODES.REPEAT` yazıyor
+    // (pixi.js 5.3.12 dist, updateBatches içinde). Yani kurucuya verdiğimiz kip
+    // ilk çizimde eziliyor ve gradyan hep TEKRARLI oluyordu: uzunluğu şekilden
+    // kısa bir gradyan, ucunda sabitlenmek yerine rampayı baştan başlatıyordu
+    // (testere dişi), dalgalıDevam da yansıma yerine düz tekrar veriyordu.
+    // Gradyan şekle tam oturduğunda görünmüyor (uv [0,1] dışına çıkmıyor);
+    // ilk denemelerimizin bunu kaçırma sebebi buydu.
+    //
+    // Alanı yalnız-okunur bir erişimciye çeviriyoruz: PIXI'nin ataması sessizce
+    // yutuluyor, okuyanlar bizim kipi görüyor. Yalnız kendi dokularımıza
+    // dokunuyor -- updateBatches'ı sarmalamaktan daha küçük bir müdahale.
+    js.Dynamic.global.Object.defineProperty(taban, "wrapMode", js.Dynamic.literal(
+      get = (() => kip): js.Function0[js.Any],
+      set = ((_: js.Any) => ()): js.Function1[js.Any, Unit],
+      configurable = true
+    ))
     js.Dynamic.newInstance(P.Texture)(taban).asInstanceOf[PIXI.Texture]
   }
 
