@@ -222,7 +222,11 @@ def rozet(durum, ek):
     elif durum == 'kaldı' and ek:
         # derleme.tsv'nin 3. sütunu: derleyicinin ilk hata özeti
         açıklama = '%s: %s' % (açıklama, ek)
-    return '<span class="rozet %s" title="%s">%s</span>' % (sınıf, html.escape(açıklama), etiket)
+    # Twirl gövde metninde { } blok ayracı sayılır ve DENGELİ olmalı; derleyici
+    # özetlerinde ("... { (x, y) => ^") tek ayraç var. Varlık olarak yazıyoruz --
+    # HTML'de aynı görünür, Twirl'e görünmez.
+    return '<span class="rozet %s" title="%s">%s</span>' % (
+        sınıf, html.escape(açıklama).replace('{', '&#123;').replace('}', '&#125;'), etiket)
 
 
 def satır_html(baslik, göreli, durum_haritası, ikojo=False, aciklama=None):
