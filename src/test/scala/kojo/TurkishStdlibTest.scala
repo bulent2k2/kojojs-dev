@@ -288,6 +288,17 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     Eşlem.değişmezden(Map("k" -> 9)).al("k") should be(Some(9))
   }
 
+  test("dizi: sınır dışı erişim hata fırlatır (Scala.js varargs tuzağı)") {
+    // Dizi.apply eskiden varargs'ı olduğu gibi (toSeq) döndürüyordu; Scala.js'te
+    // o sarmalayıcı sınır denetimi yapmıyor ve Dizi(1)(5) sessizce undefined
+    // veriyordu. Masaüstünde (JVM) hata fırlar; ikisi aynı davransın.
+    an[IndexOutOfBoundsException] should be thrownBy Dizi(1, 2, 3)(5)
+    an[IndexOutOfBoundsException] should be thrownBy Dizi(1)(-1)
+    an[IndexOutOfBoundsException] should be thrownBy Diz(1, 2)(7)
+    Dizi(1, 2, 3)(2) should be(3) // geçerli erişim bozulmadı
+    Diz(1, 2)(1) should be(2)
+  }
+
   test("dizin: List'in Türkçesi") {
     val l = Dizin(3, 1, 2)
     l.boyu should be(3)

@@ -11,7 +11,11 @@ package kojo.tr
 trait DiziYöntemleri extends TemelTürler {
 
   object Dizi {
-    def apply[B](ögeler: B*): Dizi[B] = ögeler.toSeq
+    // toVector, toSeq DEĞİL: Scala.js'te varargs bir WrappedVarArgs olarak
+    // geliyor ve onun apply'ı sınır denetimi YAPMIYOR -- Dizi(1)(5) hata
+    // fırlatmak yerine undefined döndürüyordu (masaüstünde SınırDışınaTaşmaHatası).
+    // Vector'e kopyalamak denetimi geri getiriyor; kopya maliyeti bir kereliktir.
+    def apply[B](ögeler: B*): Dizi[B] = ögeler.toVector
     def unapplySeq[B](dizi: Dizi[B]) = Seq.unapplySeq(dizi)
     def boş[B]: Dizi[B] = Seq.empty[B]
     def doldur[B](n1: Sayı)(f: Sayı => B) = Seq.tabulate(n1)(f)
@@ -20,7 +24,8 @@ trait DiziYöntemleri extends TemelTürler {
   }
 
   object Diz {
-    def apply[B](ögeler: B*): Diz[B] = ögeler.toSeq
+    // Dizi.apply ile aynı gerekçe: sınır denetimi olsun diye Vector'e kopyalanır.
+    def apply[B](ögeler: B*): Diz[B] = ögeler.toVector
     def unapplySeq[B](dizi: Diz[B]) = collection.Seq.unapplySeq(dizi)
     def doldur[B](n1: Sayı)(f: Sayı => B) = Seq.tabulate(n1)(f)
   }
