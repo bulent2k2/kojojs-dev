@@ -265,6 +265,36 @@ object PixiUyum {
     boyayıKur(gr, yedek.toRGBDouble, yedek.alpha.get)
   }
 
+  /**
+   * Doku dolgusunu BAŞLATIR (kaplumbağa yolu için).
+   *
+   * boyayıKurBoya'dan farkı: orada şekil çizilmiş oluyor ve graphicsData
+   * üstündeki fillStyle değiştiriliyor; burada şekil daha çizilmedi, PIXI'nin
+   * kendi beginTextureFill'i kullanılıyor. Bunun bir sonucu var:
+   * beginTextureFill matrisin TERSİNİ kendisi alıyor (ölçüldü), yani buraya
+   * doğal (doku -> yerel) matrisi veriyoruz -- boyayıKurBoya'da elle ters
+   * aldığımızın tersine.
+   *
+   * PIXI 4'te beginTextureFill yok; orada yedek düz renge düşülüyor.
+   */
+  def boyamayaBaşla(gr: pixiscalajs.PIXI.Graphics, boya: Boya)(tazeleyici: () => Unit): Unit =
+    boya match {
+      case DüzBoya(renk) =>
+        gr.beginFill(renk.toRGBDouble, renk.alpha.get)
+      case DokuBoya(doku, matris, yedek) =>
+        if (!beşVeÜstü) gr.beginFill(yedek.toRGBDouble, yedek.alpha.get)
+        else {
+          val bt = dyn(doku).baseTexture
+          if (!bt.valid.asInstanceOf[Boolean]) yüklemeyiBekle(bt, gr, yedek, tazeleyici)
+          dyn(gr).beginTextureFill(js.Dynamic.literal(
+            texture = doku.asInstanceOf[js.Any],
+            matrix = matris.asInstanceOf[js.Any],
+            color = 0xffffff,
+            alpha = 1.0
+          ))
+        }
+    }
+
   /** Kalem rengi -- boyayıKur'un kalem karşılığı. */
   def kalemiKur(gr: pixiscalajs.PIXI.Graphics, renk: Double, saydamlık: Double): Unit = {
     parçalar(gr).foreach { gd =>

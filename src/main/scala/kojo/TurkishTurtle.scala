@@ -229,6 +229,8 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   def kalemiKaldır(): Birim = englishTurtle.penUp()
   def kalemRenginiKur(renk: Renk): Birim = englishTurtle.setPenColor(renk)
   def boyamaRenginiKur(renk: Renk): Birim = englishTurtle.setFillColor(renk)
+  /** Gradyan ya da dokuma boyasıyla doldurur (Renk.doğrusalDeğişim, DokumaBoya, ...). */
+  def boyamaRenginiKur(boya: Boya): Birim = englishTurtle.setFillPaint(boya)
   def kalemKalınlığınıKur(n: Kesir): Birim = englishTurtle.setPenThickness(n)
   def kalemİnikMi: İkil = englishTurtle.penIsDown
 
