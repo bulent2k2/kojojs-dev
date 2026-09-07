@@ -94,6 +94,18 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
 
   // Kuyruğa eklemenin TEK giriş noktası: pompa boştaysa yeniden başlatır.
   // Bütün `commandQ.enqueue` çağrıları buradan geçmeli.
+  //
+  // YENİ KOMUT EKLERKEN: komutu işleyen realX MUTLAKA sonunda pompayı yeniden
+  // zamanlamalı (`kojoWorld.scheduleLater(queueHandler)`) -- erken `return`
+  // yollarında da. Unutulursa pompa `boşta = false` takılı kalır, `komutGirdi`
+  // hep false döner ve kaplumbağa KALICI olarak donar (bkz. realArc2'nin
+  // a == 0 yolu, bu yüzden düzeltildi).
+  //
+  // Not: `scheduleLater` ilk MaxBurst çağrıda işi EŞZAMANLI koşturuyor, yani
+  // kuyruk boşken verilen bir komut pompayı kullanıcının çağrı yığınının
+  // içinde çalıştırabilir (canlandırma gecikmesi 0 ise komut aynı karede
+  // biter). Sonuç doğru; yalnız pompanın her zaman eşzamansız başladığı
+  // varsayılmasın.
   private def sıraya(komut: Command): Unit = {
     commandQ.enqueue(komut)
     if (pompa.komutGirdi()) kojoWorld.scheduleLater(queueHandler)

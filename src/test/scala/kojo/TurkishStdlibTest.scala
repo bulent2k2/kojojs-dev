@@ -292,11 +292,15 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     // Dizi.apply eskiden varargs'ı olduğu gibi (toSeq) döndürüyordu; Scala.js'te
     // o sarmalayıcı sınır denetimi yapmıyor ve Dizi(1)(5) sessizce undefined
     // veriyordu. Masaüstünde (JVM) hata fırlar; ikisi aynı davransın.
+    // Yazım da masaüstüyle aynı olmalı: orada Seq.from JVM'de List üretiyor.
     an[IndexOutOfBoundsException] should be thrownBy Dizi(1, 2, 3)(5)
     an[IndexOutOfBoundsException] should be thrownBy Dizi(1)(-1)
     an[IndexOutOfBoundsException] should be thrownBy Diz(1, 2)(7)
     Dizi(1, 2, 3)(2) should be(3) // geçerli erişim bozulmadı
     Diz(1, 2)(1) should be(2)
+    // satıryaz(Dizi(...)) masaüstüyle aynı görünsün: "WrappedVarArgs(...)" değil
+    Dizi(1, 2, 3).toString should be("List(1, 2, 3)")
+    Diz(1, 2).toString should be("List(1, 2)")
   }
 
   test("dizin: List'in Türkçesi") {
