@@ -248,6 +248,10 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     commandQ.enqueue(Write(text))
   }
 
+  def towards(other: Turtle): Unit = {
+    commandQ.enqueue(TowardsTurtle(other))
+  }
+
   def towards(x: Double, y: Double): Unit = {
     commandQ.enqueue(Towards(x, y))
   }
@@ -323,6 +327,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
         case SetPenFontFamily(f) => realSetPenFontFamily(f)
         case Dot(çap)           => realDot(çap)
         case Towards(x, y)      => realTowards(x, y)
+        case TowardsTurtle(o)   => realTowards(o.position.x, o.position.y)
         case SavePosHe          => realSavePosHe()
         case RestorePosHe       => realRestorePosHe()
         case SaveStyle          => realSaveStyle()

@@ -96,6 +96,18 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   // ---- yön ----
   def açıyaDön(açı: Kesir): Birim = englishTurtle.setHeading(açı)
   def noktayaDön(x: Kesir, y: Kesir): Birim = englishTurtle.towards(x, y)
+  /** Nokta alan hâli (masaüstünde de var): `noktayaDön(fareKonumu)`. */
+  def noktayaDön(n: Nokta): Birim = noktayaDön(n.x, n.y)
+  /**
+   * Başka bir kaplumbağaya döner (masaüstü çevir). Hedefin konumu komut
+   * çalışırken okunuyor; iki kaplumbağanın kuyrukları ayrı olduğu için
+   * kuyruğa konurken okumak eski konuma döndürürdü.
+   */
+  def çevir(öbürü: Kaplumbağa): Birim = (englishTurtle, öbürü.englishTurtle) match {
+    case (bu: Turtle, o: Turtle) => bu.towards(o)
+    case _ =>
+      throw new ÇalışmaSırasıKuralDışı("çevir yalnız yeniKaplumbağa ile yapılan kaplumbağalarda çalışır")
+  }
   def doğu(): Birim = englishTurtle.setHeading(0)
   def batı(): Birim = englishTurtle.setHeading(180)
   def kuzey(): Birim = englishTurtle.setHeading(90)
