@@ -1,118 +1,115 @@
-# yerel derleme ölçümü -- 2026-09-06 -- kojojs-dev master ae39bf3 + kojojs-core page sınıfyolu, yamalı scala-tr derleyici
-# ornekleri-dogrula.sh ile AYNI prelude ve aynı TSV anahtarları, ama canlı /compile yerine
-# yerelde tek bir nsc.Global ile tip denetimi (bu ortamdan ikojo.fly.dev'e erişilemiyor).
-# Doğrulama: ikojo'nun 10 örneği aynı koşumda 10/10 geçti.
-# geçti: 44   kaldı: 68   sunucu: 0
+# ornekleri-dogrula.sh sonucu -- 2026-09-07 -- http://localhost:7860
+# geçti: 48   kaldı: 63   sunucu: 1
 betik	durum	özet
-masaustu/installer/examples/anagram/anagram_tr.kojo.installed	kaldı	not found: value sözcükDizininiYükle
-masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	not found: value installDir
-masaustu/installer/examples/othello/menu_tr.kojo.installed	kaldı	To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.
-masaustu/installer/examples/othello/tr/alfabeta.kojo	kaldı	not found: type Oda; not found: type Durum
+masaustu/installer/examples/anagram/anagram_tr.kojo.installed	kaldı	1 hata: 21: not found: value sözcükDizininiYükle dez sözlük: Dizin[Sözcük] = sözcükDizininiYükle                             ^
+masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	2 hata: 39: not found: value installDir     dez path = installDir + s + "examples" + s + "anagram" + s + "tr" + s + "sozcukler.txt"                ^
+masaustu/installer/examples/othello/menu_tr.kojo.installed	kaldı	1 hata: 21: To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details. dez açıklama = <html>     
+masaustu/installer/examples/othello/tr/alfabeta.kojo	kaldı	100 hata: 21: not found: type Oda     tanım hamleYap(drm: Durum): Belki[Oda] = {                                       ^
 masaustu/installer/examples/othello/tr/anaTanimlar.kojo	geçti	
-masaustu/installer/examples/othello/tr/araYuz.kojo	kaldı	not found: type ETahta; not found: type Bellek
-masaustu/installer/examples/othello/tr/bellek.kojo	kaldı	not found: type ETahta; not found: type Taş
-masaustu/installer/examples/othello/tr/durum.kojo	kaldı	not found: type Tahta; not found: type Taş
-masaustu/installer/examples/othello/tr/eTahta.kojo	kaldı	not found: type Taş; not found: value Yok
-masaustu/installer/examples/othello/tr/otello.kojo	kaldı	not found: value Siyah; not found: type ETahta
-masaustu/installer/examples/othello/tr/tahta.kojo	kaldı	not found: type Taş; not found: type Oda
-masaustu/installer/examples/tiledgame/game_tr.kojo.installed	kaldı	not found: value kurulumDizini; not found: value tuvaliKaydır
-masaustu/src/main/resources/challenge/tr/get-started.kojo	kaldı	To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.
-masaustu/src/main/resources/challenge/tr/oykucu.kojo	kaldı	To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.
-masaustu/src/main/resources/ka-bridge/tr/sample.kojo	kaldı	not found: value pinMode; not found: value INPUT
-masaustu/src/main/resources/mathgames/tr/counting.kojo	kaldı	not found: value ay; not found: value sütunSayısınıKur
-masaustu/src/main/resources/mathgames/tr/identify-fractions.kojo	kaldı	not found: value ay; not found: value sütunSayısınıKur
-masaustu/src/main/resources/mathgames/tr/make-fractions.kojo	kaldı	not found: value ay; not found: value sütunSayısınıKur
+masaustu/installer/examples/othello/tr/araYuz.kojo	kaldı	78 hata: 22: not found: type ETahta     tahta:      ETahta,                 ^
+masaustu/installer/examples/othello/tr/bellek.kojo	kaldı	6 hata: 19: not found: type ETahta sınıf Bellek(tahta: ETahta) {                     ^
+masaustu/installer/examples/othello/tr/durum.kojo	kaldı	5 hata: 18: not found: type Tahta sınıf Durum(dez tahta: Tahta, dez sıra: Taş) {                        ^
+masaustu/installer/examples/othello/tr/eTahta.kojo	kaldı	100 hata: 21: not found: type Taş     dez kimBaşlar: Taş,                    ^
+masaustu/installer/examples/othello/tr/otello.kojo	kaldı	7 hata: 24: not found: value Siyah dez kimBaşlar = Siyah // Beyaz ya da Siyah başlayabilir. Seç :-)                 ^
+masaustu/installer/examples/othello/tr/tahta.kojo	kaldı	100 hata: 21: not found: type Taş     tanım drm(t: Taş) = {                  ^
+masaustu/installer/examples/tiledgame/game_tr.kojo.installed	kaldı	8 hata: 22: not found: value kurulumDizini satıryaz(s"\nKendi mağaranı kurmak için, '$kurulumDizini/examples/tiledgame/level1.tmx' dosyasını www.mapeditor.org sitesinde
+masaustu/src/main/resources/challenge/tr/get-started.kojo	kaldı	1 hata: 168: To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.     1 -> <div>          ^
+masaustu/src/main/resources/challenge/tr/oykucu.kojo	kaldı	1 hata: 95: To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.         <body style="font-
+masaustu/src/main/resources/ka-bridge/tr/sample.kojo	kaldı	27 hata: 20: not found: value pinMode     pinMode(2, INPUT) // bir girdi     ^
+masaustu/src/main/resources/mathgames/tr/counting.kojo	kaldı	9 hata: 56: not found: value ay dez yanıtPenceresi = yeni ay.Yazıgirdisi(0) {                           ^
+masaustu/src/main/resources/mathgames/tr/identify-fractions.kojo	kaldı	28 hata: 25: not found: value ay dez girdi1 = yeni ay.Yazıgirdisi("") {                   ^
+masaustu/src/main/resources/mathgames/tr/make-fractions.kojo	kaldı	20 hata: 25: not found: value ay dez girdi1 = yeni ay.Yazıgirdisi("") {                   ^
 masaustu/src/main/resources/robosim/tr/cevre.kojo	geçti	
-masaustu/src/main/resources/robosim/tr/obstacle-furthest.kojo	kaldı	not found: value duvarlar; not found: value Robot
-masaustu/src/main/resources/robosim/tr/obstacle-greedy.kojo	kaldı	not found: value duvarlar; not found: value Robot
-masaustu/src/main/resources/robosim/tr/robot.kojo	kaldı	value eksenleriGöster is not a member of kojo.Picture
-masaustu/src/main/resources/samples/tr/addition-game.kojo	kaldı	not found: value ay; not found: value sütunSayısınıKur
-masaustu/src/main/resources/samples/tr/angle-experiment.kojo	kaldı	not found: value doğrultu
+masaustu/src/main/resources/robosim/tr/obstacle-furthest.kojo	kaldı	3 hata: 32: not found: value duvarlar çiz(duvarlar) // duvarlar cevre.kojo adlı yazılımcık içinde tanımlanıyor     ^
+masaustu/src/main/resources/robosim/tr/obstacle-greedy.kojo	kaldı	3 hata: 32: not found: value duvarlar çiz(duvarlar) // duvarlar cevre.kojo adlı yazılımcık içinde tanımlanıyor     ^
+masaustu/src/main/resources/robosim/tr/robot.kojo	kaldı	1 hata: 28: value eksenleriGöster is not a member of kojo.Picture     uzaklıkAlgıcısı.eksenleriGöster()                     ^
+masaustu/src/main/resources/samples/tr/addition-game.kojo	kaldı	10 hata: 59: not found: value ay dez yanıtKutusu = yeni ay.Yazıgirdisi(0) {                        ^
+masaustu/src/main/resources/samples/tr/angle-experiment.kojo	kaldı	1 hata: 49: not found: value doğrultu     dez açı = yuvarla(360 - doğrultu + 90).sayıya % 360                             ^
 masaustu/src/main/resources/samples/tr/angles.kojo	geçti	
-masaustu/src/main/resources/samples/tr/animated-square-creation.kojo	kaldı	value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk; not found: value Geçiş
-masaustu/src/main/resources/samples/tr/arduino-prog.kojo	kaldı	To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.
+masaustu/src/main/resources/samples/tr/animated-square-creation.kojo	kaldı	13 hata: 25: value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk dez bg = Renk.doğrusalDeğişim(0, 0, canlıKırmızı, kareninKenarUzunluğu / 
+masaustu/src/main/resources/samples/tr/arduino-prog.kojo	kaldı	1 hata: 28: To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.     <p style={ headerStyle
 masaustu/src/main/resources/samples/tr/car-ride.kojo	geçti	
 masaustu/src/main/resources/samples/tr/circles.kojo	geçti	
-masaustu/src/main/resources/samples/tr/collidium.kojo	kaldı	not found: value DokumaBoya
+masaustu/src/main/resources/samples/tr/collidium.kojo	kaldı	1 hata: 44: not found: value DokumaBoya dez duvarBoyası = DokumaBoya(Çizim.tuğla, 0, 0)                   ^
 masaustu/src/main/resources/samples/tr/crazy-square.kojo	geçti	
 masaustu/src/main/resources/samples/tr/dragon-curve.kojo	geçti	
 masaustu/src/main/resources/samples/tr/estimating-pi-mc.kojo	geçti	
-masaustu/src/main/resources/samples/tr/eye-effects.kojo	kaldı	value merkezdenDışarıDoğruÇokluDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk; not found: value gürültü
-masaustu/src/main/resources/samples/tr/eye.kojo	kaldı	value merkezdenDışarıDoğruÇokluDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk
+masaustu/src/main/resources/samples/tr/eye-effects.kojo	kaldı	3 hata: 19: value merkezdenDışarıDoğruÇokluDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk dez boya = Renk.merkezdenDışarıDoğruÇokluDeğişim(       
+masaustu/src/main/resources/samples/tr/eye.kojo	kaldı	1 hata: 24: value merkezdenDışarıDoğruÇokluDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk dez boya = Renk.merkezdenDışarıDoğruÇokluDeğişim(0, 0, 1
 masaustu/src/main/resources/samples/tr/face-multi.kojo	geçti	
-masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	not found: value yansıtX; not found: value soluk
+masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	4 hata: 43: not found: value yansıtX     yansıtX -> (soluk(230) * bulanık(2) -> eğreltiOtuResim),     ^
 masaustu/src/main/resources/samples/tr/ferris-wheel.kojo	geçti	
-masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	not found: value aydınlık
-masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	kaldı	not found: type TuvalÇizim; not found: value canlandırTuvalÇizimle
+masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	1 hata: 40: not found: value aydınlık             götür(2, büyüklük - 5) * aydınlık(0.05) -> Resim.dizi(                                      ^
+masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	kaldı	4 hata: 67: not found: type TuvalÇizim     tanım göster(tuval: TuvalÇizim) {                         ^
 masaustu/src/main/resources/samples/tr/fireworks.kojo	geçti	
 masaustu/src/main/resources/samples/tr/flappy-ball.kojo	geçti	
 masaustu/src/main/resources/samples/tr/genart-cubic-disarray.kojo	geçti	
-masaustu/src/main/resources/samples/tr/genart-delaunay.kojo	kaldı	not found: value fareyeTıklıyınca; not found: value üçgenDöşeme
-masaustu/src/main/resources/samples/tr/genart-hypnotic-squares.kojo	kaldı	not found: value konum
+masaustu/src/main/resources/samples/tr/genart-delaunay.kojo	kaldı	2 hata: 24: not found: value fareyeTıklıyınca fareyeTıklıyınca { (x, y) => ^
+masaustu/src/main/resources/samples/tr/genart-hypnotic-squares.kojo	kaldı	1 hata: 37: not found: value konum         dez yeri = konum // kaplumbağanın konumu                    ^
 masaustu/src/main/resources/samples/tr/genart-joy-division.kojo	geçti	
 masaustu/src/main/resources/samples/tr/genart-mondrian.kojo	geçti	
 masaustu/src/main/resources/samples/tr/genart-tiled-lines.kojo	geçti	
 masaustu/src/main/resources/samples/tr/genart-tri-mesh.kojo	geçti	
-masaustu/src/main/resources/samples/tr/hunted-fp.kojo	kaldı	not found: value net; not found: value Subscriptions
-masaustu/src/main/resources/samples/tr/hunted.kojo	kaldı	not found: value yansıtY; not found: value döndürMerkezli
+masaustu/src/main/resources/samples/tr/hunted-fp.kojo	kaldı	7 hata: 56: not found: value net val cd = new net.kogics.kojo.fpgaming.CollisionDetector()              ^
+masaustu/src/main/resources/samples/tr/hunted.kojo	kaldı	4 hata: 79: not found: value yansıtY     yansıtY * döndür(120) * götür(1.5, 0) -> parça7,     ^
 masaustu/src/main/resources/samples/tr/image-collage.kojo	geçti	
 masaustu/src/main/resources/samples/tr/image-right-split.kojo	geçti	
-masaustu/src/main/resources/samples/tr/instruction-palette.kojo	kaldı	To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.
-masaustu/src/main/resources/samples/tr/kojo-documentation.kojo	kaldı	To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.
+masaustu/src/main/resources/samples/tr/instruction-palette.kojo	kaldı	1 hata: 48: To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.     <div style={ headerSty
+masaustu/src/main/resources/samples/tr/kojo-documentation.kojo	kaldı	1 hata: 34: To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.   body = <body style={ say
 masaustu/src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi.kojo	geçti	
 masaustu/src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi0.kojo	geçti	
 masaustu/src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi2.kojo	geçti	
-masaustu/src/main/resources/samples/tr/kojo-kilavuz/ek-sayfa.kojo	kaldı	not found: value Page; not found: value tPage
-masaustu/src/main/resources/samples/tr/kojo-kilavuz/komutlar-genel.kojo	kaldı	not found: value Page; not found: value tPage
+masaustu/src/main/resources/samples/tr/kojo-kilavuz/ek-sayfa.kojo	kaldı	30 hata: 29: not found: value Page   dez sayfa = Page(               ^
+masaustu/src/main/resources/samples/tr/kojo-kilavuz/komutlar-genel.kojo	kaldı	41 hata: 37: not found: value Page   dez sayfa = Page(               ^
 masaustu/src/main/resources/samples/tr/kojo-kilavuz/ornek-yazilimlar.kojo	geçti	
 masaustu/src/main/resources/samples/tr/kojo-kilavuz/renklendirilmis-teker.kojo	geçti	
-masaustu/src/main/resources/samples/tr/kojo-kilavuz/turler.kojo	kaldı	not found: value Page; not found: value tPage
-masaustu/src/main/resources/samples/tr/l-systems.kojo	kaldı	type mismatch;  found   : ScalaFiddle.builtins.trTurtle.Yazı     (which expands to)  String  required: Char
-masaustu/src/main/resources/samples/tr/lamp-animation.kojo	kaldı	value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk; value yayÇiz is not a member of pixiscalajs.PIXI.Graphics
-masaustu/src/main/resources/samples/tr/lamp-animation2.kojo	kaldı	value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk; not found: value Geçiş
-masaustu/src/main/resources/samples/tr/lighted-star.kojo	kaldı	not found: value SahneIşığı; not found: value ışıklar
+masaustu/src/main/resources/samples/tr/kojo-kilavuz/turler.kojo	kaldı	100 hata: 119: not found: value Page   dez sayfa = Page(               ^
+masaustu/src/main/resources/samples/tr/l-systems.kojo	kaldı	1 hata: 45: type mismatch;  found   : ScalaFiddle.builtins.trTurtle.Yazı     (which expands to)  String  required: Char             eğer (kurallar.tanımlıMı(h)) kuralla
+masaustu/src/main/resources/samples/tr/lamp-animation.kojo	kaldı	7 hata: 23: value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk         boyaRengi(Renk.doğrusalDeğişim(0, 10, kırmızı, 0, -40, kahverengi
+masaustu/src/main/resources/samples/tr/lamp-animation2.kojo	kaldı	7 hata: 23: value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk     boyamaRenginiKur(Renk.doğrusalDeğişim(0, 0, kırmızı, 0, 130, sarı))  
+masaustu/src/main/resources/samples/tr/lighted-star.kojo	kaldı	3 hata: 32: not found: value SahneIşığı dez sı1 = SahneIşığı(0.2, 0.8, 300, 30, 130)           ^
 masaustu/src/main/resources/samples/tr/lunar-lander.kojo	geçti	
-masaustu/src/main/resources/samples/tr/mandelbrot.kojo	kaldı	not found: type İmge; not found: value imge
+masaustu/src/main/resources/samples/tr/mandelbrot.kojo	kaldı	8 hata: 151: not found: type İmge tanım mKümesi(d: Dörtgen): İmge =                            ^
 masaustu/src/main/resources/samples/tr/memory-cards.kojo	geçti	
-masaustu/src/main/resources/samples/tr/multiplication-game.kojo	kaldı	not found: value ay; not found: value sütunSayısınıKur
-masaustu/src/main/resources/samples/tr/oyku-tanimlari.kojo	kaldı	To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.
-masaustu/src/main/resources/samples/tr/penta-pattern.kojo	kaldı	value çevir is not a member of ScalaFiddle.builtins.trTurtle.Renk
+masaustu/src/main/resources/samples/tr/multiplication-game.kojo	kaldı	10 hata: 59: not found: value ay dez yanıtKutusu = yeni ay.Yazıgirdisi(0) {                        ^
+masaustu/src/main/resources/samples/tr/oyku-tanimlari.kojo	kaldı	1 hata: 33: To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.     <p style={headerStyle}
+masaustu/src/main/resources/samples/tr/penta-pattern.kojo	geçti	
 masaustu/src/main/resources/samples/tr/physics-fma.kojo	geçti	
 masaustu/src/main/resources/samples/tr/physics-uvats.kojo	geçti	
 masaustu/src/main/resources/samples/tr/pong.kojo	geçti	
 masaustu/src/main/resources/samples/tr/prime-factors.kojo	geçti	
 masaustu/src/main/resources/samples/tr/primes.kojo	geçti	
-masaustu/src/main/resources/samples/tr/radiance.kojo	kaldı	value merkezdenDışarıDoğruDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk
+masaustu/src/main/resources/samples/tr/radiance.kojo	kaldı	1 hata: 27: value merkezdenDışarıDoğruDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk dez ışıma = Renk.merkezdenDışarıDoğruDeğişim(0, 0, camgöbeği,
 masaustu/src/main/resources/samples/tr/random-dots.kojo	geçti	
 masaustu/src/main/resources/samples/tr/rangoli.kojo	geçti	
-masaustu/src/main/resources/samples/tr/read-vector-bargraph.kojo	kaldı	value boşluk is not a member of ScalaFiddle.builtins.trTurtle.Resim
+masaustu/src/main/resources/samples/tr/read-vector-bargraph.kojo	kaldı	1 hata: 37: value boşluk is not a member of ScalaFiddle.builtins.trTurtle.Resim dez çubukGrafiği = Resim.diziYatay(çubuklar).boşluk(5)                                  
 masaustu/src/main/resources/samples/tr/read-vector-mean.kojo	geçti	
-masaustu/src/main/resources/samples/tr/scala-tutorial.kojo	kaldı	To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.
+masaustu/src/main/resources/samples/tr/scala-tutorial.kojo	sunucu	HTTP 413: EntityStreamSizeException: incoming entity size (165684) exceeded size limit (65
 masaustu/src/main/resources/samples/tr/shapes-cols.kojo	geçti	
-masaustu/src/main/resources/samples/tr/sierpinski-tri.kojo	kaldı	value hex is not a member of object kojo.doodle.Color
+masaustu/src/main/resources/samples/tr/sierpinski-tri.kojo	kaldı	1 hata: 19: value hex is not a member of object kojo.doodle.Color dez kirliBeyaz = renkler.hex(0xF2F5F1)                          ^
 masaustu/src/main/resources/samples/tr/snowflake.kojo	geçti	
-masaustu/src/main/resources/samples/tr/some-notes.kojo	kaldı	not found: value MusicScore; not found: value Melody
-masaustu/src/main/resources/samples/tr/spiral-effects.kojo	kaldı	not found: value örgü; not found: value gürültü
+masaustu/src/main/resources/samples/tr/some-notes.kojo	kaldı	4 hata: 16: not found: value MusicScore dez ezgi = MusicScore(            ^
+masaustu/src/main/resources/samples/tr/spiral-effects.kojo	kaldı	2 hata: 35: not found: value örgü     örgü(30, 5, 30, 5) -> artalan,     ^
 masaustu/src/main/resources/samples/tr/spiral-hexagon-tiles.kojo	geçti	
 masaustu/src/main/resources/samples/tr/spiral-square-tiles.kojo	geçti	
 masaustu/src/main/resources/samples/tr/spiral.kojo	geçti	
-masaustu/src/main/resources/samples/tr/sprite-animation.kojo	kaldı	not found: value giysiKur; value konum is not a member of ScalaFiddle.k1.Kaplumbağa
-masaustu/src/main/resources/samples/tr/sprite-boundary-polygon.kojo	kaldı	value çizBaştan is not a member of ScalaFiddle.builtins.trTurtle.Resim; not found: value fareyeTıklıyınca
-masaustu/src/main/resources/samples/tr/square-pattern.kojo	kaldı	value çevir is not a member of ScalaFiddle.builtins.trTurtle.Renk
+masaustu/src/main/resources/samples/tr/sprite-animation.kojo	kaldı	2 hata: 32: value konum is not a member of ScalaFiddle.k1.Kaplumbağa     yineleDoğruysa(kap.konum.y < 40) {                        ^
+masaustu/src/main/resources/samples/tr/sprite-boundary-polygon.kojo	kaldı	5 hata: 62: value çizBaştan is not a member of ScalaFiddle.builtins.trTurtle.Resim     noktaResmi.çizBaştan()                ^
+masaustu/src/main/resources/samples/tr/square-pattern.kojo	geçti	
 masaustu/src/main/resources/samples/tr/square.kojo	geçti	
-masaustu/src/main/resources/samples/tr/subtraction-game.kojo	kaldı	not found: value ay; not found: value sütunSayısınıKur
+masaustu/src/main/resources/samples/tr/subtraction-game.kojo	kaldı	10 hata: 60: not found: value ay dez yanıtKutusu = yeni ay.Yazıgirdisi(0) {                        ^
 masaustu/src/main/resources/samples/tr/synchronized-squares.kojo	geçti	
 masaustu/src/main/resources/samples/tr/synchronized-squares2.kojo	geçti	
-masaustu/src/main/resources/samples/tr/tan-theta.kojo	kaldı	value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk
-masaustu/src/main/resources/samples/tr/tangram-skier.kojo	kaldı	not found: value yansıtY; not found: value döndürMerkezli
+masaustu/src/main/resources/samples/tr/tan-theta.kojo	kaldı	1 hata: 31: value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk boyamaRenginiKur(Renk.doğrusalDeğişim(                       ^
+masaustu/src/main/resources/samples/tr/tangram-skier.kojo	kaldı	6 hata: 74: not found: value yansıtY     boyaRengi(mavi) * yansıtY * döndür(120) * götür(1.5, 0) -> r7,                       ^
 masaustu/src/main/resources/samples/tr/tic-tac-toe.kojo	geçti	
 masaustu/src/main/resources/samples/tr/tree0.kojo	geçti	
-masaustu/src/main/resources/samples/tr/tree1.kojo	kaldı	not found: value aydınlık
-masaustu/src/main/resources/samples/tr/tree2.kojo	kaldı	value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk
-masaustu/src/main/resources/samples/tr/tune1.kojo	kaldı	not found: value MusicScore; not found: value Melody
-masaustu/src/main/resources/samples/tr/tune2.kojo	kaldı	not found: value MusicScore; not found: value Melody
-masaustu/src/main/resources/samples/tr/turtle-controller.kojo	kaldı	not found: value ışınlarıAç; not found: value yorumla
-masaustu/src/main/resources/samples/tr/two-turtle-interaction.kojo	kaldı	not enough arguments for method noktayaDön: (x: kap.Kesir, y: kap.Kesir): kap.Birim. Unspecified value parameter y.; value çevir is not a member of ScalaFiddle.k2.Kaplumbağa did you mean Kesir?
-masaustu/src/main/resources/samples/tr/two-turtle-interaction2.kojo	kaldı	not enough arguments for method noktayaDön: (x: kap.Kesir, y: kap.Kesir): kap.Birim. Unspecified value parameter y.; value çevir is not a member of ScalaFiddle.k2.Kaplumbağa did you mean Kesir?
-masaustu/src/main/resources/samples/tr/unit-circle.kojo	kaldı	not found: value döndürMerkezli
-masaustu/src/main/resources/samples/tr/widgets-canvas.kojo	kaldı	To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.
+masaustu/src/main/resources/samples/tr/tree1.kojo	kaldı	1 hata: 40: not found: value aydınlık             götür(0, büyüklük - 5) * aydınlık(0.05) -> Resim.dizi(                                      ^
+masaustu/src/main/resources/samples/tr/tree2.kojo	kaldı	1 hata: 42: value doğrusalDeğişim is not a member of object ScalaFiddle.builtins.trTurtle.Renk artalanıKur(Renk.doğrusalDeğişim(0, -100, kahverengi, 0, 100, açıkMavi)) 
+masaustu/src/main/resources/samples/tr/tune1.kojo	kaldı	4 hata: 16: not found: value MusicScore dez ezgi = MusicScore(            ^
+masaustu/src/main/resources/samples/tr/tune2.kojo	kaldı	7 hata: 17: not found: value MusicScore dez müzik = MusicScore(             ^
+masaustu/src/main/resources/samples/tr/turtle-controller.kojo	kaldı	5 hata: 39: not found: value yorumla     yorumla(komutlar); satıryaz(komutlar)     ^
+masaustu/src/main/resources/samples/tr/two-turtle-interaction.kojo	geçti	
+masaustu/src/main/resources/samples/tr/two-turtle-interaction2.kojo	geçti	
+masaustu/src/main/resources/samples/tr/unit-circle.kojo	kaldı	1 hata: 120: not found: value döndürMerkezli çiz(götür(-30, -200) * döndürMerkezli(-90, 0, 0) -> Resim.yazı("Kosinüs dalga => ...", Font("JetBrains Mono", 40), rKos))  
+masaustu/src/main/resources/samples/tr/widgets-canvas.kojo	kaldı	1 hata: 23: To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.     <html>     ^

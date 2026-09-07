@@ -2,7 +2,7 @@
 betik	durum	satır	engel	eksik
 installer/examples/anagram/anagram_tr.kojo.installed	platform	60	yükle	
 installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	platform	48	dosya	
-installer/examples/othello/menu_tr.kojo.installed	platform	75	yükle,arayüz	Düğme Salındıraç Sütun Sıra Tanıt arayüz ay değeri
+installer/examples/othello/menu_tr.kojo.installed	platform	75	yükle,arayüz	Düğme Salındıraç Sütun Sıra Tanıt arayüz değeri
 installer/examples/othello/tr/alfabeta.kojo	platform	391	yükle	
 installer/examples/othello/tr/anaTanimlar.kojo	çalışır	58		
 installer/examples/othello/tr/araYuz.kojo	platform	474	yükle	
@@ -11,18 +11,18 @@ installer/examples/othello/tr/durum.kojo	platform	20	yükle
 installer/examples/othello/tr/eTahta.kojo	platform	153	yükle	
 installer/examples/othello/tr/otello.kojo	platform	28	yükle	
 installer/examples/othello/tr/tahta.kojo	platform	174	yükle	
-installer/examples/tiledgame/game_tr.kojo.installed	platform	268	çini	BirSayfaKostüm aşağıdakiÇiniyeTaşı aşağıdaÇiniVarMı resimSeç sağdakiÇiniyeTaşı sağdaÇiniVarMı soldakiÇiniyeTaşı soldaÇiniVarMı tuvaliKaydır yukarıdakiÇiniyeTaşı yukarıdaÇiniVarMı ÇiniDünyası ÇiniXY çinidenKojoya İmge
+installer/examples/tiledgame/game_tr.kojo.installed	platform	268	çini	BirSayfaKostüm aşağıdakiÇiniyeTaşı aşağıdaÇiniVarMı resimSeç sağdakiÇiniyeTaşı sağdaÇiniVarMı soldakiÇiniyeTaşı soldaÇiniVarMı yukarıdakiÇiniyeTaşı yukarıdaÇiniVarMı ÇiniDünyası ÇiniXY çinidenKojoya İmge
 src/main/resources/challenge/tr/get-started.kojo	platform	273	yükle	Üçgen
 src/main/resources/challenge/tr/oykucu.kojo	platform	307	öykü	end
 src/main/resources/ka-bridge/tr/sample.kojo	platform	29	yükle	
-src/main/resources/mathgames/tr/counting.kojo	platform	292	arayüz	TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi ay değeri değişmez girdiDinleyiciEkle girdiOdağıOl olay sütunSayısınıKur tuşHarfi tuşKodu tüket yatayDüzeniKur yazıyıAl yazıyıKur çerçeveci çerçeveyiKur çizgiKenar önalanıKur
-src/main/resources/mathgames/tr/identify-fractions.kojo	platform	196	arayüz	BölmeÇizgisi Düğme OdakOlayı OdakUyarlayıcısı Satır Sütun Tanıt Yazıgirdisi arayüz ay değeri değişmez girdiOdağıOl odakDinleyiciEkle olay sütunSayısınıKur yatayDüzeniKur yazıyıKur önalanıKur
-src/main/resources/mathgames/tr/make-fractions.kojo	platform	192	arayüz	BölmeÇizgisi Düğme OdakOlayı OdakUyarlayıcısı Satır Sütun Tanıt Yazıgirdisi arayüz ay değeri değişmez etkinliğiKur girdiOdağıOl odakDinleyiciEkle olay pencereİçindekiOdağıİste sütunSayısınıKur yatayDüzeniKur yazıyıKur
+src/main/resources/mathgames/tr/counting.kojo	platform	292	arayüz	TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi değeri değişmez girdiDinleyiciEkle girdiOdağıOl olay sütunSayısınıKur tuşHarfi tuşKodu tüket yatayDüzeniKur yazıyıAl yazıyıKur çerçeveci çerçeveyiKur çizgiKenar önalanıKur
+src/main/resources/mathgames/tr/identify-fractions.kojo	platform	196	arayüz	BölmeÇizgisi Düğme OdakOlayı OdakUyarlayıcısı Satır Sütun Tanıt Yazıgirdisi arayüz değeri değişmez girdiOdağıOl odakDinleyiciEkle olay sütunSayısınıKur yatayDüzeniKur yazıyıKur önalanıKur
+src/main/resources/mathgames/tr/make-fractions.kojo	platform	192	arayüz	BölmeÇizgisi Düğme OdakOlayı OdakUyarlayıcısı Satır Sütun Tanıt Yazıgirdisi arayüz değeri değişmez etkinliğiKur girdiOdağıOl odakDinleyiciEkle olay pencereİçindekiOdağıİste sütunSayısınıKur yatayDüzeniKur yazıyıKur
 src/main/resources/robosim/tr/cevre.kojo	çalışır	39		
 src/main/resources/robosim/tr/obstacle-furthest.kojo	platform	84	yükle	
 src/main/resources/robosim/tr/obstacle-greedy.kojo	platform	55	yükle	
 src/main/resources/robosim/tr/robot.kojo	çalışır	77		
-src/main/resources/samples/tr/addition-game.kojo	platform	191	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi arayüz ay boşKenar değeri değişmez girdiDinleyiciEkle girdiOdağıOl olay sakla sütunSayısınıKur tuşHarfi tuşKodu tüket yatayDüzeniKur yazıyıAl yazıyıKur çerçeveci çerçeveyiKur çizgiKenar önalanıKur
+src/main/resources/samples/tr/addition-game.kojo	platform	191	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi arayüz boşKenar değeri değişmez girdiDinleyiciEkle girdiOdağıOl olay sakla sütunSayısınıKur tuşHarfi tuşKodu tüket yatayDüzeniKur yazıyıAl yazıyıKur çerçeveci çerçeveyiKur çizgiKenar önalanıKur
 src/main/resources/samples/tr/angle-experiment.kojo	çalışır	72		
 src/main/resources/samples/tr/angles.kojo	çalışır	141		
 src/main/resources/samples/tr/animated-square-creation.kojo	platform	72	canlandırma	Doğrusal DörtlüGirdiÇıktı Geçiş YumuşakGeçiş canlandırmaEşzamanlı doğrusalDeğişim
@@ -54,13 +54,13 @@ src/main/resources/samples/tr/hunted.kojo	eksik-ad	172		silVeÇizimBiriminiKur
 src/main/resources/samples/tr/image-collage.kojo	çalışır	25		
 src/main/resources/samples/tr/image-right-split.kojo	çalışır	22		
 src/main/resources/samples/tr/instruction-palette.kojo	platform	326	öykü	
-src/main/resources/samples/tr/kojo-documentation.kojo	platform	297	yükle,öykü	çevir
+src/main/resources/samples/tr/kojo-documentation.kojo	platform	297	yükle,öykü	
 src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi.kojo	çalışır	37		
 src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi0.kojo	çalışır	33		
 src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi2.kojo	çalışır	39		
 src/main/resources/samples/tr/kojo-kilavuz/ek-sayfa.kojo	platform	36	yükle,öykü	
 src/main/resources/samples/tr/kojo-kilavuz/komutlar-genel.kojo	platform	48	öykü	
-src/main/resources/samples/tr/kojo-kilavuz/ornek-yazilimlar.kojo	eksik-ad	244		adı birsonrakiGiysi giysiKur giysileriKur konumuDeğiştir tuvaliKaydır
+src/main/resources/samples/tr/kojo-kilavuz/ornek-yazilimlar.kojo	eksik-ad	244		adı
 src/main/resources/samples/tr/kojo-kilavuz/renklendirilmis-teker.kojo	çalışır	32		
 src/main/resources/samples/tr/kojo-kilavuz/turler.kojo	platform	227	öykü	
 src/main/resources/samples/tr/l-systems.kojo	çalışır	115		
@@ -70,9 +70,9 @@ src/main/resources/samples/tr/lighted-star.kojo	eksik-ad	21		SahneIşığı ış
 src/main/resources/samples/tr/lunar-lander.kojo	platform	112	arayüz	
 src/main/resources/samples/tr/mandelbrot.kojo	eksik-ad	426		imgeNoktasınıKur paralel İmge
 src/main/resources/samples/tr/memory-cards.kojo	çalışır	117		
-src/main/resources/samples/tr/multiplication-game.kojo	platform	191	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi arayüz ay boşKenar değeri değişmez girdiDinleyiciEkle girdiOdağıOl olay sakla sütunSayısınıKur tuşHarfi tuşKodu tüket yatayDüzeniKur yazıyıAl yazıyıKur çerçeveci çerçeveyiKur çizgiKenar önalanıKur
+src/main/resources/samples/tr/multiplication-game.kojo	platform	191	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi arayüz boşKenar değeri değişmez girdiDinleyiciEkle girdiOdağıOl olay sakla sütunSayısınıKur tuşHarfi tuşKodu tüket yatayDüzeniKur yazıyıAl yazıyıKur çerçeveci çerçeveyiKur çizgiKenar önalanıKur
 src/main/resources/samples/tr/oyku-tanimlari.kojo	platform	93	öykü	
-src/main/resources/samples/tr/penta-pattern.kojo	eksik-ad	20		çevir
+src/main/resources/samples/tr/penta-pattern.kojo	çalışır	20		
 src/main/resources/samples/tr/physics-fma.kojo	çalışır	35		
 src/main/resources/samples/tr/physics-uvats.kojo	çalışır	52		
 src/main/resources/samples/tr/pong.kojo	çalışır	144		
@@ -83,7 +83,7 @@ src/main/resources/samples/tr/random-dots.kojo	çalışır	12
 src/main/resources/samples/tr/rangoli.kojo	çalışır	83		
 src/main/resources/samples/tr/read-vector-bargraph.kojo	platform	25	dosya	
 src/main/resources/samples/tr/read-vector-mean.kojo	platform	19	dosya	
-src/main/resources/samples/tr/scala-tutorial.kojo	platform	1838	yükle,öykü	adı ay değeri gün hepsi içinde olay olmaz tr zaman İngilizce
+src/main/resources/samples/tr/scala-tutorial.kojo	platform	1838	yükle,öykü	adı değeri içinde olay olmaz tr zaman
 src/main/resources/samples/tr/shapes-cols.kojo	çalışır	25		
 src/main/resources/samples/tr/sierpinski-tri.kojo	çalışır	42		
 src/main/resources/samples/tr/snowflake.kojo	çalışır	64		
@@ -92,11 +92,11 @@ src/main/resources/samples/tr/spiral-effects.kojo	eksik-ad	28		gürültü örgü
 src/main/resources/samples/tr/spiral-hexagon-tiles.kojo	çalışır	183		
 src/main/resources/samples/tr/spiral-square-tiles.kojo	çalışır	85		
 src/main/resources/samples/tr/spiral.kojo	çalışır	15		
-src/main/resources/samples/tr/sprite-animation.kojo	eksik-ad	36		birsonrakiGiysi giysiKur giysileriKur giysiyiBüyült konumuDeğiştir
+src/main/resources/samples/tr/sprite-animation.kojo	çalışır	36		
 src/main/resources/samples/tr/sprite-boundary-polygon.kojo	eksik-ad	71		çizBaştan
-src/main/resources/samples/tr/square-pattern.kojo	eksik-ad	19		çevir
+src/main/resources/samples/tr/square-pattern.kojo	çalışır	19		
 src/main/resources/samples/tr/square.kojo	çalışır	6		
-src/main/resources/samples/tr/subtraction-game.kojo	platform	192	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi arayüz ay boşKenar değeri değişmez girdiDinleyiciEkle girdiOdağıOl olay sakla sütunSayısınıKur tuşHarfi tuşKodu tüket yatayDüzeniKur yazıyıAl yazıyıKur çerçeveci çerçeveyiKur çizgiKenar önalanıKur
+src/main/resources/samples/tr/subtraction-game.kojo	platform	192	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi arayüz boşKenar değeri değişmez girdiDinleyiciEkle girdiOdağıOl olay sakla sütunSayısınıKur tuşHarfi tuşKodu tüket yatayDüzeniKur yazıyıAl yazıyıKur çerçeveci çerçeveyiKur çizgiKenar önalanıKur
 src/main/resources/samples/tr/synchronized-squares.kojo	çalışır	29		
 src/main/resources/samples/tr/synchronized-squares2.kojo	çalışır	30		
 src/main/resources/samples/tr/tan-theta.kojo	eksik-ad	22		doğrusalDeğişim
@@ -107,8 +107,8 @@ src/main/resources/samples/tr/tree1.kojo	eksik-ad	33		aydınlık
 src/main/resources/samples/tr/tree2.kojo	eksik-ad	29		doğrusalDeğişim
 src/main/resources/samples/tr/tune1.kojo	platform	9	ses	
 src/main/resources/samples/tr/tune2.kojo	platform	11	ses	
-src/main/resources/samples/tr/turtle-controller.kojo	eksik-ad	77		yorumla ışınlarıAç
-src/main/resources/samples/tr/two-turtle-interaction.kojo	eksik-ad	24		çevir
-src/main/resources/samples/tr/two-turtle-interaction2.kojo	eksik-ad	28		çevir
+src/main/resources/samples/tr/turtle-controller.kojo	eksik-ad	77		yorumla
+src/main/resources/samples/tr/two-turtle-interaction.kojo	çalışır	24		
+src/main/resources/samples/tr/two-turtle-interaction2.kojo	çalışır	28		
 src/main/resources/samples/tr/unit-circle.kojo	çalışır	106		
-src/main/resources/samples/tr/widgets-canvas.kojo	platform	54	arayüz	Düğme Salındıraç Sütun Sıra Tanıt Yazıgirdisi arayüz ay değeri şekil
+src/main/resources/samples/tr/widgets-canvas.kojo	platform	54	arayüz	Düğme Salındıraç Sütun Sıra Tanıt Yazıgirdisi arayüz değeri şekil
