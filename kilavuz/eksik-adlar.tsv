@@ -1,24 +1,6 @@
 # uret.py: kılavuz örneklerinde geçen, ikojo'da bulunmayan masaüstü adları
 ad	örnek	bölümler	ikojo karşılığı
-eksenleriGizle	3	b02 b03 b05	
-ızgarayıGizle	3	b02 b03 b05	
-konumuDeğiştir	3	b02 b03	
-tuvaliKaydır	3	b03	
-birsonrakiGiysi	3	b03	
-giysileriKur	3	b03	
-ışınlarıAç	2	b02 b03	
-ışınlarıKapat	2	b02 b03	
-canlandırmaHızı	2	b02 b03	
-BuAn	2	b06 b18	buSaniye
-tuvaliDöndür	2	b03	
-giysiKur	2	b03	
 BKK	2	b07	
-ay	2	b07	
-rastgeleÇanEğrisinden	1	b14	rastgeleDoğalKesir
-gridiGizle	1	b03	
-yaklaşmayıSil	1	b03	yaklaşXY(1, 1, 0, 0)
-kalemİnikMi	1	b03	
-giysiyiBüyült	1	b03	
 Boya	1	b06	
 Üçgen	1	b06	
 Takvim	1	b06	
@@ -35,17 +17,9 @@ Bellekteİmgeİşlemi	1	b07
 ÇiniXY	1	b07	
 BirSayfaKostüm	1	b07	
 Canlandırma	1	b07	
-veBüyüt	1	b07	
-BelirtimHatası	1	b07	
-KuraldışıGirdiHatası	1	b07	
-EksikTanımHatası	1	b07	
-SınırDışınaTaşmaHatası	1	b07	
-BoşGöstergeHatası	1	b07	
-MatematikselHata	1	b07	
 İşParçacığıÖlümü	1	b07	
 Düğme	1	b07	
 Salındıraç	1	b07	
 Tanıt	1	b07	
 Yazıgirdisi	1	b07	
 arayüz	1	b07	
-veGötür	1	b07	

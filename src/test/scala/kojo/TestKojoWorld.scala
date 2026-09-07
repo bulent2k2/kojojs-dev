@@ -234,6 +234,12 @@ class TestKojoWorld extends KojoWorld {
 
   def mouseMoveOnlyWhenInside(on: Boolean): Unit = {}
   def erasePictures(): Unit = {}
+  def scroll(x: Double, y: Double): Unit = {}
+  def viewRotate(açı: Double): Unit = {}
+  def showAxes(): Unit = {}
+  def hideAxes(): Unit = {}
+  def showGrid(): Unit = {}
+  def hideGrid(): Unit = {}
   def mouseXY: Point = Point(0, 0)
   def setup(fn: => Unit): Unit = {}
   def size(width: Double, height: Double): Unit = {}
