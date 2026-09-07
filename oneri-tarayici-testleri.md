@@ -58,10 +58,16 @@ Süre farkı 3 saniye. Yani Node'u varsayılan tutmanın bir gerekçesi yok.
 
 ## 3. Faz 1 — koşulabilir hale getirmek (bu PR)
 
-**`test-tarayici.sh`**: Chrome'u bulur (Playwright'ınki, `KOJO_CHROME` ya da
-PATH), sürümünü okur, **eşleşen** chromedriver'ı indirip `.chromedriver/`
-altında önbelleğe alır ve sbt'yi doğru `-Dwebdriver.chrome.driver` ile koşar.
-İndirme yalnız ilk seferde olur.
+**`test-tarayici.sh`**: Chrome'u bulur (Playwright'ınki, macOS'taki
+`/Applications/...`, `KOJO_CHROME` ya da PATH), sürümünü okur, **eşleşen**
+chromedriver'ı indirip `.chromedriver/` altında önbelleğe alır ve sbt'yi doğru
+`-Dwebdriver.chrome.driver` ile koşar. İndirme yalnız ilk seferde olur.
+
+Linux ve macOS (arm64/x64) destekleniyor: indirme adresi ve zip içindeki dizin
+adı `uname` ile seçiliyor. Bash 3.2 uyumlu (macOS'un /bin/bash'i), kardeş
+`ornekleri-dogrula.sh` gibi. Tam sürüm bir "Chrome for Testing" yayını değilse
+aynı ana sürümün bilinen son yayını deneniyor; o da yoksa betik ne yapılacağını
+söyleyip duruyor. Kardeş `kojo` klonu yoksa PATH'teki `sbt` kullanılıyor.
 
 ```
 ./test-tarayici.sh                      # hepsi
@@ -71,7 +77,9 @@ altında önbelleğe alır ve sbt'yi doğru `-Dwebdriver.chrome.driver` ile koş
 **`build.sbt`**: `capabilities` artık `KOJO_CHROME` ile ikiliyi alıyor ve
 varsayılan olarak başsız koşuyor (`--headless=new --no-sandbox
 --disable-dev-shm-usage`). Hata ayıklarken pencereli koşmak için
-`KOJO_CHROME_PENCERELI=1`. Değişkenler verilmezse eski davranış korunuyor.
+`KOJO_CHROME_PENCERELI=1`. `KOJO_CHROME` verilmezse ikilinin bulunuşu eskisi
+gibi (Selenium PATH'e bakar); başsızlık ise artık varsayılan -- ekransız
+ortamlarda çalışması için.
 
 Node kaçış yolu **kaldırılmadı**; hızlı olduğu için saf mantık testlerinde
 işe yarıyor ve `build.sbt` yorumunda belgeli duruyor.
@@ -108,6 +116,14 @@ olmayan bir sürümü sınıyor.
 `PixiUyum` bilerek iki sürümü birden desteklediği için doğrusu **ikisini de**
 koşmak: aynı takımı bir kez v4, bir kez v5 dokularıyla. Bu, ikili sürüm
 desteğinin gerçekten çalıştığının kalıcı kanıtı olur.
+
+Maliyeti ölçüldü (#37 incelemesi): `lib/pixi5.min.js`'i test kaynaklarına koyup
+`jsDependencies`'teki adı değiştirmek yetiyor -- **64/65**, düşen tek test
+`BoyaTest`'in tasarımı gereği `beşVeÜstü shouldBe false` diyen satırı.
+Çarpışma, sekme, resim ve prelude testlerinin hepsi PIXI 5'te de geçiyor. Yani
+bir test ayrımı (v4'te düşme / v5'te doku) uzaklıkta -- ve `Boya`/`PixiUyum`'un
+v5 dallarını (`dokuYap`, sarma kipi çivisi, 404 yedeği) test altına alacak olan
+da bu: bugün o satırların hiçbiri test altında koşmuyor.
 
 Küçük bir yan etki: `BoyaTest`'teki "PIXI yokken" adı yanıltıcı hale geldi --
 tarayıcı koşusunda PIXI 4 yükleniyor ve `beşVeÜstü` yine `false` oluyor, ama
