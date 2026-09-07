@@ -81,7 +81,7 @@ class TurtlePicture private[kojo] (fn: Turtle => Unit)(implicit val kojoWorld: K
 
   override def setFillPaint(b: Boya): Unit = {
     ready.foreach { u =>
-      PixiUyum.boyayıKurBoya(turtle.turtlePath, b)
+      PixiUyum.boyayıKurBoya(turtle.turtlePath, b) { () => kojoWorld.render() }
       kojoWorld.render()
     }
   }

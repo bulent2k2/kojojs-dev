@@ -42,8 +42,12 @@ object Boya {
     s"rgba(${r.r.get}, ${r.g.get}, ${r.b.get}, ${c.alpha.get})"
   }
 
-  // Gradyan rampasının çözünürlüğü. 256 hem yumuşak hem ucuz.
+  // Gradyan rampasının çözünürlüğü. 256 hem yumuşak hem ucuz; ayrıca ikinin
+  // kuvveti (POT) olması önemli: PIXI 5'in TextureSystem'i WebGL1'de POT
+  // olmayan dokuda REPEAT/MIRRORED_REPEAT sarmasını sessizce CLAMP'a çeviriyor,
+  // yani dalgalıDevam eski tarayıcılarda kaybolurdu (inceleme notu).
   private val RampaBoyu = 256
+  private val ŞeritYüksekliği = 2
 
   private def dokuYap(c: dom.html.Canvas, dalgalıDevam: Boolean): PIXI.Texture = {
     // facade'daki Texture.from yalnız Image alıyor; tuval de geçerli bir kaynak,
@@ -54,8 +58,8 @@ object Boya {
     // kırmızıdan maviye geçiş düz mora, gökkuşağı düz kahverengiye dönüyordu.
     t.asInstanceOf[js.Dynamic].baseTexture.mipmap = js.Dynamic.global.PIXI.MIPMAP_MODES.OFF
     // dalgalıDevam = masaüstündeki cyclic: gradyan uçlarından sonra yansıyarak
-    // sürsün. Aksi halde uçtaki renk sabitlensin (CLAMP) -- PIXI'nin varsayılanı
-    // REPEAT olduğu için bunu AÇIKÇA kurmak gerekiyor, yoksa gradyan tekrarlar.
+    // sürsün. Aksi halde uçtaki renk sabitlensin (CLAMP). İkisini de AÇIKÇA
+    // kuruyoruz; varsayılana güvenmiyoruz (v5'te settings.WRAP_MODE = CLAMP).
     val td = t.asInstanceOf[js.Dynamic]
     val mod = js.Dynamic.global.PIXI.WRAP_MODES
     td.baseTexture.wrapMode = if (dalgalıDevam) mod.MIRRORED_REPEAT else mod.CLAMP
@@ -79,10 +83,9 @@ object Boya {
   /**
    * (x1,y1)'den (x2,y2)'ye giden çok duraklı doğrusal gradyan.
    *
-   * Rampayı yatay bir şerit olarak çiziyoruz, sonra matrisle o şeridi
-   * (x1,y1)->(x2,y2) doğrultusuna oturtuyoruz: matris = öteleme(x1,y1) *
-   * döndürme(açı) * ölçek(uzunluk/RampaBoyu, 1). Şeridin yüksekliği 1 piksel
-   * ama dik yönde sonsuza yayılsın diye y ölçeği büyük tutuluyor.
+   * Rampayı yatay bir şerit olarak çizip matrisle (x1,y1)->(x2,y2)
+   * doğrultusuna oturtuyoruz:
+   *   matris = öteleme(x1,y1) * döndürme(açı) * ölçek(uzunluk/RampaBoyu)
    */
   def doğrusalÇoklu(
     x1: Double, y1: Double, x2: Double, y2: Double,
@@ -92,16 +95,17 @@ object Boya {
     // PIXI 4'te fillStyle -- dolayısıyla doku dolgusu -- yok. Kırılmak yerine
     // ilk renge düşüyoruz; kütüphane v5'e geçtiğinde gradyan kendiliğinden gelir.
     if (!PixiUyum.beşVeÜstü) return DüzBoya(renkler.head)
-    // Rampa KARE bir dokuya çiziliyor, her satır aynı. Bir piksel yüksekliğinde
-    // şerit yerine kare kullanmanın sebebi dik yöndeki örnekleme: satırlar aynı
-    // olduğu için CLAMP sarması gradyanı dik yönde sonsuza uzatıyor (dalgalıDevam
-    // durumunda yansıma da görünmez kalıyor, çünkü yansıyan satır aynı).
-    val c = tuval(RampaBoyu, RampaBoyu)
+    // Rampa iki satırlık bir ŞERİT: satırlar aynı olduğu için dik yönde
+    // sarmanın (CLAMP ya da MIRRORED_REPEAT) hiçbir görünür etkisi yok, gradyan
+    // dik yönde sonsuza uzuyor. Kare doku aynı sonucu 128 kat bellekle verirdi
+    // (inceleme notu). İki satır, bir satırın bazı sürücülerde yol açtığı
+    // örnekleme tuhaflıklarına karşı ucuz bir güvence.
+    val c = tuval(RampaBoyu, ŞeritYüksekliği)
     val ctx = c.getContext("2d").asInstanceOf[js.Dynamic]
     val gr = ctx.createLinearGradient(0, 0, RampaBoyu, 0)
     duraklarıÇiz(gr, dağılım, renkler)
     ctx.fillStyle = gr
-    ctx.fillRect(0, 0, RampaBoyu, RampaBoyu)
+    ctx.fillRect(0, 0, RampaBoyu, ŞeritYüksekliği)
 
     val dx = x2 - x1
     val dy = y2 - y1
@@ -134,7 +138,10 @@ object Boya {
     denetle(dağılım, renkler)
     if (!PixiUyum.beşVeÜstü) return DüzBoya(renkler.head)
     val r = math.max(1.0, yarıçap)
-    val n = math.max(2, math.min(1024, (2 * r).toInt))
+    // Doku boyu yarıçaptan BAĞIMSIZ ve POT: hem sarma kipi WebGL1'de de
+    // korunuyor (bkz. RampaBoyu), hem de büyük yarıçaplarda bellek patlamıyor
+    // (eskiden n = 2*yarıçap idi, tavan 1024x1024 = 4 MB). Ölçek matriste.
+    val n = RampaBoyu
     val c = tuval(n, n)
     val ctx = c.getContext("2d").asInstanceOf[js.Dynamic]
     val gr = ctx.createRadialGradient(n / 2.0, n / 2.0, 0, n / 2.0, n / 2.0, n / 2.0)

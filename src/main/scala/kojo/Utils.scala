@@ -167,7 +167,7 @@ object PixiUyum {
    * DokuBoya zaten kurulurken DüzBoya'ya düşüyor (bkz. Boya), yine de burada
    * yedek renge düşerek ikinci bir güvence bırakıyoruz.
    */
-  def boyayıKurBoya(gr: pixiscalajs.PIXI.Graphics, boya: Boya): Unit = boya match {
+  def boyayıKurBoya(gr: pixiscalajs.PIXI.Graphics, boya: Boya)(tazeleyici: () => Unit): Unit = boya match {
     case DüzBoya(renk) =>
       boyayıKur(gr, renk.toRGBDouble, renk.alpha.get)
     case DokuBoya(doku, matris, yedek) =>
@@ -178,6 +178,14 @@ object PixiUyum {
         // bu tersi kendisi alıyor; biz fillStyle'ı doğrudan değiştirdiğimiz için
         // burada elle almamız gerek. Alınmazsa gradyan yanlış ölçekte ve yanlış
         // yerde çıkıyor (ölçüldü: 160 birimlik rampa 410 birime yayılıyordu).
+        // Doku henüz yüklenmemişse (DokumaBoya bir dosyadan geliyor) PIXI 5'in
+        // validateBatching'i HİÇBİR batch kurmuyor: Graphics o kareyi bomboş
+        // çiziyor -- düz renkli parçalar ve kalem dahil. Yüklendiğinde kendi
+        // başına bir çizim tetiklenmediği için, durağan bir sahnede şekil
+        // hiç görünmüyordu. Yüklemeyi dinleyip bir çizim istiyoruz.
+        // (geometry.dirty != cacheDirty kaldığından tazele() gerekmiyor.)
+        val bt = dyn(doku).baseTexture
+        if (!bt.valid.asInstanceOf[Boolean]) bt.once("loaded", () => tazeleyici())
         val ters = dyn(matris).clone().invert()
         parçalar(gr).foreach { gd =>
           gd.fillStyle.texture = doku.asInstanceOf[js.Any]

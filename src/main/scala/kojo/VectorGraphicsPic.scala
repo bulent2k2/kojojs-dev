@@ -28,7 +28,9 @@ trait VectorGraphicsPic extends Picture with ReadyPromise {
   }
 
   override def setFillPaint(b: Boya): Unit = {
-    PixiUyum.boyayıKurBoya(path, b)
+    PixiUyum.boyayıKurBoya(path, b) { () =>
+      kojoWorld.noteMutation(tnode); kojoWorld.render()
+    }
     kojoWorld.noteMutation(tnode)
     kojoWorld.render()
   }
