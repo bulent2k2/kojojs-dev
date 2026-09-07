@@ -48,6 +48,8 @@ class BakePolicyTest extends AnyFunSuite with Matchers {
   test("isStaleByName ucuz ön kontrol: ad + durağanlık (etkileşimden bağımsız)") {
     isStaleByName(name = null, lastMut = 0, frame = 10) shouldBe true
     isStaleByName(name = "Turtle Layer", lastMut = 0, frame = 10) shouldBe false
+    // süs katmanı (eksen/ızgara) da pişirme dışı: pişerse gizle/göster ölür
+    isStaleByName(name = "Decor Layer", lastMut = 0, frame = 10) shouldBe false
     isStaleByName(name = null, lastMut = 9, frame = 10) shouldBe false
   }
 

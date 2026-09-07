@@ -98,14 +98,20 @@ object BakePolicy {
   val bakeAfterFrames = 3
   val bakeChildThreshold = 150
 
+  val turtleLayerName = "Turtle Layer"
+  val decorLayerName = "Decor Layer"
+
   // Sahne kalabalıklaşınca ve yakınlaştırılmamışken pişir.
   def shouldConsider(childCount: Int, unzoomed: Boolean): Boolean =
     childCount >= bakeChildThreshold && unzoomed
 
   // Ucuz ön kontrol (ad + durağanlık). Etkileşim kontrolü pahalı (ağaç
   // dolaşımı) olduğundan ayrı: yalnız bunu geçen adaylar için hesaplanır.
+  // Kaplumbağa katmanı gibi süs katmanı da pişirme dışı: pişirmek onu sahneden
+  // çıkarıp dokuya gömer; sonraki eksenleriGizle/ızgarayıGizle çağrısı görünür
+  // bir etki yapamaz ve ekranda hayalet eksen kalır.
   def isStaleByName(name: String, lastMut: Long, frame: Long): Boolean =
-    name != "Turtle Layer" && (frame - lastMut > bakeAfterFrames)
+    name != turtleLayerName && name != decorLayerName && (frame - lastMut > bakeAfterFrames)
 
   // Bir sahne çocuğu pişmeye aday mı? Kaplumbağa katmanı ve etkileşimli
   // düğümler muaf; yalnızca bakeAfterFrames karedir damgalanmayanlar aday.
@@ -273,11 +279,12 @@ class KojoWorldImpl extends KojoWorld {
     }
   }
 
-  // pişirme yalnızca sahne varsayılan (yakınlaştırılmamış) dönüşümdeyken
-  // güvenli: bakeMatrix/bakeSprite ölçeği hesaba katmaz. Yakınlaştırmada
-  // (zoomXY) resetBake pişmişi canlıya döndürür ve burada pişirme durur.
+  // pişirme yalnızca sahne varsayılan (yakınlaştırılmamış, döndürülmemiş)
+  // dönüşümdeyken güvenli: bakeMatrix/bakeSprite ne ölçeği ne de dönüşü hesaba
+  // katıyor. Yakınlaştırmada (zoomXY) ve döndürmede (viewRotate) resetBake
+  // pişmişi canlıya döndürür ve burada pişirme durur.
   private def stageUnzoomed: Boolean =
-    stage.scale.x == 1.0 && stage.scale.y == -1.0
+    stage.scale.x == 1.0 && stage.scale.y == -1.0 && stage.rotation == 0.0
 
   // etkileşimli düğümler (ya da etkileşimli torunu olanlar) pişirilmez:
   // sahneden çıkınca PIXI isabet testi onları görmez, fare olayları ölür.
@@ -803,11 +810,13 @@ class KojoWorldImpl extends KojoWorld {
   def scroll(x: Double, y: Double): Unit =
     zoomXY(stage.scale.x, -stage.scale.y, merkezDünyaX + x, merkezDünyaY + y)
 
-  // Tuvali döndürür (masaüstü tCanvas.viewRotate). PIXI dönüşü saat yönünde,
-  // dünya ekseni ise y'de ters; kullanıcı açısı saat yönünün TERSİ olsun diye
-  // işareti çeviriyoruz -- kaplumbağanın sağ/sol anlayışıyla tutarlı.
+  // Tuvali döndürür (masaüstü tCanvas.viewRotate). Masaüstündeki gibi BİRİKİMLİ:
+  // her çağrı mevcut dönüşe eklenir (tuvaliDöndür(30) iki kez => 60 derece),
+  // mutlak bir açı ataması değil. PIXI dönüşü saat yönünde, dünya ekseni ise
+  // y'de ters; kullanıcı açısı saat yönünün TERSİ olsun diye işareti
+  // çeviriyoruz -- kaplumbağanın sağ/sol anlayışıyla tutarlı.
   def viewRotate(açı: Double): Unit = {
-    stage.rotation = -Utils.deg2radians(açı)
+    stage.rotation -= Utils.deg2radians(açı)
     resetBake()
     render()
   }
@@ -825,7 +834,12 @@ class KojoWorldImpl extends KojoWorld {
   private def süsKatmanı(mevcut: PIXI.Graphics)(çiz: PIXI.Graphics => Unit): PIXI.Graphics = {
     val g = if (mevcut == null) new PIXI.Graphics() else { mevcut.clear(); mevcut }
     çiz(g)
-    if (mevcut == null) { g.name = "Decor Layer"; stage.addChildAt(g, 0) } // en altta
+    g.name = BakePolicy.decorLayerName
+    // Sahneye takılı DEĞİLSE tak. Yalnız "yeni mi?" diye bakmak yetmiyor:
+    // resimleriSil() süs katmanını da sahneden çıkarıyor, alan ise duruyor;
+    // sonraki eksenleriGöster() sahnede olmayan Graphics'e çizip görünmez
+    // kalırdı. parent'e bakınca ikinci çağrı onu geri takıyor.
+    if (g.parent == null) stage.addChildAt(g, 0) // en altta
     g.visible = true
     noteMutation(g)
     render()

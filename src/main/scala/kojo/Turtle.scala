@@ -7,6 +7,7 @@ import pixiscalajs.PIXI.Point
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.scalajs.js
 
 class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = null)(implicit kojoWorld: KojoWorld)
   extends TurtleAPI
@@ -116,15 +117,27 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   // sonraki komutlar eski simgeyle çalışırdı.
   private def realSetCostume(url: String): Unit = {
     AssetLoader.addAndLoad(url, url, { (loader: PIXI.loaders.Loader, _: Any) =>
-      val s = new PIXI.Sprite(loader.resources(url).texture)
-      // loadTurtle'daki giysi yolunun aynısı: y'de çevir, merkeze otur, ölçekle
-      s.setTransform(
-        -s.width * costumeScale / 2, s.height * costumeScale / 2,
-        costumeScale, -costumeScale, 0, 0, 0, 0, 0)
-      turtleImage.removeChildren()
-      turtleImage.addChild(s)
-      kojoWorld.noteMutation(turtleImage)
-      kojoWorld.render()
+      // Yükleme başarısızsa (404, bozuk resim) resource.error dolu ve texture
+      // tanımsız olur; new Sprite(undefined) burada patlar ve KUYRUK TIKANIR --
+      // komut kuyruğu bir daha ilerlemediğinden betiğin geri kalanı hiç
+      // koşmaz. Onun için dokuyu kullanmadan önce denetliyoruz; hata varsa
+      // giysi değişmiyor ama kuyruk normal akışına devam ediyor.
+      val res = loader.resources(url).asInstanceOf[js.Dynamic]
+      val doku = if (js.isUndefined(res) || res == null) js.undefined else res.texture
+      if (js.isUndefined(doku) || doku == null) {
+        println(s"Uyarı: giysi yüklenemedi: $url")
+      }
+      else {
+        val s = new PIXI.Sprite(doku.asInstanceOf[PIXI.Texture])
+        // loadTurtle'daki giysi yolunun aynısı: y'de çevir, merkeze otur, ölçekle
+        s.setTransform(
+          -s.width * costumeScale / 2, s.height * costumeScale / 2,
+          costumeScale, -costumeScale, 0, 0, 0, 0, 0)
+        turtleImage.removeChildren()
+        turtleImage.addChild(s)
+        kojoWorld.noteMutation(turtleImage)
+        kojoWorld.render()
+      }
       kojoWorld.scheduleLater(queueHandler)
     })(kojoWorld)
   }
