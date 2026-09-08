@@ -196,7 +196,7 @@ trait KuyrukYöntemleri extends TemelTürler with EşlemYöntemleri with DizimY�
     def baştanÇıkarHepsiniKoşulla(deneme: T => İkil): Diz[T] = d.dequeueWhile(deneme)
     // DİKKAT: dequeueWhile baştan başlar, ilk uymayanda durur; dequeueAll ise
     // kuyruğun HER yerinden uyanları toplar. Ad masaüstünden geliyor.
-    def baştanAlHepsini(deneme: T => İkil): Dizi[T] = d.dequeueAll(deneme)
+    def baştanAlHepsini(deneme: T => İkil): Dizi[T] = d.dequeueAll(deneme).toList
     def sondanÇıkar(): T = d.removeLast()
     def sondanÇıkarBelki: Belki[T] = d.removeLastOption()
     def ilki: T = d.front
@@ -320,7 +320,7 @@ trait KuyrukYöntemleri extends TemelTürler with EşlemYöntemleri with DizimY�
     // Masaüstündeki mutPriQueMethods'ta baştan beri olan, ikojo'da eksik olanlar.
     def ekle(ögeler: T*) = d.enqueue(ögeler: _*)
     def baştanAl(): T = d.dequeue()
-    def baştanAlHepsini[T2 >: T]: Dizi[T2] = d.dequeueAll
+    def baştanAlHepsini[T2 >: T]: Dizi[T2] = d.dequeueAll.toList // ArraySeq veriyordu: çıktıda DizikDizisi görünüyordu
     def ikizle(): Col = d.clone()
     def kuyruğu: Col = d.tail
     def önü: Col = d.init
