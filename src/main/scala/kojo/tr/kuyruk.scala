@@ -51,6 +51,52 @@ trait KuyrukYöntemleri extends TemelTürler with EşlemYöntemleri with DizimY�
     def koyHepsini(dizi: YinelenebilirBirKere[T]): Yığın[T] = d.pushAll(dizi)
     def itHepsini(dizi: YinelenebilirBirKere[T]): Yığın[T] = d.pushAll(dizi)
     def dizi: Dizi[T] = d.toSeq
+    type Col = Yığın[T]
+    type Belki[B] = Option[B]
+
+    // --- yığını toplu boşaltma (Eylül 2026 turu) ---------------------------
+    // Adlandırma kuralı: EYLEMLE başla -- çekHepsini, ekleAraya, çıkarSondan.
+    def çekHepsini: Diz[T] = d.popAll()                    // tepeden dibe
+    def alHepsini: Dizi[T] = d.removeAll()                 // çekHepsini ile aynı
+    def alHepsiniTersten: Dizi[T] = d.removeAllReverse()   // dipten tepeye
+    def çekDoğruKaldıkça(deneme: T => İkil): Diz[T] = d.popWhile(deneme)
+    def çekBelki: Belki[T] = d.removeHeadOption()
+    // Yığında "son" = DİP. çıkarSondan tepedekini değil, en alttakini alır.
+    def çıkarSondan(): T = d.removeLast()
+    def çıkarSondanBelki: Belki[T] = d.removeLastOption()
+    def sondanÇıkar(): T = d.removeLast()                  // çıkarSondan takma adı
+    def sondanÇıkarBelki: Belki[T] = d.removeLastOption()  // çıkarSondanBelki takma adı
+    def çıkarSondanDoğruKaldıkça(deneme: T => İkil): Dizi[T] = d.removeLastWhile(deneme)
+    def çıkarİlkUyanı(deneme: T => İkil): Belki[T] = d.removeFirst(deneme)
+
+    // --- yerinde değiştirenler ---------------------------------------------
+    def eleYerinde(deneme: T => İkil): Col = { d.filterInPlace(deneme); d }
+    def işleYerinde(işlev: T => T): Col = { d.mapInPlace(işlev); d }
+    def düzİşleYerinde(işlev: T => YinelenebilirBirKere[T]): Col = { d.flatMapInPlace(işlev); d }
+    def sıralıYerinde(implicit sıralama: Ordering[T]): Col = { d.sortInPlace()(sıralama); d }
+    def sıralaYerinde[B](iş: T => B)(implicit sıralama: Ordering[B]): Col = { d.sortInPlaceBy(iş)(sıralama); d }
+    def sırayaSokYerinde(önce: (T, T) => İkil): Col = { d.sortInPlaceWith(önce); d }
+    def alYerinde(kaçTane: Sayı): Col = { d.takeInPlace(kaçTane); d }
+    def alSağdanYerinde(kaçTane: Sayı): Col = { d.takeRightInPlace(kaçTane); d }
+    def alDoğruKaldıkçaYerinde(deneme: T => İkil): Col = { d.takeWhileInPlace(deneme); d }
+    def düşürYerinde(kaçTane: Sayı): Col = { d.dropInPlace(kaçTane); d }
+    def düşürSağdanYerinde(kaçTane: Sayı): Col = { d.dropRightInPlace(kaçTane); d }
+    def düşürDoğruKaldıkçaYerinde(deneme: T => İkil): Col = { d.dropWhileInPlace(deneme); d }
+    def dilimYerinde(nereden: Sayı, nereye: Sayı): Col = { d.sliceInPlace(nereden, nereye); d }
+    def uzatYerinde(boy: Sayı, öge: T): Col = { d.padToInPlace(boy, öge); d }
+    def yamaYerinde(nereden: Sayı, yenisi: YinelenebilirBirKere[T], kaçTane: Sayı): Col = {
+      d.patchInPlace(nereden, yenisi, kaçTane); d
+    }
+
+    // --- konumla erişim (0 = TEPE) -----------------------------------------
+    def güncelle(yeri: Sayı, öge: T): Birim = d.update(yeri, öge)
+    def ekleAraya(yeri: Sayı, öge: T): Birim = d.insert(yeri, öge)
+    def ekleArayaHepsini(yeri: Sayı, ögeler: YinelenebilirBirKere[T]): Birim = d.insertAll(yeri, ögeler)
+    def çıkar(yeri: Sayı): T = d.remove(yeri)
+    def ekleHepsini(ögeler: YinelenebilirBirKere[T]): Col = { d.addAll(ögeler); d }
+    def çıkarHepsini(ögeler: YinelenebilirBirKere[T]): Col = { d.subtractAll(ögeler); d }
+    def dizime[S >: T](implicit delil: scala.reflect.ClassTag[S]): Dizim[S] = new Dizim(d.toArray(delil))
+
   }
 
   implicit class KuyrukMetotları[T](d: Kuyruk[T]) {
@@ -148,6 +194,9 @@ trait KuyrukYöntemleri extends TemelTürler with EşlemYöntemleri with DizimY�
     def baştanÇıkarDoğruKaldıkça(deneme: T => İkil): Diz[T] = d.removeHeadWhile(deneme)
     def baştanÇıkarKoşulla(deneme: T => İkil): Belki[T] = d.dequeueFirst(deneme)
     def baştanÇıkarHepsiniKoşulla(deneme: T => İkil): Diz[T] = d.dequeueWhile(deneme)
+    // DİKKAT: dequeueWhile baştan başlar, ilk uymayanda durur; dequeueAll ise
+    // kuyruğun HER yerinden uyanları toplar. Ad masaüstünden geliyor.
+    def baştanAlHepsini(deneme: T => İkil): Dizi[T] = d.dequeueAll(deneme)
     def sondanÇıkar(): T = d.removeLast()
     def sondanÇıkarBelki: Belki[T] = d.removeLastOption()
     def ilki: T = d.front
@@ -155,8 +204,11 @@ trait KuyrukYöntemleri extends TemelTürler with EşlemYöntemleri with DizimY�
     def işleYerinde(işlev: T => T): Col = { d.mapInPlace(işlev); d }
     def sıralıYerinde(implicit sıralama: Ordering[T]): Col = { d.sortInPlace()(sıralama); d }
     def sıralaYerinde[B](iş: T => B)(implicit sıralama: Ordering[B]): Col = { d.sortInPlaceBy(iş)(sıralama); d }
-    def hepsiniEkle(ögeler: YinelenebilirBirKere[T]): Col = { d.addAll(ögeler); d }
-    def araEkle(yeri: Sayı, öge: T): Birim = d.insert(yeri, öge)
+    @deprecated("eylemle başlayan ada geçildi: ekleHepsini kullanın", "Eylül 2026")
+    def hepsiniEkle(ögeler: YinelenebilirBirKere[T]): Col = ekleHepsini(ögeler)
+    def ekleHepsini(ögeler: YinelenebilirBirKere[T]): Col = { d.addAll(ögeler); d }
+    @deprecated("eylemle başlayan ada geçildi: ekleAraya kullanın", "Eylül 2026")
+    def araEkle(yeri: Sayı, öge: T): Birim = ekleAraya(yeri, öge)
     def çıkar(yeri: Sayı): T = d.remove(yeri)
     def çıkarHepsini(ögeler: YinelenebilirBirKere[T]): Col = { d.subtractAll(ögeler); d }
     def boşalt(): Birim = d.clear()
@@ -168,6 +220,35 @@ trait KuyrukYöntemleri extends TemelTürler with EşlemYöntemleri with DizimY�
     def sırasıSondan[S >: T](öge: S): Sayı = d.lastIndexOf(öge)
     def yinelemesiz: Diz[T] = d.distinct
     def yinelemesizİşlevle[B](işlev: T => B): Diz[T] = d.distinctBy(işlev)
+    // --- ArrayDeque'in yerinde değiştirenleri (Eylül 2026 turu) -----------
+    // Adlandırma kuralı: EYLEMLE başla -- ekleAraya, alHepsini, çıkarSondan.
+    def alYerinde(kaçTane: Sayı): Col = { d.takeInPlace(kaçTane); d }
+    def alSağdanYerinde(kaçTane: Sayı): Col = { d.takeRightInPlace(kaçTane); d }
+    def alDoğruKaldıkçaYerinde(deneme: T => İkil): Col = { d.takeWhileInPlace(deneme); d }
+    def düşürYerinde(kaçTane: Sayı): Col = { d.dropInPlace(kaçTane); d }
+    def düşürSağdanYerinde(kaçTane: Sayı): Col = { d.dropRightInPlace(kaçTane); d }
+    def düşürDoğruKaldıkçaYerinde(deneme: T => İkil): Col = { d.dropWhileInPlace(deneme); d }
+    def dilimYerinde(nereden: Sayı, nereye: Sayı): Col = { d.sliceInPlace(nereden, nereye); d }
+    def uzatYerinde(boy: Sayı, öge: T): Col = { d.padToInPlace(boy, öge); d }
+    def yamaYerinde(nereden: Sayı, yenisi: YinelenebilirBirKere[T], kaçTane: Sayı): Col = {
+      d.patchInPlace(nereden, yenisi, kaçTane); d
+    }
+    def düzİşleYerinde(işlev: T => YinelenebilirBirKere[T]): Col = { d.flatMapInPlace(işlev); d }
+    def sırayaSokYerinde(önce: (T, T) => İkil): Col = { d.sortInPlaceWith(önce); d }
+
+    // --- konumla erişim, toplu çıkarma ------------------------------------
+    def güncelle(yeri: Sayı, öge: T): Birim = d.update(yeri, öge)
+    def ekleAraya(yeri: Sayı, öge: T): Birim = d.insert(yeri, öge)
+    def ekleArayaHepsini(yeri: Sayı, ögeler: YinelenebilirBirKere[T]): Birim = d.insertAll(yeri, ögeler)
+    def alHepsini: Dizi[T] = d.removeAll()
+    def alHepsiniTersten: Dizi[T] = d.removeAllReverse()
+    def çıkarİlkUyanı(deneme: T => İkil): Belki[T] = d.removeFirst(deneme)
+    def çıkarSondanDoğruKaldıkça(deneme: T => İkil): Dizi[T] = d.removeLastWhile(deneme)
+    // çıkarSondan/çıkarSondanBelki: sondanÇıkar ailesinin eylemle başlayan biçimi
+    def çıkarSondan(): T = d.removeLast()
+    def çıkarSondanBelki: Belki[T] = d.removeLastOption()
+    def dizime[S >: T](implicit delil: scala.reflect.ClassTag[S]): Dizim[S] = new Dizim(d.toArray(delil))
+
 }
 
   implicit class ÖncelikSırasıMetotları[T](d: ÖncelikSırası[T]) {

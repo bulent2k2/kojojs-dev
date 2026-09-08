@@ -802,6 +802,76 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     e.sonu should not be null
   }
 
+  test("Yığın: toplu çekme, yerinde değiştirme, konumla erişim") {
+    // Yığın'da 0. sıra TEPEdir
+    val y = Yığın(1, 2, 3) // it 1, it 2, it 3 -> tepede 3
+    y(0) shouldBe 3
+    Yığın(1, 2, 3).çekHepsini shouldBe Seq(3, 2, 1)       // tepeden dibe
+    Yığın(1, 2, 3).alHepsini shouldBe Seq(3, 2, 1)        // çekHepsini ile aynı
+    Yığın(1, 2, 3).alHepsiniTersten shouldBe Seq(1, 2, 3) // dipten tepeye
+    Yığın(1, 2, 3).çekDoğruKaldıkça(_ > 1) shouldBe Seq(3, 2)
+    Yığın(1, 2, 3).çekBelki shouldBe Some(3)
+    Yığın.boş[Sayı].çekBelki shouldBe None
+    // "son" = DİP
+    val d = Yığın(1, 2, 3)
+    d.çıkarSondan() shouldBe 1
+    d.dizi shouldBe Seq(3, 2)
+    Yığın(1, 2, 3).sondanÇıkarBelki shouldBe Some(1) // takma ad, aynı iş
+
+    // yerinde değiştirenler
+    Yığın(1, 2, 3, 4).eleYerinde(_ % 2 == 0).dizi shouldBe Seq(4, 2)
+    Yığın(1, 2, 3).işleYerinde(_ * 10).dizi shouldBe Seq(30, 20, 10)
+    Yığın(3, 1, 2).sıralıYerinde.dizi shouldBe Seq(1, 2, 3)
+    Yığın(3, 1, 2).sıralaYerinde(-_).dizi shouldBe Seq(3, 2, 1)
+    Yığın(3, 1, 2).sırayaSokYerinde(_ > _).dizi shouldBe Seq(3, 2, 1)
+    Yığın(1, 2, 3, 4).alYerinde(2).dizi shouldBe Seq(4, 3)
+    Yığın(1, 2, 3, 4).düşürYerinde(2).dizi shouldBe Seq(2, 1)
+    Yığın(1, 2, 3, 4).alSağdanYerinde(2).dizi shouldBe Seq(2, 1)
+    Yığın(1, 2, 3, 4).düşürSağdanYerinde(2).dizi shouldBe Seq(4, 3)
+    Yığın(1, 2).uzatYerinde(4, 0).dizi shouldBe Seq(2, 1, 0, 0)
+    Yığın(1, 2, 3, 4).dilimYerinde(1, 3).dizi shouldBe Seq(3, 2)
+
+    // konumla erişim (0 = tepe)
+    val k = Yığın(1, 2, 3)
+    k.güncelle(0, 9); k.tepe shouldBe 9
+    k.ekleAraya(1, 7); k.dizi shouldBe Seq(9, 7, 2, 1)
+    k.ekleArayaHepsini(0, Dizi(8, 8)); k.dizi shouldBe Seq(8, 8, 9, 7, 2, 1)
+    k.çıkar(0) shouldBe 8
+    Yığın(1, 2, 3).çıkarİlkUyanı(_ < 3) shouldBe Some(2)
+    Yığın(1, 2, 3).dizime.diziye shouldBe Seq(3, 2, 1)
+  }
+
+  test("Kuyruk: ArrayDeque'in yerinde değiştirenleri") {
+    Kuyruk(1, 2, 3, 4).alYerinde(2).dizine shouldBe List(1, 2)
+    Kuyruk(1, 2, 3, 4).düşürYerinde(2).dizine shouldBe List(3, 4)
+    Kuyruk(1, 2, 3, 4).alSağdanYerinde(2).dizine shouldBe List(3, 4)
+    Kuyruk(1, 2, 3, 4).düşürSağdanYerinde(2).dizine shouldBe List(1, 2)
+    Kuyruk(1, 2, 3, 4).alDoğruKaldıkçaYerinde(_ < 3).dizine shouldBe List(1, 2)
+    Kuyruk(1, 2, 3, 4).düşürDoğruKaldıkçaYerinde(_ < 3).dizine shouldBe List(3, 4)
+    Kuyruk(1, 2, 3, 4).dilimYerinde(1, 3).dizine shouldBe List(2, 3)
+    Kuyruk(1, 2).uzatYerinde(4, 0).dizine shouldBe List(1, 2, 0, 0)
+    Kuyruk(1, 2, 3).yamaYerinde(1, Dizi(8, 9), 1).dizine shouldBe List(1, 8, 9, 3)
+    Kuyruk(1, 2).düzİşleYerinde(x => Dizi(x, x)).dizine shouldBe List(1, 1, 2, 2)
+    Kuyruk(3, 1, 2).sırayaSokYerinde(_ > _).dizine shouldBe List(3, 2, 1)
+
+    val k = Kuyruk(1, 2, 3)
+    k.güncelle(0, 9); k.başı shouldBe 9
+    k.ekleAraya(1, 7); k.dizine shouldBe List(9, 7, 2, 3)
+    k.ekleArayaHepsini(0, Dizi(0, 0)); k.dizine shouldBe List(0, 0, 9, 7, 2, 3)
+    k.ekleHepsini(Dizi(5)); k.sonu shouldBe 5
+
+    Kuyruk(1, 2, 3).alHepsini shouldBe Seq(1, 2, 3)
+    Kuyruk(1, 2, 3).alHepsiniTersten shouldBe Seq(3, 2, 1)
+    Kuyruk(1, 2, 3).çıkarİlkUyanı(_ > 1) shouldBe Some(2)
+    Kuyruk(1, 2, 3).çıkarSondan() shouldBe 3
+    Kuyruk(1, 2, 3).çıkarSondanBelki shouldBe Some(3)
+    // çıkarma sırasında verir: önce son öge, sonra ondan önceki
+    Kuyruk(1, 2, 3).çıkarSondanDoğruKaldıkça(_ > 1) shouldBe Seq(3, 2)
+    // dequeueWhile baştan durur, dequeueAll her yerden toplar
+    Kuyruk(2, 1, 2).baştanÇıkarHepsiniKoşulla(_ == 2) shouldBe Seq(2)
+    Kuyruk(2, 1, 2).baştanAlHepsini(_ == 2) shouldBe Seq(2, 2)
+  }
+
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
     "Kojo".eşitMiKüçükHarfBüyükHarfAyrımıYapmadan("kOJO") shouldBe true
     "a".kıyaslaKüçükHarfBüyükHarfAyrımıYapmadan("B") should be < 0
