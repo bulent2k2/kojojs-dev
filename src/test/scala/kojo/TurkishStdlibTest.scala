@@ -337,6 +337,72 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     MiskinDizin.sayalım(1).alDoğruKaldıkça(_ < 4).dizine should be(List(1, 2, 3))
   }
 
+  test("ortak çekirdek: Dizi, Dizin, Yöney, Dizik, Küme, Eşlek, Kuyruk, Yazı, Belki") {
+    val d = Seq(3, 1, 2)
+    d.başıBelki should be(Some(3)); d.bul(_ > 1) should be(Some(3)); d.bulSondan(_ > 1) should be(Some(2))
+    d.nerede(_ == 1) should be(1); d.neredeSondan(_ > 1) should be(2)
+    d.dilimSırası(Seq(1, 2)) should be(1); d.sıralar.toList should be(List(0, 1, 2))
+    d.başındaMı(Seq(3, 1)) should be(doğru); d.sonundaMı(Seq(2)) should be(doğru)
+    d.karşılıklıMı(Seq(6, 2, 4))(_ * 2 == _) should be(doğru)
+    d.böl(_ > 1) should be((Seq(3, 2), Seq(1)))
+    d.bölDoğruKaldıkça(_ > 2) should be((Seq(3), Seq(1, 2)))
+    d.bölYerinden(1) should be((Seq(3), Seq(1, 2)))
+    d.öbekli(2).toList should be(List(Seq(3, 1), Seq(2)))
+    d.kayarÖbekli(2).toList should be(List(Seq(3, 1), Seq(1, 2)))
+    d.öbekleİşleİndirge(_ % 2)(x => x)(_ + _) should be(Map(1 -> 4, 0 -> 2))
+    d.kombinasyonlar(2).toList.boyu should be(3); d.permütasyonlar.size should be(6)
+    d.kuyruklar.toList.boyu should be(4); d.önler.toList.boyu should be(4)
+    d.katla(0)(_ + _) should be(6); d.indirgeBelki(_ + _) should be(Some(6))
+    d.tara(0)(_ + _) should be(Seq(0, 3, 4, 6)); d.taraSağdan(0)(_ + _) should be(Seq(6, 3, 2, 0))
+    d.enUfağıBelki should be(Some(1)); d.enİrisiBelki should be(Some(3))
+    d.sonunaEkle(9) should be(Seq(3, 1, 2, 9)); d.önüneEkle(9) should be(Seq(9, 3, 1, 2))
+    d.uzat(5, 0) should be(Seq(3, 1, 2, 0, 0)); d.yama(1, Seq(8), 1) should be(Seq(3, 8, 2))
+    d.fark(Seq(1)) should be(Seq(3, 2)); d.kesişim(Seq(2, 3)) should be(Seq(3, 2))
+    d.bileşim(Seq(4)) should be(Seq(3, 1, 2, 4))
+    d.seçİşle { case x if x > 1 => x * 10 } should be(Seq(30, 20))
+    d.seçİşleİlk { case x if x < 3 => x } should be(Some(1))
+    Seq(Seq(1, 2), Seq(3)).düzleştir should be(Seq(1, 2, 3))
+    Seq((1, "a"), (2, "b")).ikiliyiAç should be((Seq(1, 2), Seq("a", "b")))
+    d.ikileHepsini(Seq("x"), -1, "-") should be(Seq((3, "x"), (1, "-"), (2, "-")))
+    d.tersİşle(_ * 2) should be(Seq(4, 2, 6))
+
+    List(3, 1, 2).böl(_ > 1) should be((List(3, 2), List(1)))
+    Vector(3, 1, 2).tara(0)(_ + _) should be(Vector(0, 3, 4, 6))
+    Vector(3, 1, 2).enİrisiBelki should be(Some(3))
+    val dk = Dizik(3, 1, 2)
+    dk.bul(_ > 1) should be(Some(3)); dk.böl(_ > 1)._1 should be(Dizik(3, 2))
+    dk.taraSoldan(0)(_ + _) should be(Dizik(0, 3, 4, 6)); dk.sonunaEkle(9) should be(Dizik(3, 1, 2, 9))
+
+    val k = Küme(3, 1, 2)
+    k.bul(_ > 2) should be(Some(3)); k.katla(0)(_ + _) should be(6)
+    k.enUfağıBelki should be(Some(1)); k.fark(Küme(1)) should be(Küme(3, 2))
+    k.seçİşle { case x if x > 1 => x * 10 } should be(Küme(30, 20))
+
+    val e = Eşlek("a" -> 1, "b" -> 2)
+    e.başıBelki should be(Some(("a", 1))); e.bul(_._2 > 1) should be(Some(("b", 2)))
+    e.böl(_._2 > 1)._1 should be(Eşlek("b" -> 2))
+    e.öbekleİşleİndirge(_._2 % 2)(_._2)(_ + _) should be(Map(1 -> 1, 0 -> 2))
+    e.seçİşle { case (a, v) if v > 1 => a }.toSet should be(Set("b"))
+
+    val ku = Kuyruk(3, 1, 2)
+    ku.bul(_ > 1) should be(Some(3)); ku.böl(_ > 1)._1 should be(Kuyruk(3, 2))
+    ku.tara(0)(_ + _) should be(Kuyruk(0, 3, 4, 6)); ku.boyu should be(3)
+
+    val y = "merhaba"
+    y.başıBelki should be(Some('m')); y.nerede(_ == 'h') should be(3)
+    y.bölYerinden(3) should be(("mer", "haba"))
+    y.öbekli(3).toList should be(List("mer", "hab", "a"))
+    "abc".kombinasyonlar(2).toList should be(List("ab", "ac", "bc"))
+    "ab".uzat(4, '-') should be("ab--"); "mer".sonunaEkleHepsini("haba") should be("merhaba")
+
+    val b: Belki[Sayı] = Some(5)
+    b.seçİşle { case x if x > 1 => x * 10 } should be(Some(50))
+    b.içeriyorMu(5) should be(doğru); b.varMı(_ > 1) should be(doğru)
+    b.katla(0)(_ * 2) should be(10); (None: Belki[Sayı]).katla(-1)(_ * 2) should be(-1)
+    Some(Some(7)).düzleştir should be(Some(7)); b.ikile(Some("a")) should be(Some((5, "a")))
+    Some((1, "a")).ikiliyiAç should be((Some(1), Some("a")))
+  }
+
   test("miskin dizin: masaüstüyle eşitlenen yöntemler") {
     val m = MiskinDizin(3, 1, 2)
     m.önü.dizine should be(List(3, 1)); m.sonu should be(2)

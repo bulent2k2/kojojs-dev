@@ -122,7 +122,7 @@ trait MiskinDizinYöntemleri extends TemelTürler {
     def yama[S >: T](nereden: Sayı, yenisi: YinelenebilirBirKere[S], kaçTane: Sayı): MiskinDizin[S] = d.patch(nereden, yenisi, kaçTane)
     def fark[S >: T](öbürü: Dizi[S]): Col = d.diff(öbürü)
     def kesişim[S >: T](öbürü: Dizi[S]): Col = d.intersect(öbürü)
-    def bileşim[S >: T](öbürü: Dizi[S]): MiskinDizin[S] = d.union(öbürü)
+    def bileşim[S >: T](öbürü: Dizi[S]): MiskinDizin[S] = d.concat(öbürü)
 
     def dizine: Dizin[T] = d.toList
     def diziye: Dizi[T] = d.toSeq

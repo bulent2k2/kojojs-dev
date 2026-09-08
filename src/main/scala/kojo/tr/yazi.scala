@@ -26,6 +26,7 @@ trait YazıYöntemleri extends TemelTürler with BelkiYöntemleri with HarfYönt
   }
 
   implicit class YazıMetotları(y: Yazı) {
+    type Belki[B] = Option[B]
     type Harf = Char
 
     def başı: Harf = y.head
@@ -111,7 +112,37 @@ trait YazıYöntemleri extends TemelTürler with BelkiYöntemleri with HarfYönt
     def ikileBelki: Belki[İkil] = y.toBooleanOption
 
     def öbekle(iş: Harf => Harf): collection.immutable.Map[Harf, Yazı] = y.groupBy(iş)
-  }
+  
+    // --- ortak çekirdek --------------------------------------------------
+    // NOT: Yazı'da `böl` = split (ayraçla parçalama). Bu yüzden partition'a
+    // burada ad verilmedi; span/splitAt karşılıkları aşağıda.
+    def başıBelki: Belki[Harf] = y.headOption
+    def sonuBelki: Belki[Harf] = y.lastOption
+    def bul(deneme: Harf => İkil): Belki[Harf] = y.find(deneme)
+    def nerede(deneme: Harf => İkil): Sayı = y.indexWhere(deneme)
+    def neredeSondan(deneme: Harf => İkil): Sayı = y.lastIndexWhere(deneme)
+    def sıralar: Range = y.indices
+    def bölDoğruKaldıkça(deneme: Harf => İkil): (Yazı, Yazı) = y.span(deneme)
+    def bölYerinden(yeri: Sayı): (Yazı, Yazı) = y.splitAt(yeri)
+    def öbekli(boy: Sayı): Yineleyici[Yazı] = y.grouped(boy)
+    def kayarÖbekli(boy: Sayı): Yineleyici[Yazı] = y.sliding(boy)
+    def kayarÖbekli(boy: Sayı, adım: Sayı): Yineleyici[Yazı] = y.sliding(boy, adım)
+    def kuyruklar: Yineleyici[Yazı] = y.tails
+    def önler: Yineleyici[Yazı] = y.inits
+    def kombinasyonlar(harfSayısı: Sayı): Yineleyici[Yazı] = y.combinations(harfSayısı)
+    def permütasyonlar: Yineleyici[Yazı] = y.permutations
+    def katla(z: Harf)(işlev: (Harf, Harf) => Harf): Harf = y.fold(z)(işlev)
+    def dilim(nereden: Sayı, nereye: Sayı): Yazı = y.slice(nereden, nereye)
+    def uzat(boy: Sayı, harf: Harf): Yazı = y.padTo(boy, harf)
+    def yama(nereden: Sayı, yenisi: YinelenebilirBirKere[Harf], kaçTane: Sayı): Yazı =
+      y.patch(nereden, yenisi, kaçTane)
+    def fark(öbürü: Dizi[Harf]): Yazı = y.diff(öbürü)
+    def kesişim(öbürü: Dizi[Harf]): Yazı = y.intersect(öbürü)
+    def sonunaEkle(harf: Harf): Yazı = y.appended(harf)
+    def önüneEkle(harf: Harf): Yazı = y.prepended(harf)
+    def sonunaEkleHepsini(öbürü: Yazı): Yazı = y.appendedAll(öbürü)
+    def önüneEkleHepsini(öbürü: Yazı): Yazı = y.prependedAll(öbürü)
+}
 
   implicit class EsnekYazıMetotları(ey: EsnekYazı) {
     def boşMu = ey.size == 0
