@@ -24,14 +24,17 @@ Notlar
     applyOrElse, strictOptimized*, stepper...) ve eşlik nesnesine ait olanlar
     (fill, tabulate, range, iterate, unfold). Bunlar GURULTU'da eleniyor.
   - Yüzde bir hedef değil, bir pusula: 100% olması gerekmiyor.
-  - ÖNEMLİ SINIR: ölçüm SINIF BAŞINA yapılıyor, oysa örtük sınıflar KALITIMLA
-    da uygulanıyor. Range bir IndexedSeq, EsnekYazı (StringBuilder) ve Kuyruk
-    birer collection.Seq olduğu için SıralıDizi/Diz sarmalayıcılarının bütün
-    yöntemlerini ZATEN alıyorlar (Scala en özel örtük sınıfı seçer, belirsizlik
-    olmaz -- ölçülerek doğrulandı). Yani bu türlerin yüzdesi GERÇEKTEN
-    kullanılabilir yöntem sayısını değil, YALNIZ kendi sınıfında yazılmış
-    olanları gösterir; gerçek kapsam daha yüksektir. Aralık %6 iken
-    `1 |-| 10` üstünde bul/böl/tara/enİrisiBelki'nin çalışması bu yüzdendi.
+  - KALITIM SAYILIYOR: örtük sınıflar yalnız kendi türüne değil, ALT TÜRLERİNE
+    de uygulanır. Range bir IndexedSeq; Yığın, Kuyruk ve EsnekYazı birer
+    collection.Seq -- yani SıralıDizi/Diz sarmalayıcılarının yöntemlerini de
+    alıyorlar (Scala en özel örtük sınıfı seçer, belirsizlik olmaz; ölçülerek
+    doğrulandı). Bu yüzden iki sütun var:
+      kendi   -> o sınıfın gövdesinde yazılmış olanlar
+      +miras  -> kullanıcının o değer üstünde GERÇEKTEN çağırabildikleri
+    Yüzde ikincisinden hesaplanıyor. Hangi sarmalayıcının hangi türe uyduğu
+    elle değil, Kapsam.scala'da isAssignableFrom ile JVM'e sorularak bulunuyor.
+    (Betiğin ilk sürümü yalnız 'kendi'yi sayıyordu ve Yığın'ı %6, EsnekYazı'yı
+    %1 gösteriyordu; ikisi de yanıltıcıydı.)
 """
 import argparse
 import os
@@ -96,6 +99,7 @@ IKOJO = ('src/main/scala/kojo/tr', [
     ('Kuyruk', 'kuyruk.scala', 'KuyrukMetotları'),
     ('ÖncelikSırası', 'kuyruk.scala', 'ÖncelikSırasıMetotları'),
     ('Yığın', 'kuyruk.scala', 'YığınMetotları'),
+    ('Aralık', 'aralik.scala', 'RangeMetotları'),
     ('Yazı', 'yazi.scala', 'YazıMetotları'),
     ('EsnekYazı', 'yazi.scala', 'EsnekYazıMetotları'),
     ('MiskinDizin', 'miskindizin.scala', 'MiskinDizinMetotları'),
@@ -120,7 +124,12 @@ def scala_jar_dizini(elle):
 
 
 def api_cikar(jar_dizini):
-    """Kapsam.scala'yı derleyip koşar; {tür: {yöntem, ...}} verir."""
+    """Kapsam.scala'yı derleyip koşar.
+
+    İki şey verir: {tür: {yöntem, ...}} ve {tür: [o türe DE uygulanan sarmalayıcı
+    türleri]}. İkincisi kalıtım içindir: Yığın bir collection.Seq olduğu için
+    Diz sarmalayıcısı ona da uygulanır.
+    """
     jars = [os.path.join(jar_dizini, a) for a in
             ('scala-compiler.jar', 'scala-library.jar', 'scala-reflect.jar')]
     with tempfile.TemporaryDirectory() as tmp:
@@ -135,12 +144,17 @@ def api_cikar(jar_dizini):
         s = subprocess.run(kos, capture_output=True, text=True, encoding='utf-8')
         if s.returncode != 0:
             sys.exit('Kapsam koşturulamadı:\n' + s.stdout + s.stderr)
-    api = {}
+    api, üstler = {}, {}
     for satır in s.stdout.splitlines():
-        if '\t' in satır:
+        if '\t' not in satır:
+            continue
+        if satır.startswith('ÜSTLER\t'):
+            _, ad, liste = satır.split('\t', 2)
+            üstler[ad] = liste.split()
+        else:
             ad, yöntemler = satır.split('\t', 1)
             api[ad] = set(yöntemler.split())
-    return api
+    return api, üstler
 
 
 def gövde(kaynak, sinif):
@@ -195,8 +209,10 @@ def main():
             sys.exit('sarmalayıcı dizini bulunamadı; --kaynak ile verin')
     print('kaynak:', kaynak_dizin)
 
-    api = api_cikar(scala_jar_dizini(a.scala_lib))
-    satırlar = []
+    api, üstler = api_cikar(scala_jar_dizini(a.scala_lib))
+
+    # Her sarmalayıcı sınıfının kendi gövdesinde sarılanlar
+    kendi = {}
     for tür, dosya, sinif in harita:
         yol = os.path.join(kaynak_dizin, dosya)
         if not os.path.isfile(yol):
@@ -205,27 +221,44 @@ def main():
         if alıcı is None:
             print(f'  uyarı: {dosya} içinde {sinif} bulunamadı', file=sys.stderr)
             continue
-        tam = {y for y in api.get(tür, set()) if not GURULTU.match(y)}
-        sarılı = tam & sarılanlar(g, alıcı)
-        satırlar.append((tür, sinif, len(tam), len(sarılı), sorted(tam - sarılı)))
+        kendi[tür] = sarılanlar(g, alıcı)
 
-    print(f"\n{'tür':16s} {'sınıf':24s} {'API':>4s} {'sarılı':>6s} {'%':>4s} {'eksik':>5s}")
-    for tür, sinif, n, k, eksik in satırlar:
-        print(f'{tür:16s} {sinif:24s} {n:4d} {k:6d} {100 * k // max(n, 1):3d}% {len(eksik):5d}')
+    satırlar = []
+    for tür, dosya, sinif in harita:
+        if tür not in kendi:
+            continue
+        tam = {y for y in api.get(tür, set()) if not GURULTU.match(y)}
+        # kalıtım: bu türe uygulanan ÖTEKİ sarmalayıcılar da sayılır
+        miras = set()
+        for üst in üstler.get(tür, []):
+            miras |= kendi.get(üst, set())
+        sarılı = tam & (kendi[tür] | miras)
+        yalnız_kendi = tam & kendi[tür]
+        satırlar.append((tür, sinif, len(tam), len(yalnız_kendi), len(sarılı),
+                         sorted(üstler.get(tür, [])), sorted(tam - sarılı)))
+
+    print(f"\n{'tür':16s} {'sınıf':24s} {'API':>4s} {'kendi':>5s} {'+miras':>6s} "
+          f"{'%':>4s} {'eksik':>5s}  kalıtım")
+    for tür, sinif, n, k, t, üst, eksik in satırlar:
+        print(f'{tür:16s} {sinif:24s} {n:4d} {k:5d} {t:6d} {100 * t // max(n, 1):3d}% '
+              f'{len(eksik):5d}  {" ".join(üst)}')
     toplam_api = sum(r[2] for r in satırlar)
-    toplam_sarılı = sum(r[3] for r in satırlar)
-    print(f"\nTOPLAM: {toplam_sarılı}/{toplam_api} "
-          f"({100 * toplam_sarılı // max(toplam_api, 1)}%), eksik {toplam_api - toplam_sarılı}")
+    toplam = sum(r[4] for r in satırlar)
+    print(f"\nTOPLAM: {toplam}/{toplam_api} "
+          f"({100 * toplam // max(toplam_api, 1)}%), eksik {toplam_api - toplam}")
+    print("  'kendi' = o sınıfın gövdesinde yazılanlar; '+miras' = ona uygulanan\n"
+          "  öteki sarmalayıcılarla birlikte (kullanıcının GERÇEKTEN çağırabildiği).")
 
     if a.ayrinti:
-        for tür, _, _, _, eksik in satırlar:
+        for tür, _, _, _, _, _, eksik in satırlar:
             if eksik:
                 print(f'\n--- {tür}: {len(eksik)} eksik\n  ' + ' '.join(eksik))
     if a.tsv:
         with open(a.tsv, 'w', encoding='utf-8') as f:
-            f.write('tür\tsınıf\tapi\tsarılı\tyüzde\teksik\n')
-            for tür, sinif, n, k, eksik in satırlar:
-                f.write(f'{tür}\t{sinif}\t{n}\t{k}\t{100 * k // max(n, 1)}\t{" ".join(eksik)}\n')
+            f.write('tür\tsınıf\tapi\tkendi\tmirasla\tyüzde\tkalıtım\teksik\n')
+            for tür, sinif, n, k, t, üst, eksik in satırlar:
+                f.write(f'{tür}\t{sinif}\t{n}\t{k}\t{t}\t{100 * t // max(n, 1)}\t'
+                        f'{" ".join(üst)}\t{" ".join(eksik)}\n')
         print('\nyazıldı:', a.tsv)
 
 

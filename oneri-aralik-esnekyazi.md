@@ -20,7 +20,11 @@
 >   (araEkle, aralığıSil, harfiSil, değiştirAralığını, harfiKur, boyuKur,
 >   tersiYerinde, yerAyır, kapasitesi, harf, parçası…) eksikti, o eklendi.
 >
-> Bu sınır artık `kapsam.py`'nin belgesinde de yazılı.
+> **Sonradan:** `kapsam.py` bu sınırı artık ölçüyor. Hangi sarmalayıcının hangi
+> türe uyduğunu `isAssignableFrom` ile JVM'e soruyor ve iki sütun veriyor:
+> `kendi` (o sınıfta yazılanlar) ve `+miras` (kullanıcının gerçekten
+> çağırabildikleri). Düzeltilmiş rakamlar: masaüstü %92, ikojo %86;
+> Aralık %94/%93, EsnekYazı %90/%89, Yığın %71/%70.
 
 ## 1. Aralık: iki ayrı yüz
 
