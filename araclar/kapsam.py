@@ -24,6 +24,14 @@ Notlar
     applyOrElse, strictOptimized*, stepper...) ve eşlik nesnesine ait olanlar
     (fill, tabulate, range, iterate, unfold). Bunlar GURULTU'da eleniyor.
   - Yüzde bir hedef değil, bir pusula: 100% olması gerekmiyor.
+  - ÖNEMLİ SINIR: ölçüm SINIF BAŞINA yapılıyor, oysa örtük sınıflar KALITIMLA
+    da uygulanıyor. Range bir IndexedSeq, EsnekYazı (StringBuilder) ve Kuyruk
+    birer collection.Seq olduğu için SıralıDizi/Diz sarmalayıcılarının bütün
+    yöntemlerini ZATEN alıyorlar (Scala en özel örtük sınıfı seçer, belirsizlik
+    olmaz -- ölçülerek doğrulandı). Yani bu türlerin yüzdesi GERÇEKTEN
+    kullanılabilir yöntem sayısını değil, YALNIZ kendi sınıfında yazılmış
+    olanları gösterir; gerçek kapsam daha yüksektir. Aralık %6 iken
+    `1 |-| 10` üstünde bul/böl/tara/enİrisiBelki'nin çalışması bu yüzdendi.
 """
 import argparse
 import os

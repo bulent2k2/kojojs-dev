@@ -184,12 +184,14 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     a.içindeMi(5) should be(yanlış)
     a.indirge(_ + _) should be(10)
     a.işle(_ * 2).toList should be(List(2, 4, 6, 8))
-    a.toString should be("Aralık(1, 2, 3, 4)")
+    // Aralık artık `type Aralık = Range`: toString EZİLEMİYOR (Range'inki
+    // "Range 1 until 5"). Öğrenci dostu gösterim yazı()/yazıya olarak duruyor.
+    a.yazıya should be("Aralık(1, 2, 3, 4)")
 
     Aralık.kapalı(1, 5).dizine should be(List(1, 2, 3, 4, 5))
     Aralık(0, 10, 2).dizine should be(List(0, 2, 4, 6, 8))
     // uzun aralık kısaltılarak yazılıyor
-    Aralık(1, 101).toString should include("...")
+    Aralık(1, 101).yazıya should include("...")
 
     (1 to 5).boyu should be(5)
     (1 to 10).adım(3).toList should be(List(1, 4, 7, 10))
@@ -452,6 +454,32 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     ö.seçİşle { case x if x > 1 => x * 10 }.sıralı should be(Seq(20, 30))
     ö.kuyruğa.boyu should be(3)
     ö.işleYerinde(_ * 10); ö.başı should be(30)
+  }
+
+  test("Aralık tür takma adı ve EsnekYazı tamponu") {
+    val a: Aralık = Aralık(1, 10, 3)
+    a.ilki should be(1); a.sonuncu should be(10); a.adım should be(3); a.uzunluğu should be(3)
+    a.başı should be(1); a.sonu should be(7); a.dizine should be(List(1, 4, 7))
+    a.yazı() should be("Aralık(1, 4, 7)")   // özel gösterim yöntem olarak korundu
+    a.içindeMi(4) should be(doğru)
+    // Range olduğu için ortak çekirdek doğrudan çalışıyor
+    a.bul(_ > 3) should be(Some(4))
+    a.böl(_ > 3)._1 should be(Seq(4, 7))
+    a.enİrisiBelki should be(Some(7))
+    (1 |-| 10) should be(Aralık.kapalı(1, 10))
+
+    val ey = new EsnekYazı("merhaba")
+    ey.bul(_ == 'h') should be(Some('h'))   // dizi tarafı zaten çalışıyor
+    ey.harf(0) should be('m'); ey.parçası(0, 3) should be("mer")
+    ey.araEkle(0, "Ey "); ey.yazıya should be("Ey merhaba")
+    ey.aralığıSil(0, 3); ey.yazıya should be("merhaba")
+    ey.harfiSil(0); ey.yazıya should be("erhaba")
+    ey.harfiKur(0, 'M'); ey.yazıya should be("Mrhaba")
+    ey.değiştirAralığını(0, 1, "me"); ey.yazıya should be("merhaba")
+    ey.ekleHepsini(Seq('!', '!')); ey.yazıya should be("merhaba!!")
+    ey.boyuKur(7); ey.tersiYerinde.yazıya should be("abahrem")
+    new EsnekYazı("42").uzuna should be(42L)
+    ey.sil(); ey.boşMu should be(doğru)
   }
 
   test("miskin dizin: masaüstüyle eşitlenen yöntemler") {

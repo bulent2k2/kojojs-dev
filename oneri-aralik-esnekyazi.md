@@ -1,18 +1,26 @@
 # Öneri: Aralık ve EsnekYazı sarmalayıcıları
 
-**Durum:** Türkçe sarmalayıcıların kapsamı `araclar/kapsam.py` ile ölçülüyor.
-Ortak çekirdek çalışması sonrası hemen bütün türler %80'in üstünde; iki tür
-geride kaldı ve ikisi de **mekanik doldurmayla çözülmüyor**, önce bir tasarım
-kararı istiyor:
-
-| tür | kapsam (masaüstü) | kapsam (ikojo) |
-|---|---|---|
-| `Aralık` (Range) | **7/112 (%6)** | — (ikojo'da Range sarmalayıcısı yok) |
-| `EsnekYazı` (StringBuilder) | **2/131 (%1)** | 2/131 (%1) |
-
-Bu belge sorunu ve seçenekleri anlatır; karar verilince uygulaması bir günlük iş.
-
----
+> **DURUM: KARARA BAĞLANDI VE UYGULANDI (Eylül 2026).**
+> Aralık için **Seçenek A** seçildi (`type Aralık = Range`), öğrenci dostu
+> gösterim `yazı()`/`yazıya` yöntemi olarak korundu ve `translate.scala`'ya
+> `Range ` → `Aralık ` çevirisi eklendi. EsnekYazı'da `delete` için
+> **`aralığıSil`** adı seçildi. Belge, kararın gerekçesiyle birlikte kayıt
+> olarak duruyor.
+>
+> **Uygulama sırasında çıkan düzeltme:** Belgenin ilk halindeki "%6" ve "%1"
+> rakamları YANILTICIYDI. `araclar/kapsam.py` sınıf başına ölçüyor; oysa
+> `Range` bir `IndexedSeq`, `EsnekYazı` (StringBuilder) bir `collection.Seq`
+> olduğu için **SıralıDizi/Diz sarmalayıcılarını zaten alıyorlar** (ölçülerek
+> doğrulandı: `(1 |-| 5).bul(_ > 3)` → `Some(4)`, `EsnekYazı("merhaba").böl(_ == 'a')`
+> → `(aa, merhb)`). Yani eksik olan, sanılandan çok daha azdı:
+> - **Aralık'ta** asıl sorun kapsam değil, **iki ayrı yüz**tü: `Aralık(1, 10)`
+>   case class'ı ~20 yöntem veriyordu, `1 |-| 10` (Range) ~110. A seçeneği
+>   bunu birleştirdi.
+> - **EsnekYazı'da** dizi tarafı zaten vardı; yalnız **tampon tarafı**
+>   (araEkle, aralığıSil, harfiSil, değiştirAralığını, harfiKur, boyuKur,
+>   tersiYerinde, yerAyır, kapasitesi, harf, parçası…) eksikti, o eklendi.
+>
+> Bu sınır artık `kapsam.py`'nin belgesinde de yazılı.
 
 ## 1. Aralık: iki ayrı yüz
 
@@ -62,9 +70,23 @@ kalır; `RangeYöntemleri`'ne ortak çekirdek uygulanır ve kapsam bir hamlede
 %6'dan ~%90'a çıkar. `1 |-| 10` ile `Aralık(1, 11)` aynı şeyi verir.
 
 - **Kazanç:** tutarlılık, tek yüz, ~100 yöntem bedavaya gelir.
-- **Bedel:** `Aralık`ın özel `toString`'i (`"Aralık(1, 2, 3 ...)"`) kaybolur;
-  yerine Scala'nın `Range(1, 2, 3)` gösterimi gelir. `translate.scala`'da
-  `Range` → `Aralık` çevirisi zaten var, yani REPL çıktısında ad Türkçe kalır.
+- **Bedel (düzeltme):** İlk taslakta "`translate.scala`'da `Range` → `Aralık`
+  çevirisi zaten var" demiştim; **yanlış**. `dict.scala`'daki `"Range" -> "Aralık"`
+  girdisi yardım/tamamlama sözlüğü için; `translate.scala` REPL ÇIKTISINDA böyle
+  bir değişim yapmıyor (`LazyList` → `MiskinDizin` var, `Range` yok). Yani A
+  seçilirse çıktı `Range(1, 4, 7)` görünür.
+  İki hafifletici var:
+  1. Öğrenci dostu gösterim bir **yöntem** olarak korunabilir: `yazı()` /
+     `yazıya()` bugünkü biçimlendirmeyle `RangeYöntemleri`'ne taşınır
+     (`toString` ezilemez ama bu yöntem ezilmez de). Mevcut testteki
+     `a.yazı() shouldBe "Aralık(1, 4, 7)"` böylece **geçmeye devam eder**.
+  2. Örtük gösterim de istenirse `translate.scala`'ya bir satır
+     (`.replace("Range(", "Aralık(")`) ile çevrilebilir.
+- **Taşınması gereken üyeler:** `Aralık` case class'ının Range'de karşılığı
+  olmayan üyeleri `RangeYöntemleri`'ne eklenmeli — `ilki` (`r.start`),
+  `sonuncu` (`r.end`), `adım` (var ama arg alıyor; `adımı` olarak `r.step`),
+  `uzunluğu` (`r.size`), `herÖgeİçin` (foreach), `yazı()`/`yazıya()`.
+  Bunlar olmadan `TurkishAPITest`'teki mevcut Aralık testi kırılır.
 - **Kırılma riski (tarandı):** `Aralık(...)` çağıran betikler çalışmaya devam
   eder (`apply` aynı imzada, `Range` de `map`/`flatMap`/`withFilter` taşıyor, yani
   `kojo-documentation.kojo`'daki `için (g <- Aralık(1, 10))` sürer). `.r` alanına
@@ -128,6 +150,7 @@ yöntem ailesi gerekiyor:
 | `reverseInPlace` | `tersiYerinde` | |
 | `ensureCapacity` / `capacity` | `yerAyır` / `kapasitesi` | ileri düzey; atlanabilir |
 | `subSequence` / `substring` | `parçası` | Yazı'da aynı ad var |
+| `clear` | `sil()` | **zaten var**; `delete` ile çakışma sorusu aşağıda |
 | `toCharArray` | `harfDiziğine` | |
 
 **Öneri:** EsnekYazı'yı iki adımda doldur — önce dizi tarafı (ad kararı
