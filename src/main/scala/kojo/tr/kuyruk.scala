@@ -12,8 +12,13 @@ trait KuyrukYöntemleri extends TemelTürler {
   type ÖncelikSırası[T] = PriorityQueue[T]
 
   object Yığın {
+    // DİKKAT: Stack(1, 2, 3) TEPEYE 1'i koyar. Masaüstündeki Yığın(1, 2, 3)
+    // ise sırayla itiyor, yani tepede 3 oluyor. İki depo bu noktada AYRIŞIYOR;
+    // karara bağlanana dek her iki taraf da kendi davranışını koruyor.
     def apply[T](elems: T*): Yığın[T] = Stack(elems: _*)
     def boş[T]: Yığın[T] = Stack.empty[T]
+    // Başka bir yığının kopyası, aynı sırada (tepe yine tepede)
+    def doldur[T](y2: Yığın[T]): Yığın[T] = Stack.from(y2)
   }
 
   object Kuyruk {
@@ -40,6 +45,11 @@ trait KuyrukYöntemleri extends TemelTürler {
     def sil(): Birim = d.clear()
     def dizine: Dizin[T] = d.toList
     def herbiriİçin[S](işlev: T => S): Birim = d.foreach(işlev)
+    // masaüstündeki adlarla eşitleme (bkz. kojo/lite/i18n/tr/kuyruk.scala)
+    def tepe: T = d.top            // tepesi ile aynı
+    def koyHepsini(dizi: YinelenebilirBirKere[T]): Yığın[T] = d.pushAll(dizi)
+    def itHepsini(dizi: YinelenebilirBirKere[T]): Yığın[T] = d.pushAll(dizi)
+    def dizi: Dizi[T] = d.toSeq
   }
 
   implicit class KuyrukMetotları[T](d: Kuyruk[T]) {

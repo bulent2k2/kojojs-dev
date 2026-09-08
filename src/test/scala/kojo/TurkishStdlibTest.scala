@@ -532,9 +532,16 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
   test("yığın / kuyruk / öncelik sırası") {
     val y = Yığın.boş[Sayı]
     y.it(1); y.it(2)
-    y.tepesi should be(2)
+    y.tepesi should be(2); y.tepe should be(2)   // tepe: masaüstündeki ad
     y.çek() should be(2)
     y.boyu should be(1)
+    y.koyHepsini(Seq(7, 8)); y.tepe should be(8); y.tane should be(3)
+    y.dizi.başı should be(8)
+    // Yığın bir Diz olduğu için ortak çekirdek de geliyor
+    y.bul(_ > 7) should be(Some(8))
+    y.böl(_ > 6)._1 should be(Seq(8, 7))
+    y.enİrisiBelki should be(Some(8))
+    Yığın.doldur(y).dizine should be(y.dizine)   // aynı sırada kopya
 
     val k = Kuyruk.boş[Sayı]
     k.ekle(1); k.ekle(2)

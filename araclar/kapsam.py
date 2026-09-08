@@ -72,6 +72,7 @@ MASAUSTU = ('src/main/scala/net/kogics/kojo/lite/i18n/tr', [
     ('Yöney', 'yoney.scala', 'YöneyYöntemleri'),
     ('Dizik', 'dizik.scala', 'ArrayMethods'),
     ('EsnekDizik', 'dizik.scala', 'ArrayBufferMethods'),
+    ('Yığın', 'kuyruk.scala', 'YığınYöntemleri'),
     ('Eşlek', 'eslem.scala', 'EşlekYöntemleri'),
     ('Eşlem', 'eslem.scala', 'Eşlem'),
     ('Küme', 'kume.scala', 'SetYöntemleri'),
