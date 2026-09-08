@@ -17,7 +17,7 @@ tek başına açılabilir hâle getirildi).
 `koco-sozlugu.html` — masaüstü Koco'nun (bulent2k2/kojo) Türkçe↔İngilizce
 programlama terim sözlüğü, aranabilir tek dosyalık HTML. İki yönlü, aksan
 katlamalı (`cizim` → `çizim`), kategorilere ayrılmış (anahtar kelimeler, türler,
-kaplumbağa/tuval komutları, resimler, matematik, koleksiyonlar…). 754 girdi.
+kaplumbağa/tuval komutları, resimler, matematik, koleksiyonlar…). 955 girdi.
 
 ## Kaynak
 Şu dosyalardan derlendi (bulent2k2/kojo):
@@ -29,6 +29,14 @@ kaplumbağa/tuval komutları, resimler, matematik, koleksiyonlar…). 754 girdi.
 Bu ikojo katmanı (kojojs-dev/src/main/scala/kojo/tr/) için eklenen yeni Türkçe
 terimler de sözlüğe işlendi (koyu renkler, Dönüştürücü, renkliYazı, birleştirici
 aliaslar, oyun API'leri, bölünüyorMu/belirt/buSaniye, Yığın koy/al/tane…).
+
+Eylül 2026 turu: standart kütüphane sarmalayıcılarının kapsamı %41-50'den
+masaüstünde %95'e, ikojo'da %94'e çıkarıldı; oradan gelen 201 yeni ad sözlüğe
+işlendi (754 -> 955). Yeni "Koleksiyon Türleri" kategorisi Yığın/Kuyruk/
+ÖncelikSırası/Eşlem/Eşlek/Küme/Aralık/Belki/MiskinDizin'e özgü adları topluyor;
+ortak çekirdek "Diziler ve Yazılar" altında. Adlar `lite/i18n/tr/*.scala`
+gövdelerinden üretildi (`def başıBelki ... = d.headOption` -> headOption =
+başıBelki), sonra elle düzeltildi.
 
 Canlı (Claude artifact): sözlük ve dokuz dilli dizin `/yardim`'den de bağlı.
 
