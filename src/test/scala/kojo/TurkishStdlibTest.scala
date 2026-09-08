@@ -887,6 +887,48 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     Kuyruk(2, 1, 2).baştanAlHepsini(_ == 2) shouldBe Seq(2, 2)
   }
 
+  test("Aralık gösterimi: yazıya ve çıktı paneli aynı gövdeyi kullanıyor") {
+    // Aralık bir tür takma adı olduğu için toString ezilemiyor; öğrenci dostu
+    // biçim Aralık.gösterim'de ve yazıya da onu çağırıyor. paneleYaz (tarayıcı
+    // yolu) aynı gövdeyi kullanıyor -- burada gövdeyi doğrudan sınıyoruz.
+    Aralık.gösterim(Aralık(1, 6)) should be("Aralık(1, 2, 3, 4, 5)")
+    Aralık.gösterim(Aralık(1, 200, 7)) should be(
+      "Aralık(1, 8, 15, 22, 29 ... 169, 176, 183, 190, 197)")
+    Aralık.gösterim(Aralık(1, 1)) should be("Aralık()")
+    // tam 10 öge kısaltma eşiğinde: hepsi yazılıyor
+    Aralık.gösterim(Aralık(10, 0, -1)) should be("Aralık(10, 9, 8, 7, 6, 5, 4, 3, 2, 1)")
+    // yazıya ile BİREBİR aynı (tek gerçekleme)
+    Aralık(1, 200, 7).yazıya should be(Aralık.gösterim(Aralık(1, 200, 7)))
+    (1 to 5).yazıya should be(Aralık.gösterim(1 to 5))
+  }
+
+  test("dizime/eşleme: masaüstündeki iki sistematik ad her türde çalışıyor") {
+    // Bu ikisi masaüstünde her sarmalayıcıda ayrı ayrı yazılı; burada Diz/Dizi'ye
+    // konup alt türlere kalıtımla geliyor. Test tam da o kalıtımın çalıştığını
+    // (ve örtük sınıf belirsizliği çıkarmadığını) çiviliyor.
+    Dizi(1, 2, 3).dizime.boyu should be(3)
+    Dizin(1, 2).dizime.diziye should be(Dizi(1, 2))
+    Yöney(1, 2).dizime.boyu should be(2)
+    Aralık(1, 4).dizime.diziye should be(Dizi(1, 2, 3))
+    MiskinDizin(1, 2).dizime.boyu should be(2)
+    Küme(1, 2).dizime.boyu should be(2)
+    Dizik(1, 2).dizime.boyu should be(2)
+    "ab".dizime.boyu should be(2)
+    Kuyruk(1, 2).dizime.boyu should be(2)
+    Yığın(1, 2).dizime.boyu should be(2)
+
+    val ikili = Dizi(("a", 1), ("b", 2))
+    ikili.eşleme.boyu should be(2)
+    ikili.eşleme.al("a") should be(Biri(1))
+    Dizin(("a", 1)).eşleme.boyu should be(1)
+    Yöney(("a", 1)).eşleme.boyu should be(1)
+    Küme(("a", 1)).eşleme.boyu should be(1)
+    Dizik(("a", 1)).eşleme.boyu should be(1)
+    MiskinDizin(("a", 1)).eşleme.boyu should be(1)
+    Kuyruk(("a", 1)).eşleme.boyu should be(1)
+    Yığın(("a", 1)).eşleme.boyu should be(1)
+  }
+
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
     "Kojo".eşitMiKüçükHarfBüyükHarfAyrımıYapmadan("kOJO") shouldBe true
     "a".kıyaslaKüçükHarfBüyükHarfAyrımıYapmadan("B") should be < 0
