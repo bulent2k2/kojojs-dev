@@ -6,7 +6,7 @@ import scala.collection.mutable.{Stack, Queue, PriorityQueue}
  * Yığın (Stack), Kuyruk (Queue) ve Öncelik Sırası (PriorityQueue).
  *
  */
-trait KuyrukYöntemleri extends TemelTürler {
+trait KuyrukYöntemleri extends TemelTürler with EşlemYöntemleri with DizimYöntemleri {
   type Yığın[T] = Stack[T]
   type Kuyruk[T] = Queue[T]
   type ÖncelikSırası[T] = PriorityQueue[T]
@@ -172,12 +172,14 @@ trait KuyrukYöntemleri extends TemelTürler {
 
   implicit class ÖncelikSırasıMetotları[T](d: ÖncelikSırası[T]) {
     type Col = ÖncelikSırası[T]
+    type C2[B] = ÖncelikSırası[B]
     type Belki[B] = Option[B]
     type Eşlek[K, D] = collection.immutable.Map[K, D]
-    def ekle(öge: T): ÖncelikSırası[T] = d += öge
+    type Iter[A] = collection.mutable.Iterable[A]
+    def ekle(öge: T): ÖncelikSırası[T] = d.addOne(öge) // `d += öge` ile aynı
     def çıkar(): T = d.dequeue()
     def başı: T = d.head
-    def boyu: Sayı = d.size
+    def boyu: Sayı = d.length
     def tane: Sayı = d.size // boyu ile aynı (kitapçık adı)
     def boşMu: İkil = d.isEmpty
     def doluMu: İkil = d.nonEmpty
@@ -230,5 +232,54 @@ trait KuyrukYöntemleri extends TemelTürler {
     def işleYerinde(işlev: T => T): Col = { d.mapInPlace(işlev); d }
     def hepsiniEkle(ögeler: YinelenebilirBirKere[T]): Col = { d.addAll(ögeler); d }
     def kuyruğa: Kuyruk[T] = d.toQueue
+
+    // --- masaüstü Koco ile eşitleme (bkz. lite/i18n/tr/kuyruk.scala) ------
+    // Masaüstündeki mutPriQueMethods'ta baştan beri olan, ikojo'da eksik olanlar.
+    def ekle(ögeler: T*) = d.enqueue(ögeler: _*)
+    def baştanAl(): T = d.dequeue()
+    def baştanAlHepsini[T2 >: T]: Dizi[T2] = d.dequeueAll
+    def ikizle(): Col = d.clone()
+    def kuyruğu: Col = d.tail
+    def önü: Col = d.init
+    def sonu: T = d.last
+    def ele(deneme: T => İkil): Col = d.filter(deneme)
+    def eleDeğilse(deneme: T => İkil): Col = d.filterNot(deneme)
+    def işle[A](işlev: T => A): Iter[A] = d.map(işlev)
+    def düzİşle[A](işlev: T => C2[A]): Iter[A] = d.flatMap(işlev)
+    def indirge[B >: T](işlem: (B, B) => B): B = d.reduce(işlem)
+    def soldanKatla[T2](z: T2)(işlev: (T2, T) => T2): T2 = d.foldLeft(z)(işlev)
+    def sağdanKatla[T2](z: T2)(işlev: (T, T2) => T2): T2 = d.foldRight(z)(işlev)
+    def topla[T2 >: T](implicit num: scala.math.Numeric[T2]) = d.sum(num)
+    def çarp[T2 >: T](implicit num: scala.math.Numeric[T2]) = d.product(num)
+    def yazıYap: Yazı = d.mkString
+    def yazıYap(ara: Yazı): Yazı = d.mkString(ara)
+    def yazıYap(başı: Yazı, ara: Yazı, sonu: Yazı): Yazı = d.mkString(başı, ara, sonu)
+    def tersi = d.reverse
+    def herbiriİçin[S](işlev: T => S): Birim = d.foreach(işlev)
+    def varMı(deneme: T => İkil): İkil = d.exists(deneme)
+    def hepsiDoğruMu(deneme: T => İkil): İkil = d.forall(deneme)
+    def hepsiİçinDoğruMu(deneme: T => İkil): İkil = d.forall(deneme)
+    def al(n: Sayı): Col = d.take(n)
+    def alDoğruKaldıkça(deneme: T => İkil): Col = d.takeWhile(deneme)
+    def alSağdan(n: Sayı): Col = d.takeRight(n)
+    def düşür(n: Sayı): Col = d.drop(n)
+    def düşürDoğruKaldıkça(deneme: T => İkil): Col = d.dropWhile(deneme)
+    def düşürSağdan(n: Sayı): Col = d.dropRight(n)
+    def diziye = d.toSeq
+    def kümeye = d.toSet
+    def yöneye = d.toVector
+    def dizime[S >: T](implicit delil: scala.reflect.ClassTag[S]): Dizim[S] = new Dizim(d.toArray(delil))
+    def eşleğe[A, D](implicit delil: T <:< (A, D)): Eşlek[A, D] = d.toMap
+    def eşleme[A, D](implicit delil: T <:< (A, D)): Eşlem[A, D] = Eşlem.değişmezden(d.toMap)
+    def say(işlev: T => İkil): Sayı = d.count(işlev)
+    def dilim(nereden: Sayı, nereye: Sayı) = d.slice(nereden, nereye)
+    def ikile[S](öbürü: YinelenebilirBirKere[S]) = d.zip(öbürü)
+    def ikileSırayla = d.zipWithIndex
+    def ikileKonumla = d.zipWithIndex
+    def öbekle[A](iş: T => A): Eşlek[A, Col] = d.groupBy(iş)
+    def enUfağı[B >: T](implicit sıralama: math.Ordering[B]): T = d.min(sıralama)
+    def enUfağı[B](iş: T => B)(implicit karşılaştırma: math.Ordering[B]): T = d.minBy(iş)(karşılaştırma)
+    def enİrisi[B >: T](implicit sıralama: math.Ordering[B]): T = d.max(sıralama)
+    def enİrisi[B](iş: T => B)(implicit karşılaştırma: math.Ordering[B]): T = d.maxBy(iş)(karşılaştırma)
 }
 }

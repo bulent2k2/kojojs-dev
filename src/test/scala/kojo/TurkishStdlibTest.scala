@@ -728,6 +728,80 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     d(0) shouldBe 9
   }
 
+  test("ÖncelikSırası: masaüstünden gelen çekirdek yöntemler") {
+    val ö = ÖncelikSırası(3, 1, 4, 1, 5)
+    // öncelik sırası en İRİyi başta tutar
+    ö.başı shouldBe 5
+    ö.boyu shouldBe 5
+    ö.varMı(_ == 4) shouldBe true
+    ö.hepsiDoğruMu(_ > 0) shouldBe true
+    ö.say(_ > 2) shouldBe 3
+    ö.topla shouldBe 14
+    ö.çarp shouldBe 60
+    ö.enİrisi shouldBe 5
+    ö.enUfağı shouldBe 1
+    ö.indirge(_ + _) shouldBe 14
+    ö.soldanKatla(0)(_ + _) shouldBe 14
+    ö.sağdanKatla(0)(_ + _) shouldBe 14
+    ö.ele(_ > 2).boyu shouldBe 3
+    ö.eleDeğilse(_ > 2).boyu shouldBe 2
+    ö.işle(_ * 2).toSeq.sorted shouldBe Seq(2, 2, 6, 8, 10)
+    ö.dizine.sorted shouldBe List(1, 1, 3, 4, 5)
+    ö.diziye.sorted shouldBe Seq(1, 1, 3, 4, 5)
+    ö.kümeye shouldBe Set(1, 3, 4, 5)
+    ö.yöneye.sorted shouldBe Vector(1, 1, 3, 4, 5)
+    ö.dizime.diziye.sorted shouldBe Seq(1, 1, 3, 4, 5)
+    ö.öbekle(_ % 2).keySet shouldBe Set(0, 1)
+    ö.ikileSırayla.size shouldBe 5
+    // baştanAl en İRİyi alır; ikizle özgünü korur
+    val k = ö.ikizle()
+    k.baştanAl() shouldBe 5
+    k.baştanAl() shouldBe 4
+    ö.boyu shouldBe 5 // özgün bozulmadı
+    ö.ikizle().baştanAlHepsini shouldBe Seq(5, 4, 3, 1, 1)
+    // ekle(ögeler*) çoklu ekleme
+    val ö2 = ÖncelikSırası.boş[Sayı]
+    ö2.ekle(2, 7, 4)
+    ö2.başı shouldBe 7
+    // ikili öge -> eşleğe/eşleme köprüsü
+    val ö3 = ÖncelikSırası((1, "bir"), (2, "iki"))
+    ö3.eşleğe shouldBe Map(1 -> "bir", 2 -> "iki")
+    ö3.eşleme.al(2) shouldBe Some("iki")
+  }
+
+  test("Eşlem: masaüstünden gelen çekirdek yöntemler") {
+    val e = Eşlem("a" -> 1, "b" -> 2, "c" -> 3)
+    e.kaldır("a") shouldBe Some(1)
+    e.kaldır("yok") shouldBe None
+    e.sayı shouldBe 3
+    e.hepsiİçinDoğruMu(_._2 > 0) shouldBe true
+    e.alSırayla(2).size shouldBe 2
+    e.düşür(2).size shouldBe 1
+    e.alSağdan(1).size shouldBe 1
+    e.düşürSağdan(1).size shouldBe 2
+    e.kümeye.size shouldBe 3
+    e.yöneye.size shouldBe 3
+    e.dizime.boyu shouldBe 3
+    e.ikileSırayla.size shouldBe 3
+    e.ikile(Dizin(9, 8, 7)).size shouldBe 3
+    e.işle((ikili: (Yazı, Sayı)) => ikili._2).toSeq.sorted shouldBe Seq(1, 2, 3)
+    e.düzİşle(ikili => collection.mutable.Iterable(ikili._2)).toSeq.sorted shouldBe Seq(1, 2, 3)
+    e.indirgeSoldan[(Yazı, Sayı)]((x, y) => (x._1 + y._1, x._2 + y._2))._2 shouldBe 6
+    e.indirgeSoldanBelki[(Yazı, Sayı)]((x, y) => (x._1, x._2 + y._2)).get._2 shouldBe 6
+    e.indirgeSağdanBelki[(Yazı, Sayı)]((x, y) => (y._1, x._2 + y._2)).get._2 shouldBe 6
+    e.katla(("", 0))((x, y) => (x._1, x._2 + y._2))._2 shouldBe 6
+    e.enİrisi(_._2)._2 shouldBe 3
+    e.enUfağı(_._2)._2 shouldBe 1
+    e.yazıYap("{", ", ", "}").startsWith("{") shouldBe true
+    // değiştir: KOPYA döndürür, özgünü bozmaz (değiştirilmiş ile aynı)
+    e.değiştir("a", 9)("a") shouldBe 9
+    e("a") shouldBe 1
+    // uçlar
+    e.kuyruğu.size shouldBe 2
+    e.önü.size shouldBe 2
+    e.sonu should not be null
+  }
+
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
     "Kojo".eşitMiKüçükHarfBüyükHarfAyrımıYapmadan("kOJO") shouldBe true
     "a".kıyaslaKüçükHarfBüyükHarfAyrımıYapmadan("B") should be < 0

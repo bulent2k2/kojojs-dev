@@ -4,10 +4,8 @@ package kojo.tr
  * Map'in Türkçesi. İki kapı var:
  *  - `Eşlek` : değişmez Map (collection.immutable.Map) -- uzantı metotlarıyla
  *  - `Eşlem` : değişebilir Map sarmalayıcısı (ekle/çıkar yapılabilen)
- *
- * `dizime` (Dizim sarmalayıcısı) henüz portlanmadı.
  */
-trait EşlemYöntemleri extends TemelTürler with BelkiYöntemleri {
+trait EşlemYöntemleri extends TemelTürler with BelkiYöntemleri with DizimYöntemleri {
   type Eşlek[A, D] = collection.immutable.Map[A, D]
 
   object Eşlek {
@@ -123,6 +121,42 @@ trait EşlemYöntemleri extends TemelTürler with BelkiYöntemleri {
   def varsayılanı(anahtar: A): D = m.default(anahtar)
   def varsayılanlı(işlev: A => D): Eşlem[A, D] = Eşlem(m.withDefault(işlev))
   def eşleğe: collection.immutable.Map[A, D] = m.toMap
+
+  // --- masaüstü Koco ile eşitleme (bkz. lite/i18n/tr/eslem.scala) --------
+  // Aşağıdakiler masaüstündeki Eşlem'de baştan beri vardı, ikojo'da eksikti.
+  def kaldır = m.lift
+  def kuyruğu = m.tail
+  def önü = m.init
+  def sonu = m.last
+  def işle[C](işlev: ((A, D)) => C) = m.map(işlev)
+  def düzİşle[B](işlev: ((A, D)) => collection.mutable.Iterable[B]) = m.flatMap(işlev)
+  def indirge[B >: Pair](işlem: (B, B) => B): B = m.reduce(işlem)
+  def indirgeSoldan[B >: Pair](işlem: (B, Pair) => B): B = m.reduceLeft(işlem)
+  def indirgeSağdan[B >: Pair](işlem: (Pair, B) => B): B = m.reduceRight(işlem)
+  def indirgeSoldanBelki[B >: Pair](işlem: (B, Pair) => B): Belki[B] = m.reduceLeftOption(işlem)
+  def indirgeSağdanBelki[B >: Pair](işlem: (Pair, B) => B): Belki[B] = m.reduceRightOption(işlem)
+  def katla[B >: Pair](z: B)(işlev: (B, B) => B): B = m.fold(z)(işlev)
+  def topla[T >: Pair](implicit num: scala.math.Numeric[T]) = m.sum(num)
+  def çarp[T >: Pair](implicit num: scala.math.Numeric[T]) = m.product(num)
+  def yazıYap(başı: Yazı, ara: Yazı, sonu: Yazı): Yazı = m.mkString(başı, ara, sonu)
+  // masaüstündeki adı `değiştir`; `değiştirilmiş` ile aynı işi yapar (kopya döndürür)
+  def değiştir(a: A, d: D) = m.clone().addOne(a -> d)
+  def hepsiİçinDoğruMu(deneme: ((A, D)) => İkil): İkil = m.forall(deneme)
+  def alSırayla(n: Sayı) = m.take(n)
+  def alDoğruKaldıkça(deneme: ((A, D)) => İkil) = m.takeWhile(deneme)
+  def alSağdan(n: Sayı) = m.takeRight(n)
+  def düşür(n: Sayı) = m.drop(n)
+  def düşürDoğruKaldıkça(deneme: ((A, D)) => İkil) = m.dropWhile(deneme)
+  def düşürSağdan(n: Sayı) = m.dropRight(n)
+  def kümeye = m.toSet
+  def yöneye = m.toVector
+  def dizime[C >: Pair](implicit delil: scala.reflect.ClassTag[C]): Dizim[C] = new Dizim(m.toArray(delil))
+  def ikile[C](öbürü: YinelenebilirBirKere[C]) = m.zip(öbürü)
+  def ikileSırayla = m.zipWithIndex
+  def enUfağı[B >: Pair](implicit sıralama: math.Ordering[B]): Pair = m.min(sıralama)
+  def enUfağı[B](iş: Pair => B)(implicit karşılaştırma: math.Ordering[B]): Pair = m.minBy(iş)(karşılaştırma)
+  def enİrisi[B >: Pair](implicit sıralama: math.Ordering[B]): Pair = m.max(sıralama)
+  def enİrisi[B](iş: Pair => B)(implicit karşılaştırma: math.Ordering[B]): Pair = m.maxBy(iş)(karşılaştırma)
 }
 
   object Eşlem {
@@ -242,5 +276,25 @@ trait EşlemYöntemleri extends TemelTürler with BelkiYöntemleri {
     def varsayılanı(anahtar: A): D = m.default(anahtar)
     def varsayılanlı(işlev: A => D): Eşlek[A, D] = m.withDefault(işlev)
     def eşleğe: Eşlek[A, D] = m.toMap
+
+    // --- masaüstü Koco ile eşitleme (bkz. lite/i18n/tr/eslem.scala) ------
+    def kaldır = m.lift
+    def önü = m.init
+    def sonu = m.last
+    def düzİşle[B](işlev: Pair => YinelenebilirBirKere[B]) = m.flatMap(işlev)
+    def indirgeSoldan[B >: Pair](işlem: (B, Pair) => B): B = m.reduceLeft(işlem)
+    def indirgeSağdan[B >: Pair](işlem: (Pair, B) => B): B = m.reduceRight(işlem)
+    def indirgeSoldanBelki[B >: Pair](işlem: (B, Pair) => B): Belki[B] = m.reduceLeftOption(işlem)
+    def indirgeSağdanBelki[B >: Pair](işlem: (Pair, B) => B): Belki[B] = m.reduceRightOption(işlem)
+    def katla[B >: Pair](z: B)(işlev: (B, B) => B): B = m.fold(z)(işlev)
+    def topla[T >: Pair](implicit num: scala.math.Numeric[T]) = m.sum(num)
+    def çarp[T >: Pair](implicit num: scala.math.Numeric[T]) = m.product(num)
+    def alDoğruKaldıkça(deneme: Pair => İkil) = m.takeWhile(deneme)
+    def alSağdan(n: Sayı) = m.takeRight(n)
+    def düşürDoğruKaldıkça(deneme: Pair => İkil) = m.dropWhile(deneme)
+    def düşürSağdan(n: Sayı) = m.dropRight(n)
+    def dizime[C >: Pair](implicit delil: scala.reflect.ClassTag[C]): Dizim[C] = new Dizim(m.toArray(delil))
+    def ikile[C](öbürü: YinelenebilirBirKere[C]) = m.zip(öbürü)
+    def karşılıklıMı[S](öbürü: Diz[S])(deneme: (Pair, S) => İkil): İkil = m.corresponds(öbürü)(deneme)
 }
 }
