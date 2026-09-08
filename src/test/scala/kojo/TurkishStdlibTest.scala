@@ -20,6 +20,7 @@ object TRDeneme
     extends kojo.tr.SayıYöntemleri
     with kojo.tr.MatematikYöntemleri
     with kojo.tr.BelkiYöntemleri
+    with kojo.tr.İkisindenBiriYöntemleri
     with kojo.tr.BölümselİşlevYöntemleri
     with kojo.tr.YazıYöntemleri
     with kojo.tr.HarfYöntemleri
@@ -906,6 +907,27 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
 
     Dizi(1, 2).yineleyici.gösterdikleriAynıMı(Dizi(1, 2)) shouldBe true
     Dizi(1, 2).yineleyici.gösterdikleriAynıMı(Dizi(2, 1)) shouldBe false
+  }
+
+  test("İkisindenBiri: Either'ın Türkçesi") {
+    Dizi(1, 2, 3, 4).bölİşle(x => if (x % 2 == 0) Sağ(x * 10) else Sol(x)) shouldBe
+      (Seq(1, 3), Seq(20, 40))
+    val sol: İkisindenBiri[Yazı, Sayı] = Sol("hata")
+    val sağ: İkisindenBiri[Yazı, Sayı] = Sağ(5)
+    sol.solMu shouldBe true
+    sağ.sağMı shouldBe true
+    sağ.işle(_ * 2) shouldBe Sağ(10)
+    sol.işle(_ * 2) shouldBe Sol("hata")
+    sağ.alYoksa(0) shouldBe 5
+    sol.alYoksa(0) shouldBe 0
+    sağ.belkiye shouldBe Some(5)
+    sol.belkiye shouldBe None
+    sağ.takasla shouldBe Sol(5)
+    sol.katla(h => s"yanlış: $h", d => s"değer: $d") shouldBe "yanlış: hata"
+    sağ.katla(h => s"yanlış: $h", d => s"değer: $d") shouldBe "değer: 5"
+    val ikisiDeYazı: İkisindenBiri[Yazı, Yazı] = Sol("soldaki")
+    ikisiDeYazı.birleştir shouldBe "soldaki"
+    İkisindenBiri.koşulla(3 > 2, "oldu", "olmadı") shouldBe Sağ("oldu")
   }
 
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
