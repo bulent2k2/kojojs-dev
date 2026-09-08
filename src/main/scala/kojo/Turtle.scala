@@ -9,6 +9,42 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js
 
+/**
+ * Komut pompasının saf (DOM/PIXI'siz) durum makinesi -- BakePolicy ile aynı
+ * gerekçeyle ayrıldı: Node altında sınanabilsin (bkz. KojoWorld.scala).
+ *
+ * Pompa şöyle işliyor: `queueHandler` kuyruktan BİR komut alır, komutun gerçek
+ * işini yapan `realX` de bitince kendini yeniden zamanlar. Kuyruk boşalınca bu
+ * zincir KOPAR; o yüzden kuyruğa yeni bir komut girdiğinde pompanın yeniden
+ * başlatılması gerekir. Yoksa kuyruk boşaldıktan SONRA verilen her kaplumbağa
+ * komutu -- `canlandır`, `tuşaBasınca`, `zamanlayıcı` gövdelerinden verilenlerin
+ * hepsi -- sessizce yutulur.
+ */
+private[kojo] class PompaDurumu {
+  private var başladı = false
+  private var boşta = true
+
+  /** Kaynaklar yüklendi, pompa ilk kez çalıştırılıyor. */
+  def başlat(): Unit = {
+    başladı = true
+    boşta = false
+  }
+
+  /** Kuyruğa komut girdi. true dönerse pompayı zamanlamak GEREKİR. */
+  def komutGirdi(): Boolean =
+    if (başladı && boşta) {
+      boşta = false
+      true
+    }
+    else false
+
+  /** Pompa kuyruğu boş buldu: zamanlama zinciri burada kopuyor. */
+  def kuyrukBoşaldı(): Unit = boşta = true
+
+  def boştaMı: Boolean = boşta
+  def başladıMı: Boolean = başladı
+}
+
 class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = null)(implicit kojoWorld: KojoWorld)
   extends TurtleAPI
   with RichTurtleCommands {
@@ -55,6 +91,26 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   private val savedStyles = new mutable.Stack[(Color, Boya, Double, Int, Boolean)]
 
   var commandQs = mutable.Queue.empty[Command] :: Nil
+  private val pompa = new PompaDurumu
+
+  // Kuyruğa eklemenin TEK giriş noktası: pompa boştaysa yeniden başlatır.
+  // Bütün `commandQ.enqueue` çağrıları buradan geçmeli.
+  //
+  // YENİ KOMUT EKLERKEN: komutu işleyen realX MUTLAKA sonunda pompayı yeniden
+  // zamanlamalı (`kojoWorld.scheduleLater(queueHandler)`) -- erken `return`
+  // yollarında da. Unutulursa pompa `boşta = false` takılı kalır, `komutGirdi`
+  // hep false döner ve kaplumbağa KALICI olarak donar (bkz. realArc2'nin
+  // a == 0 yolu, bu yüzden düzeltildi).
+  //
+  // Not: `scheduleLater` ilk MaxBurst çağrıda işi EŞZAMANLI koşturuyor, yani
+  // kuyruk boşken verilen bir komut pompayı kullanıcının çağrı yığınının
+  // içinde çalıştırabilir (canlandırma gecikmesi 0 ise komut aynı karede
+  // biter). Sonuç doğru; yalnız pompanın her zaman eşzamansız başladığı
+  // varsayılmasın.
+  private def sıraya(komut: Command): Unit = {
+    commandQ.enqueue(komut)
+    if (pompa.komutGirdi()) kojoWorld.scheduleLater(queueHandler)
+  }
 
   // giysi (costume) verilmişse kaplumbağa simgesi yerine o imge yüklenir;
   // yükleyici anahtarı ImagePic'teki gibi url'nin kendisi
@@ -75,6 +131,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
       turtleLayer.addChild(turtleImage)
     }
     initTurtleLayer()
+    pompa.başlat()
     kojoWorld.runLater(0)(queueHandler)
   }
 
@@ -181,39 +238,39 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   }
 
   def forward(n: Double): Unit = {
-    commandQ.enqueue(Forward(n))
+    sıraya(Forward(n))
   }
 
   def hop(n: Double): Unit = {
-    commandQ.enqueue(Hop(n))
+    sıraya(Hop(n))
   }
 
   def turn(angle: Double): Unit = {
-    commandQ.enqueue(Turn(angle))
+    sıraya(Turn(angle))
   }
 
   def setAnimationDelay(delay: Long): Unit = {
-    commandQ.enqueue(SetAnimationDelay(delay))
+    sıraya(SetAnimationDelay(delay))
   }
 
   def setPenThickness(t: Double): Unit = {
-    commandQ.enqueue(SetPenThickness(t))
+    sıraya(SetPenThickness(t))
   }
 
   def setPenColor(color: Color): Unit = {
-    commandQ.enqueue(SetPenColor(color))
+    sıraya(SetPenColor(color))
   }
 
   def setPenFontSize(n: Int): Unit = {
-    commandQ.enqueue(SetPenFontSize(n))
+    sıraya(SetPenFontSize(n))
   }
 
   override def setPenFontFamily(name: String): Unit = {
-    commandQ.enqueue(SetPenFontFamily(name))
+    sıraya(SetPenFontFamily(name))
   }
 
   override def dot(diameter: Int): Unit = {
-    commandQ.enqueue(Dot(diameter))
+    sıraya(Dot(diameter))
   }
 
   def setFillPaint(boya: Boya): Unit = {
@@ -221,7 +278,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   }
 
   def setFillColor(color: Color): Unit = {
-    commandQ.enqueue(SetFillColor(color))
+    sıraya(SetFillColor(color))
   }
 
   // Kalemin şu an inik olup olmadığı ve canlandırma gecikmesi: masaüstünde
@@ -232,89 +289,93 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   def animationDelayMs: Long = animationDelay
 
   def changePosition(x: Double, y: Double): Unit = {
-    commandQ.enqueue(ChangePosition(x, y))
+    sıraya(ChangePosition(x, y))
   }
 
   // ---- giysi (costume) ----
-  def setCostume(url: String): Unit = commandQ.enqueue(SetCostume(url))
-  def setCostumes(urls: String*): Unit = commandQ.enqueue(SetCostumes(urls.toVector))
-  def nextCostume(): Unit = commandQ.enqueue(NextCostume)
-  def scaleCostume(factor: Double): Unit = commandQ.enqueue(ScaleCostume(factor))
+  def setCostume(url: String): Unit = sıraya(SetCostume(url))
+  def setCostumes(urls: String*): Unit = sıraya(SetCostumes(urls.toVector))
+  def nextCostume(): Unit = sıraya(NextCostume)
+  def scaleCostume(factor: Double): Unit = sıraya(ScaleCostume(factor))
 
   def setPosition(x: Double, y: Double): Unit = {
-    commandQ.enqueue(SetPosition(x, y))
+    sıraya(SetPosition(x, y))
   }
 
   def setHeading(theta: Double): Unit = {
-    commandQ.enqueue(SetHeading(Utils.deg2radians(theta)))
+    sıraya(SetHeading(Utils.deg2radians(theta)))
   }
 
   def moveTo(x: Double, y: Double): Unit = {
-    commandQ.enqueue(MoveTo(x, y))
+    sıraya(MoveTo(x, y))
   }
 
   def arc2(r: Double, a: Double): Unit = {
-    commandQ.enqueue(Arc2(r, a))
+    sıraya(Arc2(r, a))
   }
 
   def write(text: String): Unit = {
-    commandQ.enqueue(Write(text))
+    sıraya(Write(text))
   }
 
   def towards(other: Turtle): Unit = {
-    commandQ.enqueue(TowardsTurtle(other))
+    sıraya(TowardsTurtle(other))
   }
 
   def towards(x: Double, y: Double): Unit = {
-    commandQ.enqueue(Towards(x, y))
+    sıraya(Towards(x, y))
   }
 
   def savePosHe(): Unit = {
-    commandQ.enqueue(SavePosHe)
+    sıraya(SavePosHe)
   }
 
   def restorePosHe(): Unit = {
-    commandQ.enqueue(RestorePosHe)
+    sıraya(RestorePosHe)
   }
 
   def saveStyle(): Unit = {
-    commandQ.enqueue(SaveStyle)
+    sıraya(SaveStyle)
   }
 
   def restoreStyle(): Unit = {
-    commandQ.enqueue(RestoreStyle)
+    sıraya(RestoreStyle)
   }
 
   def clear(): Unit = {
-    commandQ.enqueue(Clear)
+    sıraya(Clear)
   }
 
   def pause(seconds: Double): Unit = {
-    commandQ.enqueue(Pause(seconds))
+    sıraya(Pause(seconds))
   }
 
   def penUp(): Unit = {
-    commandQ.enqueue(PenUp)
+    sıraya(PenUp)
   }
 
   def penDown(): Unit = {
-    commandQ.enqueue(PenDown)
+    sıraya(PenDown)
   }
 
   def invisible(): Unit = {
-    commandQ.enqueue(Invisible)
+    sıraya(Invisible)
   }
 
   def visible(): Unit = {
-    commandQ.enqueue(Visible)
+    sıraya(Visible)
   }
 
   private[kojo] def sync(fn: () => Unit): Unit = {
-    commandQ.enqueue(Sync(fn))
+    sıraya(Sync(fn))
   }
 
   private def queueHandler(): Unit = {
-    if (commandQ.size > 0) {
+    if (commandQ.size == 0) {
+      // Zincir burada kopuyor; bundan sonraki ilk komut pompayı yeniden başlatır.
+      pompa.kuyrukBoşaldı()
+    }
+    else {
       commandQ.dequeue() match {
         case Forward(n)  => realForward(n, penIsUp)
         case Hop(n)      => realForward(n, true)
@@ -511,10 +572,15 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   }
 
   private def realArc2(r: Double, a: Double) {
-    pushQ()
+    // a == 0: çizecek yay yok. pushQ'dan ÖNCE çıkıyoruz ve pompayı yeniden
+    // zamanlıyoruz -- eskiden pushQ'dan sonra dönülüyordu, yani hem kuyruk
+    // yığınında boş bir çerçeve kalıyor hem de zamanlama zinciri kopuyordu
+    // (yay(r, 0)'dan sonraki bütün komutlar sessizce yutuluyordu).
     if (a == 0) {
+      kojoWorld.scheduleLater(queueHandler)
       return
     }
+    pushQ()
 
     def x(t: Double) = r * math.cos(t.toRadians)
 
@@ -686,6 +752,18 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     TurtleHelper.distance(position.x, position.y, x, y)
   }
 
+  /**
+   * Masaüstü Turtle.distanceTo(other): iki kaplumbağa arasındaki uzaklık.
+   *
+   * DİKKAT -- bu ANLIK bir okuma, kuyruğa girmiyor: değer döndürdüğü için
+   * `çevir`/`noktayaDön` gibi komut kuyruğuna konamıyor. Yani daha işlenmemiş
+   * komutlar varsa (ör. az önce `ileri(100)` dediysen) uzaklık o komutlardan
+   * ÖNCEKİ konumlara göre hesaplanır. Kesin sonuç gerekiyorsa konumları
+   * TurkishTurtle.konumuOku ile kuyruğun doğru noktasında okuyun.
+   */
+  def distanceTo(other: Turtle): Double =
+    distanceTo(other.position.x, other.position.y)
+
   private def towardsHelper(x: Double, y: Double): Double = {
     TurtleHelper.thetaTowards(position.x, position.y, x, y, headingRadians)
   }
@@ -697,7 +775,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   }
 
   private def popQ(): Unit = {
-    commandQ.enqueue(PopQ)
+    sıraya(PopQ)
   }
 
   private def realPopQ(): Unit = {

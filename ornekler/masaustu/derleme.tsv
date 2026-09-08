@@ -1,5 +1,5 @@
 # ornekleri-dogrula.sh sonucu -- 2026-09-07 -- http://localhost:7860
-# geçti: 48   kaldı: 63   sunucu: 1
+# geçti: 49   kaldı: 62   sunucu: 1
 betik	durum	özet
 masaustu/installer/examples/anagram/anagram_tr.kojo.installed	kaldı	1 hata: 21: not found: value sözcükDizininiYükle dez sözlük: Dizin[Sözcük] = sözcükDizininiYükle                             ^
 masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	2 hata: 39: not found: value installDir     dez path = installDir + s + "examples" + s + "anagram" + s + "tr" + s + "sozcukler.txt"                ^
@@ -30,7 +30,7 @@ masaustu/src/main/resources/samples/tr/animated-square-creation.kojo	kaldı	13 h
 masaustu/src/main/resources/samples/tr/arduino-prog.kojo	kaldı	1 hata: 28: To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.     <p style={ headerStyle
 masaustu/src/main/resources/samples/tr/car-ride.kojo	geçti	
 masaustu/src/main/resources/samples/tr/circles.kojo	geçti	
-masaustu/src/main/resources/samples/tr/collidium.kojo	kaldı	1 hata: 44: not found: value DokumaBoya dez duvarBoyası = DokumaBoya(Çizim.tuğla, 0, 0)                   ^
+masaustu/src/main/resources/samples/tr/collidium.kojo	geçti	
 masaustu/src/main/resources/samples/tr/crazy-square.kojo	geçti	
 masaustu/src/main/resources/samples/tr/dragon-curve.kojo	geçti	
 masaustu/src/main/resources/samples/tr/estimating-pi-mc.kojo	geçti	
