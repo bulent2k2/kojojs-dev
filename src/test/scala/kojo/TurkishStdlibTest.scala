@@ -184,12 +184,14 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     a.içindeMi(5) should be(yanlış)
     a.indirge(_ + _) should be(10)
     a.işle(_ * 2).toList should be(List(2, 4, 6, 8))
-    a.toString should be("Aralık(1, 2, 3, 4)")
+    // Aralık artık `type Aralık = Range`: toString EZİLEMİYOR (Range'inki
+    // "Range 1 until 5"). Öğrenci dostu gösterim yazı()/yazıya olarak duruyor.
+    a.yazıya should be("Aralık(1, 2, 3, 4)")
 
     Aralık.kapalı(1, 5).dizine should be(List(1, 2, 3, 4, 5))
     Aralık(0, 10, 2).dizine should be(List(0, 2, 4, 6, 8))
     // uzun aralık kısaltılarak yazılıyor
-    Aralık(1, 101).toString should include("...")
+    Aralık(1, 101).yazıya should include("...")
 
     (1 to 5).boyu should be(5)
     (1 to 10).adım(3).toList should be(List(1, 4, 7, 10))
@@ -352,12 +354,213 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     MiskinDizin.sayalım(1).alDoğruKaldıkça(_ < 4).dizine should be(List(1, 2, 3))
   }
 
+  test("ortak çekirdek: Dizi, Dizin, Yöney, Dizik, Küme, Eşlek, Kuyruk, Yazı, Belki") {
+    val d = Seq(3, 1, 2)
+    d.başıBelki should be(Some(3)); d.bul(_ > 1) should be(Some(3)); d.bulSondan(_ > 1) should be(Some(2))
+    d.nerede(_ == 1) should be(1); d.neredeSondan(_ > 1) should be(2)
+    d.dilimSırası(Seq(1, 2)) should be(1); d.sıralar.toList should be(List(0, 1, 2))
+    d.başındaMı(Seq(3, 1)) should be(doğru); d.sonundaMı(Seq(2)) should be(doğru)
+    d.karşılıklıMı(Seq(6, 2, 4))(_ * 2 == _) should be(doğru)
+    d.böl(_ > 1) should be((Seq(3, 2), Seq(1)))
+    d.bölDoğruKaldıkça(_ > 2) should be((Seq(3), Seq(1, 2)))
+    d.bölYerinden(1) should be((Seq(3), Seq(1, 2)))
+    d.öbekli(2).toList should be(List(Seq(3, 1), Seq(2)))
+    d.kayarÖbekli(2).toList should be(List(Seq(3, 1), Seq(1, 2)))
+    d.öbekleİşleİndirge(_ % 2)(x => x)(_ + _) should be(Map(1 -> 4, 0 -> 2))
+    d.kombinasyonlar(2).toList.boyu should be(3); d.permütasyonlar.size should be(6)
+    d.kuyruklar.toList.boyu should be(4); d.önler.toList.boyu should be(4)
+    d.katla(0)(_ + _) should be(6); d.indirgeBelki(_ + _) should be(Some(6))
+    d.tara(0)(_ + _) should be(Seq(0, 3, 4, 6)); d.taraSağdan(0)(_ + _) should be(Seq(6, 3, 2, 0))
+    d.enUfağıBelki should be(Some(1)); d.enİrisiBelki should be(Some(3))
+    d.sonunaEkle(9) should be(Seq(3, 1, 2, 9)); d.önüneEkle(9) should be(Seq(9, 3, 1, 2))
+    d.uzat(5, 0) should be(Seq(3, 1, 2, 0, 0)); d.yama(1, Seq(8), 1) should be(Seq(3, 8, 2))
+    d.fark(Seq(1)) should be(Seq(3, 2)); d.kesişim(Seq(2, 3)) should be(Seq(3, 2))
+    d.bileşim(Seq(4)) should be(Seq(3, 1, 2, 4))
+    d.seçİşle { case x if x > 1 => x * 10 } should be(Seq(30, 20))
+    d.seçİşleİlk { case x if x < 3 => x } should be(Some(1))
+    Seq(Seq(1, 2), Seq(3)).düzleştir should be(Seq(1, 2, 3))
+    Seq((1, "a"), (2, "b")).ikiliyiAç should be((Seq(1, 2), Seq("a", "b")))
+    d.ikileHepsini(Seq("x"), -1, "-") should be(Seq((3, "x"), (1, "-"), (2, "-")))
+    d.tersİşle(_ * 2) should be(Seq(4, 2, 6))
+
+    List(3, 1, 2).böl(_ > 1) should be((List(3, 2), List(1)))
+    Vector(3, 1, 2).tara(0)(_ + _) should be(Vector(0, 3, 4, 6))
+    Vector(3, 1, 2).enİrisiBelki should be(Some(3))
+    val dk = Dizik(3, 1, 2)
+    dk.bul(_ > 1) should be(Some(3)); dk.böl(_ > 1)._1 should be(Dizik(3, 2))
+    dk.taraSoldan(0)(_ + _) should be(Dizik(0, 3, 4, 6)); dk.sonunaEkle(9) should be(Dizik(3, 1, 2, 9))
+
+    val k = Küme(3, 1, 2)
+    k.bul(_ > 2) should be(Some(3)); k.katla(0)(_ + _) should be(6)
+    k.enUfağıBelki should be(Some(1)); k.fark(Küme(1)) should be(Küme(3, 2))
+    k.seçİşle { case x if x > 1 => x * 10 } should be(Küme(30, 20))
+
+    val e = Eşlek("a" -> 1, "b" -> 2)
+    e.başıBelki should be(Some(("a", 1))); e.bul(_._2 > 1) should be(Some(("b", 2)))
+    e.böl(_._2 > 1)._1 should be(Eşlek("b" -> 2))
+    e.öbekleİşleİndirge(_._2 % 2)(_._2)(_ + _) should be(Map(1 -> 1, 0 -> 2))
+    e.seçİşle { case (a, v) if v > 1 => a }.toSet should be(Set("b"))
+
+    val ku = Kuyruk(3, 1, 2)
+    ku.bul(_ > 1) should be(Some(3)); ku.böl(_ > 1)._1 should be(Kuyruk(3, 2))
+    ku.tara(0)(_ + _) should be(Kuyruk(0, 3, 4, 6)); ku.boyu should be(3)
+
+    val y = "merhaba"
+    y.başıBelki should be(Some('m')); y.nerede(_ == 'h') should be(3)
+    y.bölYerinden(3) should be(("mer", "haba"))
+    y.öbekli(3).toList should be(List("mer", "hab", "a"))
+    "abc".kombinasyonlar(2).toList should be(List("ab", "ac", "bc"))
+    "ab".uzat(4, '-') should be("ab--"); "mer".sonunaEkleHepsini("haba") should be("merhaba")
+
+    val b: Belki[Sayı] = Some(5)
+    b.seçİşle { case x if x > 1 => x * 10 } should be(Some(50))
+    b.içeriyorMu(5) should be(doğru); b.varMı(_ > 1) should be(doğru)
+    b.katla(0)(_ * 2) should be(10); (None: Belki[Sayı]).katla(-1)(_ * 2) should be(-1)
+    Some(Some(7)).düzleştir should be(Some(7)); b.ikile(Some("a")) should be(Some((5, "a")))
+    Some((1, "a")).ikiliyiAç should be((Some(1), Some("a")))
+  }
+
+  test("türe özgü adlar ve yerinde değiştirenler") {
+    "merhaba\ndünya".satırlar.toList should be(List("merhaba", "dünya"))
+    "merhaba".başındanAt("mer") should be("haba"); "merhaba".sonundanAt("aba") should be("merh")
+    "42".uzuna should be(42L); "abc".uzunaBelki should be(None)
+    "merhaba".ikiyeAyır(_ == 'a') should be(("aa", "merhb"))
+    "abc".seçİşle { case h if h != 'b' => h.büyükHarfe } should be(Seq('A', 'C'))
+
+    val k = Küme(1, 2)
+    k.ekli(3) should be(Küme(1, 2, 3)); k.çıkarılmış(1) should be(Küme(2))
+    Küme(1).altKümesiMi(k) should be(doğru)
+
+    val b: Belki[Sayı] = Some(5)
+    b.boşsaÖbürü(Some(9)) should be(Some(5))   // `yoksa` anahtar kelime olduğu için bu ad
+    (None: Belki[Sayı]).boşsaÖbürü(Some(9)) should be(Some(9))
+    b.sola("sağdaki") should be(Left(5)); b.sağa("soldaki") should be(Right(5))
+    Belki.iseVer(doğru)(3) should be(Some(3)); Belki.değilseVer(doğru)(3) should be(None)
+
+    val ku = Kuyruk(1, 2)
+    ku.kuyruğaEkle(3) should be(Kuyruk(1, 2, 3))
+    ku.ilki should be(1); ku.baştanÇıkar() should be(1); ku should be(Kuyruk(2, 3))
+    ku.baştanÇıkarBelki should be(Some(2)); ku.sondanÇıkar() should be(3)
+    ku.kuyruğaEkleHepsini(Seq(7, 8)); ku should be(Kuyruk(7, 8))
+    ku.eleYerinde(_ > 7); ku should be(Kuyruk(8))
+    ku.boşalt(); ku.boşMu should be(doğru)
+
+    val m = Eşlem("a" -> 1)
+    m.koy("b", 2) should be(None); m.boyu should be(2)
+    m.güncelle("a", 10); m.al("a") should be(Some(10))
+    m.alYoksaEkle("c", 3) should be(3); m.alYoksaEkle("c", 9) should be(3)
+    m.çıkar("c") should be(Some(3))
+    m.değerleriİşleYerinde((_, d) => d * 2); m.al("a") should be(Some(20))
+    m.eleYerinde(_._1 == "a"); m.boyu should be(1)
+    var toplam = 0; m.herİkiliİçin((_, d) => toplam += d); toplam should be(20)
+    m.anahtarYineleyici.toList should be(List("a"))
+    m.boşalt(); m.boşMu should be(doğru)
+
+    val ek = Eşlek("a" -> 1, "b" -> 2)
+    ek.çıkarılmış("a") should be(Eşlek("b" -> 2)); ek.boyu should be(2)
+    ek.değiştirİşlevle("a")(_ => Some(9)) should be(Eşlek("a" -> 9, "b" -> 2))
+    ek.değerleriİşle(_ * 10) should be(Eşlek("a" -> 10, "b" -> 20))
+    ek.dönüştür((_, d) => d + 1) should be(Eşlek("a" -> 2, "b" -> 3))
+
+    val ö = ÖncelikSırası(3, 1, 2)
+    ö.başıBelki should be(Some(3)); ö.bul(_ < 2) should be(Some(1))
+    ö.böl(_ > 1)._1.sıralı should be(Seq(2, 3))
+    ö.katla(0)(_ + _) should be(6); ö.taraSoldan(0)(_ + _) should be(Seq(0, 3, 4, 6))
+    ö.seçİşle { case x if x > 1 => x * 10 }.sıralı should be(Seq(20, 30))
+    ö.kuyruğa.boyu should be(3)
+    ö.işleYerinde(_ * 10); ö.başı should be(30)
+  }
+
+  test("Aralık tür takma adı ve EsnekYazı tamponu") {
+    val a: Aralık = Aralık(1, 10, 3)
+    a.ilki should be(1); a.sonuncu should be(10); a.adım should be(3); a.uzunluğu should be(3)
+    a.başı should be(1); a.sonu should be(7); a.dizine should be(List(1, 4, 7))
+    a.yazı() should be("Aralık(1, 4, 7)")   // özel gösterim yöntem olarak korundu
+    a.içindeMi(4) should be(doğru)
+    // Range olduğu için ortak çekirdek doğrudan çalışıyor
+    a.bul(_ > 3) should be(Some(4))
+    a.böl(_ > 3)._1 should be(Seq(4, 7))
+    a.enİrisiBelki should be(Some(7))
+    (1 |-| 10) should be(Aralık.kapalı(1, 10))
+
+    val ey = new EsnekYazı("merhaba")
+    ey.bul(_ == 'h') should be(Some('h'))   // dizi tarafı zaten çalışıyor
+    ey.harf(0) should be('m'); ey.parçası(0, 3) should be("mer")
+    ey.araEkle(0, "Ey "); ey.yazıya should be("Ey merhaba")
+    ey.aralığıSil(0, 3); ey.yazıya should be("merhaba")
+    ey.harfiSil(0); ey.yazıya should be("erhaba")
+    ey.harfiKur(0, 'M'); ey.yazıya should be("Mrhaba")
+    ey.değiştirAralığını(0, 1, "me"); ey.yazıya should be("merhaba")
+    ey.ekleHepsini(Seq('!', '!')); ey.yazıya should be("merhaba!!")
+    ey.boyuKur(7); ey.tersiYerinde.yazıya should be("abahrem")
+    new EsnekYazı("42").uzuna should be(42L)
+    ey.sil(); ey.boşMu should be(doğru)
+  }
+
+  test("miskin dizin: masaüstüyle eşitlenen yöntemler") {
+    val m = MiskinDizin(3, 1, 2)
+    m.önü.dizine should be(List(3, 1)); m.sonu should be(2)
+    m.başıBelki should be(Some(3)); MiskinDizin.boş[Sayı].sonuBelki should be(None)
+    m.bul(_ > 1) should be(Some(3)); m.bulSondan(_ > 1) should be(Some(2))
+    m.nerede(_ == 1) should be(1); m.neredeSondan(_ > 1) should be(2)
+    m.başındaMı(Seq(3, 1)) should be(doğru); m.sonundaMı(Seq(2)) should be(doğru)
+    m.karşılıklıMı(Seq(6, 2, 4))(_ * 2 == _) should be(doğru)
+    m.sıralar.toList should be(List(0, 1, 2))
+    m.sıralı.dizine should be(List(1, 2, 3)); m.tersi.dizine should be(List(2, 1, 3))
+    m.böl(_ > 1)._1.dizine should be(List(3, 2))
+    m.bölDoğruKaldıkça(_ > 2)._1.dizine should be(List(3)); m.bölYerinden(1)._2.dizine should be(List(1, 2))
+    m.öbekli(2).toList.map(_.dizine) should be(List(List(3, 1), List(2)))
+    m.kayarÖbekli(2).toList.map(_.dizine) should be(List(List(3, 1), List(1, 2)))
+    m.öbekle(_ % 2) should be(Map(1 -> LazyList(3, 1), 0 -> LazyList(2)))
+    m.öbekleİşleİndirge(_ % 2)(x => x)(_ + _) should be(Map(1 -> 4, 0 -> 2))
+    m.katla(0)(_ + _) should be(6); m.soldanKatla("")(_ + _) should be("312")
+    m.indirgeSoldan(_ - _) should be(0); m.indirgeBelki(_ + _) should be(Some(6))
+    m.tara(0)(_ + _).dizine should be(List(0, 3, 4, 6)); m.taraSağdan(0)(_ + _).dizine should be(List(6, 3, 2, 0))
+    m.enUfağı should be(1); m.enİrisiBelki should be(Some(3)); m.enUfağıBelki(x => -x) should be(Some(3))
+    m.çarp should be(6); m.yinelemesiz.dizine should be(List(3, 1, 2)); m.değiştir(0, 9).dizine should be(List(9, 1, 2))
+    m.içeriyorMu(2) should be(doğru); m.sırası(2) should be(2); m.dilim(1, 3).dizine should be(List(1, 2))
+    m.ikileSırayla.dizine should be(List((3, 0), (1, 1), (2, 2))); m.kümeye should be(Set(1, 2, 3))
+    // tembellik: hesaplanmayan parça patlamaz
+    var sayaç = 0
+    val e = m.önüneEkle { sayaç += 1; 0 }
+    sayaç should be(0) // öge ancak ilk erişimde hesaplanır
+    e.başı should be(0); sayaç should be(1)
+    MiskinDizin.sayalım(1).sonunaEkleHepsini(throw new Exception("hesaplanmamalı")).al(3).dizine should be(List(1, 2, 3))
+    m.sonunaEkle(9).dizine should be(List(3, 1, 2, 9)); m.önüneEkleHepsini(Seq(7)).dizine should be(List(7, 3, 1, 2))
+    m.hepsiniHesapla.dizine should be(List(3, 1, 2))
+    m.uzat(5, 0).dizine should be(List(3, 1, 2, 0, 0)); m.yama(1, Seq(8, 9), 1).dizine should be(List(3, 8, 9, 2))
+    m.fark(Seq(1)).dizine should be(List(3, 2)); m.kesişim(Seq(2, 3)).dizine should be(List(3, 2)); m.bileşim(Seq(4)).boyu should be(4)
+    m.seçİşle { case x if x > 1 => x * 10 }.dizine should be(List(30, 20)); m.seçİşleİlk { case x if x < 3 => x } should be(Some(1))
+    MiskinDizin(Seq(1, 2), Seq(3)).düzleştir.dizine should be(List(1, 2, 3))
+    MiskinDizin(Seq(1, 2), Seq(3, 4)).devrik.işle(_.dizine).dizine should be(List(List(1, 3), List(2, 4)))
+    val (sayılar, harfler) = MiskinDizin((1, "a"), (2, "b")).ikiliyiAç
+    sayılar.dizine should be(List(1, 2)); harfler.dizine should be(List("a", "b"))
+    m.ikileHepsini(Seq("x"), -1, "-").dizine should be(List((3, "x"), (1, "-"), (2, "-")))
+    m.tersİşle(_ * 2).dizine should be(List(4, 2, 6))
+    m.kombinasyonlar(2).size should be(3); m.permütasyonlar.size should be(6); m.kuyruklar.size should be(4)
+    MiskinDizin.sıraylaDoldur(3)(_ * 2).dizine should be(List(0, 2, 4))
+    MiskinDizin.aralık(1, 4).dizine should be(List(1, 2, 3)); MiskinDizin.aralık(1, 10, 4).dizine should be(List(1, 5, 9))
+    MiskinDizin.türet(1)(n => if (n > 8) None else Some((n, n * 2))).dizine should be(List(1, 2, 4, 8))
+    MiskinDizin.diziden(List(1, 2)).dizine should be(List(1, 2)); MiskinDizin.ekle(Seq(1), List(2)).dizine should be(List(1, 2))
+  }
+
   test("yığın / kuyruk / öncelik sırası") {
     val y = Yığın.boş[Sayı]
     y.it(1); y.it(2)
-    y.tepesi should be(2)
+    y.tepesi should be(2); y.tepe should be(2)   // tepe: masaüstündeki ad
     y.çek() should be(2)
     y.boyu should be(1)
+    y.koyHepsini(Seq(7, 8)); y.tepe should be(8); y.tane should be(3)
+    y.dizi.başı should be(8)
+    // Yığın bir Diz olduğu için ortak çekirdek de geliyor
+    y.bul(_ > 7) should be(Some(8))
+    y.böl(_ > 6)._1 should be(Seq(8, 7))
+    y.enİrisiBelki should be(Some(8))
+    Yığın.doldur(y).dizine should be(y.dizine)   // aynı sırada kopya
+    // Yığın(1, 2, 3) = "1'i it, 2'yi it, 3'ü it" -> tepede 3 (masaüstüyle aynı).
+    // Scala'nın kendi Stack(1, 2, 3)'ü tepeye 1'i koyardı.
+    Yığın(1, 2, 3).tepe should be(3)
+    Yığın(1, 2, 3).dizine should be(List(3, 2, 1))
 
     val k = Kuyruk.boş[Sayı]
     k.ekle(1); k.ekle(2)
@@ -538,6 +741,150 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     d.dizime.diziye shouldBe Seq(3, 1, 2) // Dizik -> Dizim köprüsü
     d.değiştirYerinde(0, 9)
     d(0) shouldBe 9
+  }
+
+  test("ÖncelikSırası: masaüstünden gelen çekirdek yöntemler") {
+    val ö = ÖncelikSırası(3, 1, 4, 1, 5)
+    // öncelik sırası en İRİyi başta tutar
+    ö.başı shouldBe 5
+    ö.boyu shouldBe 5
+    ö.varMı(_ == 4) shouldBe true
+    ö.hepsiDoğruMu(_ > 0) shouldBe true
+    ö.say(_ > 2) shouldBe 3
+    ö.topla shouldBe 14
+    ö.çarp shouldBe 60
+    ö.enİrisi shouldBe 5
+    ö.enUfağı shouldBe 1
+    ö.indirge(_ + _) shouldBe 14
+    ö.soldanKatla(0)(_ + _) shouldBe 14
+    ö.sağdanKatla(0)(_ + _) shouldBe 14
+    ö.ele(_ > 2).boyu shouldBe 3
+    ö.eleDeğilse(_ > 2).boyu shouldBe 2
+    ö.işle(_ * 2).toSeq.sorted shouldBe Seq(2, 2, 6, 8, 10)
+    ö.dizine.sorted shouldBe List(1, 1, 3, 4, 5)
+    ö.diziye.sorted shouldBe Seq(1, 1, 3, 4, 5)
+    ö.kümeye shouldBe Set(1, 3, 4, 5)
+    ö.yöneye.sorted shouldBe Vector(1, 1, 3, 4, 5)
+    ö.dizime.diziye.sorted shouldBe Seq(1, 1, 3, 4, 5)
+    ö.öbekle(_ % 2).keySet shouldBe Set(0, 1)
+    ö.ikileSırayla.size shouldBe 5
+    // baştanAl en İRİyi alır; ikizle özgünü korur
+    val k = ö.ikizle()
+    k.baştanAl() shouldBe 5
+    k.baştanAl() shouldBe 4
+    ö.boyu shouldBe 5 // özgün bozulmadı
+    ö.ikizle().baştanAlHepsini shouldBe Seq(5, 4, 3, 1, 1)
+    // ekle(ögeler*) çoklu ekleme
+    val ö2 = ÖncelikSırası.boş[Sayı]
+    ö2.ekle(2, 7, 4)
+    ö2.başı shouldBe 7
+    // ikili öge -> eşleğe/eşleme köprüsü
+    val ö3 = ÖncelikSırası((1, "bir"), (2, "iki"))
+    ö3.eşleğe shouldBe Map(1 -> "bir", 2 -> "iki")
+    ö3.eşleme.al(2) shouldBe Some("iki")
+  }
+
+  test("Eşlem: masaüstünden gelen çekirdek yöntemler") {
+    val e = Eşlem("a" -> 1, "b" -> 2, "c" -> 3)
+    e.kaldır("a") shouldBe Some(1)
+    e.kaldır("yok") shouldBe None
+    e.sayı shouldBe 3
+    e.hepsiİçinDoğruMu(_._2 > 0) shouldBe true
+    e.alSırayla(2).size shouldBe 2
+    e.düşür(2).size shouldBe 1
+    e.alSağdan(1).size shouldBe 1
+    e.düşürSağdan(1).size shouldBe 2
+    e.kümeye.size shouldBe 3
+    e.yöneye.size shouldBe 3
+    e.dizime.boyu shouldBe 3
+    e.ikileSırayla.size shouldBe 3
+    e.ikile(Dizin(9, 8, 7)).size shouldBe 3
+    e.işle((ikili: (Yazı, Sayı)) => ikili._2).toSeq.sorted shouldBe Seq(1, 2, 3)
+    e.düzİşle(ikili => collection.mutable.Iterable(ikili._2)).toSeq.sorted shouldBe Seq(1, 2, 3)
+    e.indirgeSoldan[(Yazı, Sayı)]((x, y) => (x._1 + y._1, x._2 + y._2))._2 shouldBe 6
+    e.indirgeSoldanBelki[(Yazı, Sayı)]((x, y) => (x._1, x._2 + y._2)).get._2 shouldBe 6
+    e.indirgeSağdanBelki[(Yazı, Sayı)]((x, y) => (y._1, x._2 + y._2)).get._2 shouldBe 6
+    e.katla(("", 0))((x, y) => (x._1, x._2 + y._2))._2 shouldBe 6
+    e.enİrisi(_._2)._2 shouldBe 3
+    e.enUfağı(_._2)._2 shouldBe 1
+    e.yazıYap("{", ", ", "}").startsWith("{") shouldBe true
+    // değiştir: KOPYA döndürür, özgünü bozmaz (değiştirilmiş ile aynı)
+    e.değiştir("a", 9)("a") shouldBe 9
+    e("a") shouldBe 1
+    // uçlar
+    e.kuyruğu.size shouldBe 2
+    e.önü.size shouldBe 2
+    e.sonu should not be null
+  }
+
+  test("Yığın: toplu çekme, yerinde değiştirme, konumla erişim") {
+    // Yığın'da 0. sıra TEPEdir
+    val y = Yığın(1, 2, 3) // it 1, it 2, it 3 -> tepede 3
+    y(0) shouldBe 3
+    Yığın(1, 2, 3).çekHepsini shouldBe Seq(3, 2, 1)       // tepeden dibe
+    Yığın(1, 2, 3).alHepsini shouldBe Seq(3, 2, 1)        // çekHepsini ile aynı
+    Yığın(1, 2, 3).alHepsiniTersten shouldBe Seq(1, 2, 3) // dipten tepeye
+    Yığın(1, 2, 3).çekDoğruKaldıkça(_ > 1) shouldBe Seq(3, 2)
+    Yığın(1, 2, 3).çekBelki shouldBe Some(3)
+    Yığın.boş[Sayı].çekBelki shouldBe None
+    // "son" = DİP
+    val d = Yığın(1, 2, 3)
+    d.çıkarSondan() shouldBe 1
+    d.dizi shouldBe Seq(3, 2)
+    Yığın(1, 2, 3).sondanÇıkarBelki shouldBe Some(1) // takma ad, aynı iş
+
+    // yerinde değiştirenler
+    Yığın(1, 2, 3, 4).eleYerinde(_ % 2 == 0).dizi shouldBe Seq(4, 2)
+    Yığın(1, 2, 3).işleYerinde(_ * 10).dizi shouldBe Seq(30, 20, 10)
+    Yığın(3, 1, 2).sıralıYerinde.dizi shouldBe Seq(1, 2, 3)
+    Yığın(3, 1, 2).sıralaYerinde(-_).dizi shouldBe Seq(3, 2, 1)
+    Yığın(3, 1, 2).sırayaSokYerinde(_ > _).dizi shouldBe Seq(3, 2, 1)
+    Yığın(1, 2, 3, 4).alYerinde(2).dizi shouldBe Seq(4, 3)
+    Yığın(1, 2, 3, 4).düşürYerinde(2).dizi shouldBe Seq(2, 1)
+    Yığın(1, 2, 3, 4).alSağdanYerinde(2).dizi shouldBe Seq(2, 1)
+    Yığın(1, 2, 3, 4).düşürSağdanYerinde(2).dizi shouldBe Seq(4, 3)
+    Yığın(1, 2).uzatYerinde(4, 0).dizi shouldBe Seq(2, 1, 0, 0)
+    Yığın(1, 2, 3, 4).dilimYerinde(1, 3).dizi shouldBe Seq(3, 2)
+
+    // konumla erişim (0 = tepe)
+    val k = Yığın(1, 2, 3)
+    k.güncelle(0, 9); k.tepe shouldBe 9
+    k.ekleAraya(1, 7); k.dizi shouldBe Seq(9, 7, 2, 1)
+    k.ekleArayaHepsini(0, Dizi(8, 8)); k.dizi shouldBe Seq(8, 8, 9, 7, 2, 1)
+    k.çıkar(0) shouldBe 8
+    Yığın(1, 2, 3).çıkarİlkUyanı(_ < 3) shouldBe Some(2)
+    Yığın(1, 2, 3).dizime.diziye shouldBe Seq(3, 2, 1)
+  }
+
+  test("Kuyruk: ArrayDeque'in yerinde değiştirenleri") {
+    Kuyruk(1, 2, 3, 4).alYerinde(2).dizine shouldBe List(1, 2)
+    Kuyruk(1, 2, 3, 4).düşürYerinde(2).dizine shouldBe List(3, 4)
+    Kuyruk(1, 2, 3, 4).alSağdanYerinde(2).dizine shouldBe List(3, 4)
+    Kuyruk(1, 2, 3, 4).düşürSağdanYerinde(2).dizine shouldBe List(1, 2)
+    Kuyruk(1, 2, 3, 4).alDoğruKaldıkçaYerinde(_ < 3).dizine shouldBe List(1, 2)
+    Kuyruk(1, 2, 3, 4).düşürDoğruKaldıkçaYerinde(_ < 3).dizine shouldBe List(3, 4)
+    Kuyruk(1, 2, 3, 4).dilimYerinde(1, 3).dizine shouldBe List(2, 3)
+    Kuyruk(1, 2).uzatYerinde(4, 0).dizine shouldBe List(1, 2, 0, 0)
+    Kuyruk(1, 2, 3).yamaYerinde(1, Dizi(8, 9), 1).dizine shouldBe List(1, 8, 9, 3)
+    Kuyruk(1, 2).düzİşleYerinde(x => Dizi(x, x)).dizine shouldBe List(1, 1, 2, 2)
+    Kuyruk(3, 1, 2).sırayaSokYerinde(_ > _).dizine shouldBe List(3, 2, 1)
+
+    val k = Kuyruk(1, 2, 3)
+    k.güncelle(0, 9); k.başı shouldBe 9
+    k.ekleAraya(1, 7); k.dizine shouldBe List(9, 7, 2, 3)
+    k.ekleArayaHepsini(0, Dizi(0, 0)); k.dizine shouldBe List(0, 0, 9, 7, 2, 3)
+    k.ekleHepsini(Dizi(5)); k.sonu shouldBe 5
+
+    Kuyruk(1, 2, 3).alHepsini shouldBe Seq(1, 2, 3)
+    Kuyruk(1, 2, 3).alHepsiniTersten shouldBe Seq(3, 2, 1)
+    Kuyruk(1, 2, 3).çıkarİlkUyanı(_ > 1) shouldBe Some(2)
+    Kuyruk(1, 2, 3).çıkarSondan() shouldBe 3
+    Kuyruk(1, 2, 3).çıkarSondanBelki shouldBe Some(3)
+    // çıkarma sırasında verir: önce son öge, sonra ondan önceki
+    Kuyruk(1, 2, 3).çıkarSondanDoğruKaldıkça(_ > 1) shouldBe Seq(3, 2)
+    // dequeueWhile baştan durur, dequeueAll her yerden toplar
+    Kuyruk(2, 1, 2).baştanÇıkarHepsiniKoşulla(_ == 2) shouldBe Seq(2)
+    Kuyruk(2, 1, 2).baştanAlHepsini(_ == 2) shouldBe Seq(2, 2)
   }
 
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
