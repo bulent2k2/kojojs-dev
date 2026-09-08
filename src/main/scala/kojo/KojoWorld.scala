@@ -118,6 +118,19 @@ object BakePolicy {
   def isStaleCandidate(name: String, interactive: Boolean, lastMut: Long, frame: Long): Boolean =
     isStaleByName(name, lastMut, frame) && !interactive
 
+  // "arkaya at"ın hedef sırası: baştaki süs katmanlarının (eksen/ızgara) hemen
+  // üstü. Süs, tuvalin süsü -- kullanıcının çizimi değil -- ve süsKatmanı onu
+  // hep 0'a takıyor; en altta kalsın.
+  //
+  // Pişirme katmanına ayrıcalık YOK: bakeSprite'ın dokusu, pişirilen resimlerin
+  // durduğu yer dışında saydam; düğümü onun altına koymak yalnız o pişmiş
+  // RESİMLERİN arkasına koyar -- "arkaya at" zaten budur.
+  def dipSırası(adlar: collection.Seq[String]): Int = {
+    var i = 0
+    while (i < adlar.length && adlar(i) == decorLayerName) i += 1
+    i
+  }
+
   // Çırpınma sigortası: "en eski izi her kare sil" gibi kalıplar her kare
   // geri almaya yol açar (pişir->sil->geri al->pişir); bu tabandan yavaş.
   // Kısa pencerede art arda bu kadar geri alma olursa pişirmeyi kapat, taban
@@ -528,6 +541,11 @@ class KojoWorldImpl extends KojoWorld {
     obj.parent
   }
 
+  // Sahnedeki ilk süs-olmayan çocuğun sırası. Karar BakePolicy'de (saf, Node'da
+  // test edilebilir); burada yalnız sahnenin adları toplanıyor.
+  private def süsSonrasıDip: Int =
+    BakePolicy.dipSırası((0 until stage.children.length).map(i => stage.getChildAt(i).name))
+
   def moveToFront(obj: PIXI.DisplayObject): Unit = {
     val ebeveyn = ebeveyniniAl(obj)
     if (ebeveyn != null) {
@@ -541,13 +559,11 @@ class KojoWorldImpl extends KojoWorld {
     val ebeveyn = ebeveyniniAl(obj)
     if (ebeveyn != null) {
       ebeveyn.removeChild(obj)
-      // Pişirme katmanı sahnenin 0. çocuğu (izlerin dokusu). Düğümü onun ALTINA
-      // koyarsak görünmez olur; o yüzden sahnede dip sıra 1'den başlıyor.
-      val dip =
-        if ((ebeveyn eq stage) && bakeSprite != null && stage.children.length > 0
-            && (stage.getChildAt(0) eq bakeSprite)) 1
-        else 0
-      ebeveyn.addChildAt(obj, dip)
+      // Dip sıra: süs katmanlarının hemen üstü; gerekçe BakePolicy.dipSırası'nda.
+      // (Bir ara burada dip koşulsuz 1'den başlıyordu; o zaman eksenler kapalıyken
+      // arkayaAt düğümü pişirme katmanının ÜSTÜNE -- yani pişmiş resimlerin
+      // ÖNÜNE -- taşıyordu, tam tersi.)
+      ebeveyn.addChildAt(obj, if (ebeveyn eq stage) süsSonrasıDip else 0)
       render()
     }
   }
