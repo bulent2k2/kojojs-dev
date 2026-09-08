@@ -8,6 +8,12 @@
 - Koco Sözlüğü: <https://claude.ai/code/artifact/c0d067a5-4df9-4761-b7ba-19ac95304372>
 - Kojo Sözlükleri (dizin): <https://claude.ai/code/artifact/10a6030f-b400-43b0-928c-14d6b925058d>
 
+DİKKAT: artifact'i yeniden yayımlamak paylaşılan bağlantıyı KENDİLİĞİNDEN
+güncellemiyor. Bağlantıyı açanlar, paylaşım iğnesi (share pin) yeni sürüme
+taşınana dek eski sürümü görmeye devam ediyor; iğne artifact sayfasının
+paylaşım menüsünden taşınıyor. Repodaki dosya ve /yardim/sozluk bundan
+etkilenmiyor, onlar hemen güncel oluyor.
+
 Bu iki HTML, o artifact'lerin repoya alınmış kopyalarıdır (frame-runtime çıkarılıp
 tek başına açılabilir hâle getirildi).
 
