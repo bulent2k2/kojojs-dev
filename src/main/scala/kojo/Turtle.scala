@@ -274,7 +274,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   }
 
   def setFillPaint(boya: Boya): Unit = {
-    commandQ.enqueue(SetFillPaint(boya))
+    sıraya(SetFillPaint(boya))
   }
 
   def setFillColor(color: Color): Unit = {
