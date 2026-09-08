@@ -887,6 +887,21 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     Kuyruk(2, 1, 2).baştanAlHepsini(_ == 2) shouldBe Seq(2, 2)
   }
 
+  test("Aralık gösterimi: yazıya ve çıktı paneli aynı gövdeyi kullanıyor") {
+    // Aralık bir tür takma adı olduğu için toString ezilemiyor; öğrenci dostu
+    // biçim Aralık.gösterim'de ve yazıya da onu çağırıyor. paneleYaz (tarayıcı
+    // yolu) aynı gövdeyi kullanıyor -- burada gövdeyi doğrudan sınıyoruz.
+    Aralık.gösterim(Aralık(1, 6)) should be("Aralık(1, 2, 3, 4, 5)")
+    Aralık.gösterim(Aralık(1, 200, 7)) should be(
+      "Aralık(1, 8, 15, 22, 29 ... 169, 176, 183, 190, 197)")
+    Aralık.gösterim(Aralık(1, 1)) should be("Aralık()")
+    // tam 10 öge kısaltma eşiğinde: hepsi yazılıyor
+    Aralık.gösterim(Aralık(10, 0, -1)) should be("Aralık(10, 9, 8, 7, 6, 5, 4, 3, 2, 1)")
+    // yazıya ile BİREBİR aynı (tek gerçekleme)
+    Aralık(1, 200, 7).yazıya should be(Aralık.gösterim(Aralık(1, 200, 7)))
+    (1 to 5).yazıya should be(Aralık.gösterim(1 to 5))
+  }
+
   test("dizime/eşleme: masaüstündeki iki sistematik ad her türde çalışıyor") {
     // Bu ikisi masaüstünde her sarmalayıcıda ayrı ayrı yazılı; burada Diz/Dizi'ye
     // konup alt türlere kalıtımla geliyor. Test tam da o kalıtımın çalıştığını
