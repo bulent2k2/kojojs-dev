@@ -403,6 +403,57 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     Some((1, "a")).ikiliyiAç should be((Some(1), Some("a")))
   }
 
+  test("türe özgü adlar ve yerinde değiştirenler") {
+    "merhaba\ndünya".satırlar.toList should be(List("merhaba", "dünya"))
+    "merhaba".başındanAt("mer") should be("haba"); "merhaba".sonundanAt("aba") should be("merh")
+    "42".uzuna should be(42L); "abc".uzunaBelki should be(None)
+    "merhaba".ikiyeAyır(_ == 'a') should be(("aa", "merhb"))
+    "abc".seçİşle { case h if h != 'b' => h.büyükHarfe } should be(Seq('A', 'C'))
+
+    val k = Küme(1, 2)
+    k.ekli(3) should be(Küme(1, 2, 3)); k.çıkarılmış(1) should be(Küme(2))
+    Küme(1).altKümesiMi(k) should be(doğru)
+
+    val b: Belki[Sayı] = Some(5)
+    b.boşsaÖbürü(Some(9)) should be(Some(5))   // `yoksa` anahtar kelime olduğu için bu ad
+    (None: Belki[Sayı]).boşsaÖbürü(Some(9)) should be(Some(9))
+    b.sola("sağdaki") should be(Left(5)); b.sağa("soldaki") should be(Right(5))
+    Belki.iseVer(doğru)(3) should be(Some(3)); Belki.değilseVer(doğru)(3) should be(None)
+
+    val ku = Kuyruk(1, 2)
+    ku.kuyruğaEkle(3) should be(Kuyruk(1, 2, 3))
+    ku.ilki should be(1); ku.baştanÇıkar() should be(1); ku should be(Kuyruk(2, 3))
+    ku.baştanÇıkarBelki should be(Some(2)); ku.sondanÇıkar() should be(3)
+    ku.kuyruğaEkleHepsini(Seq(7, 8)); ku should be(Kuyruk(7, 8))
+    ku.eleYerinde(_ > 7); ku should be(Kuyruk(8))
+    ku.boşalt(); ku.boşMu should be(doğru)
+
+    val m = Eşlem("a" -> 1)
+    m.koy("b", 2) should be(None); m.boyu should be(2)
+    m.güncelle("a", 10); m.al("a") should be(Some(10))
+    m.alYoksaEkle("c", 3) should be(3); m.alYoksaEkle("c", 9) should be(3)
+    m.çıkar("c") should be(Some(3))
+    m.değerleriİşleYerinde((_, d) => d * 2); m.al("a") should be(Some(20))
+    m.eleYerinde(_._1 == "a"); m.boyu should be(1)
+    var toplam = 0; m.herİkiliİçin((_, d) => toplam += d); toplam should be(20)
+    m.anahtarYineleyici.toList should be(List("a"))
+    m.boşalt(); m.boşMu should be(doğru)
+
+    val ek = Eşlek("a" -> 1, "b" -> 2)
+    ek.çıkarılmış("a") should be(Eşlek("b" -> 2)); ek.boyu should be(2)
+    ek.değiştirİşlevle("a")(_ => Some(9)) should be(Eşlek("a" -> 9, "b" -> 2))
+    ek.değerleriİşle(_ * 10) should be(Eşlek("a" -> 10, "b" -> 20))
+    ek.dönüştür((_, d) => d + 1) should be(Eşlek("a" -> 2, "b" -> 3))
+
+    val ö = ÖncelikSırası(3, 1, 2)
+    ö.başıBelki should be(Some(3)); ö.bul(_ < 2) should be(Some(1))
+    ö.böl(_ > 1)._1.sıralı should be(Seq(2, 3))
+    ö.katla(0)(_ + _) should be(6); ö.taraSoldan(0)(_ + _) should be(Seq(0, 3, 4, 6))
+    ö.seçİşle { case x if x > 1 => x * 10 }.sıralı should be(Seq(20, 30))
+    ö.kuyruğa.boyu should be(3)
+    ö.işleYerinde(_ * 10); ö.başı should be(30)
+  }
+
   test("miskin dizin: masaüstüyle eşitlenen yöntemler") {
     val m = MiskinDizin(3, 1, 2)
     m.önü.dizine should be(List(3, 1)); m.sonu should be(2)

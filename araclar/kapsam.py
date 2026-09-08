@@ -154,8 +154,16 @@ def gövde(kaynak, sinif):
 
 
 def sarılanlar(gövde_metni, alıcı):
-    """Gövdede alıcı üstünde çağrılan İngilizce yöntem adları."""
-    return set(re.findall(r'\b' + re.escape(alıcı) + r'\.(\w+)', gövde_metni))
+    """Gövdede alıcı üstünde çağrılan İngilizce yöntem adları.
+
+    Zincirleri de sayar: `d.iterator.toSeq.partition(...)` yazıldığında
+    partition da sarılmış kabul edilir (ÖncelikSırası'nda böyle yapılıyor --
+    sonuç Dizi olsun diye ara bir dizi üstünden gidiliyor).
+    """
+    adlar = set()
+    for zincir in re.findall(r'\b' + re.escape(alıcı) + r'((?:\.\w+)+)', gövde_metni):
+        adlar.update(zincir.lstrip('.').split('.'))
+    return adlar
 
 
 def main():

@@ -1,0 +1,159 @@
+# Öneri: Aralık ve EsnekYazı sarmalayıcıları
+
+**Durum:** Türkçe sarmalayıcıların kapsamı `araclar/kapsam.py` ile ölçülüyor.
+Ortak çekirdek çalışması sonrası hemen bütün türler %80'in üstünde; iki tür
+geride kaldı ve ikisi de **mekanik doldurmayla çözülmüyor**, önce bir tasarım
+kararı istiyor:
+
+| tür | kapsam (masaüstü) | kapsam (ikojo) |
+|---|---|---|
+| `Aralık` (Range) | **7/112 (%6)** | — (ikojo'da Range sarmalayıcısı yok) |
+| `EsnekYazı` (StringBuilder) | **2/131 (%1)** | 2/131 (%1) |
+
+Bu belge sorunu ve seçenekleri anlatır; karar verilince uygulaması bir günlük iş.
+
+---
+
+## 1. Aralık: iki ayrı yüz
+
+Bugün **iki farklı şey** aynı adı taşıyor:
+
+```scala
+// (a) case class -- lite/i18n/tr/aralik.scala
+case class Aralık(ilki: Sayı, sonuncu: Sayı, adım: Sayı = 1) {
+  val r = Range(ilki, sonuncu, adım)
+  def boyu = r.size
+  def işle[B](f: Sayı => B) = r.map(f)
+  override def toString() = ... // "Aralık(1, 2, 3 ...)" -- öğrenci dostu
+  // ~20 yöntem
+}
+
+// (b) Range üstünde örtük sınıf -- aynı dosya
+implicit class RangeYöntemleri(r: Range) {
+  def adım(c: Sayı): Range = r by c
+  def boyu = r.length
+  // ~13 yöntem
+}
+```
+
+Kullanıcı hangisini görüyor?
+
+- `Aralık(1, 10)` yazarsa **(a)**'yı alır: kendi `toString`'i olan bir sarmalayıcı.
+- `1 |-| 10` ya da `1 |- 10` yazarsa (`sayi.scala`) **düz bir `Range`** alır,
+  yani **(b)**'yi. Örneklerde ve testlerde ezici çoğunluk bu yol.
+
+Sonuç: `Aralık` yazan öğrenci ile `1 |-| 10` yazan öğrenci **farklı yöntem
+kümeleri** görüyor. `sıralı`, `bul`, `böl`, `tara`, `enİrisi`, `içeriyorMu`…
+hiçbiri (b)'de yok; (a)'da da yok. Kapsamın %6'da kalmasının sebebi bu.
+
+### Seçenek A — `Aralık`ı tür takma adı yap (önerilen)
+
+```scala
+type Aralık = Range
+object Aralık {
+  def apply(ilki: Sayı, sonuncu: Sayı, adım: Sayı = 1): Aralık = Range(ilki, sonuncu, adım)
+  def kapalı(ilki: Sayı, sonuncu: Sayı, adım: Sayı = 1): Aralık = Range.inclusive(ilki, sonuncu, adım)
+  // kesirden / kesirdenKapalı olduğu gibi kalır
+}
+```
+
+`Küme = Set`, `Dizin = List`, `Yöney = Vector` ile **aynı kalıp**. Tek bir yüz
+kalır; `RangeYöntemleri`'ne ortak çekirdek uygulanır ve kapsam bir hamlede
+%6'dan ~%90'a çıkar. `1 |-| 10` ile `Aralık(1, 11)` aynı şeyi verir.
+
+- **Kazanç:** tutarlılık, tek yüz, ~100 yöntem bedavaya gelir.
+- **Bedel:** `Aralık`ın özel `toString`'i (`"Aralık(1, 2, 3 ...)"`) kaybolur;
+  yerine Scala'nın `Range(1, 2, 3)` gösterimi gelir. `translate.scala`'da
+  `Range` → `Aralık` çevirisi zaten var, yani REPL çıktısında ad Türkçe kalır.
+- **Kırılma riski (tarandı):** `Aralık(...)` çağıran betikler çalışmaya devam
+  eder (`apply` aynı imzada, `Range` de `map`/`flatMap`/`withFilter` taşıyor, yani
+  `kojo-documentation.kojo`'daki `için (g <- Aralık(1, 10))` sürer). `.r` alanına
+  doğrudan erişen betik **yok**. Tek somut etki: `scala-tutorial.kojo:130`
+  `yazı(Aralık(10, 0, -1))` ile aralığı EKRANA YAZIYOR; çıktı
+  `Aralık(10, 9, 8 ...)` yerine `Range(10, 9, 8, ...)` olur. Bu satır ya
+  güncellenir ya da `Aralık` nesnesine `yazıya(a: Aralık)` biçiminde bir
+  gösterim yardımcısı konur.
+
+### Seçenek B — iki yüzü koru, ikisini de doldur
+
+Hem case class'a hem örtük sınıfa ortak çekirdeği ayrı ayrı ekle.
+
+- **Kazanç:** hiçbir davranış değişmez, özel `toString` durur.
+- **Bedel:** ~100 yöntem **iki kez** yazılır; iki yüz kalıcı olarak ayrışmaya
+  devam eder ve "hangi Aralık?" sorusu her yeni yöntemde tekrar sorulur.
+
+### Seçenek C — case class'ı kaldır, yalnız örtük sınıfı doldur
+
+`Aralık` case class'ı silinir, `Aralık` bir fabrika nesnesine indirgenir.
+A ile hemen hemen aynı sonucu verir ama `type Aralık` olmadığından
+`dez a: Aralık = ...` yazan betikler kırılır. A daha güvenli.
+
+**Öneri: A.** `translate.scala` zaten `Range` → `Aralık` çeviriyor; kayıp
+yalnız özel `toString`, kazanç ~100 yöntem ve tek bir kavram.
+
+---
+
+## 2. EsnekYazı: StringBuilder'a bakan yüz çok dar
+
+```scala
+type EsnekYazı = collection.mutable.StringBuilder
+implicit class EsnekYazıYöntemleri(ey: EsnekYazı) {
+  def boşMu = ey.size == 0
+  def doluMu = ey.size != 0
+  def boyu = ey.size
+  def sil() = ey.clear()
+  def ekle[T](x: T) = ey.append(x)
+  def yazıya = ey.toString
+  def sayıya = ey.toString.toInt
+}
+```
+
+Yedi yöntem; `StringBuilder`'ın 131 yöntemlik genel arayüzünün %1'i.
+`EsnekYazı` **hem bir Dizi (Seq[Harf]) hem de bir yazı tamponu**; iki ayrı
+yöntem ailesi gerekiyor:
+
+1. **Dizi tarafı** — `bul`, `böl`, `öbekli`, `tara`, `seçİşle`, `enİrisi`…
+   Ortak çekirdek olduğu gibi uygulanabilir (Harf ögeli). Yeni ad gerekmez.
+2. **Tampon tarafı** — yerinde değiştirenler; adlar `…Yerinde` ailesiyle
+   uyumlu ama birkaç yeni ad gerekiyor:
+
+| İngilizce | öneri | not |
+|---|---|---|
+| `insert` / `insertAll` | `araEkle` / `araEkleHepsini` | EsnekDizik'te aynı ad |
+| `delete` | `sil(nereden, nereye)` | mevcut `sil()` = clear ile aynı ad, farklı arite |
+| `deleteCharAt` | `harfiSil(yeri)` | |
+| `replace` | `değiştirAralığı(nereden, nereye, yenisi)` | `değiştir` Yazı'da replace demek |
+| `setCharAt` | `harfiKur(yeri, harf)` | |
+| `setLength` | `boyuKur(boy)` | |
+| `reverseInPlace` | `tersiYerinde` | |
+| `ensureCapacity` / `capacity` | `yerAyır` / `kapasitesi` | ileri düzey; atlanabilir |
+| `subSequence` / `substring` | `parçası` | Yazı'da aynı ad var |
+| `toCharArray` | `harfDiziğine` | |
+
+**Öneri:** EsnekYazı'yı iki adımda doldur — önce dizi tarafı (ad kararı
+gerektirmiyor), sonra tampon tarafı yukarıdaki adlarla. Kapsam %1'den ~%85'e
+çıkar.
+
+---
+
+## 3. Sıra ve tahmini iş
+
+| adım | iş | kapsam etkisi |
+|---|---|---|
+| 1 | Aralık: Seçenek A + ortak çekirdek | Aralık %6 → ~%90 |
+| 2 | EsnekYazı: dizi tarafı | %1 → ~%60 |
+| 3 | EsnekYazı: tampon tarafı (yeni adlar) | ~%60 → ~%85 |
+| 4 | ikojo'ya taşı (ikojo'da Range sarmalayıcısı hiç yok, o da eklenir) | — |
+
+Her adım kendi testiyle gelir; ölçüm `araclar/kapsam.py` ile doğrulanır.
+
+---
+
+## 4. Karar gereken noktalar
+
+1. **Aralık için A, B yoksa C?** (öneri: A)
+2. **A seçilirse özel `toString` kaybı kabul mü?** (REPL'de tür adı yine
+   `Aralık` görünür, yalnız değer gösterimi `Range(1, 2, 3)` olur)
+3. **EsnekYazı tampon adları** yukarıdaki tabloya uygun mu? Özellikle
+   `sil()` (clear) ile `sil(nereden, nereye)` (delete) aynı adı paylaşsın mı,
+   yoksa ikincisi `aralığıSil` mi olsun?
