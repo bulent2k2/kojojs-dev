@@ -86,6 +86,7 @@ MASAUSTU = ('src/main/scala/net/kogics/kojo/lite/i18n/tr', [
     ('EsnekYazı', 'yazi.scala', 'EsnekYazıYöntemleri'),
     ('MiskinDizin', 'miskindizin.scala', 'LazyListYöntemleri'),
     ('Belki', 'belki.scala', 'BelkiYöntemleri'),
+    ('Yineleyici', 'yineleyici.scala', 'YineleyiciYöntem'),
 ])
 IKOJO = ('src/main/scala/kojo/tr', [
     ('Diz', 'dizi.scala', 'DizMetotları'),
@@ -104,6 +105,7 @@ IKOJO = ('src/main/scala/kojo/tr', [
     ('EsnekYazı', 'yazi.scala', 'EsnekYazıMetotları'),
     ('MiskinDizin', 'miskindizin.scala', 'MiskinDizinMetotları'),
     ('Belki', 'belki.scala', 'BelkiMetotları'),
+    ('Yineleyici', 'dizi.scala', 'YineleyiciMetotları'),
 ])
 
 

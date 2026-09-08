@@ -874,6 +874,40 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     Kuyruk(2, 1, 2).baştanAlHepsini(_ == 2) shouldBe Seq(2, 2)
   }
 
+  test("Yineleyici: Iterator'ın Türkçesi, Dizi/Diz Scala gibi davranıyor") {
+    // Dizi.apply varargs'ı olduğu gibi döndürüyordu -> çıktıda ArraySeq görünüyordu
+    Dizi(1, 2, 3).toString shouldBe "List(1, 2, 3)"
+    Diz(1, 2, 3).toString shouldBe "List(1, 2, 3)"
+    Dizi(1, 2, 3) shouldBe Dizin(1, 2, 3)
+    Diz.boş[Sayı].boyu shouldBe 0
+
+    Dizi(1, 2, 3, 4).öbekli(2).dizine shouldBe List(Seq(1, 2), Seq(3, 4))
+    val y = Dizi(1, 2, 3).yineleyici
+    y.dahaVarMı shouldBe true
+    y.sıradaki shouldBe 1
+    y.dizine shouldBe List(2, 3)
+    y.dahaVarMı shouldBe false
+
+    Dizi(1, 2, 3).yineleyici.işle(_ * 2).dizine shouldBe List(2, 4, 6)
+    Dizi(1, 2, 3).yineleyici.ele(_ > 1).diziye shouldBe Seq(2, 3)
+    Dizi(1, 2, 3).yineleyici.topla shouldBe 6
+    Dizi(1, 2, 3).yineleyici.katla(10)(_ + _) shouldBe 16
+    Dizi(1, 2, 3).yineleyici.bul(_ > 1) shouldBe Some(2)
+    Dizi(1, 2).yineleyici.yazıYap("-") shouldBe "1-2"
+    Dizi(1, 2).yineleyici.kümeye shouldBe Set(1, 2)
+
+    val (a, b) = Dizi(1, 2, 3).yineleyici.ikizYap
+    a.dizine shouldBe List(1, 2, 3)
+    b.dizine shouldBe List(1, 2, 3)
+
+    val bi = Dizi(1, 2, 3).yineleyici.bellekli
+    bi.head shouldBe 1
+    bi.dizine shouldBe List(1, 2, 3) // başı okumak ilerletmedi
+
+    Dizi(1, 2).yineleyici.gösterdikleriAynıMı(Dizi(1, 2)) shouldBe true
+    Dizi(1, 2).yineleyici.gösterdikleriAynıMı(Dizi(2, 1)) shouldBe false
+  }
+
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
     "Kojo".eşitMiKüçükHarfBüyükHarfAyrımıYapmadan("kOJO") shouldBe true
     "a".kıyaslaKüçükHarfBüyükHarfAyrımıYapmadan("B") should be < 0
