@@ -100,6 +100,13 @@ object BakePolicy {
 
   val turtleLayerName = "Turtle Layer"
   val decorLayerName = "Decor Layer"
+  // Gerçek kaplumbağanın simgesi. Turtle.init bu adı yalnız forPic OLMAYAN
+  // kaplumbağaya veriyor, yani bir "Turtle Layer"ın gerçek kaplumbağa mı yoksa
+  // Picture{} katmanı mı olduğunu ayırt eden şey bu (bkz. tepeSırası).
+  // Sabit burada: Turtle.scala ile KojoWorldImpl iki ayrı yerde düz metin
+  // yazsaydı biri değişince kaplumbağaKatmanıMı sessizce false dönerdi ve
+  // hiçbir sınama yakalamazdı -- saf işlev bayrağı üreten yeri sınamıyor.
+  val turtleIconName = "Turtle Icon"
 
   // Sahne kalabalıklaşınca ve yakınlaştırılmamışken pişir.
   def shouldConsider(childCount: Int, unzoomed: Boolean): Boolean =
@@ -142,7 +149,7 @@ object BakePolicy {
   // Ad yetmiyor: Turtle.init KENDİ katmanına da Picture{} katmanlarına da
   // "Turtle Layer" adını veriyor, yani ada bakmak resmi öteki RESİMLERİN de
   // altına atardı. Ayırt edici şey içerik -- gerçek kaplumbağanın katmanında
-  // "Turtle Icon" çocuğu var (Turtle.init onu yalnız forPic olmayana ekliyor).
+  // turtleIconName çocuğu var (Turtle.init onu yalnız forPic olmayana ekliyor).
   // Bu yüzden burası adları değil, çağıranın hesapladığı bayrakları alıyor.
   def tepeSırası(kaplumbağaMı: collection.Seq[Boolean]): Int = {
     var i = kaplumbağaMı.length
@@ -567,14 +574,14 @@ class KojoWorldImpl extends KojoWorld {
 
   // Gerçek kaplumbağanın katmanı mı? Ada bakmak YETMEZ: Picture{} katmanları da
   // "Turtle Layer" adını taşıyor (bkz. BakePolicy.tepeSırası). Gerçek kaplumbağa
-  // katmanında "Turtle Icon" çocuğu var.
+  // katmanında turtleIconName ("Turtle Icon") çocuğu var.
   private def kaplumbağaKatmanıMı(c: PIXI.DisplayObject): Boolean =
     c.name == BakePolicy.turtleLayerName && {
       val kap = c.asInstanceOf[PIXI.Container]
       var i = 0
       var bulundu = false
       while (i < kap.children.length && !bulundu) {
-        if (kap.getChildAt(i).name == "Turtle Icon") bulundu = true
+        if (kap.getChildAt(i).name == BakePolicy.turtleIconName) bulundu = true
         i += 1
       }
       bulundu
