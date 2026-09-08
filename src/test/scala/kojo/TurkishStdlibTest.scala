@@ -471,7 +471,9 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     val ey = new EsnekYazı("merhaba")
     ey.bul(_ == 'h') should be(Some('h'))   // dizi tarafı zaten çalışıyor
     ey.harf(0) should be('m'); ey.parçası(0, 3) should be("mer")
-    ey.araEkle(0, "Ey "); ey.yazıya should be("Ey merhaba")
+    ey.ekleAraya(0, "Ey "); ey.yazıya should be("Ey merhaba")
+    // eskitilmiş ad hâlâ aynı işi görüyor
+    (new EsnekYazı("dünya")).araEkle(0, "merhaba ").yazıya should be("merhaba dünya")
     ey.aralığıSil(0, 3); ey.yazıya should be("merhaba")
     ey.harfiSil(0); ey.yazıya should be("erhaba")
     ey.harfiKur(0, 'M'); ey.yazıya should be("Mrhaba")
