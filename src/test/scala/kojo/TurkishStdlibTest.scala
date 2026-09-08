@@ -542,6 +542,10 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     y.böl(_ > 6)._1 should be(Seq(8, 7))
     y.enİrisiBelki should be(Some(8))
     Yığın.doldur(y).dizine should be(y.dizine)   // aynı sırada kopya
+    // Yığın(1, 2, 3) = "1'i it, 2'yi it, 3'ü it" -> tepede 3 (masaüstüyle aynı).
+    // Scala'nın kendi Stack(1, 2, 3)'ü tepeye 1'i koyardı.
+    Yığın(1, 2, 3).tepe should be(3)
+    Yığın(1, 2, 3).dizine should be(List(3, 2, 1))
 
     val k = Kuyruk.boş[Sayı]
     k.ekle(1); k.ekle(2)

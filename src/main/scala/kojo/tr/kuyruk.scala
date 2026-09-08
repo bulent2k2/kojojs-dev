@@ -12,10 +12,11 @@ trait KuyrukYöntemleri extends TemelTürler {
   type ÖncelikSırası[T] = PriorityQueue[T]
 
   object Yığın {
-    // DİKKAT: Stack(1, 2, 3) TEPEYE 1'i koyar. Masaüstündeki Yığın(1, 2, 3)
-    // ise sırayla itiyor, yani tepede 3 oluyor. İki depo bu noktada AYRIŞIYOR;
-    // karara bağlanana dek her iki taraf da kendi davranışını koruyor.
-    def apply[T](elems: T*): Yığın[T] = Stack(elems: _*)
+    // Yığın(1, 2, 3) = "1'i it, 2'yi it, 3'ü it", yani TEPEDE 3 olur.
+    // Scala'nın kendi Stack(1, 2, 3)'ü tepeye 1'i koyar (gösterimi tepeden
+    // başlıyor); masaüstü Koco baştan beri itme sırasını kullanıyordu ve
+    // öğrenci sezgisine yakın olan o. İki depo bu davranışta eşitlendi.
+    def apply[T](elems: T*): Yığın[T] = { val y = Stack.empty[T]; y.pushAll(elems); y }
     def boş[T]: Yığın[T] = Stack.empty[T]
     // Başka bir yığının kopyası, aynı sırada (tepe yine tepede)
     def doldur[T](y2: Yığın[T]): Yığın[T] = Stack.from(y2)
