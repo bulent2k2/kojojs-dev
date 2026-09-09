@@ -25,6 +25,27 @@ programlama terim sözlüğü, aranabilir tek dosyalık HTML. İki yönlü, aksa
 katlamalı (`cizim` → `çizim`), kategorilere ayrılmış (anahtar kelimeler, türler,
 kaplumbağa/tuval komutları, resimler, matematik, koleksiyonlar…). 975 girdi.
 
+## Yardım panelleri ve çapalar (Eylül 2026)
+
+Yardım metni OLAN girdiler (975 satırın 277'si) tıklanınca açılıyor: imza,
+açıklama ve SINANMIŞ örnek. Her satırın bir çapası var, yani doğrudan
+bağlanabiliyor:
+
+    https://ikojo.fly.dev/yardim/sozluk#katla
+
+Bu içerik ELLE YAZILMIYOR, masaüstü Koco'dan üretiliyor. Kaynak tek:
+`bulent2k2/kojo` deposundaki `lite/i18n/tr/help.scala`. Oradaki örnekler
+KoleksiyonYardımıTest ve YardımÖrnekleriTest ile doğrulanıyor.
+
+Yenilemek için (kojo deposunda):
+
+    ./sbt.sh 'Test/runMain net.kogics.kojo.araclar.YardımDışaAktar \
+              <kojojs-dev>/sozluk/yardim.json'
+
+sonra koco-sozlugu.html içindeki `const YARDIM = {...}` bloğunu bu dosyayla
+değiştirin (tek dosya kalsın diye gömülü: sayfa hem iframe'de hem file://
+ile açılıyor, fetch çalışmazdı).
+
 ## Kaynak
 Şu dosyalardan derlendi (bulent2k2/kojo):
 - `lite/i18n/tr/dict.scala` — kavram çevirileri
