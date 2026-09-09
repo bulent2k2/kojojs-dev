@@ -1,0 +1,80 @@
+# Üretilmiş dosyalar kaynaklarıyla aynı mı.
+#
+# NEDEN BU İŞ: bu depodaki birkaç dosya üretilmiş ama COMMIT'Lİ --
+# OrnekDerlemeDeneme.scala, YardimOrnekDerlemeDeneme.scala, ve sözlük
+# sayfasındaki gömülü YARDIM bloğu. Üretim adımı elle koşuluyor, yani
+# kaynak değişip üretim unutulduğunda hiçbir şey hata vermiyor: ne test
+# düşüyor ne sayfa bozuluyor, yalnız eski veri gösteriliyor.
+#
+# Eylül 2026'da tam bu oldu (yardim.json'daki türler alanı) ve fark ancak
+# elle ölçünce görüldü. Bu iş o sınıfın tamamını yakalıyor.
+#
+# NEDEN SAF PYTHON: JVM, Scala.js ve tarayıcı gerektiren takım dakikalar
+# sürüyor ve tarayıcı tarafı kırılgan (bkz. #51'deki "JS error" notu).
+# Buradaki iş saniyeler sürüyor ve dış bağımlılığı yok -- yeşili anlamlı
+# kalsın diye kasten dar tutuldu. Ağır takımlar ayrı bir adımda konuşuluyor.
+#
+# KAPSAMADIĞI: gosteri-uret.py'nin --html çıktısı (kojojs-editor'daki
+# yardimKomutlar sayfasına yapıştırılan <tr> satırları) bu depoda bir
+# dosyaya yazılmıyor, dolayısıyla diff ile karşılaştırılamıyor. Örneğin
+# bir gösterinin AÇIKLAMASI değişirse burada hiçbir şey kırmızı yanmaz;
+# yalnız kod gövdesi değişirse üretilen Scala üzerinden yakalanır.
+# (Ölçüldü.) O tarafın denetimi iki depoyu birden gerektiriyor.
+name: üreteçler
+
+# push YALNIZ master'da: dal itmelerini zaten pull_request tetikliyor, ikisi
+# birden açıkken her PR itmesi işi İKİ KEZ koşturuyordu (ölçüldü: aynı
+# commit'te iki özdeş check run). master'daki push ise birleşme sonrasını
+# kapsıyor -- PR'da yeşil olup birleşmede bozulan bir şey olursa görünsün.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+# İş yalnız okuyor; token'ı en az yetkide sabitle -- deponun varsayılanı
+# ileride değişse de bu iş etkilenmesin.
+permissions:
+  contents: read
+
+jobs:
+  uretilmis-dosyalar:
+    name: üretilmiş dosyalar tazeyken mi
+    runs-on: ubuntu-latest
+    env:
+      # Türkçe adlar ve içerik var; UTF-8 bu depoda kozmetik değil.
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Betiklerin kendi savları: yardim.json beklenen alanları taşıyor mu
+      # (üretim bunun üzerine kuruluyor), ve her zrc gidiş-dönüş sınanıyor.
+      - name: gösteri ve yardım örneklerini yeniden üret
+        run: |
+          python3 araclar/gosteri-uret.py --scala
+          python3 araclar/yardim-derleme-uret.py
+
+      - name: sözlükteki gömülü YARDIM bloğu yardim.json ile aynı mı
+        run: python3 araclar/sozluk-denetle.py
+
+      # Asıl sav: yeniden üretim ağaçtakini DEĞİŞTİRMEMELİ.
+      #
+      # `git diff --exit-code` DEĞİL: o izlenmeyen dosyayı görmüyor (ölçüldü).
+      # Bir üreteç YENİ bir çıktı dosyası kazanırsa -- ya da bir hedefin adı
+      # değişip eskisi izlenmeye devam ederse -- yeni dosya commit'lenmese
+      # bile iş yeşil yanardı; yani tam da bu işin koruduğu değişmezin bir
+      # dilimi açık kalırdı. --porcelain ikisini birden görüyor.
+      - name: üretilenler ağaçtakiyle aynı mı
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            echo "::error::Üretilmiş dosyalar kaynağıyla uyuşmuyor (yukarıda)."
+            echo "Yerelde şunları koşup çıkan farkı commit'leyin:"
+            echo "  araclar/gosteri-uret.py --scala"
+            echo "  araclar/yardim-derleme-uret.py"
+            exit 1
+          fi
