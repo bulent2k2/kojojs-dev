@@ -23,11 +23,11 @@ tek başına açılabilir hâle getirildi).
 `koco-sozlugu.html` — masaüstü Koco'nun (bulent2k2/kojo) Türkçe↔İngilizce
 programlama terim sözlüğü, aranabilir tek dosyalık HTML. İki yönlü, aksan
 katlamalı (`cizim` → `çizim`), kategorilere ayrılmış (anahtar kelimeler, türler,
-kaplumbağa/tuval komutları, resimler, matematik, koleksiyonlar…). 975 girdi.
+kaplumbağa/tuval komutları, resimler, matematik, koleksiyonlar…). 980 girdi.
 
 ## Yardım panelleri ve çapalar (Eylül 2026)
 
-Yardım metni OLAN girdiler (975 satırın 273'ü) tıklanınca açılıyor: imza,
+Yardım metni OLAN girdiler (980 satırın 273'ü) tıklanınca açılıyor: imza,
 açıklama ve SINANMIŞ örnek. Her satırın bir çapası var, yani doğrudan
 bağlanabiliyor:
 
@@ -81,7 +81,7 @@ gömülü `html`'i cümleyi zaten taşıyor, ikinci kez basmak yineleme olurdu.
 ## Çalışan örnek bağlantıları
 
 Panellerde "Bunu kullanan çalışan örnekler" bölümü var: komutu gerçekten
-kullanan, sitede ÇALIŞAN betiklere `/?zrc=...` bağlantısı. 975 addan 317'sinde
+kullanan, sitede ÇALIŞAN betiklere `/?zrc=...` bağlantısı. 980 addan 317'sinde
 en az bir örnek var (599 bağlantı, 373 benzersiz betik).
 
 Kaynak: kojojs-editor'daki yardım sayfalarının kendi "çalıştır" bağlantıları
@@ -112,7 +112,7 @@ aliaslar, oyun API'leri, bölünüyorMu/belirt/buSaniye, Yığın koy/al/tane…
 
 Eylül 2026 turu: standart kütüphane sarmalayıcılarının kapsamı %41-50'den
 masaüstünde %95'e, ikojo'da %94'e çıkarıldı; oradan gelen 201 yeni ad sözlüğe
-işlendi (754 -> 975). Yeni "Koleksiyon Türleri" kategorisi Yığın/Kuyruk/
+işlendi (754 -> 980). Yeni "Koleksiyon Türleri" kategorisi Yığın/Kuyruk/
 ÖncelikSırası/Eşlem/Eşlek/Küme/Aralık/Belki/MiskinDizin'e özgü adları topluyor;
 ortak çekirdek "Diziler ve Yazılar" altında. Adlar `lite/i18n/tr/*.scala`
 gövdelerinden üretildi (`def başıBelki ... = d.headOption` -> headOption =
