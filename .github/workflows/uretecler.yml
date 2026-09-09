@@ -61,6 +61,22 @@ jobs:
       - name: sözlükteki gömülü YARDIM bloğu yardim.json ile aynı mı
         run: python3 araclar/sozluk-denetle.py
 
+      # Test harnessi ile kütüphanedeki PIXI aynı DOSYA olmalı. #52'nin
+      # gözcüsü (BoyaTest: "test harnessi PIXI 4'e geri kaymamış") sürümün
+      # 5+ olmasını denetliyor; bu, kütüphane 5.4'e geçip harness 5.3.12'de
+      # kalırsa sessiz kalırdı -- yani #52'nin kapattığı hatanın bir sonraki
+      # sürümü. lib/pixi5.min.js izlenen bir dosya (run5.html onu yüklüyor)
+      # ve sitenin sunduğuyla bayt bayt aynı, dolayısıyla karşılaştırılacak
+      # referans burada.
+      - name: test harnessindeki PIXI kütüphanedekiyle aynı mı
+        run: |
+          if ! cmp src/test/resources/pixi.min.js lib/pixi5.min.js; then
+            echo "::error::src/test/resources/pixi.min.js ile lib/pixi5.min.js ayrışmış."
+            echo "Testler sitenin sunduğundan başka bir PIXI koşuyor demektir."
+            echo "Tazelemek için:  cp lib/pixi5.min.js src/test/resources/pixi.min.js"
+            exit 1
+          fi
+
       # Asıl sav: yeniden üretim ağaçtakini DEĞİŞTİRMEMELİ.
       #
       # `git diff --exit-code` DEĞİL: o izlenmeyen dosyayı görmüyor (ölçüldü).
