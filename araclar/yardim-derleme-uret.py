@@ -67,6 +67,34 @@ def ingilizce(kod):
     return kod
 
 
+# Beklenen alanlar. `türler` en yenisi: sözlük paneli onu basıyor ve alan
+# YOKSA sessizce susuyor -- yani eksilmesi ne testte ne ekranda görünüyor.
+# Eylül 2026'da tam bu oldu: alanı ekleyen kojo commit'i ile onu kullanan
+# sözlük ayrı sırayla birleşti, arada kalan pencerede eski üreticiden
+# yenileme yapan biri 190 alanın hepsini izsiz silerdi.
+#
+# Asıl sav kaynakta (kojo: YardımDışaAktarTest); burası ikinci ağ -- dosya
+# bu depoya girdikten SONRA da bir kez daha bakılıyor.
+ZORUNLU_ALANLAR = ('imza', 'açıklama', 'örnek', 'sonuç', 'türler')
+
+
+def bicimDenetle(kaynak, yöntemler):
+    """yardim.json'daki her yöntem girdisi beklenen alanları taşıyor mu."""
+    eksikler = []
+    for ad, g in yöntemler:
+        eksik = [a for a in ZORUNLU_ALANLAR if a not in g]
+        if eksik:
+            eksikler.append('  %s: %s' % (ad, ', '.join(eksik)))
+    if eksikler:
+        sys.exit(
+            '%s: %d yöntem girdisinde alan eksik.\n%s\n'
+            'Dosya eski bir kojo sürümünden üretilmiş olabilir; kojo master\'dan\n'
+            'yeniden üretin:\n'
+            "  ./sbt.sh 'Test/runMain net.kogics.kojo.araclar.YardımDışaAktar <buradaki>/sozluk/yardim.json'"
+            % (os.path.normpath(kaynak), len(eksikler), '\n'.join(eksikler[:5]))
+        )
+
+
 def main():
     kok = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
     kaynak = sys.argv[1] if len(sys.argv) > 1 else os.path.join(kok, 'sozluk', 'yardim.json')
@@ -76,7 +104,9 @@ def main():
     veri = json.load(io.open(kaynak, encoding='utf-8'))
     # yalnız "yöntem" girdilerinin yapılandırılmış örneği var; "metin"
     # girdileri elle yazılmış HTML, onları masaüstü YardımÖrnekleriTest sınıyor
-    örnekler = [(ad, g['örnek']) for ad, g in sorted(veri.items()) if g.get('tür') == 'yöntem']
+    yöntemler = [(ad, g) for ad, g in sorted(veri.items()) if g.get('tür') == 'yöntem']
+    bicimDenetle(kaynak, yöntemler)
+    örnekler = [(ad, g['örnek']) for ad, g in yöntemler]
 
     def adı(ad):
         return 'y_' + re.sub(r'[^A-Za-z0-9]', '_', ad)
