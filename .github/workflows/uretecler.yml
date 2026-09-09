@@ -22,9 +22,13 @@
 # (Ölçüldü.) O tarafın denetimi iki depoyu birden gerektiriyor.
 name: üreteçler
 
+# push YALNIZ master'da: dal itmelerini zaten pull_request tetikliyor, ikisi
+# birden açıkken her PR itmesi işi İKİ KEZ koşturuyordu (ölçüldü: aynı
+# commit'te iki özdeş check run). master'daki push ise birleşme sonrasını
+# kapsıyor -- PR'da yeşil olup birleşmede bozulan bir şey olursa görünsün.
 on:
   push:
-    branches: ["**"]
+    branches: [master]
   pull_request:
 
 jobs:
