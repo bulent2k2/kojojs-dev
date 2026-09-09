@@ -12,8 +12,11 @@ import org.scalatest.matchers.should.Matchers
  */
 class BoyaTest extends AnyFunSuite with Matchers {
 
-  test("PIXI yokken gradyanlar ilk renge düşüyor (çökmüyor)") {
-    // Node altında PIXI yüklü değil -> PixiUyum.beşVeÜstü false
+  test("PIXI 5 yokken gradyanlar ilk renge düşüyor (çökmüyor)") {
+    // İki koşucuda da beşVeÜstü false, ama SEBEBİ ayrı:
+    //  - tarayıcı koşusunda (test-tarayici.sh) jsDependencies PIXI 4 veriyor,
+    //  - Node koşusunda PIXI hiç yüklenmiyor.
+    // İkisi de DokuBoya'nın kurulmayıp DüzBoya'ya düşmesi gereken durum.
     PixiUyum.beşVeÜstü shouldBe false
 
     Boya.doğrusal(0, 0, Color.red, 100, 0, Color.blue, false) shouldBe DüzBoya(Color.red)

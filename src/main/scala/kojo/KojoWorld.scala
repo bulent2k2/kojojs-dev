@@ -100,6 +100,13 @@ object BakePolicy {
 
   val turtleLayerName = "Turtle Layer"
   val decorLayerName = "Decor Layer"
+  // Gerçek kaplumbağanın simgesi. Turtle.init bu adı yalnız forPic OLMAYAN
+  // kaplumbağaya veriyor, yani bir "Turtle Layer"ın gerçek kaplumbağa mı yoksa
+  // Picture{} katmanı mı olduğunu ayırt eden şey bu (bkz. tepeSırası).
+  // Sabit burada: Turtle.scala ile KojoWorldImpl iki ayrı yerde düz metin
+  // yazsaydı biri değişince kaplumbağaKatmanıMı sessizce false dönerdi ve
+  // hiçbir sınama yakalamazdı -- saf işlev bayrağı üreten yeri sınamıyor.
+  val turtleIconName = "Turtle Icon"
 
   // Sahne kalabalıklaşınca ve yakınlaştırılmamışken pişir.
   def shouldConsider(childCount: Int, unzoomed: Boolean): Boolean =
@@ -117,6 +124,38 @@ object BakePolicy {
   // düğümler muaf; yalnızca bakeAfterFrames karedir damgalanmayanlar aday.
   def isStaleCandidate(name: String, interactive: Boolean, lastMut: Long, frame: Long): Boolean =
     isStaleByName(name, lastMut, frame) && !interactive
+
+  // "arkaya at"ın hedef sırası: baştaki süs katmanlarının (eksen/ızgara) hemen
+  // üstü. Süs, tuvalin süsü -- kullanıcının çizimi değil -- ve süsKatmanı onu
+  // hep 0'a takıyor; en altta kalsın.
+  //
+  // Pişirme katmanına ayrıcalık YOK: bakeSprite'ın dokusu, pişirilen resimlerin
+  // durduğu yer dışında saydam; düğümü onun altına koymak yalnız o pişmiş
+  // RESİMLERİN arkasına koyar -- "arkaya at" zaten budur.
+  def dipSırası(adlar: collection.Seq[String]): Int = {
+    var i = 0
+    while (i < adlar.length && adlar(i) == decorLayerName) i += 1
+    i
+  }
+
+  // "öne al"ın hedef sırası: SONDAKİ kaplumbağa katmanlarının hemen ALTI.
+  //
+  // Sahnede kaplumbağa katmanını tepede tutan bir şey yok (addLayer yalnız
+  // stage.addChild yapıyor), o yüzden düğümü koşulsuz sona eklemek onu
+  // kaplumbağa simgesinin de üstüne çıkarıyor ve simge kayboluyordu.
+  // Masaüstünde bu olmuyor: orada kaplumbağa katmanı ayrı ve hep üstte.
+  // Bu, dipSırası'nın simetriği.
+  //
+  // Ad yetmiyor: Turtle.init KENDİ katmanına da Picture{} katmanlarına da
+  // "Turtle Layer" adını veriyor, yani ada bakmak resmi öteki RESİMLERİN de
+  // altına atardı. Ayırt edici şey içerik -- gerçek kaplumbağanın katmanında
+  // turtleIconName çocuğu var (Turtle.init onu yalnız forPic olmayana ekliyor).
+  // Bu yüzden burası adları değil, çağıranın hesapladığı bayrakları alıyor.
+  def tepeSırası(kaplumbağaMı: collection.Seq[Boolean]): Int = {
+    var i = kaplumbağaMı.length
+    while (i > 0 && kaplumbağaMı(i - 1)) i -= 1
+    i
+  }
 
   // Çırpınma sigortası: "en eski izi her kare sil" gibi kalıplar her kare
   // geri almaya yol açar (pişir->sil->geri al->pişir); bu tabandan yavaş.
@@ -514,20 +553,69 @@ class KojoWorldImpl extends KojoWorld {
     }
   }
 
+  // öneAl / arkayaAt. Düğümü -- masaüstündeki Piccolo `PNode.moveToFront`/
+  // `moveToBack` gibi -- KENDİ EBEVEYNİ içinde taşır.
+  //
+  // Eskiden doğrudan `stage.removeChild(obj)` çağrılıyordu. Düğüm sahnenin
+  // DOĞRUDAN çocuğu değilse -- yani resim bir bileşiğin (Resim.dizi, küme,
+  // satır, sütun...) içindeyse -- PIXI'nin removeChild'ı null döndürüyor,
+  // ardından gelen addChild(null) da "Cannot read properties of null (reading
+  // 'parent')" ile PATLIYOR ve betiği öldürüyordu. Çizilmemiş bir resimde
+  // (parent == null) masaüstü sessizce hiçbir şey yapıyor; burada da öyle.
+  private def ebeveyniniAl(obj: PIXI.DisplayObject): PIXI.Container = {
+    if (bakedNodes.contains(obj)) unbakeAll() // pişmiş düğüm sahnede yok; önce geri al
+    obj.parent
+  }
+
+  // Sahnedeki ilk süs-olmayan çocuğun sırası. Karar BakePolicy'de (saf, Node'da
+  // test edilebilir); burada yalnız sahnenin adları toplanıyor.
+  private def süsSonrasıDip: Int =
+    BakePolicy.dipSırası((0 until stage.children.length).map(i => stage.getChildAt(i).name))
+
+  // Gerçek kaplumbağanın katmanı mı? Ada bakmak YETMEZ: Picture{} katmanları da
+  // "Turtle Layer" adını taşıyor (bkz. BakePolicy.tepeSırası). Gerçek kaplumbağa
+  // katmanında turtleIconName ("Turtle Icon") çocuğu var.
+  private def kaplumbağaKatmanıMı(c: PIXI.DisplayObject): Boolean =
+    c.name == BakePolicy.turtleLayerName && {
+      val kap = c.asInstanceOf[PIXI.Container]
+      var i = 0
+      var bulundu = false
+      while (i < kap.children.length && !bulundu) {
+        if (kap.getChildAt(i).name == BakePolicy.turtleIconName) bulundu = true
+        i += 1
+      }
+      bulundu
+    }
+
+  // Sahnedeki son kaplumbağa katmanı öbeğinin hemen altındaki sıra.
+  private def kaplumbağaÖncesiTepe: Int =
+    BakePolicy.tepeSırası((0 until stage.children.length).map(i => kaplumbağaKatmanıMı(stage.getChildAt(i))))
+
   def moveToFront(obj: PIXI.DisplayObject): Unit = {
-    // pişmiş düğüm sahnede değil: removeChild null döner, addChild(null) çöker.
-    // önce geri al ki gerçek düğüm sahnede olsun.
-    if (bakedNodes.contains(obj)) unbakeAll()
-    val c = stage.removeChild(obj)
-    stage.addChild(c)
-    render()
+    val ebeveyn = ebeveyniniAl(obj)
+    if (ebeveyn != null) {
+      ebeveyn.removeChild(obj)
+      // Tepe sıra: kaplumbağa katmanlarının hemen altı; gerekçe
+      // BakePolicy.tepeSırası'nda. (Koşulsuz sona eklemek simgeyi örtüyordu.)
+      // Sıra removeChild'dan SONRA hesaplanmalı -- addChildAt'ın argümanı
+      // orada değerlendiği için öyle oluyor, arkayaAt'taki gibi.
+      // Bileşik içindeki davranış DEĞİŞMİYOR: orada sona eklemek doğru.
+      if (ebeveyn eq stage) ebeveyn.addChildAt(obj, kaplumbağaÖncesiTepe) else ebeveyn.addChild(obj)
+      render()
+    }
   }
 
   def moveToBack(obj: PIXI.DisplayObject): Unit = {
-    if (bakedNodes.contains(obj)) unbakeAll()
-    val c = stage.removeChild(obj)
-    stage.addChildAt(c, 0)
-    render()
+    val ebeveyn = ebeveyniniAl(obj)
+    if (ebeveyn != null) {
+      ebeveyn.removeChild(obj)
+      // Dip sıra: süs katmanlarının hemen üstü; gerekçe BakePolicy.dipSırası'nda.
+      // (Bir ara burada dip koşulsuz 1'den başlıyordu; o zaman eksenler kapalıyken
+      // arkayaAt düğümü pişirme katmanının ÜSTÜNE -- yani pişmiş resimlerin
+      // ÖNÜNE -- taşıyordu, tam tersi.)
+      ebeveyn.addChildAt(obj, if (ebeveyn eq stage) süsSonrasıDip else 0)
+      render()
+    }
   }
 
   def rendererOptions(

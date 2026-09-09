@@ -8,13 +8,21 @@ package kojo.tr
  * colSeqYöntemleri/SeqYöntemleri ikilisinin karşılığı). Bir List/Vector için
  * ikisi de uygulanabilir; derleyici daha özgülü (DiziMetotları) seçer.
  */
-trait DiziYöntemleri extends TemelTürler with DizimYöntemleri {
+trait DiziYöntemleri extends TemelTürler with DizimYöntemleri with EşlemYöntemleri {
 
   object Dizi {
-    // Seq.from(ögeler) idi: varargs zaten bir ArraySeq olduğu için onu OLDUĞU GİBİ
-    // döndürüyordu, yani Dizi(1,2,3) çıktıda DizikDizisi(1, 2, 3) görünüyordu.
-    // Scala'nın kendi Seq(1,2,3)'ü List veriyor; artık biz de öyle. Eşitlik değişmedi.
-    def apply[B](ögeler: B*): Dizi[B] = Seq(ögeler: _*)
+    // List.from; toSeq da Seq.from da DEĞİL. Scala.js'te varargs bir
+    // WrappedVarArgs olarak geliyor ve onun apply'ı sınır denetimi YAPMIYOR:
+    // Dizi(1)(5) hata fırlatmak yerine undefined veriyordu (masaüstünde
+    // SınırDışınaTaşmaHatası). Node'da ÖLÇÜLDÜ:
+    //   toSeq/Seq.from -> WrappedVarArgs (kopyalamıyor!), yazımı
+    //                     "WrappedVarArgs(1, 2, 3)", sınır dışı erişim
+    //                     UndefinedBehaviorError (fullOpt'ta sessiz undefined)
+    //   List.from      -> List, yazımı "List(1, 2, 3)", sınır dışı erişim
+    //                     IndexOutOfBoundsException
+    // Masaüstü (tr/dizi.scala) JVM'de Seq.from ile zaten List üretiyor; List.from
+    // hem o yazımı hem denetimi veriyor. Seq.from'a "sadeleştirmeyin".
+    def apply[B](ögeler: B*): Dizi[B] = List.from(ögeler)
     def unapplySeq[B](dizi: Dizi[B]) = Seq.unapplySeq(dizi)
     def boş[B]: Dizi[B] = Seq.empty[B]
     def doldur[B](n1: Sayı)(f: Sayı => B) = Seq.tabulate(n1)(f)
@@ -23,8 +31,9 @@ trait DiziYöntemleri extends TemelTürler with DizimYöntemleri {
   }
 
   object Diz {
-    // collection.Seq.from(ögeler) idi -- Dizi ile aynı ArraySeq sorunu.
-    def apply[B](ögeler: B*): Diz[B] = collection.Seq(ögeler: _*)
+    // Dizi.apply ile aynı gerekçe ve aynı ölçüm: sınır denetimi + masaüstüyle
+    // aynı yazdırma. (List bir collection.Seq'tir.)
+    def apply[B](ögeler: B*): Diz[B] = List.from(ögeler)
     def boş[B]: Diz[B] = collection.Seq.empty[B]
     def unapplySeq[B](dizi: Diz[B]) = collection.Seq.unapplySeq(dizi)
     def doldur[B](n1: Sayı)(f: Sayı => B) = Seq.tabulate(n1)(f)
@@ -87,6 +96,13 @@ trait DiziYöntemleri extends TemelTürler with DizimYöntemleri {
     def diziye: Dizi[T] = d.toSeq
     def kümeye: Set[T] = d.toSet
     def yöneye: Vector[T] = d.toVector
+    // dizime/eşleme masaüstünde her sarmalayıcıda ayrı ayrı yazılı; burada
+    // Diz/Dizi'ye konuyor ve alt türler (Dizin, Yöney, Aralık, Yığın, Kuyruk,
+    // EsnekYazı, MiskinDizin) onları KALITIMLA alıyor -- Scala en özel örtük
+    // sınıfı seçtiği için belirsizlik olmuyor (bkz. araclar/kapsam.py'nin
+    // "+miras" sütunu).
+    def dizime[S >: T](implicit delil: scala.reflect.ClassTag[S]): Dizim[S] = new Dizim(d.toArray(delil))
+    def eşleme[A, D](implicit delil: T <:< (A, D)): Eşlem[A, D] = Eşlem.değişmezden(d.toMap)
     def eşleğe[A, D](implicit delil: T <:< (A, D)): Eşlek[A, D] = d.toMap
     def say(işlev: T => İkil): Sayı = d.count(işlev)
 
@@ -223,6 +239,13 @@ trait DiziYöntemleri extends TemelTürler with DizimYöntemleri {
     def diziye: Dizi[T] = d.toSeq
     def kümeye: Set[T] = d.toSet
     def yöneye: Vector[T] = d.toVector
+    // dizime/eşleme masaüstünde her sarmalayıcıda ayrı ayrı yazılı; burada
+    // Diz/Dizi'ye konuyor ve alt türler (Dizin, Yöney, Aralık, Yığın, Kuyruk,
+    // EsnekYazı, MiskinDizin) onları KALITIMLA alıyor -- Scala en özel örtük
+    // sınıfı seçtiği için belirsizlik olmuyor (bkz. araclar/kapsam.py'nin
+    // "+miras" sütunu).
+    def dizime[S >: T](implicit delil: scala.reflect.ClassTag[S]): Dizim[S] = new Dizim(d.toArray(delil))
+    def eşleme[A, D](implicit delil: T <:< (A, D)): Eşlem[A, D] = Eşlem.değişmezden(d.toMap)
     def eşleğe[A, D](implicit delil: T <:< (A, D)): Eşlek[A, D] = d.toMap
     def say(işlev: T => İkil): Sayı = d.count(işlev)
 

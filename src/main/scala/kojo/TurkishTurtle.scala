@@ -230,6 +230,15 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   def kalemiKaldır(): Birim = englishTurtle.penUp()
   def kalemRenginiKur(renk: Renk): Birim = englishTurtle.setPenColor(renk)
   def boyamaRenginiKur(renk: Renk): Birim = englishTurtle.setFillColor(renk)
+  /**
+   * Gradyan ya da dokuma boyasıyla doldurur (Renk.doğrusalDeğişim, DokumaBoya, ...).
+   *
+   * DİKKAT: Boyanın koordinatları (gradyanın x1,y1 / x2,y2'si, merkezi, dokumanın
+   * köşesi) burada TUVAL koordinatlarıdır -- kaplumbağa doğrudan tuvale çizer.
+   * Resim dönüştürücüsü `boyaRengi(boya)`'da ise aynı sayılar resmin YEREL
+   * koordinatlarıdır.
+   */
+  def boyamaRenginiKur(boya: Boya): Birim = englishTurtle.setFillPaint(boya)
   def kalemKalınlığınıKur(n: Kesir): Birim = englishTurtle.setPenThickness(n)
   def kalemİnikMi: İkil = englishTurtle.penIsDown
 
@@ -340,9 +349,23 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
    */
   private var açıkSatır: org.scalajs.dom.Element = null
 
+  /**
+   * Panele yazılacak metin. Neredeyse her şey için `String.valueOf`, ama
+   * `Aralık` için değil: `Aralık` bir tür takma adı olduğundan `toString`
+   * ezilemiyor ve Scala'nın kendi gösterimi çıkıyor -- "inexact Range 1 until
+   * 200 by 7". Öğrenci dostu biçim `Aralık.gösterim`de; `yazıya` da onu
+   * kullanıyor, yani iki yol aynı dizeyi veriyor. (Masaüstünde aynı iş metin
+   * üstünde düzenli deyişle yapılıyor -- orada değer değil çıktı metni var;
+   * bkz. kojo#46. Burada değerin kendisi elimizde, o yüzden daha basit.)
+   */
+  private def gösterimi(veri: Any): Yazı = veri match {
+    case r: Range => Aralık.gösterim(r)
+    case _        => String.valueOf(veri)
+  }
+
   private def paneleYaz(veri: Any, satırSonu: İkil): Birim = {
     val panel = document.getElementById("output")
-    val metin = String.valueOf(veri)
+    val metin = gösterimi(veri)
     if (panel == null) {
       if (satırSonu) println(metin) else print(metin)
     }

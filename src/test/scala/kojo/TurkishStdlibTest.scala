@@ -291,6 +291,21 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     Eşlem.değişmezden(Map("k" -> 9)).al("k") should be(Some(9))
   }
 
+  test("dizi: sınır dışı erişim hata fırlatır (Scala.js varargs tuzağı)") {
+    // Dizi.apply eskiden varargs'ı olduğu gibi (toSeq) döndürüyordu; Scala.js'te
+    // o sarmalayıcı sınır denetimi yapmıyor ve Dizi(1)(5) sessizce undefined
+    // veriyordu. Masaüstünde (JVM) hata fırlar; ikisi aynı davransın.
+    // Yazım da masaüstüyle aynı olmalı: orada Seq.from JVM'de List üretiyor.
+    an[IndexOutOfBoundsException] should be thrownBy Dizi(1, 2, 3)(5)
+    an[IndexOutOfBoundsException] should be thrownBy Dizi(1)(-1)
+    an[IndexOutOfBoundsException] should be thrownBy Diz(1, 2)(7)
+    Dizi(1, 2, 3)(2) should be(3) // geçerli erişim bozulmadı
+    Diz(1, 2)(1) should be(2)
+    // satıryaz(Dizi(...)) masaüstüyle aynı görünsün: "WrappedVarArgs(...)" değil
+    Dizi(1, 2, 3).toString should be("List(1, 2, 3)")
+    Diz(1, 2).toString should be("List(1, 2)")
+  }
+
   test("dizin: List'in Türkçesi") {
     val l = Dizin(3, 1, 2)
     l.boyu should be(3)
@@ -928,6 +943,48 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     val ikisiDeYazı: İkisindenBiri[Yazı, Yazı] = Sol("soldaki")
     ikisiDeYazı.birleştir shouldBe "soldaki"
     İkisindenBiri.koşulla(3 > 2, "oldu", "olmadı") shouldBe Sağ("oldu")
+  }
+
+  test("Aralık gösterimi: yazıya ve çıktı paneli aynı gövdeyi kullanıyor") {
+    // Aralık bir tür takma adı olduğu için toString ezilemiyor; öğrenci dostu
+    // biçim Aralık.gösterim'de ve yazıya da onu çağırıyor. paneleYaz (tarayıcı
+    // yolu) aynı gövdeyi kullanıyor -- burada gövdeyi doğrudan sınıyoruz.
+    Aralık.gösterim(Aralık(1, 6)) should be("Aralık(1, 2, 3, 4, 5)")
+    Aralık.gösterim(Aralık(1, 200, 7)) should be(
+      "Aralık(1, 8, 15, 22, 29 ... 169, 176, 183, 190, 197)")
+    Aralık.gösterim(Aralık(1, 1)) should be("Aralık()")
+    // tam 10 öge kısaltma eşiğinde: hepsi yazılıyor
+    Aralık.gösterim(Aralık(10, 0, -1)) should be("Aralık(10, 9, 8, 7, 6, 5, 4, 3, 2, 1)")
+    // yazıya ile BİREBİR aynı (tek gerçekleme)
+    Aralık(1, 200, 7).yazıya should be(Aralık.gösterim(Aralık(1, 200, 7)))
+    (1 to 5).yazıya should be(Aralık.gösterim(1 to 5))
+  }
+
+  test("dizime/eşleme: masaüstündeki iki sistematik ad her türde çalışıyor") {
+    // Bu ikisi masaüstünde her sarmalayıcıda ayrı ayrı yazılı; burada Diz/Dizi'ye
+    // konup alt türlere kalıtımla geliyor. Test tam da o kalıtımın çalıştığını
+    // (ve örtük sınıf belirsizliği çıkarmadığını) çiviliyor.
+    Dizi(1, 2, 3).dizime.boyu should be(3)
+    Dizin(1, 2).dizime.diziye should be(Dizi(1, 2))
+    Yöney(1, 2).dizime.boyu should be(2)
+    Aralık(1, 4).dizime.diziye should be(Dizi(1, 2, 3))
+    MiskinDizin(1, 2).dizime.boyu should be(2)
+    Küme(1, 2).dizime.boyu should be(2)
+    Dizik(1, 2).dizime.boyu should be(2)
+    "ab".dizime.boyu should be(2)
+    Kuyruk(1, 2).dizime.boyu should be(2)
+    Yığın(1, 2).dizime.boyu should be(2)
+
+    val ikili = Dizi(("a", 1), ("b", 2))
+    ikili.eşleme.boyu should be(2)
+    ikili.eşleme.al("a") should be(Biri(1))
+    Dizin(("a", 1)).eşleme.boyu should be(1)
+    Yöney(("a", 1)).eşleme.boyu should be(1)
+    Küme(("a", 1)).eşleme.boyu should be(1)
+    Dizik(("a", 1)).eşleme.boyu should be(1)
+    MiskinDizin(("a", 1)).eşleme.boyu should be(1)
+    Kuyruk(("a", 1)).eşleme.boyu should be(1)
+    Yığın(("a", 1)).eşleme.boyu should be(1)
   }
 
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
