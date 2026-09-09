@@ -76,6 +76,26 @@ class BakePolicyTest extends AnyFunSuite with Matchers {
     dipSırası(Seq("Bake Layer", "Decor Layer", "Resim")) shouldBe 0
   }
 
+  test("öneAl'ın tepe sırası: sondaki kaplumbağa katmanları atlanır") {
+    // sahne: [resim, resim, kaplumbağa] -> öne alınan resim kaplumbağanın ALTINA
+    tepeSırası(Seq(false, false, true)) shouldBe 2
+    tepeSırası(Seq(false, true, true)) shouldBe 1 // iki kaplumbağa
+  }
+
+  test("öneAl'ın tepe sırası: kaplumbağa yoksa sona (index == uzunluk)") {
+    tepeSırası(Seq(false, false)) shouldBe 2
+    tepeSırası(Seq.empty) shouldBe 0
+  }
+
+  test("öneAl'ın tepe sırası: hepsi kaplumbağaysa 0") {
+    tepeSırası(Seq(true, true)) shouldBe 0
+  }
+
+  test("öneAl'ın tepe sırası: aradaki kaplumbağa katmanı sayılmaz") {
+    // yalnız SONDAKİ koşu atlanır; arada kalan biri sırayı kaydırmaz
+    tepeSırası(Seq(true, false, false)) shouldBe 3
+  }
+
   test("çırpınma sigortası: art arda geri alma eşiği aşınca pişirme kapanır") {
     shouldDisableAfterUnbake(0) shouldBe false
     shouldDisableAfterUnbake(maxUnbakeStreak - 1) shouldBe false

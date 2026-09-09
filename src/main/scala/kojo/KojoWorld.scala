@@ -100,6 +100,10 @@ object BakePolicy {
 
   val turtleLayerName = "Turtle Layer"
   val decorLayerName = "Decor Layer"
+  // Gerçek kaplumbağanın simgesi. turtleLayerName resim katmanlarıyla ORTAK
+  // olduğundan (Turtle.init hepsini öyle adlandırır) gerçek kaplumbağayı
+  // ayırt eden işaret bu: simge yalnız forPic olmayan kaplumbağaya eklenir.
+  val turtleIconName = "Turtle Icon"
 
   // Sahne kalabalıklaşınca ve yakınlaştırılmamışken pişir.
   def shouldConsider(childCount: Int, unzoomed: Boolean): Boolean =
@@ -128,6 +132,25 @@ object BakePolicy {
   def dipSırası(adlar: collection.Seq[String]): Int = {
     var i = 0
     while (i < adlar.length && adlar(i) == decorLayerName) i += 1
+    i
+  }
+
+  // "öne al"ın hedef sırası: SONDAKİ kaplumbağa katmanlarının hemen altı.
+  // Masaüstü Kojo'da kaplumbağa ayrı bir katmanda ve hep resimlerin üstünde;
+  // burada sahnede onu tepede tutan bir şey yok (addLayer düz addChild yapar),
+  // ama kaplumbağa katmanı sahneye varlık yüklendikten SONRA -- yani çizilmiş
+  // resimlerden sonra -- eklendiğinden pratikte sonda duruyor. öneAl koşulsuz
+  // sona eklerse kaplumbağa simgesi resmin ALTINDA kalıyordu; onun altına
+  // ekleyerek simge görünür kalıyor.
+  //
+  // Kaplumbağa katmanının hangisi olduğunu ÇAĞIRAN belirler (bkz.
+  // KojoWorldImpl.kaplumbağaKatmanıMı): ad tek başına yetmez -- Turtle.init
+  // katmanı forPic olsun olmasın turtleLayerName ile adlandırdığından kök
+  // düzeydeki bir Resim.kaplumbağa{} da "Turtle Layer" adını taşır. O bir
+  // kullanıcı resmi; onun üstüne çıkmak öneAl'ın ta kendisi.
+  def tepeSırası(kaplumbağaMı: collection.Seq[Boolean]): Int = {
+    var i = kaplumbağaMı.length
+    while (i > 0 && kaplumbağaMı(i - 1)) i -= 1
     i
   }
 
@@ -546,11 +569,28 @@ class KojoWorldImpl extends KojoWorld {
   private def süsSonrasıDip: Int =
     BakePolicy.dipSırası((0 until stage.children.length).map(i => stage.getChildAt(i).name))
 
+  // Gerçek kaplumbağanın katmanı mı? Ad yetmez: Turtle.init forPic katmanlarını
+  // da "Turtle Layer" diye adlandırır, yani kök düzeydeki bir Resim.kaplumbağa{}
+  // da bu adı taşır. Simge (turtleIconName) yalnız forPic OLMAYAN kaplumbağaya
+  // eklenir ve gizlenirken de yalnız visible=false yapılır -- kalıcı işaret.
+  private def kaplumbağaKatmanıMı(d: PIXI.DisplayObject): Boolean =
+    d.name == BakePolicy.turtleLayerName && (d match {
+      case c: PIXI.Container => c.children.exists(_.name == BakePolicy.turtleIconName)
+      case _                 => false
+    })
+
+  // Sahnedeki sondaki kaplumbağa katmanlarının hemen altı. Karar BakePolicy'de.
+  private def kaplumbağaAltıTepe: Int =
+    BakePolicy.tepeSırası((0 until stage.children.length).map(i => kaplumbağaKatmanıMı(stage.getChildAt(i))))
+
   def moveToFront(obj: PIXI.DisplayObject): Unit = {
     val ebeveyn = ebeveyniniAl(obj)
     if (ebeveyn != null) {
       ebeveyn.removeChild(obj)
-      ebeveyn.addChild(obj)
+      // Tepe sıra: sahnede kaplumbağa katmanlarının hemen altı; gerekçe
+      // BakePolicy.tepeSırası'nda. Bileşik (Resim.dizi, küme, satır...) içinde
+      // kaplumbağa katmanı yok, orada sona eklemek doğru.
+      if (ebeveyn eq stage) ebeveyn.addChildAt(obj, kaplumbağaAltıTepe) else ebeveyn.addChild(obj)
       render()
     }
   }
