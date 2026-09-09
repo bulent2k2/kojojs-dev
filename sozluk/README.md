@@ -57,6 +57,27 @@ sonra koco-sozlugu.html içindeki `const YARDIM = {...}` bloğunu bu dosyayla
 değiştirin (tek dosya kalsın diye gömülü: sayfa hem iframe'de hem file://
 ile açılıyor, fetch çalışmazdı).
 
+### `türler` alanı
+
+Her yöntem girdisinde yöntemin hangi türlerde bulunduğunu söyleyen bir
+`türler` alanı var; panelde son satır olarak görünüyor:
+
+| alan | panelde görünen |
+|---|---|
+| `""` (boş) | Dizi, Dizin, Yöney, Küme, Kuyruk gibi topluluklarda aynı biçimde çalışır. |
+| `"EsnekYazı, Yazı"` | Şu türlerde var: EsnekYazı, Yazı. |
+
+Boş olması "ortak dizi çekirdeği" demek, yani beşinin hepsinde var — bilgi
+eksikliği değil. Bugün 190 girdinin 77'si boş, 113'ü dolu.
+
+Bu alan ELLE TUTULMUYOR: masaüstünde `help.scala`'daki tablodan geliyor ve
+orada `KoleksiyonYardımıTest.türListesiKaynakla_uyuşuyor` listeyi
+`lite/i18n/tr/*.scala` kaynağından yeniden türetip karşılaştırıyor. Buradaki
+sayfa yalnız gösteriyor.
+
+`content`'te birleşen iki girdide (`sil`, `yazı`) alan yok sayılıyor: onların
+gömülü `html`'i cümleyi zaten taşıyor, ikinci kez basmak yineleme olurdu.
+
 ## Çalışan örnek bağlantıları
 
 Panellerde "Bunu kullanan çalışan örnekler" bölümü var: komutu gerçekten
