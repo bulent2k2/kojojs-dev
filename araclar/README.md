@@ -30,3 +30,25 @@ türü/sayısı) göremez. Gerçek derleme denetimi `ornekler/ornekleri-dogrula.
 
 Plan ve ölçüm belgesi: Koco–ikojo Köprüsü (Claude artifact,
 <https://claude.ai/code/artifact/04147d3d-1a10-4b18-a586-d2a105a07764>).
+
+## ornek-dizini.py
+
+Komut -> onu kullanan ÇALIŞAN örnek betik dizini (sozluk/ornekler.json).
+kojojs-editor'daki yardım sayfalarının kendi "çalıştır" bağlantılarını
+çözerek kuruluyor; zrc dizgeleri olduğu gibi taşınıyor.
+
+    araclar/ornek-dizini.py <kojojs-editor dizini>
+
+## gosteri-uret.py
+
+yardimKomutlar sayfasındaki kısa gösterilerin KAYNAĞI (G tablosu).
+
+    araclar/gosteri-uret.py --scala          # derleme testini üret
+    araclar/gosteri-uret.py --html <editor>  # sayfaya yapıştırılacak <tr> satırları
+
+Gösteriler `src/test/scala/kojo/OrnekDerlemeDeneme.scala` üzerinden ikojo
+API'sine karşı DERLENEREK sınanıyor: bir komut adı ya da imzası değişirse
+`sbt Test/compile` kırılır, sayfaya bozuk örnek girmez.
+
+Sıra: gösteriyi G'ye ekle -> --scala + sbt Test/compile -> --html ile satırı
+al, sayfaya yapıştır -> ornek-dizini.py ile sözlüğü tazele.

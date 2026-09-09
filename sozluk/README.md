@@ -49,11 +49,11 @@ ile açılıyor, fetch çalışmazdı).
 ## Çalışan örnek bağlantıları
 
 Panellerde "Bunu kullanan çalışan örnekler" bölümü var: komutu gerçekten
-kullanan, sitede ÇALIŞAN betiklere `/?zrc=...` bağlantısı. 940 addan 293'ünde
-en az bir örnek var (562 bağlantı, 348 benzersiz betik).
+kullanan, sitede ÇALIŞAN betiklere `/?zrc=...` bağlantısı. 940 addan 317'sinde
+en az bir örnek var (599 bağlantı, 373 benzersiz betik).
 
 Kaynak: kojojs-editor'daki yardım sayfalarının kendi "çalıştır" bağlantıları
-(kojoOgren, yardimKomutlar, yardimSkala, benzetim -- toplam 570 betik).
+(kojoOgren, yardimKomutlar, yardimSkala, benzetim -- toplam 595 betik).
 `zrc` dizgeleri OLDUĞU GİBİ taşınıyor, yeniden sıkıştırma yok; yani bozuk
 bağlantı üretme riski yok.
 
