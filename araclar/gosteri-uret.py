@@ -135,10 +135,19 @@ r.döndürMerkezli(45, 0, 0)""",
 "çizMerkezdeYazı": ("""silVeSakla
 çizMerkezdeYazı("Merhaba Koco", kırmızı, 30)""",
  "Tuvalin ortasına yazı yazar."),
+# DİKKAT: burada durakla(1) İŞE YARAMIYOR. çiz ve resimleriSil EŞZAMANLI
+# (Picture.draw ve KojoWorld.erasePictures doğrudan çalışıyor), durakla ise
+# kuyruğa girip hemen dönüyor (Turtle.sıraya -> commandQ). Betiğin gövdesi tek
+# bir eşzamanlı blok olduğu için tarayıcı arada hiç boyama yapamıyor: daire
+# çizilip aynı karede siliniyor, çocuk boş tuval görüyor. Silmeyi de
+# eşzamansız yola almak gerekiyor -- canlandır tam bunun için var.
 "resimleriSil": ("""silVeSakla
 çiz(boyaRengi(mavi) -> Resim.daire(40))
-durakla(1)
-resimleriSil()""",
+den kare = 0
+canlandır {
+  kare += 1
+  eğer (kare == 60) { resimleriSil(); canlandırmayıDurdur() }
+}""",
  "Çizilmiş bütün resimleri siler."),
 
 # --- kaplumbağa tarafındaki eksik ---

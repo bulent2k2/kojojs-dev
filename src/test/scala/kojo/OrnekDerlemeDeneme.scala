@@ -184,8 +184,11 @@ object OrnekDerlemeDeneme {
   def g_resimleriSil(): Unit = {
     silVeSakla
     çiz(boyaRengi(mavi) -> Resim.daire(40))
-    durakla(1)
-    resimleriSil()
+    var kare = 0
+    canlandır {
+      kare += 1
+      if (kare == 60) { resimleriSil(); canlandırmayıDurdur() }
+    }
   }
 
   // uzaklık
