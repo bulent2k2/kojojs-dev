@@ -46,6 +46,27 @@ sonra koco-sozlugu.html içindeki `const YARDIM = {...}` bloğunu bu dosyayla
 değiştirin (tek dosya kalsın diye gömülü: sayfa hem iframe'de hem file://
 ile açılıyor, fetch çalışmazdı).
 
+## Çalışan örnek bağlantıları
+
+Panellerde "Bunu kullanan çalışan örnekler" bölümü var: komutu gerçekten
+kullanan, sitede ÇALIŞAN betiklere `/?zrc=...` bağlantısı. 940 addan 293'ünde
+en az bir örnek var (562 bağlantı, 348 benzersiz betik).
+
+Kaynak: kojojs-editor'daki yardım sayfalarının kendi "çalıştır" bağlantıları
+(kojoOgren, yardimKomutlar, yardimSkala, benzetim -- toplam 570 betik).
+`zrc` dizgeleri OLDUĞU GİBİ taşınıyor, yeniden sıkıştırma yok; yani bozuk
+bağlantı üretme riski yok.
+
+    araclar/ornek-dizini.py <kojojs-editor dizini>
+
+12 satırdan uzun betikler ATLANIYOR: onlar adı GÖSTERMİYOR, içinde geçiyor
+sadece. Her ad için en çok 3 örnek, kısadan uzuna.
+
+ornekler.json gömülmüyor, ayrı duruyor (182 KB) ve sayfa açılınca çekiliyor.
+Sebep: bağlantılar zaten yalnız site ayaktayken anlamlı. Dosya gelmezse o
+bölüm görünmüyor, sözlüğün gerisi çalışmaya devam ediyor. DİKKAT: sunulan
+kopyaya koco-sozlugu.html ile BİRLİKTE ornekler.json de kopyalanmalı.
+
 ## Kaynak
 Şu dosyalardan derlendi (bulent2k2/kojo):
 - `lite/i18n/tr/dict.scala` — kavram çevirileri
