@@ -23,7 +23,7 @@ tek başına açılabilir hâle getirildi).
 `koco-sozlugu.html` — masaüstü Koco'nun (bulent2k2/kojo) Türkçe↔İngilizce
 programlama terim sözlüğü, aranabilir tek dosyalık HTML. İki yönlü, aksan
 katlamalı (`cizim` → `çizim`), kategorilere ayrılmış (anahtar kelimeler, türler,
-kaplumbağa/tuval komutları, resimler, matematik, koleksiyonlar…). 973 girdi.
+kaplumbağa/tuval komutları, resimler, matematik, koleksiyonlar…). 975 girdi.
 
 ## Kaynak
 Şu dosyalardan derlendi (bulent2k2/kojo):
