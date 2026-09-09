@@ -25,7 +25,10 @@ class BoyaTest extends AnyFunSuite with Matchers {
     // engelliyor: PIXI yüklüyse sürümü 5+ olmalı.
     // (Node koşusunda PIXI hiç yüklenmiyor; orada denetlenecek bir şey yok.)
     if (js.typeOf(js.Dynamic.global.PIXI) != "undefined") {
-      val sürüm = js.Dynamic.global.PIXI.VERSION.asInstanceOf[String]
+      // Utils.scala:104'teki kalıp: PIXI var ama VERSION yoksa düz asInstanceOf
+      // savdan ÖNCE patlar ve aşağıdaki ileti hiç görünmezdi.
+      val sürüm = js.Dynamic.global.PIXI.VERSION
+        .asInstanceOf[js.UndefOr[String]].getOrElse("(VERSION yok)")
       withClue(s"test harnessindeki PIXI sürümü: $sürüm -- ") {
         PixiUyum.beşVeÜstü shouldBe true
       }
@@ -42,11 +45,23 @@ class BoyaTest extends AnyFunSuite with Matchers {
     if (PixiUyum.beşVeÜstü) {
       // Doku dolgusu yalnız v5'te var. Yedek renk HER ZAMAN ilk durak olmalı:
       // doku yüklenemezse düşülecek renk odur.
-      doğrusal shouldBe a[DokuBoya]
-      doğrusal.asInstanceOf[DokuBoya].yedek shouldBe Color.red
-      merkezden.asInstanceOf[DokuBoya].yedek shouldBe Color.green
-      çoklu.asInstanceOf[DokuBoya].yedek shouldBe Color.yellow
-      merkezdenÇoklu.asInstanceOf[DokuBoya].yedek shouldBe Color.white
+      //
+      // Desen eşlemesiyle: asInstanceOf Scala.js'te fullOpt altında
+      // DENETLENMİYOR, Defaults altında ClassCastException atıyor -- iki
+      // durumda da gerileme "DokuBoya bekleniyordu" diye değil, TypeError ya da
+      // undefined karşılaştırması olarak görünürdü.
+      Seq(
+        "doğrusal" -> (doğrusal, Color.red),
+        "merkezden" -> (merkezden, Color.green),
+        "doğrusalÇoklu" -> (çoklu, Color.yellow),
+        "merkezdenÇoklu" -> (merkezdenÇoklu, Color.white)
+      ).foreach {
+        case (ad, (boya, beklenen)) =>
+          boya match {
+            case DokuBoya(_, _, yedek) => withClue(s"$ad yedek rengi: ")(yedek shouldBe beklenen)
+            case başka                 => fail(s"$ad için DokuBoya bekleniyordu, gelen: $başka")
+          }
+      }
     }
     else {
       doğrusal shouldBe DüzBoya(Color.red)
