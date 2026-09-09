@@ -1,30 +1,59 @@
 package kojo
 
 import kojo.doodle.Color
+
+import scala.scalajs.js
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 /**
- * Boya'nın PIXI'siz koşabilen bölümü: girdi denetimi ve PIXI 4 (ya da PIXI'nin
- * hiç bulunmadığı) durumdaki düşüş davranışı. Gradyanın gerçekten çizilip
- * çizilmediği ancak tarayıcıda görülebilir; o doğrulama ekran görüntüsüyle
- * yapılıyor (bkz. PR açıklaması).
+ * Boya'nın girdi denetimi ve sürüme göre davranışı.
+ *
+ * Takım İKİ ortamda koşuyor ve `PixiUyum.beşVeÜstü` ikisinde ayrı:
+ *  - tarayıcı (test-tarayici.sh): jsDependencies PIXI 5 veriyor  -> true
+ *  - Node (jsDependencies boş):  PIXI hiç yüklenmiyor            -> false
+ * Bu yüzden buradaki savlar sürüme göre dallanıyor. Eskiden takım PIXI 4
+ * yüklüyordu, yani doku dolgusu yolu HİÇBİR testte koşmuyordu -- site ise
+ * PIXI 5 sunuyor. Gradyanlarda ortaya çıkan hatalar tam o boşluktan geçti.
  */
 class BoyaTest extends AnyFunSuite with Matchers {
 
-  test("PIXI 5 yokken gradyanlar ilk renge düşüyor (çökmüyor)") {
-    // İki koşucuda da beşVeÜstü false, ama SEBEBİ ayrı:
-    //  - tarayıcı koşusunda (test-tarayici.sh) jsDependencies PIXI 4 veriyor,
-    //  - Node koşusunda PIXI hiç yüklenmiyor.
-    // İkisi de DokuBoya'nın kurulmayıp DüzBoya'ya düşmesi gereken durum.
-    PixiUyum.beşVeÜstü shouldBe false
+  test("test harnessi PIXI 4'e geri kaymamış") {
+    // Site PIXI 5 sunuyor (kojojs-editor/.../javascript/pixi.min.js). Takım uzun
+    // süre PIXI 4 yükledi ve doku dolgusu yolu -- yani BÜTÜN gradyanlar --
+    // hiçbir testte koşmadı. Bu sav o boşluğun sessizce geri açılmasını
+    // engelliyor: PIXI yüklüyse sürümü 5+ olmalı.
+    // (Node koşusunda PIXI hiç yüklenmiyor; orada denetlenecek bir şey yok.)
+    if (js.typeOf(js.Dynamic.global.PIXI) != "undefined") {
+      val sürüm = js.Dynamic.global.PIXI.VERSION.asInstanceOf[String]
+      withClue(s"test harnessindeki PIXI sürümü: $sürüm -- ") {
+        PixiUyum.beşVeÜstü shouldBe true
+      }
+    }
+  }
 
-    Boya.doğrusal(0, 0, Color.red, 100, 0, Color.blue, false) shouldBe DüzBoya(Color.red)
-    Boya.merkezden(0, 0, Color.green, 50, Color.black, false) shouldBe DüzBoya(Color.green)
-    Boya.doğrusalÇoklu(0, 0, 10, 10, Vector(0.0, 1.0), Vector(Color.yellow, Color.blue), false) shouldBe
-      DüzBoya(Color.yellow)
-    Boya.merkezdenÇoklu(0, 0, 20, Vector(0.0, 0.5, 1.0),
-      Vector(Color.white, Color.red, Color.black), false) shouldBe DüzBoya(Color.white)
+  test("PIXI 5 yokken gradyanlar ilk renge düşüyor, varken doku boyası kuruluyor") {
+    val doğrusal = Boya.doğrusal(0, 0, Color.red, 100, 0, Color.blue, false)
+    val merkezden = Boya.merkezden(0, 0, Color.green, 50, Color.black, false)
+    val çoklu = Boya.doğrusalÇoklu(0, 0, 10, 10, Vector(0.0, 1.0), Vector(Color.yellow, Color.blue), false)
+    val merkezdenÇoklu = Boya.merkezdenÇoklu(0, 0, 20, Vector(0.0, 0.5, 1.0),
+      Vector(Color.white, Color.red, Color.black), false)
+
+    if (PixiUyum.beşVeÜstü) {
+      // Doku dolgusu yalnız v5'te var. Yedek renk HER ZAMAN ilk durak olmalı:
+      // doku yüklenemezse düşülecek renk odur.
+      doğrusal shouldBe a[DokuBoya]
+      doğrusal.asInstanceOf[DokuBoya].yedek shouldBe Color.red
+      merkezden.asInstanceOf[DokuBoya].yedek shouldBe Color.green
+      çoklu.asInstanceOf[DokuBoya].yedek shouldBe Color.yellow
+      merkezdenÇoklu.asInstanceOf[DokuBoya].yedek shouldBe Color.white
+    }
+    else {
+      doğrusal shouldBe DüzBoya(Color.red)
+      merkezden shouldBe DüzBoya(Color.green)
+      çoklu shouldBe DüzBoya(Color.yellow)
+      merkezdenÇoklu shouldBe DüzBoya(Color.white)
+    }
   }
 
   test("dağılım ile renkler aynı uzunlukta olmalı") {

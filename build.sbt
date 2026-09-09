@@ -18,6 +18,11 @@ libraryDependencies ++= Seq(
   "org.scalatest" %%% "scalatest" % "3.2.19" % "test"
 )
 
+// DİKKAT: src/test/resources/pixi.min.js SİTENİN sunduğu sürümle aynı olmalı
+// (kojojs-editor/server/src/main/assets/javascript/pixi.min.js -- şu an 5.3.12).
+// Uzun süre burada PIXI 4 duruyordu: PixiUyum.beşVeÜstü her testte false
+// kalıyor, yani doku dolgusu yolu -- bütün gradyanlar -- hiç koşmuyordu.
+// BoyaTest'teki "test harnessi PIXI 4'e geri kaymamış" savı bunu çiviliyor.
 jsDependencies += ProvidedJS / "pixi.min.js" % "test"
 jsDependencies += ProvidedJS / "jsts.min.js" % "test"
 
