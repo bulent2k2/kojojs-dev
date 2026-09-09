@@ -1615,9 +1615,12 @@ function kök(ad) { return ad.includes(".") ? ad.split(".").pop() : ad; }
 // hiç görünmüyor, sözlüğün gerisi etkilenmiyor.
 let ORNEK = null;
 fetch("ornekler.json")
-  .then(r => r.ok ? r.json() : null)
-  .then(d => { if (d) { ORNEK = d; renderChips(); render(); hashaGit(); } })
-  .catch(() => {});
+  .then(r => r.ok ? r.json() : Promise.reject(r.status + " " + r.statusText))
+  .then(d => { ORNEK = d; renderChips(); render(); hashaGit(); })
+  // Zarif düşüş doğru, ama SESSİZ düşüş değil: dosya sunulan kopyaya
+  // kopyalanmayı unutulursa kimse fark etmiyordu. Bölüm yine görünmüyor,
+  // ama sebebi konsolda yazıyor.
+  .catch(e => console.warn("ornekler.json yüklenemedi; \"çalışan örnekler\" bölümü gizli.", e));
 function örnekBul(ad) {
   if (!ORNEK) return null;
   return ORNEK.dizin[ad] || ORNEK.dizin[kök(ad)] || null;

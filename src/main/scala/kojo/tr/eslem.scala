@@ -5,7 +5,9 @@ package kojo.tr
  *  - `Eşlek` : değişmez Map (collection.immutable.Map) -- uzantı metotlarıyla
  *  - `Eşlem` : değişebilir Map sarmalayıcısı (ekle/çıkar yapılabilen)
  */
-trait EşlemYöntemleri extends TemelTürler with BelkiYöntemleri with DizimYöntemleri {
+// YinelenebilirYöntemleri EN ALTTA: Küme ve Dizi trait'leri de bunu genişletiyor,
+// yani her özgül sarmalayıcı Yinelenebilir sarmalayıcısını yeniyor (belirsizlik yok).
+trait EşlemYöntemleri extends YinelenebilirYöntemleri with BelkiYöntemleri {
   type Eşlek[A, D] = collection.immutable.Map[A, D]
 
   object Eşlek {
