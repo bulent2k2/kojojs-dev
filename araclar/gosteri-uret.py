@@ -65,6 +65,9 @@ G = {
 "Resim.dikdörtgen": ("""silVeSakla
 çiz(Resim.dikdörtgen(120, 60))""",
  "Verilen en ve boyda bir dikdörtgen resmi."),
+"Resim.daire": ("""silVeSakla
+çiz(Resim.daire(50))""",
+ "Verilen yarıçapta bir çember resmi."),
 "Resim.elips": ("""silVeSakla
 çiz(Resim.elips(70, 40))""",
  "Verilen yarıçaplarda bir elips resmi."),
@@ -134,6 +137,7 @@ r.döndürMerkezli(45, 0, 0)""",
  "Tuvalin ortasına yazı yazar."),
 "resimleriSil": ("""silVeSakla
 çiz(boyaRengi(mavi) -> Resim.daire(40))
+durakla(1)
 resimleriSil()""",
  "Çizilmiş bütün resimleri siler."),
 
@@ -202,7 +206,11 @@ def sarmalayici(editorDizini):
 def zrcYap(on, arka, kod):
     kaynak = on + '\n' + kod + '\n\n  ' + arka
     ham = gzip.compress(kaynak.encode('utf-8'), mtime=0)
-    return base64.b64encode(ham).decode('ascii').replace('+', '-').replace('/', '_').rstrip('=')
+    # DOLGU KIRPILMIYOR: sayfadaki mevcut bağlantıların hepsi '=' dolgusunu
+    # taşıyor (len % 4 == 0). Sunucu kırpılmışını da çözüyor (marklister'ın
+    # base64Url'ü strictPadding=false), ama biçimi ayırmak için bir sebep yok
+    # -- "olduğu gibi taşınıyor" sözü bağlantı biçimi için de geçerli olsun.
+    return base64.b64encode(ham).decode('ascii').replace('+', '-').replace('/', '_')
 
 
 def coz(z):
@@ -218,8 +226,11 @@ def htmlYaz(editorDizini):
         z = zrcYap(on, arka, kod)
         if coz(z) != kod.strip():                     # gidiş-dönüş şart
             sys.exit('GİDİŞ-DÖNÜŞ HATASI: ' + ad)
+        # İKİ sütun: bu bölümde tablonun altında <pre> gösterisi yok, gösteri
+        # doğrudan komut adına bağlı. Üçüncü ("Örnekler") sütunu 25 satırın
+        # 25'inde de boş kalıyordu, yalnız yer kaplıyordu.
         print('<tr><td><a class="calistir" href="/?zrc=%s" target="_blank" rel="noopener" '
-              'title="Editörde aç"><code>%s</code></a></td><td>%s</td><td></td></tr>'
+              'title="Editörde aç"><code>%s</code></a></td><td>%s</td></tr>'
               % (z, esc(ad), esc(aciklama)))
 
 
