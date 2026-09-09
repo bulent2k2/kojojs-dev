@@ -68,6 +68,12 @@ object OrnekDerlemeDeneme {
     çiz(Resim.dikdörtgen(120, 60))
   }
 
+  // Resim.daire
+  def g_Resim_daire(): Unit = {
+    silVeSakla
+    çiz(Resim.daire(50))
+  }
+
   // Resim.elips
   def g_Resim_elips(): Unit = {
     silVeSakla
@@ -178,7 +184,11 @@ object OrnekDerlemeDeneme {
   def g_resimleriSil(): Unit = {
     silVeSakla
     çiz(boyaRengi(mavi) -> Resim.daire(40))
-    resimleriSil()
+    var kare = 0
+    canlandır {
+      kare += 1
+      if (kare == 60) { resimleriSil(); canlandırmayıDurdur() }
+    }
   }
 
   // uzaklık
