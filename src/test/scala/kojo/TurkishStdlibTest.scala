@@ -20,6 +20,7 @@ object TRDeneme
     extends kojo.tr.SayıYöntemleri
     with kojo.tr.MatematikYöntemleri
     with kojo.tr.BelkiYöntemleri
+    with kojo.tr.İkisindenBiriYöntemleri
     with kojo.tr.BölümselİşlevYöntemleri
     with kojo.tr.YazıYöntemleri
     with kojo.tr.HarfYöntemleri
@@ -486,7 +487,9 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     val ey = new EsnekYazı("merhaba")
     ey.bul(_ == 'h') should be(Some('h'))   // dizi tarafı zaten çalışıyor
     ey.harf(0) should be('m'); ey.parçası(0, 3) should be("mer")
-    ey.araEkle(0, "Ey "); ey.yazıya should be("Ey merhaba")
+    ey.ekleAraya(0, "Ey "); ey.yazıya should be("Ey merhaba")
+    // eskitilmiş ad hâlâ aynı işi görüyor
+    (new EsnekYazı("dünya")).araEkle(0, "merhaba ").yazıya should be("merhaba dünya")
     ey.aralığıSil(0, 3); ey.yazıya should be("merhaba")
     ey.harfiSil(0); ey.yazıya should be("erhaba")
     ey.harfiKur(0, 'M'); ey.yazıya should be("Mrhaba")
@@ -885,6 +888,61 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     // dequeueWhile baştan durur, dequeueAll her yerden toplar
     Kuyruk(2, 1, 2).baştanÇıkarHepsiniKoşulla(_ == 2) shouldBe Seq(2)
     Kuyruk(2, 1, 2).baştanAlHepsini(_ == 2) shouldBe Seq(2, 2)
+  }
+
+  test("Yineleyici: Iterator'ın Türkçesi, Dizi/Diz Scala gibi davranıyor") {
+    // Dizi.apply varargs'ı olduğu gibi döndürüyordu -> çıktıda ArraySeq görünüyordu
+    Dizi(1, 2, 3).toString shouldBe "List(1, 2, 3)"
+    Diz(1, 2, 3).toString shouldBe "List(1, 2, 3)"
+    Dizi(1, 2, 3) shouldBe Dizin(1, 2, 3)
+    Diz.boş[Sayı].boyu shouldBe 0
+
+    Dizi(1, 2, 3, 4).öbekli(2).dizine shouldBe List(Seq(1, 2), Seq(3, 4))
+    val y = Dizi(1, 2, 3).yineleyici
+    y.dahaVarMı shouldBe true
+    y.sıradaki shouldBe 1
+    y.dizine shouldBe List(2, 3)
+    y.dahaVarMı shouldBe false
+
+    Dizi(1, 2, 3).yineleyici.işle(_ * 2).dizine shouldBe List(2, 4, 6)
+    Dizi(1, 2, 3).yineleyici.ele(_ > 1).diziye shouldBe Seq(2, 3)
+    Dizi(1, 2, 3).yineleyici.topla shouldBe 6
+    Dizi(1, 2, 3).yineleyici.katla(10)(_ + _) shouldBe 16
+    Dizi(1, 2, 3).yineleyici.bul(_ > 1) shouldBe Some(2)
+    Dizi(1, 2).yineleyici.yazıYap("-") shouldBe "1-2"
+    Dizi(1, 2).yineleyici.kümeye shouldBe Set(1, 2)
+
+    val (a, b) = Dizi(1, 2, 3).yineleyici.ikizYap
+    a.dizine shouldBe List(1, 2, 3)
+    b.dizine shouldBe List(1, 2, 3)
+
+    val bi = Dizi(1, 2, 3).yineleyici.bellekli
+    bi.head shouldBe 1
+    bi.dizine shouldBe List(1, 2, 3) // başı okumak ilerletmedi
+
+    Dizi(1, 2).yineleyici.gösterdikleriAynıMı(Dizi(1, 2)) shouldBe true
+    Dizi(1, 2).yineleyici.gösterdikleriAynıMı(Dizi(2, 1)) shouldBe false
+  }
+
+  test("İkisindenBiri: Either'ın Türkçesi") {
+    Dizi(1, 2, 3, 4).bölİşle(x => if (x % 2 == 0) Sağ(x * 10) else Sol(x)) shouldBe
+      (Seq(1, 3), Seq(20, 40))
+    val sol: İkisindenBiri[Yazı, Sayı] = Sol("hata")
+    val sağ: İkisindenBiri[Yazı, Sayı] = Sağ(5)
+    sol.solMu shouldBe true
+    sağ.sağMı shouldBe true
+    sağ.işle(_ * 2) shouldBe Sağ(10)
+    sol.işle(_ * 2) shouldBe Sol("hata")
+    sağ.alYoksa(0) shouldBe 5
+    sol.alYoksa(0) shouldBe 0
+    sağ.belkiye shouldBe Some(5)
+    sol.belkiye shouldBe None
+    sağ.takasla shouldBe Sol(5)
+    sol.katla(h => s"yanlış: $h", d => s"değer: $d") shouldBe "yanlış: hata"
+    sağ.katla(h => s"yanlış: $h", d => s"değer: $d") shouldBe "değer: 5"
+    val ikisiDeYazı: İkisindenBiri[Yazı, Yazı] = Sol("soldaki")
+    ikisiDeYazı.birleştir shouldBe "soldaki"
+    İkisindenBiri.koşulla(3 > 2, "oldu", "olmadı") shouldBe Sağ("oldu")
   }
 
   test("Aralık gösterimi: yazıya ve çıktı paneli aynı gövdeyi kullanıyor") {
