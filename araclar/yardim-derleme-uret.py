@@ -87,11 +87,13 @@ def bicimDenetle(kaynak, yöntemler):
             eksikler.append('  %s: %s' % (ad, ', '.join(eksik)))
     if eksikler:
         sys.exit(
-            '%s: %d yöntem girdisinde alan eksik.\n%s\n'
+            '%s: %d yöntem girdisinde alan eksik%s.\n%s\n'
             'Dosya eski bir kojo sürümünden üretilmiş olabilir; kojo master\'dan\n'
             'yeniden üretin:\n'
             "  ./sbt.sh 'Test/runMain net.kogics.kojo.araclar.YardımDışaAktar <buradaki>/sozluk/yardim.json'"
-            % (os.path.normpath(kaynak), len(eksikler), '\n'.join(eksikler[:5]))
+            % (os.path.normpath(kaynak), len(eksikler),
+               ' (ilk 5 gösteriliyor)' if len(eksikler) > 5 else '',
+               '\n'.join(eksikler[:5]))
         )
 
 
@@ -101,7 +103,8 @@ def main():
     hedef = sys.argv[2] if len(sys.argv) > 2 else os.path.join(
         kok, 'src', 'test', 'scala', 'kojo', 'YardimOrnekDerlemeDeneme.scala')
 
-    veri = json.load(io.open(kaynak, encoding='utf-8'))
+    with io.open(kaynak, encoding='utf-8') as d:
+        veri = json.load(d)
     # yalnız "yöntem" girdilerinin yapılandırılmış örneği var; "metin"
     # girdileri elle yazılmış HTML, onları masaüstü YardımÖrnekleriTest sınıyor
     yöntemler = [(ad, g) for ad, g in sorted(veri.items()) if g.get('tür') == 'yöntem']
@@ -116,7 +119,8 @@ def main():
         satırlar = '\n'.join('    ' + s for s in ingilizce(kod).split('\n'))
         gövde.append('  // %s\n  def %s(): Any = {\n%s\n  }' % (ad, adı(ad), satırlar))
 
-    io.open(hedef, 'w', encoding='utf-8').write(BASLIK + '\n\n'.join(gövde) + '\n}\n')
+    with io.open(hedef, 'w', encoding='utf-8') as d:
+        d.write(BASLIK + '\n\n'.join(gövde) + '\n}\n')
     print('%s yazıldı (%d örnek)' % (os.path.normpath(hedef), len(örnekler)))
 
 

@@ -31,6 +31,11 @@ on:
     branches: [master]
   pull_request:
 
+# İş yalnız okuyor; token'ı en az yetkide sabitle -- deponun varsayılanı
+# ileride değişse de bu iş etkilenmesin.
+permissions:
+  contents: read
+
 jobs:
   uretilmis-dosyalar:
     name: üretilmiş dosyalar tazeyken mi
@@ -57,10 +62,17 @@ jobs:
         run: python3 araclar/sozluk-denetle.py
 
       # Asıl sav: yeniden üretim ağaçtakini DEĞİŞTİRMEMELİ.
+      #
+      # `git diff --exit-code` DEĞİL: o izlenmeyen dosyayı görmüyor (ölçüldü).
+      # Bir üreteç YENİ bir çıktı dosyası kazanırsa -- ya da bir hedefin adı
+      # değişip eskisi izlenmeye devam ederse -- yeni dosya commit'lenmese
+      # bile iş yeşil yanardı; yani tam da bu işin koruduğu değişmezin bir
+      # dilimi açık kalırdı. --porcelain ikisini birden görüyor.
       - name: üretilenler ağaçtakiyle aynı mı
         run: |
-          if ! git diff --exit-code; then
-            echo "::error::Üretilmiş dosyalar kaynağıyla uyuşmuyor."
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            echo "::error::Üretilmiş dosyalar kaynağıyla uyuşmuyor (yukarıda)."
             echo "Yerelde şunları koşup çıkan farkı commit'leyin:"
             echo "  araclar/gosteri-uret.py --scala"
             echo "  araclar/yardim-derleme-uret.py"

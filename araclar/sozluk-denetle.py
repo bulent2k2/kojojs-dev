@@ -43,8 +43,10 @@ def main():
     jsonYolu = sys.argv[1] if len(sys.argv) > 1 else os.path.join(kok, 'sozluk', 'yardim.json')
     htmlYolu = sys.argv[2] if len(sys.argv) > 2 else os.path.join(kok, 'sozluk', 'koco-sozlugu.html')
 
-    kaynak = io.open(jsonYolu, encoding='utf-8').read()
-    gömülü = gömülüBlok(io.open(htmlYolu, encoding='utf-8').read())
+    with io.open(jsonYolu, encoding='utf-8') as d:
+        kaynak = d.read()
+    with io.open(htmlYolu, encoding='utf-8') as d:
+        gömülü = gömülüBlok(d.read())
 
     if gömülü == kaynak:
         print('aynı: gömülü YARDIM bloğu == %s' % os.path.basename(jsonYolu))
@@ -62,7 +64,9 @@ def main():
     print('FARKLI: gömülü YARDIM bloğu %s ile aynı değil' % os.path.basename(jsonYolu), file=sys.stderr)
     for etiket, liste in (('sayfada eksik', eksik), ('sayfada fazla', fazla), ('içeriği farklı', başka)):
         if liste:
-            print('  %s (%d): %s' % (etiket, len(liste), ', '.join(liste[:8])), file=sys.stderr)
+            kesik = ' (ilk 8)' if len(liste) > 8 else ''
+            print('  %s (%d)%s: %s' % (etiket, len(liste), kesik, ', '.join(liste[:8])),
+                  file=sys.stderr)
     if not (eksik or fazla or başka):
         print('  anahtarlar aynı, yalnız biçim/sıra farkı', file=sys.stderr)
     sys.exit('Gömmeyi tazeleyin: yardim.json içeriğini koco-sozlugu.html\'deki\n'
