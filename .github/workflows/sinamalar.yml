@@ -1,0 +1,89 @@
+# Sınama takımını koşar.
+#
+# NEDEN AYRI DOSYA: üreteçler işi saniyeler sürüyor ve dış bağımlılığı yok;
+# bu iş JVM + Scala.js + Chrome istiyor ve dakikalar sürüyor. Ayrı iş akışı
+# = ayrı check run: buranın kırılganlığı oradaki hızlı yeşili bulandırmıyor.
+#
+# NEDEN VAR: Eylül 2026'da #53 ile birleşen bir düzeltme (boyamaRenginiKur
+# varsayılan hızda hiçbir şeyi doldurmuyordu) #51'in birleşmesinde sessizce
+# düştü -- BoyamaYolu.scala ve sınaması silinmiş, Turtle.scala eski hâline
+# dönmüştü. Hiçbir şey kırmızı yanmadı, çünkü sınamaları koşan bir iş yoktu;
+# kusur ancak elle ölçünce görüldü.
+#
+# DİKKAT -- tek başına bu iş o birleşmeyi YAKALAMAZDI: ölçüldü, düzeltme geri
+# alınmış kodda takımın tamamı 92/92 yeşil. Sebep şu: kusuru çiviliyen tek
+# sınama silinen dosyanın kendi sınamasıydı, o da onunla birlikte silinmişti.
+# Bu yüzden iş akışıyla BİRLİKTE BoyamaGerilemeTest eklendi -- Turtle'ın
+# davranışına bakıyor, çekirdek silinse de düşüyor (ölçüldü: geri alınmış
+# kodda düşüyor, düzeltmeliyle geçiyor). İkisi bir arada guard oluyor;
+# yalnız biri değil. Bir kusuru düzeltirken sorulacak soru bu: "hangi sınama
+# bunun geri gelmesini görür?" -- yoksa CI'nın yeşili bir şey vaat etmiyor.
+#
+# NEDEN TARAYICI: takımın tamamı ancak burada koşuyor. Node kipi hızlı ama
+# PIXI istemeyen sınamalarla sınırlı -- resim, çarpışma ve boya sınamaları
+# orada "PIXI is not defined" ile düşüyor (ölçüldü). Yani Node kipi bir kısa
+# yol değil, farklı bir kapsam; guard'ın işe yaraması için tarayıcı gerekiyor.
+#
+# WebGL GEREKMİYOR: sınamalar PIXI'nin geometrisine bakıyor, ekrana çizilene
+# değil. Başsız Chrome'un yazılım rasterleyicisi yetiyor (ölçüldü: 99/99).
+name: sınamalar
+
+# üreteçler işiyle aynı gerekçe: push yalnız master'da, dallar zaten
+# pull_request ile tetikleniyor (yoksa her PR itmesi işi iki kez koşuyor).
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tarayici-takimi:
+    name: tarayıcı sınama takımı
+    runs-on: ubuntu-latest
+    # Takım normalde birkaç dakika; asılı kalan bir tarayıcı oturumunu
+    # runner'ın 6 saatlik varsayılanına kadar beklemeyelim.
+    timeout-minutes: 30
+    env:
+      # Türkçe adlı .class dosyaları var; UTF-8 olmadan zinc çöküyor
+      # (InvalidPathException: Malformed input). Kozmetik değil.
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          # Coursier/ivy önbelleği: soğuk koşuda bağımlılık indirmesi
+          # derlemeden uzun sürüyor.
+          cache: sbt
+
+      # test-tarayici.sh kardeş kojo klonundaki launcher jar'ı arıyor; CI'da
+      # o yok, betik PATH'teki sbt'ye düşüyor. Onu buraya kuruyoruz.
+      - uses: sbt/setup-sbt@v1
+
+      # Chrome runner imajında kurulu geliyor; betik sürümünü okuyup EŞLEŞEN
+      # chromedriver'ı indiriyor (imajdakine güvenmiyoruz: ana sürüm
+      # uyuşmazlığında ChromeDriver oturum açmayı reddediyor).
+      - name: Chrome sürümü
+        id: chrome
+        run: |
+          surum="$(google-chrome --version | grep -oE '[0-9]+(\.[0-9]+){2,3}' | head -1)"
+          [ -n "$surum" ] || { echo "::error::Chrome sürümü okunamadı."; exit 1; }
+          echo "surum=$surum" >> "$GITHUB_OUTPUT"
+          echo "Chrome $surum"
+
+      # Sürüm başına bir dizin. Anahtar Chrome'un TAM sürümü: runner imajı
+      # Chrome'u yükseltince önbellek kendiliğinden ıskalıyor ve betik eşleşen
+      # sürücüyü yeniden indiriyor -- elle temizlemek gerekmiyor.
+      - name: chromedriver önbelleği
+        uses: actions/cache@v4
+        with:
+          path: .chromedriver
+          key: chromedriver-${{ runner.os }}-${{ steps.chrome.outputs.surum }}
+
+      - name: sınamalar
+        run: ./test-tarayici.sh
