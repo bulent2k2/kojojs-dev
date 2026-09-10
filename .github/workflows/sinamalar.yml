@@ -58,9 +58,14 @@ jobs:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
     steps:
-      - uses: actions/checkout@v4
+      # Action'lar MAJOR etiketine sabitleniyor (SHA'ya değil), uretecler.yml
+      # ile aynı politika: güvenlik yamaları kendiliğinden gelsin, kırıcı
+      # değişiklik ise major atlarken bilinçli olsun. GitHub eskiyen çalışma
+      # zamanını iş günlüğünde uyarı olarak duyuruyor -- o uyarı çıktığında
+      # buradaki üçü de, oradaki ikisi de tazelenmeli.
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           # 21: yerelde takımın koştuğu sürüm (ölçüldü: 101/101) ve kardeş
@@ -98,7 +103,7 @@ jobs:
       # ana sürüm hem doğru hem tutan anahtar. Chrome 153'e çıkınca kendiliğinden
       # ıskalayıp tazeleniyor.
       - name: chromedriver önbelleği
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .chromedriver
           key: chromedriver-${{ runner.os }}-${{ steps.chrome.outputs.ana }}
