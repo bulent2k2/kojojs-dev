@@ -28,6 +28,11 @@ libraryDependencies ++= Seq(
 // BoyaTest'teki "test harnessi PIXI 4'e geri kaymamış" savı bunu çiviliyor.
 jsDependencies += ProvidedJS / "pixi.min.js" % "test"
 jsDependencies += ProvidedJS / "jsts.min.js" % "test"
+// libtess: kendini kesen yolların NON_ZERO dolgusu (bkz. Ucgenleyici.scala,
+// oneri-kesisen-dolgu.md). lib/libtess.cat.js ile BAYT BAYT AYNI olmalı --
+// CI bunu denetliyor (.github/workflows/uretecler.yml). KÜÇÜLTÜLMÜŞ yapıyı
+// kullanmayın: window'a tek harfli 70 küresel ad bırakıyor.
+jsDependencies += ProvidedJS / "libtess.cat.js" % "test"
 
 // Selenium tabanlı tarayıcı testleri (varsayılan) -- PIXI/DOM isteyen resim,
 // çarpışma ve prelude testleri ancak burada koşuyor.

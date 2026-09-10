@@ -72,6 +72,38 @@ class BoyamaGerilemeTest extends AsyncFunSuite with Matchers with RepeatCommands
   /** Alan kaplayan (en az üç köşeli) dolgu parçası var mı. */
   private def alanKaplayanDolgu(t: Turtle): Seq[Int] = dolguKöşeSayıları(t).filter(_ >= 3)
 
+  /**
+   * Katmandaki dolgu parçalarının TOPLAM alanı.
+   *
+   * Neden köşe sayısı değil alan: dolgu artık tek bir çokgen değil, NON_ZERO
+   * üçgenleri olarak yayınlanıyor (bkz. Ucgenleyici). Yani "kapalı kare beş
+   * köşeli" savı temsile bağlıydı ve üçgenlemeyle anlamını yitirdi. Alan
+   * temsilden bağımsız ve daha güçlü: yarım yayınlanan bir şekil de,
+   * fazla dolduran bir sarım kuralı da alanı kaçırır.
+   */
+  private def dolguAlanı(t: Turtle): Double = {
+    kojoWorld.boyalarıBoşalt()
+    grafikler(t.turtleLayer).flatMap { g =>
+      g.finishPoly()
+      g.geometry.graphicsData.asInstanceOf[js.Array[js.Dynamic]].toSeq
+    }
+      .filter(gd => gd.fillStyle.visible.asInstanceOf[Boolean])
+      .filter(gd => js.typeOf(gd.shape.points) != "undefined")
+      .map { gd =>
+        val p = gd.shape.points.asInstanceOf[js.Array[Double]]
+        // ayakkabı bağı formülü
+        var a = 0.0
+        var i = 0
+        while (i < p.length) {
+          val j = (i + 2) % p.length
+          a += p(i) * p(j + 1) - p(j) * p(i + 1)
+          i += 2
+        }
+        math.abs(a) / 2
+      }
+      .sum
+  }
+
   private def kare(araRender: Boolean): (TurtlePicture, () => Turtle) = {
     var kaplumbağa: Turtle = null
     val p = PictureT { t =>
@@ -96,6 +128,7 @@ class BoyamaGerilemeTest extends AsyncFunSuite with Matchers with RepeatCommands
     for (_ <- p.ready) yield {
       // Bu yol kusurluyken de çalışıyordu; savı simetrik tutmak için burada.
       alanKaplayanDolgu(t()) should not be empty
+      dolguAlanı(t()) shouldBe 10000.0 +- 1.0
     }
   }
 
@@ -111,8 +144,11 @@ class BoyamaGerilemeTest extends AsyncFunSuite with Matchers with RepeatCommands
       ) {
         köşeler should not be empty
       }
-      // Kapalı kare: beş köşe (başlangıç noktası sonda yineleniyor).
-      köşeler.max should be(5)
+      // Kenarı 100 olan kapalı kare: alan tam 10000. Bu sav köşe sayımının
+      // yerini aldı -- dolgu artık üçgen üçgen yayınlanıyor, ama alan aynı.
+      withClue(s"kare dolgusunun alanı 10000 olmalı; parça köşeleri: $köşeler -- ") {
+        dolguAlanı(t()) shouldBe 10000.0 +- 1.0
+      }
     }
   }
 }
