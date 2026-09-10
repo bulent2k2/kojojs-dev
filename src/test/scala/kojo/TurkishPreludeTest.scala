@@ -305,6 +305,33 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       val seçilen: Yazı = rastgeleDiziden(Dizi("a", "b"), Dizi(0.7, 0.3))
       val seçilenY: Sayı = rastgeleDiziden(Yöney(1, 2, 3), Yöney(1.0, 1.0, 1.0))
       val seçilenTek: Sayı = rastgeleDiziden(Dizi(1, 2, 3)) // tek değişkenli imza bozulmadı
+
+      // Renk adları masaüstüyle eşit olmalı. Buradaki asıl sav DERLENMESİ:
+      // `Renkler` masaüstündeki (kojo tr/renk.scala) listeden dar kalırsa
+      // aynı yazılımcık ikojo'da "is not a member of ... Renkler" ile
+      // patlıyor -- Eylül 2026'da açıkAltınbaşakSarısı ve koyuDenizYeşili
+      // ile tam bunu yaşadık. Değer denetimi de var: adın DOĞRU renge
+      // bağlandığını çiviliyor.
+      val koyular: Dizi[Renk] = Dizi(
+        Renkler.koyuMavi, Renkler.koyuCamgöbeği, Renkler.koyuAltınbaşak,
+        Renkler.koyuKlasikGri, Renkler.koyuYeşil, Renkler.koyuHaki,
+        Renkler.koyuMorumsu, Renkler.koyuZeytinYeşili, Renkler.koyuTuruncu,
+        Renkler.koyuOrkidePembesi, Renkler.koyuKırmızı, Renkler.koyuSomon,
+        Renkler.koyuDenizYeşili, Renkler.koyuKurşunMavisi, Renkler.koyuKurşunGrisi,
+        Renkler.koyuTurkuaz, Renkler.koyuMenekşe)
+      val açıklar: Dizi[Renk] = Dizi(
+        Renkler.açıkMavi, Renkler.açıkMercan, Renkler.açıkCamgöbeği,
+        Renkler.açıkAltınbaşakSarısı, Renkler.açıkYeşil, Renkler.açıkPembe,
+        Renkler.açıkSomon, Renkler.açıkDenizYeşili, Renkler.açıkGökMavisi,
+        Renkler.açıkKurşunGrisi, Renkler.açıkÇelikMavisi, Renkler.açıkSarı)
+      koyular.length shouldBe 17
+      açıklar.length shouldBe 12
+      Renkler.açıkAltınbaşakSarısı shouldBe kojo.doodle.Color.lightGoldenrodYellow
+      Renkler.koyuDenizYeşili shouldBe kojo.doodle.Color.darkSeaGreen
+      Renkler.koyuKlasikGri shouldBe kojo.doodle.Color.darkGrayClassic
+      Renkler.açıkÇelikMavisi shouldBe kojo.doodle.Color.lightSteelBlue
+      // koyuMor eski addı; koyuMorumsu ile AYNI rengi vermeli
+      Renkler.koyuMorumsu shouldBe kojo.doodle.Color.darkMagenta
     }
     succeed
   }
