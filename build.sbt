@@ -20,6 +20,9 @@ libraryDependencies ++= Seq(
 
 // DİKKAT: src/test/resources/pixi.min.js SİTENİN sunduğu sürümle aynı olmalı
 // (kojojs-editor/server/src/main/assets/javascript/pixi.min.js -- şu an 5.3.12).
+// CI bunu lib/pixi5.min.js ile karşılaştırarak denetliyor (bkz.
+// .github/workflows/uretecler.yml); o dosya bugün siteninkiyle bayt bayt aynı.
+// Editör yükseltilirse ÜÇÜ birden tazelenmeli -- CI depolar arasını göremiyor.
 // Uzun süre burada PIXI 4 duruyordu: PixiUyum.beşVeÜstü her testte false
 // kalıyor, yani doku dolgusu yolu -- bütün gradyanlar -- hiç koşmuyordu.
 // BoyaTest'teki "test harnessi PIXI 4'e geri kaymamış" savı bunu çiviliyor.
