@@ -648,12 +648,35 @@ class KojoWorldImpl extends KojoWorld {
       )
   }
 
-  // Artalan neden CSS: masaüstünde artalan TUVALİN bir özelliği, sahnenin
-  // değil -- yakınlaştırınca/kaydırınca dünyayla birlikte kaymıyor
-  // (SpriteCanvas.setCanvasBackground). Sahneye çocuk olarak koysaydık
-  // stage.scale/position ile birlikte kayardı ve her karede ters dönüşüm
-  // uygulamak gerekirdi. CSS bunu bedavaya veriyor; üstelik dikey/yatay
-  // gradyan da tek satır.
+  // Artalan neden CSS -- ve masaüstünden nerede AYRIŞIYOR.
+  //
+  // Masaüstünde tek bir artalan davranışı yok, İKİ tane var
+  // (SpriteCanvas.setCanvasBackground, 793-810):
+  //
+  //   tam opak DÜZ RENK -> setBackgroundWrapper -> Swing bileşeninin
+  //     artalanı. Sahnenin dışında, kamerayla kaymıyor.
+  //   BAŞKA HER ŞEY (gradyan dahil, çünkü GradientPaint bir Color değil)
+  //     -> `case _` dalı: staging.Impl.API.rectangle(bounds.x, bounds.y, ...)
+  //     ile SAHNEYE konan bir dikdörtgen, DÜNYA koordinatlarında ve
+  //     çağrıldığı andaki görüş alanı kadar.
+  //
+  // Yani gradyanlarda masaüstü artalanı bir sahne düğümü: kamerayla birlikte
+  // ölçekleniyor, kayıyor, ve görüş alanı dışına çıkınca kenarı görünüyor.
+  // Burada CSS kullanmak düz renkte parity, GRADYANDA ise BİLİNÇLİ BİR
+  // AYRIŞMA: CSS artalanı her zaman tuvalin tamamını dolduruyor, yaklaş/kaydır
+  // onu hiç etkilemiyor.
+  //
+  // Ayrışma bilerek: bir öğrenciye "artalanı sarıdan turuncuya boya" dediğinde
+  // beklediği şey tuvalin tamamı, yakınlaştırınca kenarı çıkan bir dikdörtgen
+  // değil. Sahne düğümü yolunu seçseydik stage.scale/position'ı her karede
+  // ters çevirmek gerekirdi. Ama parity SANILMASIN diye buraya yazıldı.
+  //
+  // Bilinen ikinci ayrışma: masaüstünde sil() artalanı varsayılana döndürüyor
+  // (clearHelper -> setBackgroundWrapper(backgroundColor), currentBackgroundRect
+  // siliniyor). ikojo'da erasePictures artalana dokunmuyor, yani sil()'den
+  // sonra gradyan duruyor. Bu ayrışma bu değişiklikten önce de vardı (eski
+  // renderer.backgroundColor da sil()'i atlatıyordu); gradyan artık gerçek
+  // olduğu için daha görünür. Ayrı bir iş.
   private def cssRenk(c: Color): String = {
     val r = c.toRGBA
     "rgba(%d, %d, %d, %s)".format(r.r.get, r.g.get, r.b.get, r.a.get.toString)
@@ -668,11 +691,18 @@ class KojoWorldImpl extends KojoWorld {
     artalanaKoy(cssRenk(color))
   }
 
-  /** Yatay gradyan: soldan sağa (masaüstü setBackgroundH). */
+  /**
+   * Yatay gradyan: soldan sağa. Masaüstü `setBackgroundH`in karşılığı, ama
+   * BİREBİR DEĞİL: orada gradyan sahneye konan bir dikdörtgen, burada tuvalin
+   * CSS'i. Ayrıntı için yukarıdaki "Artalan neden CSS" notu.
+   */
   def setBackgroundH(c1: Color, c2: Color): Unit =
     artalanaKoy("linear-gradient(to right, %s, %s)".format(cssRenk(c1), cssRenk(c2)))
 
-  /** Dikey gradyan: yukarıdan aşağıya (masaüstü setBackgroundV). */
+  /**
+   * Dikey gradyan: yukarıdan aşağıya. Masaüstü `setBackgroundV`in karşılığı,
+   * ama BİREBİR DEĞİL -- bkz. yukarıdaki "Artalan neden CSS" notu.
+   */
   def setBackgroundV(c1: Color, c2: Color): Unit =
     artalanaKoy("linear-gradient(to bottom, %s, %s)".format(cssRenk(c1), cssRenk(c2)))
 
