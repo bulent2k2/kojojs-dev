@@ -63,12 +63,21 @@ bir iddia: "bu iki kapsayıcı aynı yüzey". Yeni çift eklemek ucuz.
 | kip | yakaladığı | yakalayamadığı |
 |---|---|---|
 | `--kojo <klon>` (yerel) | masaüstünde olup ikojo'da olmayan her ad | — |
-| `--anlik-goruntu` (CI) | ikojo'nun elindeki bir adı kaybetmesi | masaüstünün YENİ ad eklemesi |
+| `--anlik-goruntu` (CI) | ikojo'nun elindeki bir adı kaybetmesi — ortak olanlar **ve** ikojo'ya özgü olanlar | masaüstünün YENİ ad eklemesi |
 
 CI'ın klonu olmadığı için ikinci kip anlık görüntüye bakıyor
-(`araclar/masaustu-adlar.tsv`). Üçüncü sütun bugünkü gerçeği yazar
-(`var` / `boşluk`); CI yalnız `var` satırlarını zorunlu tutar, yani bugünkü
-boşluklar işi kırmızı yakmaz ama izlenen bir dosyada göz önünde durur.
+(`araclar/masaustu-adlar.tsv`). Üçüncü sütun bugünkü gerçeği yazar:
+
+| durum | anlamı | CI zorunlu tutuyor mu |
+|---|---|---|
+| `var` | masaüstünde ve ikojo'da | evet |
+| `yalnız-ikojo` | ikojo'nun kendi seçtiği ad (`silGeri`, `koyuMor`…) | evet |
+| `boşluk` | masaüstünde var, ikojo'da yok | hayır — kapatmak ayrı karar |
+
+`yalnız-ikojo` sonradan eklendi: anlık görüntü başta yalnız masaüstü adlarını
+yazıyordu, dolayısıyla ikojo'nun masaüstünden **ayrıldığı** noktalarda seçtiği
+adların hiç gözcüsü yoktu (#60 incelemesi ölçtü). Bugünkü boşluklar işi kırmızı
+yakmaz ama izlenen bir dosyada göz önünde durur.
 
 ## `sozluk-renk-denetle.py` — sözlükteki renk satırları koddakiyle aynı mı
 

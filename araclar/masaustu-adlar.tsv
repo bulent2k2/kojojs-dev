@@ -1,11 +1,15 @@
-# Masaüstü Koco'daki adların anlık görüntüsü. Üretim: araclar/adlar.py --tsv
+# İki taraftaki adların anlık görüntüsü. Üretim: araclar/adlar.py --tsv
 #
-# sütunlar: kapsayıcı, ad, durum ("var" = ikojo'da da var, "boşluk" = yok)
-# CI (adlar.py --anlik-goruntu) yalnız "var" satırlarını zorunlu tutar:
-# ikojo elindeki bir adı kaybederse kırmızı yanar. Bugünkü boşlukları
-# kapatmak ayrı bir karar; burada görünür kalsınlar diye yazılıyorlar.
+# sütunlar: kapsayıcı, ad, durum
+#   var          masaüstünde ve ikojo'da
+#   boşluk       masaüstünde var, ikojo'da YOK
+#   yalnız-ikojo ikojo'nun kendi seçtiği ad (masaüstünde yok)
+# CI (adlar.py --anlik-goruntu) "var" ve "yalnız-ikojo" satırlarını
+# zorunlu tutar: ikojo elindeki bir adı kaybederse kırmızı yanar.
+# "boşluk" olanları kapatmak ayrı bir karar; burada görünür kalsınlar
+# diye yazılıyorlar.
 #
-# Renkler (renk adları): 61 ad, 0 boşluk
+# Renkler (renk adları): 61 ortak, 0 boşluk, 2 yalnız-ikojo
 Renkler	altın	var
 Renkler	altınbaşak	var
 Renkler	açıkAltınbaşakSarısı	var
@@ -40,6 +44,7 @@ Renkler	koyuKurşunMavisi	var
 Renkler	koyuKırmızı	var
 Renkler	koyuMavi	var
 Renkler	koyuMenekşe	var
+Renkler	koyuMor	yalnız-ikojo
 Renkler	koyuMorumsu	var
 Renkler	koyuOrkidePembesi	var
 Renkler	koyuSomon	var
@@ -59,6 +64,7 @@ Renkler	orkidePembesi	var
 Renkler	pembe	var
 Renkler	renksiz	var
 Renkler	sarı	var
+Renkler	saydam	yalnız-ikojo
 Renkler	siyah	var
 Renkler	somon	var
 Renkler	turkuaz	var
@@ -68,7 +74,7 @@ Renkler	yeşilimsiSarı	var
 Renkler	zeytin	var
 Renkler	çelikMavisi	var
 #
-# tuşlar (tuş adları): 76 ad, 19 boşluk
+# tuşlar (tuş adları): 57 ortak, 19 boşluk, 7 yalnız-ikojo
 tuşlar	a	var
 tuşlar	alt	var
 tuşlar	aşağı	var
@@ -76,6 +82,7 @@ tuşlar	b	var
 tuşlar	back_space	boşluk
 tuşlar	boşluk	var
 tuşlar	bölü	var
+tuşlar	büyükHarfKilidi	yalnız-ikojo
 tuşlar	büyük_harf_kilitleme	boşluk
 tuşlar	c	var
 tuşlar	cancel	boşluk
@@ -116,6 +123,7 @@ tuşlar	n7	var
 tuşlar	n8	var
 tuşlar	n9	var
 tuşlar	nokta	var
+tuşlar	noktalıVirgül	yalnız-ikojo
 tuşlar	noktalı_virgül	boşluk
 tuşlar	o	var
 tuşlar	p	var
@@ -125,13 +133,18 @@ tuşlar	pause	boşluk
 tuşlar	q	var
 tuşlar	r	var
 tuşlar	s	var
+tuşlar	satırBaşı	yalnız-ikojo
+tuşlar	satırSonu	yalnız-ikojo
 tuşlar	satır_başı	boşluk
 tuşlar	satır_sonu	boşluk
+tuşlar	sayfaAşağı	yalnız-ikojo
+tuşlar	sayfaYukarı	yalnız-ikojo
 tuşlar	sayfa_aşağı	boşluk
 tuşlar	sayfa_yukarı	boşluk
 tuşlar	sağ	var
 tuşlar	sekme	var
 tuşlar	shift	boşluk
+tuşlar	silGeri	yalnız-ikojo
 tuşlar	sil_geri	boşluk
 tuşlar	sol	var
 tuşlar	t	var

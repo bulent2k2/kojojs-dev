@@ -54,14 +54,32 @@ EŞLEŞMELER = [
 DEMET = re.compile(r'\bval\s*\(([^)]*)\)\s*=', re.U | re.S)
 
 
+# Yorum ve dizgeler TEK geçişte, metinde hangisi önce başlıyorsa o kazanacak
+# şekilde eleniyor. Ard arda re.sub yapmak sıraya duyarlı ve İKİ yönde de
+# yanlış (ikisi de ölçüldü):
+#   yorumlar önce -> "x//y" dizgesindeki // yorum sanılır, satırın kalanı gider
+#                    (val a = "x//y"; val b = 2   -> b kayboluyordu)
+#   dizgeler önce -> `// o "dedi` yorumundaki tırnak dizge başlatır
+# Tek alternasyon ikisini de çözüyor.
+AYIKLA = re.compile(
+    r'/\*.*?\*/'                 # blok yorum
+    r'|//[^\n]*'                 # satır yorumu
+    r'|"""(?:.|\n)*?"""'         # üç tırnaklı dizge
+    r'|"(?:\\.|[^"\\\n])*"'      # dizge
+    r"|'(?:\\.|[^'\\\n])'",      # harf sabiti
+    re.S)
+
+
 def soy(s):
     """Yorumları ve dizgeleri at; geriye yalnız kod kalsın."""
-    s = re.sub(r'/\*.*?\*/', '', s, flags=re.S)
-    s = re.sub(r'//[^\n]*', '', s)
-    s = re.sub(r'"""(?:.|\n)*?"""', '""', s)
-    s = re.sub(r'"(?:\\.|[^"\\\n])*"', '""', s)
-    s = re.sub(r"'(?:\\.|[^'\\\n])'", "''", s)
-    return s
+    def yerine(m):
+        t = m.group(0)
+        if t.startswith('"'):
+            return '""'
+        if t.startswith("'"):
+            return "''"
+        return ''
+    return AYIKLA.sub(yerine, s)
 
 
 def üyeler(yol, kapsayıcı):
@@ -90,6 +108,18 @@ def üyeler(yol, kapsayıcı):
                 break
         j += 1
     gövde = s[i:j]
+    # İç içe kapsayıcı UYARISI. Bu ayrıştırıcı gövdeyi düz metin olarak
+    # tarıyor, iç bloğu ayırmıyor: iç kapsayıcının üyeleri dıştakine yazılır
+    # (ölçüldü: `object tuşlar { val enter; object iç { val gizli } }` ->
+    # ['enter', 'gizli']). Bugünkü çiftlerde iç kapsayıcı yok; ama yeni bir
+    # çift eklemek ucuz olduğu için bu tuzak sessiz kalmamalı -- iki tarafta
+    # iç içe yapı simetrik değilse doğrudan SAHTE boşluk üretir, yani elle
+    # eşleşme listesiyle kaçınmaya çalıştığımız şeyin ta kendisi.
+    iç = re.search(r'\b(?:object|class|trait)\s+', gövde)
+    if iç:
+        print('UYARI: %s içindeki "%s" gövdesinde iç içe kapsayıcı var; üyeleri '
+              'dıştakine sayılıyor. Eşleşmeyi elden geçirin.' % (yol, kapsayıcı),
+              file=sys.stderr)
     adlar = {u.group(1).strip('`') for u in ÜYE.finditer(gövde)}
     for m in DEMET.finditer(gövde):
         for ad in m.group(1).split(','):
@@ -118,7 +148,13 @@ def anlıkGörüntüyüOku():
 def anlıkGörüntüyeGöre():
     """kojo klonu OLMADAN denetim (CI burayı koşuyor).
 
-    Yakaladığı: ikojo'nun elindeki bir adı KAYBETMESİ (gerileme).
+    Yakaladığı: ikojo'nun elindeki bir adı KAYBETMESİ (gerileme) -- hem
+    masaüstüyle ortak olanlar hem ikojo'ya ÖZGÜ olanlar (silGeri, koyuMor...).
+    İkincisi baştan kapsam dışıydı: anlık görüntü yalnız masaüstü adlarını
+    yazıyordu, dolayısıyla ikojo'nun kendi seçtiği adların hiç gözcüsü yoktu --
+    yani ikojo'nun masaüstünden AYRILDIĞI noktalar korumasızdı (inceleme ölçtü,
+    #60). Artık üçüncü bir durum var: "yalnız-ikojo".
+
     Yakalayamadığı: masaüstünün YENİ bir ad eklemesi -- o, anlık görüntüde de
     olmadığından buradan görünmez; onun için tam karşılaştırma (--kojo) gerek.
     Bu sınır teknik: koşucuda masaüstü klonu yok.
@@ -128,18 +164,21 @@ def anlıkGörüntüyeGöre():
     for kapsayıcı, _, ikYol, ne in EŞLEŞMELER:
         var = üyeler(os.path.join(IKOJO, ikYol), kapsayıcı)
         bek = beklenen.get(kapsayıcı, {})
-        eksik = sorted(bek.get('var', set()) - var)
+        ortak = bek.get('var', set())
+        özgü = bek.get('yalnız-ikojo', set())
         boşluk = bek.get('boşluk', set())
+        eksik = sorted((ortak | özgü) - var)
         if eksik:
             kötü = True
             print('::error::%s (%s): ikojo\'da olması beklenen %d ad kaybolmuş'
                   % (kapsayıcı, ne, len(eksik)), file=sys.stderr)
             for ad in eksik:
-                print('    %s' % ad, file=sys.stderr)
+                nereden = 'masaüstünde de var' if ad in ortak else 'ikojo\'ya özgü'
+                print('    %-24s (%s)' % (ad, nereden), file=sys.stderr)
         else:
             ek = ', bilinen boşluk %d' % len(boşluk) if boşluk else ''
-            print('%-10s %-14s beklenen %d adın hepsi var%s'
-                  % (kapsayıcı, '(%s)' % ne, len(bek.get('var', set())), ek))
+            print('%-10s %-14s beklenen %d ad (%d ortak + %d ikojo\'ya özgü) yerinde%s'
+                  % (kapsayıcı, '(%s)' % ne, len(ortak) + len(özgü), len(ortak), len(özgü), ek))
     if kötü:
         sys.exit('ikojo, masaüstünün anlık görüntüsünün gerisine düştü.\n'
                  'Ya kaybolan adları geri getirin, ya da (masaüstü onları BİLEREK\n'
@@ -172,24 +211,37 @@ def yazdır(sonuç):
 
 
 def tsvYaz(sonuç):
-    """Anlık görüntü: masaüstündeki her ad, ikojo'da olup olmadığıyla.
+    """Anlık görüntü: iki tarafın adları, bugünkü durumlarıyla.
 
-    Üçüncü sütun BUGÜNKÜ gerçeği yazıyor: 'var' ya da 'boşluk'. CI yalnız
-    'var' satırlarını zorunlu tutuyor, yani bugünkü boşluklar işi kırmızı
-    yakmıyor ama İZLENEN bir dosyada, göz önünde duruyorlar.
+    Üçüncü sütun BUGÜNKÜ gerçeği yazıyor:
+      var          -- masaüstünde ve ikojo'da
+      boşluk       -- masaüstünde var, ikojo'da yok
+      yalnız-ikojo -- ikojo'nun kendi seçtiği ad (silGeri, koyuMor...)
+    CI 'var' ve 'yalnız-ikojo' satırlarını zorunlu tutuyor; 'boşluk' olanlar
+    işi kırmızı yakmıyor ama İZLENEN bir dosyada, göz önünde duruyorlar.
     """
     with io.open(ANLIK, 'w', encoding='utf-8') as d:
-        d.write('# Masaüstü Koco\'daki adların anlık görüntüsü. Üretim: araclar/adlar.py --tsv\n')
+        d.write('# İki taraftaki adların anlık görüntüsü. Üretim: araclar/adlar.py --tsv\n')
         d.write('#\n')
-        d.write('# sütunlar: kapsayıcı, ad, durum ("var" = ikojo\'da da var, "boşluk" = yok)\n')
-        d.write('# CI (adlar.py --anlik-goruntu) yalnız "var" satırlarını zorunlu tutar:\n')
-        d.write('# ikojo elindeki bir adı kaybederse kırmızı yanar. Bugünkü boşlukları\n')
-        d.write('# kapatmak ayrı bir karar; burada görünür kalsınlar diye yazılıyorlar.\n')
+        d.write('# sütunlar: kapsayıcı, ad, durum\n')
+        d.write('#   var          masaüstünde ve ikojo\'da\n')
+        d.write('#   boşluk       masaüstünde var, ikojo\'da YOK\n')
+        d.write('#   yalnız-ikojo ikojo\'nun kendi seçtiği ad (masaüstünde yok)\n')
+        d.write('# CI (adlar.py --anlik-goruntu) "var" ve "yalnız-ikojo" satırlarını\n')
+        d.write('# zorunlu tutar: ikojo elindeki bir adı kaybederse kırmızı yanar.\n')
+        d.write('# "boşluk" olanları kapatmak ayrı bir karar; burada görünür kalsınlar\n')
+        d.write('# diye yazılıyorlar.\n')
         for kapsayıcı, ne, masa, ik in sonuç:
-            boşluk = len(masa - ik)
-            d.write('#\n# %s (%s): %d ad, %d boşluk\n' % (kapsayıcı, ne, len(masa), boşluk))
-            for ad in sorted(masa):
-                d.write('%s\t%s\t%s\n' % (kapsayıcı, ad, 'var' if ad in ik else 'boşluk'))
+            d.write('#\n# %s (%s): %d ortak, %d boşluk, %d yalnız-ikojo\n'
+                    % (kapsayıcı, ne, len(masa & ik), len(masa - ik), len(ik - masa)))
+            for ad in sorted(masa | ik):
+                if ad in masa and ad in ik:
+                    durum = 'var'
+                elif ad in masa:
+                    durum = 'boşluk'
+                else:
+                    durum = 'yalnız-ikojo'
+                d.write('%s\t%s\t%s\n' % (kapsayıcı, ad, durum))
     print('anlık görüntü yazıldı: %s' % ANLIK)
 
 
