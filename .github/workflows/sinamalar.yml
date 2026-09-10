@@ -4,20 +4,18 @@
 # bu iş JVM + Scala.js + Chrome istiyor ve dakikalar sürüyor. Ayrı iş akışı
 # = ayrı check run: buranın kırılganlığı oradaki hızlı yeşili bulandırmıyor.
 #
-# NEDEN VAR: Eylül 2026'da #53 ile birleşen bir düzeltme (boyamaRenginiKur
-# varsayılan hızda hiçbir şeyi doldurmuyordu) #51'in birleşmesinde sessizce
-# düştü -- BoyamaYolu.scala ve sınaması silinmiş, Turtle.scala eski hâline
-# dönmüştü. Hiçbir şey kırmızı yanmadı, çünkü sınamaları koşan bir iş yoktu;
-# kusur ancak elle ölçünce görüldü.
+# NEDEN VAR: bu depoda sınama takımını koşan bir CI yoktu -- `uretecler.yml`
+# yalnız üretilmiş dosyaların tazeliğine bakıyor, saf Python. Sonucu ölçüldü:
+# `boyamaRenginiKur` varsayılan hızda hiçbir şeyi doldurmuyordu, kusur canlı
+# sitede duruyordu ve hiçbir şey kırmızı yanmadı.
 #
-# DİKKAT -- tek başına bu iş o birleşmeyi YAKALAMAZDI: ölçüldü, düzeltme geri
-# alınmış kodda takımın tamamı 92/92 yeşil. Sebep şu: kusuru çiviliyen tek
-# sınama silinen dosyanın kendi sınamasıydı, o da onunla birlikte silinmişti.
-# Bu yüzden iş akışıyla BİRLİKTE BoyamaGerilemeTest eklendi -- Turtle'ın
-# davranışına bakıyor, çekirdek silinse de düşüyor (ölçüldü: geri alınmış
-# kodda düşüyor, düzeltmeliyle geçiyor). İkisi bir arada guard oluyor;
-# yalnız biri değil. Bir kusuru düzeltirken sorulacak soru bu: "hangi sınama
-# bunun geri gelmesini görür?" -- yoksa CI'nın yeşili bir şey vaat etmiyor.
+# DİKKAT -- tek başına bu iş o kusuru YAKALAMAZDI: ölçüldü, kusurlu master'da
+# takımın tamamı 92/92 yeşil. Sebebi basit: hiçbir sınama o davranışı
+# kapsamıyordu. Bu yüzden iş akışıyla BİRLİKTE BoyamaGerilemeTest eklendi --
+# Turtle'ın davranışına bakıyor ve düzeltmesiz kodda düşüyor (ölçüldü).
+# İkisi bir arada guard oluyor; yalnız biri değil. Bir kusuru düzeltirken
+# sorulacak soru bu: "hangi sınama bunun geri gelmesini görür?" -- görmüyorsa
+# CI'nın yeşili bir şey vaat etmiyor.
 #
 # NEDEN TARAYICI: takımın tamamı ancak burada koşuyor. Node kipi hızlı ama
 # PIXI istemeyen sınamalarla sınırlı -- resim, çarpışma ve boya sınamaları
@@ -25,7 +23,16 @@
 # yol değil, farklı bir kapsam; guard'ın işe yaraması için tarayıcı gerekiyor.
 #
 # WebGL GEREKMİYOR: sınamalar PIXI'nin geometrisine bakıyor, ekrana çizilene
-# değil. Başsız Chrome'un yazılım rasterleyicisi yetiyor (ölçüldü: 99/99).
+# değil. Başsız Chrome'un yazılım rasterleyicisi yetiyor (ölçüldü: 101/101).
+#
+# KIRILGANLIK -- ilk kırmızıyı görene not: bu takım geliştirme sırasında bir
+# kez `JS error: Script error.` ile düştü ve yeniden koşumda geçti; kaynağı
+# anlaşılmadı (bkz. oneri-tarayici-testleri.md, bölüm 6). Yani buradaki bir
+# kırmızı ORTAM kaynaklı olabilir. Ama otomatik yeniden deneme KASTEN yok:
+# yeniden deneme gerçek bir kusuru da yutar ve yeşili anlamsızlaştırır.
+# Kural: kırmızı, aksi gösterilene kadar gerçektir. Şüphelenilen bir koşuyu
+# elle yeniden koşturup ikisini karşılaştırmak -- ve kaynağı bulunca buraya
+# yazmak -- doğru yol.
 name: sınamalar
 
 # üreteçler işiyle aynı gerekçe: push yalnız master'da, dallar zaten
@@ -56,7 +63,11 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          # 21: yerelde takımın koştuğu sürüm (ölçüldü: 101/101) ve kardeş
+          # kojo deposunun ölçülmüş seçimi. Bir gereklilik DEĞİL -- 17 de
+          # çalışıyor (ölçüldü: bu işin ilk koşusu 17'deydi, 101/101).
+          # Depolar arasında tek sürümde durmak için 21.
+          java-version: "21"
           # Coursier/ivy önbelleği: soğuk koşuda bağımlılık indirmesi
           # derlemeden uzun sürüyor.
           cache: sbt

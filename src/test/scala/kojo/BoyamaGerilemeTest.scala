@@ -8,12 +8,12 @@ import scala.scalajs.js
 /**
  * `boyamaRenginiKur`ün ASIL kusurunu çivileyen gerileme sınaması.
  *
- * NEDEN VAR: kusur bir kez düzeltilip birleşti, sonra bir başka birleşmede
- * sessizce geri düştü ve HİÇBİR sınama kırmızı yanmadı -- ölçüldü: düzeltme
- * geri alınmış kodda tarayıcı takımının tamamı 92/92 yeşildi. BoyamaYolu'nun
- * kendi sınaması saf çekirdeği doğruluyor ama çekirdek dosyayla birlikte
- * silindiği için o da yok oluyordu. Buradaki sav Turtle'ın DAVRANIŞINA
- * bakıyor: çekirdek silinse de, bağlantısı koparılsa da bu düşüyor.
+ * NEDEN VAR: kusur master'da fark edilmeden durdu ve HİÇBİR sınama kırmızı
+ * yanmadı -- ölçüldü: kusurlu kodda tarayıcı takımının tamamı 92/92 yeşil.
+ * Hiçbir sınama bu davranışı kapsamıyordu. BoyamaYolu'nun kendi sınaması saf
+ * çekirdeği doğruluyor, ama çekirdek silinir ya da Turtle'daki bağlantısı
+ * koparılırsa hiçbir şey söylemez. Buradaki sav Turtle'ın DAVRANIŞINA
+ * bakıyor: iki durumda da düşüyor.
  *
  * KUSUR NEYDİ: PIXI 5'te `Graphics._render` her çizimde `finishPoly()` çağırıp
  * yarım kalan çokgeni olduğu yerde kapatıyor. Kaplumbağa şekli kenar kenar
