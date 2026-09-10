@@ -23,12 +23,15 @@ import os
 import re
 import sys
 
-# Renkler'de DRenk.<ad> ile TANIMLANMAYANLAR. Üçü de bilinçli:
-#   renksiz -- palette karşılığı yok, doğrudan DRenk(0,0,0,0)
+# Bazı adlar karşılaştırmaya HİÇ girmiyor, çünkü `DRenk.<ad>` biçiminde
+# tanımlanmıyorlar -- ayrı bir eleme listesine gerek yok, ayrıştırıcı onları
+# zaten toplamıyor (ölçüldü):
+#   renksiz -- DRenk(0, 0, 0, 0), paletten gelmiyor
 #   saydam  -- renksiz'in takma adı
-#   koyuMor -- koyuMorumsu'nun eskitilmiş takma adı; sözlükte kendi satırı
-#              yok, darkMagenta satırının notunda geçiyor
-PALETSİZ = {'renksiz', 'saydam'}
+#   koyuMor -- koyuMorumsu'nun eskitilmiş takma adı; sözlükte kendi satırı yok,
+#              darkMagenta satırının notunda geçiyor
+# (Önceki sürümde bunun için bir PALETSİZ kümesi vardı; hiçbir şey elemiyordu
+#  -- inceleme ölçtü, kaldırıldı.)
 
 
 def paletAdları(yol):
@@ -60,7 +63,11 @@ def koddakiRenkler(yol):
 
 
 def sözlükRenkleri(yol, palet):
-    """koco-sozlugu.html'deki val tablosundan {ingilizce: türkçe}."""
+    """koco-sozlugu.html'deki val tablosundan {ingilizce: [türkçe, ...]}.
+
+    Liste, çünkü aynı renge iki satır düşmesi de bir kusur: sözlükte tek bir
+    dict'e sıkıştırılsa biri sessizce kaybolurdu.
+    """
     with io.open(yol, encoding='utf-8') as d:
         s = d.read()
     try:
@@ -69,7 +76,11 @@ def sözlükRenkleri(yol, palet):
     except ValueError:
         sys.exit('%s içinde key:"val" bölümü bulunamadı' % yol)
     satırlar = re.findall(r'\["([^"]*)","([^"]*)","([^"]*)"\]', b)
-    return {en: tr for en, tr, _ in satırlar if en in palet}
+    out = {}
+    for en, tr, _ in satırlar:
+        if en in palet:
+            out.setdefault(en, []).append(tr)
+    return out
 
 
 def main():
@@ -78,21 +89,40 @@ def main():
     doğrudan = koddakiRenkler(os.path.join(kok, 'src/main/scala/kojo/tr/renk.scala'))
     sözlük = sözlükRenkleri(os.path.join(kok, 'sozluk/koco-sozlugu.html'), palet)
 
-    kod = {en: tr for tr, en in doğrudan.items() if tr not in PALETSİZ}
+    # Kod tarafı KÜME: bir renge birden çok Türkçe ad verilebilir. Düz bir
+    # {ingilizce: türkçe} sözlüğüne çevirmek ikinci adı SESSİZCE düşürüyordu --
+    # üstelik hangisinin düştüğü dosyadaki sıraya bağlıydı, yani aynı değişiklik
+    # bazen kırmızı bazen yeşil yanıyordu (inceleme ölçtü, #59).
+    kod = {}
+    for tr, en in doğrudan.items():
+        kod.setdefault(en, set()).add(tr)
 
     eksik = sorted(set(kod) - set(sözlük))          # kodda var, sözlükte yok
     fazla = sorted(set(sözlük) - set(kod))          # sözlükte var, kodda yok
-    başka = sorted(en for en in set(kod) & set(sözlük) if kod[en] != sözlük[en])
+    ortak = set(kod) & set(sözlük)
+    çift = sorted(en for en in ortak if len(sözlük[en]) > 1)
+    başka = sorted(en for en in ortak if not set(sözlük[en]) & kod[en])
+    # Bir renge iki ad verilip yalnız birinin satırı varsa: öteki ad sözlükte yok.
+    satırsız = sorted(en for en in ortak
+                      if set(sözlük[en]) & kod[en] and kod[en] - set(sözlük[en]))
 
-    if not (eksik or fazla or başka):
+    if not (eksik or fazla or başka or çift or satırsız):
         print('aynı: sözlükteki %d renk satırı Renkler ile eşleşiyor' % len(kod))
         return
 
+    def adlar(k):
+        return ', '.join(sorted(k))
+
     print('FARKLI: sözlükteki renk satırları Renkler ile aynı değil', file=sys.stderr)
     for etiket, liste, biçim in (
-            ('sözlükte eksik', eksik, lambda en: '%s -> %s' % (en, kod[en])),
-            ('sözlükte fazla', fazla, lambda en: '%s -> %s' % (en, sözlük[en])),
-            ('türkçesi farklı', başka, lambda en: '%s: kod %s / sözlük %s' % (en, kod[en], sözlük[en]))):
+            ('sözlükte eksik', eksik, lambda en: '%s -> %s' % (en, adlar(kod[en]))),
+            ('sözlükte fazla', fazla, lambda en: '%s -> %s' % (en, adlar(sözlük[en]))),
+            ('türkçesi farklı', başka,
+             lambda en: '%s: kod %s / sözlük %s' % (en, adlar(kod[en]), adlar(sözlük[en]))),
+            ('aynı renge birden çok satır', çift, lambda en: '%s -> %s' % (en, adlar(sözlük[en]))),
+            ('tek renge birden çok ad, satırı olmayan', satırsız,
+             lambda en: '%s: %s (satırı olan: %s)'
+                        % (en, adlar(kod[en] - set(sözlük[en])), adlar(set(sözlük[en]) & kod[en])))):
         if liste:
             print('  %s (%d):' % (etiket, len(liste)), file=sys.stderr)
             for en in liste:
