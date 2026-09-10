@@ -1,4 +1,11 @@
-# Üretilmiş dosyalar kaynaklarıyla aynı mı.
+# Üretilmiş ve çoğaltılmış dosyalar kaynaklarıyla aynı mı.
+#
+# İki tür dosya var ve ikisi de aynı hataya açık -- "kopya kaynağından
+# sessizce ayrıldı":
+#   ÜRETİLMİŞ    bir betiğin çıktısı (OrnekDerlemeDeneme.scala,
+#                YardimOrnekDerlemeDeneme.scala, sözlükteki gömülü YARDIM)
+#   ÇOĞALTILMIŞ  başka bir yerden kopyalanmış satıcı dosyası
+#                (src/test/resources/pixi.min.js <- lib/pixi5.min.js)
 #
 # NEDEN BU İŞ: bu depodaki birkaç dosya üretilmiş ama COMMIT'Lİ --
 # OrnekDerlemeDeneme.scala, YardimOrnekDerlemeDeneme.scala, ve sözlük
@@ -38,7 +45,7 @@ permissions:
 
 jobs:
   uretilmis-dosyalar:
-    name: üretilmiş dosyalar tazeyken mi
+    name: üretilmiş ve çoğaltılmış dosyalar tazeyken mi
     runs-on: ubuntu-latest
     env:
       # Türkçe adlar ve içerik var; UTF-8 bu depoda kozmetik değil.
@@ -51,6 +58,28 @@ jobs:
         with:
           python-version: "3.11"
 
+      # Bu denetim hiçbir şeye bağlı değil ve ağacı değiştirmiyor, o yüzden
+      # önce: üreteç adımlarından biri alakasız bir sebeple düşerse bunun
+      # hiç koşmaması boşuna olurdu.
+      #
+      # Test harnessi ile kütüphanedeki PIXI aynı DOSYA olmalı. #52'nin
+      # gözcüsü (BoyaTest: "test harnessi PIXI 4'e geri kaymamış") sürümün
+      # 5+ olmasını denetliyor; bu, kütüphane 5.4'e geçip harness 5.3.12'de
+      # kalırsa sessiz kalırdı -- yani #52'nin kapattığı hatanın bir sonraki
+      # sürümü. lib/pixi5.min.js izlenen bir dosya (run5.html onu yüklüyor).
+      #
+      # SINIRI: bu, harness'i lib'e bağlıyor; asıl değişmez ise harness'in
+      # SİTENİN sunduğu PIXI'yi koşması. Editör tek başına yükselirse burası
+      # yeşil kalır -- depolar arası, ayrı bir iş.
+      - name: test harnessindeki PIXI kütüphanedekiyle aynı mı
+        run: |
+          if ! cmp src/test/resources/pixi.min.js lib/pixi5.min.js; then
+            echo "::error::src/test/resources/pixi.min.js ile lib/pixi5.min.js ayrışmış."
+            echo "Testler sitenin sunduğundan başka bir PIXI koşuyor demektir."
+            echo "Tazelemek için:  cp lib/pixi5.min.js src/test/resources/pixi.min.js"
+            exit 1
+          fi
+
       # Betiklerin kendi savları: yardim.json beklenen alanları taşıyor mu
       # (üretim bunun üzerine kuruluyor), ve her zrc gidiş-dönüş sınanıyor.
       - name: gösteri ve yardım örneklerini yeniden üret
@@ -61,21 +90,6 @@ jobs:
       - name: sözlükteki gömülü YARDIM bloğu yardim.json ile aynı mı
         run: python3 araclar/sozluk-denetle.py
 
-      # Test harnessi ile kütüphanedeki PIXI aynı DOSYA olmalı. #52'nin
-      # gözcüsü (BoyaTest: "test harnessi PIXI 4'e geri kaymamış") sürümün
-      # 5+ olmasını denetliyor; bu, kütüphane 5.4'e geçip harness 5.3.12'de
-      # kalırsa sessiz kalırdı -- yani #52'nin kapattığı hatanın bir sonraki
-      # sürümü. lib/pixi5.min.js izlenen bir dosya (run5.html onu yüklüyor)
-      # ve sitenin sunduğuyla bayt bayt aynı, dolayısıyla karşılaştırılacak
-      # referans burada.
-      - name: test harnessindeki PIXI kütüphanedekiyle aynı mı
-        run: |
-          if ! cmp src/test/resources/pixi.min.js lib/pixi5.min.js; then
-            echo "::error::src/test/resources/pixi.min.js ile lib/pixi5.min.js ayrışmış."
-            echo "Testler sitenin sunduğundan başka bir PIXI koşuyor demektir."
-            echo "Tazelemek için:  cp lib/pixi5.min.js src/test/resources/pixi.min.js"
-            exit 1
-          fi
 
       # Asıl sav: yeniden üretim ağaçtakini DEĞİŞTİRMEMELİ.
       #
