@@ -88,12 +88,16 @@ class TembelBoyamaTest extends AnyFunSuite with Matchers {
     yayın should be(2)
   }
 
-  test("bekleyenBoyalarıUnut: silinen katmana yayın yapılmıyor") {
+  test("bekleyenBoyayıUnut YALNIZ o çizeri düşürüyor, ötekiler ayakta") {
     val dünya = new TestKojoWorld
-    val s = new Sayaç
-    dünya.boyaKirlendi(s)
-    dünya.bekleyenBoyalarıUnut()
+    val a = new Sayaç
+    val b = new Sayaç
+    dünya.boyaKirlendi(a)
+    dünya.boyaKirlendi(b)
+    dünya.bekleyenBoyayıUnut(a) // A kendi yolunu sildi
     dünya.boyalarıBoşalt()
-    withClue("sil()'den sonra bekleyen dolgu yayınlanmamalı -- ") { s.yayın should be(0) }
+    withClue("A sil() dedi, onun bekleyeni düşmeli -- ") { a.yayın should be(0) }
+    withClue("B dokunmadı, onun dolgusu YAYINLANMALI: küresel düşürme A'nın " +
+      "sil()'iyle B'nin boyasını yok ediyordu -- ") { b.yayın should be(1) }
   }
 }

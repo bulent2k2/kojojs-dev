@@ -789,7 +789,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     boyamaYolu.clear()
     boyamaBitmiş.clear()
     boyamaÇokgeni.temizle()
-    kojoWorld.bekleyenBoyalarıUnut() // silinen yola yayın yapılmasın
+    kojoWorld.bekleyenBoyayıUnut(this) // KENDİ yolunu sildi; ötekilerinki dursun
     initTurtleLayer()
     kojoWorld.render()
     kojoWorld.scheduleLater(queueHandler)

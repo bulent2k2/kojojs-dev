@@ -56,9 +56,15 @@ trait KojoWorld {
       sıra.foreach(_.boyayıYayınla())
     }
 
-  /** Tuval silindi/boşaltıldı: bekleyenleri de düşür, yoksa silinmiş bir
-    * katmana yayın yapılır. */
-  private[kojo] def bekleyenBoyalarıUnut(): Unit = bekleyenBoyacılar.clear()
+  /**
+   * BU çizerin bekleyen dolgusunu düşür -- kendi yolunu sildiği için.
+   *
+   * Çizer başına: küresel bir düşürme, dolgusu duran BAŞKA bir çizerin
+   * boyasını sessizce yok ediyordu (A'nın bekleyeni, B `sil()` deyince
+   * düşüyordu). Yayın istekliyken böyle bir pencere yoktu; tembelleşince
+   * açıldı.
+   */
+  private[kojo] def bekleyenBoyayıUnut(b: Boyacı): Unit = bekleyenBoyacılar -= b
   def moveToFront(obj: PIXI.DisplayObject): Unit
   def moveToBack(obj: PIXI.DisplayObject): Unit
 
@@ -533,7 +539,12 @@ class KojoWorldImpl extends KojoWorld {
   }
 
   def erasePictures(): Unit = {
-    bekleyenBoyalarıUnut() // silinen katmana yayın yapılmasın
+    // Bekleyen dolguları BİLEREK düşürmüyoruz. Bu yöntem "Turtle Layer" adlı
+    // çocukları silmiyor (aşağıya bak), yani hayatta kalan katmanlar tam
+    // olarak Boyacıların katmanları -- burada düşürmek, duran bir kaplumbağanın
+    // boyasını sessizce yok etmek olurdu. Katmanı gerçekten silinen bir çizer
+    // (bir resmin içindeki kaplumbağa) kalan yayınını kopmuş bir Graphics'e
+    // yapar; zararsız.
     resetBake() // pişmiş boyayı da temizle (yoksa dokuda hayalet kalır)
     val children = stage.children.toBuffer
     children.foreach { c =>
