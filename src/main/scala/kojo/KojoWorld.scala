@@ -26,6 +26,8 @@ trait KojoWorld {
   def moveToBack(obj: PIXI.DisplayObject): Unit
 
   def setBackground(color: Color): Unit
+  def setBackgroundH(c1: Color, c2: Color): Unit
+  def setBackgroundV(c1: Color, c2: Color): Unit
   def frameDeltaTime: Double
   def frameCounter: Long
   def animate(fn: => Unit): Unit
@@ -623,7 +625,13 @@ class KojoWorldImpl extends KojoWorld {
     height:            Double,
     antialias:         Boolean = true,
     resolution:        Double  = 1,
-    backgroundColor:   Int     = 0xFFFFFF,
+    // SAYDAM çizicide temizleme rengi SİYAH olmalı. PIXI transparent=true iken
+    // bağlamı premultipliedAlpha ile açıyor; 0xFFFFFF ile temizleyince tampona
+    // (255,255,255,0) yazılıyor, ki ön-çarpımlı alfada geçersiz bir piksel --
+    // Chrome onu OPAK BEYAZ gösteriyor ve tuvalin CSS artalanı hiç görünmüyor.
+    // (Ölçüldü: 0xFFFFFF -> köşe pikseli "255,255,255,0", ekran beyaz;
+    //  0x000000 -> "0,0,0,0", CSS gradyanı görünüyor.)
+    backgroundColor:   Int     = 0x000000,
     clearBeforeRender: Boolean = true
   ): js.Dynamic = {
     js.Dynamic
@@ -633,13 +641,40 @@ class KojoWorldImpl extends KojoWorld {
         antialias = antialias,
         resolution = resolution,
         backgroundColor = backgroundColor,
-        clearBeforeRender = clearBeforeRender
+        clearBeforeRender = clearBeforeRender,
+        // Artalan artık tuvalin CSS'inde (bkz. artalanaKoy). Çizici saydam
+        // olmazsa opak temizleme rengi CSS'in üstünü örter.
+        transparent = true
       )
   }
 
-  def setBackground(color: Color): Unit = {
-    renderer.backgroundColor = color.toRGBDouble
+  // Artalan neden CSS: masaüstünde artalan TUVALİN bir özelliği, sahnenin
+  // değil -- yakınlaştırınca/kaydırınca dünyayla birlikte kaymıyor
+  // (SpriteCanvas.setCanvasBackground). Sahneye çocuk olarak koysaydık
+  // stage.scale/position ile birlikte kayardı ve her karede ters dönüşüm
+  // uygulamak gerekirdi. CSS bunu bedavaya veriyor; üstelik dikey/yatay
+  // gradyan da tek satır.
+  private def cssRenk(c: Color): String = {
+    val r = c.toRGBA
+    "rgba(%d, %d, %d, %s)".format(r.r.get, r.g.get, r.b.get, r.a.get.toString)
   }
+
+  private def artalanaKoy(css: String): Unit = {
+    val biçem = renderer.view.asInstanceOf[html.Canvas].style
+    biçem.background = css
+  }
+
+  def setBackground(color: Color): Unit = {
+    artalanaKoy(cssRenk(color))
+  }
+
+  /** Yatay gradyan: soldan sağa (masaüstü setBackgroundH). */
+  def setBackgroundH(c1: Color, c2: Color): Unit =
+    artalanaKoy("linear-gradient(to right, %s, %s)".format(cssRenk(c1), cssRenk(c2)))
+
+  /** Dikey gradyan: yukarıdan aşağıya (masaüstü setBackgroundV). */
+  def setBackgroundV(c1: Color, c2: Color): Unit =
+    artalanaKoy("linear-gradient(to bottom, %s, %s)".format(cssRenk(c1), cssRenk(c2)))
 
   var animating = false
   def notAssetLoading = !AssetLoader.loading

@@ -50,6 +50,14 @@ class TestKojoWorld extends KojoWorld {
 
   }
 
+  def setBackgroundH(c1: Color, c2: Color): Unit = {
+
+  }
+
+  def setBackgroundV(c1: Color, c2: Color): Unit = {
+
+  }
+
   def frameDeltaTime: Double = 0
   def frameCounter: Long = 0
   def setRefreshRate(fps: Int): Unit = {}
