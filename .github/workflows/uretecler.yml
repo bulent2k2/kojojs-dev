@@ -95,6 +95,13 @@ jobs:
       - name: sözlükteki gömülü YARDIM bloğu yardim.json ile aynı mı
         run: python3 araclar/sozluk-denetle.py
 
+      # Sözlüğün key:"val" tablosu ELLE tutulan HTML: kodda bir renk adı
+      # eklenip tabloya yansıtılmazsa hiçbir şey hata vermez, sayfa sessizce
+      # eski veriyi gösterir. Eylül 2026'da tam bu oldu -- koddaki 39 ada
+      # karşılık sözlükte 6 satır vardı ve ancak elle sayınca görüldü (#58).
+      - name: sözlükteki renk satırları Renkler ile aynı mı
+        run: python3 araclar/sozluk-renk-denetle.py
+
 
       # ikojo, masaüstünün anlık görüntüsündeki adları KAYBETMEMELİ.
       #
