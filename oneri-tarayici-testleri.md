@@ -137,19 +137,27 @@ başka sebeple. Bu PR'da adı düzeltildi.
 
 ## 6. Faz 4 — CI (karar gerektiriyor)
 
-> **Güncelleme (#51):** kojojs-dev'de artık CI var -- `uretecler.yml`, ama
+> **Güncelleme (#51):** kojojs-dev'de CI'ın ilk hâli `uretecler.yml` oldu, ama
 > yalnız SAF PYTHON: üreteçlerin çıktısı ağaçtakiyle aynı mı, gömülü sözlük
 > bloğu kaynağıyla aynı mı, harnessteki PIXI kütüphanedekiyle aynı mı.
-> Saniyeler sürüyor. Aşağıda konuşulan **tarayıcı takımını** CI'a koymak hâlâ
-> yapılmadı ve hâlâ açık bir karar. (kojo deposunda tam takım #53 ile CI'a
-> girdi.)
+> Saniyeler sürüyor.
+>
+> **Güncelleme (#55): tarayıcı takımı artık CI'da** -- `sinamalar.yml`, ayrı
+> iş akışı olarak. Ölçüldü: soğuk koşu 87 sn, 101/101. Aşağıdaki "açık karar"
+> bu yüzden kapandı; paragraf niçin öyle karar verildiğinin kaydı olarak
+> duruyor.
 
 Tarayıcı takımını GitHub Actions'ta koşmak mümkün: koşucularda Chrome kurulu
-geliyor ve `test-tarayici.sh` eşleşen sürücüyü kendisi indiriyor. Ama takım
+geliyor ve `test-tarayici.sh` eşleşen sürücüyü kendisi indiriyor. Takım
 dakikalar sürüyor ve kırılgan -- bu oturumda bir kez `JS error: Script error.`
-ile düştü, yeniden koşumda geçti. Yeşilin anlamlı kalması için o kırılganlığın
-kaynağı anlaşılmadan eklemek doğru olmaz. Ayrı bir karar (koşucu maliyeti,
-hangi depolarda, hangi tetikleyicilerle) -- onun için ayrı tutuyorum.
+ile düştü, yeniden koşumda geçti; kaynağı hâlâ anlaşılmadı.
+
+Kararı değiştiren şey şu oldu: takımı koşan bir CI olmadığı için
+`boyamaRenginiKur`un varsayılan hızda hiçbir şeyi doldurmadığı kusur master'da
+fark edilmeden durdu (#55). Kırılganlık riski gerçek, ama HİÇ koşmamanın
+bedeli daha büyük çıktı. `sinamalar.yml` bu yüzden otomatik yeniden deneme
+KOYMUYOR: yeniden deneme gerçek kusuru da yutar. Kırılganlık orada bir yorumla
+kayda geçti; kaynağı bulununca hem oraya hem buraya yazılmalı.
 
 ## 7. Riskler ve sınırlar
 

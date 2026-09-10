@@ -1,0 +1,107 @@
+# Sınama takımını koşar.
+#
+# NEDEN AYRI DOSYA: üreteçler işi saniyeler sürüyor ve dış bağımlılığı yok;
+# bu iş JVM + Scala.js + Chrome istiyor ve dakikalar sürüyor. Ayrı iş akışı
+# = ayrı check run: buranın kırılganlığı oradaki hızlı yeşili bulandırmıyor.
+#
+# NEDEN VAR: bu depoda sınama takımını koşan bir CI yoktu -- `uretecler.yml`
+# yalnız üretilmiş dosyaların tazeliğine bakıyor, saf Python. Sonucu ölçüldü:
+# `boyamaRenginiKur` varsayılan hızda hiçbir şeyi doldurmuyordu, kusur canlı
+# sitede duruyordu ve hiçbir şey kırmızı yanmadı.
+#
+# DİKKAT -- tek başına bu iş o kusuru YAKALAMAZDI: ölçüldü, kusurlu master'da
+# takımın tamamı 92/92 yeşil. Sebebi basit: hiçbir sınama o davranışı
+# kapsamıyordu. Bu yüzden iş akışıyla BİRLİKTE BoyamaGerilemeTest eklendi --
+# Turtle'ın davranışına bakıyor ve düzeltmesiz kodda düşüyor (ölçüldü).
+# İkisi bir arada guard oluyor; yalnız biri değil. Bir kusuru düzeltirken
+# sorulacak soru bu: "hangi sınama bunun geri gelmesini görür?" -- görmüyorsa
+# CI'nın yeşili bir şey vaat etmiyor.
+#
+# NEDEN TARAYICI: takımın tamamı ancak burada koşuyor. Node kipi hızlı ama
+# PIXI istemeyen sınamalarla sınırlı -- resim, çarpışma ve boya sınamaları
+# orada "PIXI is not defined" ile düşüyor (ölçüldü). Yani Node kipi bir kısa
+# yol değil, farklı bir kapsam; guard'ın işe yaraması için tarayıcı gerekiyor.
+#
+# WebGL GEREKMİYOR: sınamalar PIXI'nin geometrisine bakıyor, ekrana çizilene
+# değil. Başsız Chrome'un yazılım rasterleyicisi yetiyor (ölçüldü: 101/101).
+#
+# KIRILGANLIK -- ilk kırmızıyı görene not: bu takım geliştirme sırasında bir
+# kez `JS error: Script error.` ile düştü ve yeniden koşumda geçti; kaynağı
+# anlaşılmadı (bkz. oneri-tarayici-testleri.md, bölüm 6). Yani buradaki bir
+# kırmızı ORTAM kaynaklı olabilir. Ama otomatik yeniden deneme KASTEN yok:
+# yeniden deneme gerçek bir kusuru da yutar ve yeşili anlamsızlaştırır.
+# Kural: kırmızı, aksi gösterilene kadar gerçektir. Şüphelenilen bir koşuyu
+# elle yeniden koşturup ikisini karşılaştırmak -- ve kaynağı bulunca buraya
+# yazmak -- doğru yol.
+name: sınamalar
+
+# üreteçler işiyle aynı gerekçe: push yalnız master'da, dallar zaten
+# pull_request ile tetikleniyor (yoksa her PR itmesi işi iki kez koşuyor).
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tarayici-takimi:
+    name: tarayıcı sınama takımı
+    runs-on: ubuntu-latest
+    # Takım normalde birkaç dakika; asılı kalan bir tarayıcı oturumunu
+    # runner'ın 6 saatlik varsayılanına kadar beklemeyelim.
+    timeout-minutes: 30
+    env:
+      # Türkçe adlı .class dosyaları var; UTF-8 olmadan zinc çöküyor
+      # (InvalidPathException: Malformed input). Kozmetik değil.
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          # 21: yerelde takımın koştuğu sürüm (ölçüldü: 101/101) ve kardeş
+          # kojo deposunun ölçülmüş seçimi. Bir gereklilik DEĞİL -- 17 de
+          # çalışıyor (ölçüldü: bu işin ilk koşusu 17'deydi, 101/101).
+          # Depolar arasında tek sürümde durmak için 21.
+          java-version: "21"
+          # Coursier/ivy önbelleği: soğuk koşuda bağımlılık indirmesi
+          # derlemeden uzun sürüyor.
+          cache: sbt
+
+      # test-tarayici.sh kardeş kojo klonundaki launcher jar'ı arıyor; CI'da
+      # o yok, betik PATH'teki sbt'ye düşüyor. Onu buraya kuruyoruz.
+      - uses: sbt/setup-sbt@v1
+
+      # Chrome runner imajında kurulu geliyor; betik sürümünü okuyup EŞLEŞEN
+      # chromedriver'ı indiriyor (imajdakine güvenmiyoruz: ana sürüm
+      # uyuşmazlığında ChromeDriver oturum açmayı reddediyor).
+      - name: Chrome sürümü
+        id: chrome
+        run: |
+          surum="$(google-chrome --version | grep -oE '[0-9]+(\.[0-9]+){2,3}' | head -1)"
+          [ -n "$surum" ] || { echo "::error::Chrome sürümü okunamadı."; exit 1; }
+          echo "surum=$surum" >> "$GITHUB_OUTPUT"
+          echo "ana=${surum%%.*}" >> "$GITHUB_OUTPUT"
+          echo "Chrome $surum"
+
+      # Anahtar Chrome'un ANA sürümü, tam sürümü değil.
+      #
+      # Önce tam sürümü kullanmıştım; ölçünce ıskaladığı görüldü: art arda iki
+      # koşuda runner imajının Chrome'u 152.0.7977.82 ve 152.0.7977.64 geldi,
+      # yani anahtar her koşuda değişip sürücüyü yeniden indirtiyordu.
+      # chromedriver zaten ANA sürüme bakıyor (yamaya değil) ve test-tarayici.sh
+      # önbellekte aynı ana sürümden bir dizin bulunca onu kullanıyor -- yani
+      # ana sürüm hem doğru hem tutan anahtar. Chrome 153'e çıkınca kendiliğinden
+      # ıskalayıp tazeleniyor.
+      - name: chromedriver önbelleği
+        uses: actions/cache@v4
+        with:
+          path: .chromedriver
+          key: chromedriver-${{ runner.os }}-${{ steps.chrome.outputs.ana }}
+
+      - name: sınamalar
+        run: ./test-tarayici.sh
