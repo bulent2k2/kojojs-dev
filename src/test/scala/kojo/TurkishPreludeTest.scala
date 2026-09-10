@@ -202,7 +202,11 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
 
   // Devre 1: masaüstü takma adlarının prelude'un dört yıldızlı içe aktarımıyla
   // ÇAKIŞMADAN derlendiğini kanıtlar (ornekler/masaustu betiklerinin kullandığı
-  // adlar). Çalıştırılmaz -- derlenmesi yeter; bu yüzden gövde `if (false)`.
+  // adlar). O bölüm çalıştırılmaz -- derlenmesi yeter; bu yüzden `if (false)`.
+  //
+  // DİKKAT: bu testin `if (false)`'tan SONRA gelen, gerçekten KOŞAN bir kuyruğu
+  // da var (renk savları). Buraya yeni bir sav eklerken hangi tarafa düştüğüne
+  // bak: if (false) içinde `shouldBe` yazmak sessizce hiçbir şey sınamaz.
   test("Devre 1 takma adları prelude ile belirsizliksiz derlenir") {
     import kojo.{SwedishTurtle, TurkishTurtle, Turtle, Vector2D, Picture}
     import kojo.doodle.Color._
@@ -305,7 +309,57 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       val seçilen: Yazı = rastgeleDiziden(Dizi("a", "b"), Dizi(0.7, 0.3))
       val seçilenY: Sayı = rastgeleDiziden(Yöney(1, 2, 3), Yöney(1.0, 1.0, 1.0))
       val seçilenTek: Sayı = rastgeleDiziden(Dizi(1, 2, 3)) // tek değişkenli imza bozulmadı
+
     }
+
+    // Renk adları masaüstüyle eşit olmalı. Bu blok BİLEREK `if (false)`'un
+    // DIŞINDA: yukarıdaki gövde yalnız derlenir, buradaki savların ise
+    // gerçekten koşması gerekiyor. (İnceleme, ilk hâlinin if (false) içinde
+    // kaldığını ve yanlış bağlanmış bir rengin sessizce geçtiğini ölçtü.)
+    //
+    // Her adın hangi renge bağlandığı TEK TEK çivili. İlk hâlinde yalnız
+    // dördü sınanıyordu; ölçtüm, o zaman ör. açıkSomon yanlış bağlansa sınama
+    // yeşil geçiyordu. Ad LİSTESİNİ de bunlar koruyor: bir ad düşerse burası
+    // derlenmez ("is not a member of ... Renkler") -- Eylül 2026'da
+    // açıkAltınbaşakSarısı ve koyuDenizYeşili ile tam bunu yaşadık.
+    val D = kojo.doodle.Color
+    Renkler.koyuMavi shouldBe D.darkBlue
+    Renkler.koyuCamgöbeği shouldBe D.darkCyan
+    Renkler.koyuAltınbaşak shouldBe D.darkGoldenrod
+    Renkler.koyuKlasikGri shouldBe D.darkGrayClassic
+    Renkler.koyuYeşil shouldBe D.darkGreen
+    Renkler.koyuHaki shouldBe D.darkKhaki
+    Renkler.koyuMorumsu shouldBe D.darkMagenta
+    Renkler.koyuZeytinYeşili shouldBe D.darkOliveGreen
+    Renkler.koyuTuruncu shouldBe D.darkOrange
+    Renkler.koyuOrkidePembesi shouldBe D.darkOrchid
+    Renkler.koyuKırmızı shouldBe D.darkRed
+    Renkler.koyuSomon shouldBe D.darkSalmon
+    Renkler.koyuDenizYeşili shouldBe D.darkSeaGreen
+    Renkler.koyuKurşunMavisi shouldBe D.darkSlateBlue
+    Renkler.koyuKurşunGrisi shouldBe D.darkSlateGray
+    Renkler.koyuTurkuaz shouldBe D.darkTurquoise
+    Renkler.koyuMenekşe shouldBe D.darkViolet
+
+    Renkler.açıkMavi shouldBe D.lightBlue
+    Renkler.açıkMercan shouldBe D.lightCoral
+    Renkler.açıkCamgöbeği shouldBe D.lightCyan
+    Renkler.açıkAltınbaşakSarısı shouldBe D.lightGoldenrodYellow
+    Renkler.açıkYeşil shouldBe D.lightGreen
+    Renkler.açıkPembe shouldBe D.lightPink
+    Renkler.açıkSomon shouldBe D.lightSalmon
+    Renkler.açıkDenizYeşili shouldBe D.lightSeaGreen
+    Renkler.açıkGökMavisi shouldBe D.lightSkyBlue
+    Renkler.açıkKurşunGrisi shouldBe D.lightSlateGray
+    Renkler.açıkÇelikMavisi shouldBe D.lightSteelBlue
+    Renkler.açıkSarı shouldBe D.lightYellow
+
+    // Eskitilmiş takma ad hâlâ aynı rengi vermeli. Tek varlık sebebi
+    // ikojo.in'deki eski yazılımcıkları kırmamak; sınanmazsa "kullanılmıyor"
+    // diye silinir ve hiçbir şey kırmızı yanmaz. (Kalıp: TurkishStdlibTest'te
+    // EsnekYazı.araEkle için aynısı var.)
+    Renkler.koyuMor shouldBe Renkler.koyuMorumsu
+
     succeed
   }
 }
