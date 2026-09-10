@@ -103,6 +103,18 @@ jobs:
         run: python3 araclar/sozluk-renk-denetle.py
 
 
+      # ikojo, masaüstünün anlık görüntüsündeki adları KAYBETMEMELİ.
+      #
+      # Neden anlık görüntü: koşucuda masaüstü klonu yok. Tam karşılaştırma
+      # (araclar/adlar.py --kojo <klon>) yerelde koşuyor; buradaki adım onun
+      # yazdığı izlenen TSV'ye bakıyor.
+      #
+      # SINIRI açık olsun: bu, ikojo'nun GERİLEMESİNİ yakalar. Masaüstünün
+      # YENİ bir ad eklemesini yakalayamaz -- yeni ad anlık görüntüde de yok.
+      # Onun için tam karşılaştırmayı elle koşmak gerekiyor.
+      - name: ikojo masaüstünün anlık görüntüsünün gerisine düşmemiş mi
+        run: python3 araclar/adlar.py --anlik-goruntu
+
       # Asıl sav: yeniden üretim ağaçtakini DEĞİŞTİRMEMELİ.
       #
       # `git diff --exit-code` DEĞİL: o izlenmeyen dosyayı görmüyor (ölçüldü).

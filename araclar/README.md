@@ -39,6 +39,46 @@ kojojs-editor'daki yardım sayfalarının kendi "çalıştır" bağlantıların�
 
     araclar/ornek-dizini.py <kojojs-editor dizini>
 
+## `adlar.py` — masaüstü ↔ ikojo ad karşılaştırması
+
+`ucurum.py` masaüstü **betiklerini** tarıyor, yani yalnız bir örneğin
+*kullandığı* adları görüyor. Hiçbir örneğin kullanmadığı bir eksik ona
+görünmez — Eylül 2026'da `Renkler`'deki 24 ad tam böyle kaçtı (#58).
+Bu araç tanımları doğrudan karşılaştırıyor.
+
+    araclar/adlar.py                    # ../kojo klonunu bekler
+    araclar/adlar.py --kojo ~/src/kojo
+    araclar/adlar.py --tsv              # anlık görüntüyü tazele (izlenen dosya)
+    araclar/adlar.py --anlik-goruntu    # kojo klonu OLMADAN (CI bunu koşuyor)
+
+**Eşleşme listesi ELLE tutuluyor** (`EŞLEŞMELER`). Otomatik eşleme denendi ve
+uydurma boşluk üretti, ölçüldü: iki depo aynı yüzeye farklı kapsayıcı adı
+veriyor (`YazıYöntemleri` ↔ `YazıMetotları` → 111 adlık sahte boşluk), ve
+gövdesiz bildirimler (`object Matematik extends …`) ayrıştırıcıya sonraki
+bloğu yutturuyor (54 ve 132 adlık iki sahte boşluk daha). Her satır bilinçli
+bir iddia: "bu iki kapsayıcı aynı yüzey". Yeni çift eklemek ucuz.
+
+**İki ayrı kip, iki ayrı güç:**
+
+| kip | yakaladığı | yakalayamadığı |
+|---|---|---|
+| `--kojo <klon>` (yerel) | masaüstünde olup ikojo'da olmayan her ad | — |
+| `--anlik-goruntu` (CI) | ikojo'nun elindeki bir adı kaybetmesi — ortak olanlar **ve** ikojo'ya özgü olanlar | masaüstünün YENİ ad eklemesi |
+
+CI'ın klonu olmadığı için ikinci kip anlık görüntüye bakıyor
+(`araclar/masaustu-adlar.tsv`). Üçüncü sütun bugünkü gerçeği yazar:
+
+| durum | anlamı | CI zorunlu tutuyor mu |
+|---|---|---|
+| `var` | masaüstünde ve ikojo'da | evet |
+| `yalnız-ikojo` | ikojo'nun kendi seçtiği ad (`silGeri`, `koyuMor`…) | evet |
+| `boşluk` | masaüstünde var, ikojo'da yok | hayır — kapatmak ayrı karar |
+
+`yalnız-ikojo` sonradan eklendi: anlık görüntü başta yalnız masaüstü adlarını
+yazıyordu, dolayısıyla ikojo'nun masaüstünden **ayrıldığı** noktalarda seçtiği
+adların hiç gözcüsü yoktu (#60 incelemesi ölçtü). Bugünkü boşluklar işi kırmızı
+yakmaz ama izlenen bir dosyada göz önünde durur.
+
 ## `sozluk-renk-denetle.py` — sözlükteki renk satırları koddakiyle aynı mı
 
 `koco-sozlugu.html`'deki `key:"val"` tablosu elle tutulan HTML. Kodda bir renk
