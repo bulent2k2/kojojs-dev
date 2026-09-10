@@ -53,6 +53,22 @@ class UcgenleyiciTest extends AnyFunSuite with Matchers {
     }
   }
 
+  test("cephedeki enum adları GERÇEKTEN çözülüyor") {
+    // Yanlış yazılmış bir enum adı `undefined` olur ve gluTessCallback onu
+    // sessizce kabul eder: geri çağırma hiç kaydolmaz, hata yutulur, tip savı
+    // hiç koşmaz. Yani cephe adları sessiz kırılma noktası.
+    import libtessjs.libtess
+    withClue("GLU_TESS_ERROR çözülmüyor: hatalar sessizce yutulur -- ") {
+      scala.scalajs.js.isUndefined(libtess.gluEnum.GLU_TESS_ERROR) should be(false)
+    }
+    withClue("GL_TRIANGLES çözülmüyor: ilkel tip savı hep sessiz kalır -- ") {
+      scala.scalajs.js.isUndefined(libtess.primitiveType.GL_TRIANGLES) should be(false)
+    }
+    withClue("GLU_TESS_WINDING_NONZERO çözülmüyor: sarım kuralı hiç kurulmaz -- ") {
+      scala.scalajs.js.isUndefined(libtess.windingRule.GLU_TESS_WINDING_NONZERO) should be(false)
+    }
+  }
+
   test("kendini kesen yıldız: alan kapalı formülle uyuşuyor (earcut 1.894x fazla verirdi)") {
     val ü = Üçgenleyici.nonzero(yıldız(100))
     val beklenen = yıldızAlanı(100)

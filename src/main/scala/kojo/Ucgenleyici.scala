@@ -40,6 +40,7 @@ import scala.scalajs.js
 object Üçgenleyici {
 
   private var uyarıldı = false
+  private var tipUyarıldı = false
 
   /**
    * Kütüphane sayfada yüklü mü.
@@ -87,10 +88,41 @@ object Üçgenleyici {
     val birleştir: js.Function1[js.Array[Double], js.Array[Double]] =
       c => js.Array(c(0), c(1), c(2))
 
+    // BEGIN yalnız kaydolmuş olmak için değil: çıktıyı ardışık ALTILI olarak
+    // bağımsız üçgenlere bölmemiz, kütüphanenin GL_TRIANGLES döndürmesine
+    // dayanıyor. Kaynakta bu garanti var ama KOŞULLU:
+    //   libtess.cat.js:128  "GL_TRIANGLE_STRIP and GL_TRIANGLE_FAN are no
+    //                        longer returned since 1.1.0"
+    //   libtess.cat.js:1411 GL_TRIANGLES ile çağrılan yer
+    //   libtess.cat.js:1453 GL_LINE_LOOP -- GLU_TESS_BOUNDARY_ONLY açıkken
+    // Biz BOUNDARY_ONLY'yi açmıyoruz, ama biri açarsa çıktı köşe döngüsü olur
+    // ve altılı bölme sessizce saçmalar. Varsayımı yorumla değil SAVLA
+    // tutuyoruz: bir daha olursa konsolda görünür.
+    val başladı: js.Function1[Double, Unit] = tip => {
+      if (tip != libtess.primitiveType.GL_TRIANGLES && !tipUyarıldı) {
+        tipUyarıldı = true
+        js.Dynamic.global.console.error(
+          "libtess GL_TRIANGLES dışında bir ilkel döndürdü (" + tip +
+            "). Dolgu altılı üçgen varsayımına dayanıyor; çıktı yanlış olacak."
+        )
+      }
+      ()
+    }
+
+    // Hata geri çağırması KAYDEDİLMEZSE kütüphane hatayı sessizce yutuyor
+    // (libtess.cat.js:3829 callErrorCallback -- errorCallback_ yoksa hiçbir şey
+    // yapmıyor). Üçgenleme bir hata verirse dolgu boş ya da yanlış çıkar ve
+    // hiçbir yerde iz kalmazdı.
+    val hataOldu: js.Function1[Double, Unit] = e => {
+      js.Dynamic.global.console.error("libtess üçgenleme hatası: " + e)
+      ()
+    }
+
     ts.gluTessCallback(libtess.gluEnum.GLU_TESS_VERTEX_DATA, köşeGeldi)
-    ts.gluTessCallback(libtess.gluEnum.GLU_TESS_BEGIN, boşluk)
+    ts.gluTessCallback(libtess.gluEnum.GLU_TESS_BEGIN, başladı)
     ts.gluTessCallback(libtess.gluEnum.GLU_TESS_END, boşluk)
     ts.gluTessCallback(libtess.gluEnum.GLU_TESS_COMBINE, birleştir)
+    ts.gluTessCallback(libtess.gluEnum.GLU_TESS_ERROR, hataOldu)
     ts.gluTessProperty(libtess.gluEnum.GLU_TESS_WINDING_RULE, libtess.windingRule.GLU_TESS_WINDING_NONZERO)
     ts.gluTessNormal(0, 0, 1)
 
