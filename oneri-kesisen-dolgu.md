@@ -4,7 +4,9 @@
 ikojo'nun masaüstü Koco ile aynı şekli çizmesi.
 
 **Durum (2026-09-10):** Sebep bulundu ve ölçüldü, çözüm önerisi. Bu PR yalnız
-belge; kod değişikliği yok.
+belge; kod değişikliği yok. İlk taslak incelendi ve ölçümler yeniden
+koşuldu — hız savı daraltıldı, yıldızın alan hesabı düzeltildi, 9. bölüm
+(doğrulanmayanlar) eklendi.
 
 ---
 
@@ -72,22 +74,28 @@ beş köşeli yıldız, tek çevrit, R=100.
 Doğru alanı elle hesaplayabiliyoruz. NON_ZERO kuralında yıldızın tamamı
 (ortadaki beşgen dahil) doluyor:
 
+R = 100 için, iç yarıçap `r = R·cos72°/cos36°`:
+
 ```
-ortadaki beşgen  : 3469
-beş uç üçgeni    : 5 x 1551 = 7757
-toplam           : 11226
+iç yarıçap    r = 38.19660
+beşgen          = (5/2)·r²·sin72°           =  3468.9319
+bir uç üçgeni   = ½·(2r·sin36°)·(R - r·cos36°) = 1551.3535
+toplam          = beşgen + 5·uç             = 11225.6994
 ```
+
+(Ara değerleri yuvarlamadan toplamak gerekiyor: 3469 + 5×1551 = 11224
+çıkar, doğru toplam değil.)
 
 Aynı nokta listesini iki üçgenleyiciye verdim (Node, `earcut@3.2.3`,
 `libtess@1.2.2`):
 
 | üçgenleyici | üçgen | toplam alan | elle hesaba oran |
 |---|---|---|---|
-| earcut | 2 | 21266.3 | **1.89x** |
-| libtess `GLU_TESS_WINDING_NONZERO` | 8 | **11225.7** | **1.000** |
+| earcut | 2 | 21266.3 | **1.894x** |
+| libtess `GLU_TESS_WINDING_NONZERO` | 8 | **11225.7** | **1.0000** |
 
-libtess elle hesabı virgülden sonra bir hane tutturuyor. earcut şeklin
-neredeyse iki katını dolduruyor.
+libtess'in ölçtüğü alan elle hesapla dört ondalık basamak uyuşuyor
+(11225.6994 / 11225.7). earcut şeklin neredeyse iki katını dolduruyor.
 
 Tarayıcıda da (PIXI 4.8.9, WebGL) aynı şey görünüyor: earcut'ta yıldız
 tanınmaz bir ok başına dönüşüyor, libtess'te düzgün yıldız çıkıyor.
@@ -124,22 +132,33 @@ GLU tessellator'ın JS'e taşınmış hali — earcut'ın belgesinin doğruluk
 gerektiğinde yönlendirdiği kütüphane. `GLU_TESS_WINDING_NONZERO` kuralı
 Java2D'nin `WIND_NON_ZERO`suyla aynı tanım.
 
-Hız (Node, ortalama):
+Hız (Node, tek atış). **Sayılar tek turluk değil**: aynı girdiyle on ayrı
+tur koşturunca daire için oran 0.21x ile 2.58x arasında geziniyor, ortanca
+0.43x. Yani buradaki rakamları büyüklük mertebesi olarak okumak gerek,
+iki ondalık kesinlik gerçek değil.
 
-| küme | earcut tek atış | libtess tek atış |
-|---|---|---|
-| daire, 240 nokta, basit | 0.140 ms | 0.151 ms |
-| daire, 1000 nokta, basit | 1.28 ms | **0.60 ms** |
-| tan-theta, 241 nokta, kesişen | 0.201 ms | 0.335 ms |
-| gül, 1000 nokta, çok kesişen | 2.23 ms | 109.09 ms |
+| küme | earcut | libtess | oran (ortanca) |
+|---|---|---|---|
+| daire 240, basit **konveks** | 0.140 ms | 0.151 ms | ~1x |
+| daire 1000, basit **konveks** | ~2.0 ms | ~0.85 ms | **0.43x** |
+| testere dişi 1000, basit **içbükey** | 0.97 ms | 5.04 ms | **5.2x** |
+| spiral şerit 1000, basit kıvrımlı | 1.06 ms | 1.55 ms | 1.5x |
+| tan-theta 241, kesişen | 0.20 ms | 0.34 ms | 1.7x |
+| gül 1000, çok kesişen | 2.23 ms | 109 ms | 49x |
 
-Buradan çıkan ve öneriyi basitleştiren sonuç: **basit çokgenlerde libtess
-earcut'tan yavaş değil, hatta 1000 noktada iki kat hızlı.** Dolayısıyla
-"şekil kendini kesiyor mu" diye önden bir sınama yazmaya gerek yok —
-her zaman libtess kullanmak basit şekillerde bedava, kesişen şekillerde
-zaten tek doğru cevap.
+Dikkat: **libtess basit çokgenlerde bedava değil.** Konveks dairede earcut'tan
+hızlı, ama içbükey (ama yine de kendini kesmeyen) bir testere dişinde beş kat
+yavaş — üçü de 998 üçgen veriyor, yani girdiler gerçekten basit. Önceki bir
+taslakta bu "basit çokgenlerde libtess yavaş değil" diye yazılmıştı; o
+genelleme yalnız konveks şekiller için doğruydu.
 
-Pahalı olan tek durum yoğun kesişme (gül: 1000 noktada 109 ms). Orada earcut
+Yine de **"kesişiyor mu" diye önden sınama yazmayı önermiyorum**, ama gerekçe
+hız değil: böyle bir sınamanın kendisi O(n²)'ye yakın ve doğru yazması zor.
+Bugünkü şekillerde tek atış maliyeti en kötü ihtimalle birkaç ms; sorun tek
+atış değil, tekrar sayısı (bkz. 7. bölüm). Faz 1'den sonra gerçek çizimlerle
+yeniden ölçülmeli, ve gerekirse nokta sayısına bir eşik konabilir.
+
+Pahalı olan durum yoğun kesişme (gül: 1000 noktada 109 ms). Orada earcut
 2.23 ms'de bitiriyor ama çıktısı yanlış: 992 üçgen üretiyor, libtess 11 998.
 Aradaki fark libtess'in bütün kesişme noktalarını hesaplaması. 109 ms tek
 seferlik bir çizim için kabul edilebilir — **yeter ki tek seferlik olsun**
@@ -163,6 +182,15 @@ kesin çarpan bir tuzak. `libtess.cat.js` yalnız `libtess`i tanımlıyor.
 olmayan jar/js'leri orada tutuyor). gzip'te +37.8 KB, PIXI'nin yanında
 %36 — doğru şekil için makul. İsteyen ileride kaynaktan yeniden küçültüp
 7 KB'a inebilir; bu ayrı ve acele olmayan bir iş.
+
+Bilinmesi gereken iki şey daha:
+
+- **Bakımsız.** Son sürüm 1.2.2, 19 Aralık 2015 — on bir yıldır güncelleme
+  yok. Kütüphane küçük ve işi dar (GLU tessellator'ın birebir taşınması),
+  yani bu ölümcül değil; ama bir hata çıkarsa yamayı biz yazacağız.
+- **Lisans uyumlu.** SGI Free Software License B 2.0; metni Expat/MIT ile
+  aynı ("without restriction... subject to [attribution]"), deponun
+  GPLv3'üyle (`LICENCE`) uyumlu. Telif notu `lib/`e olduğu gibi taşınmalı.
 
 ### B. Ekran dışı Canvas2D dokusu — **elendi**
 
@@ -220,16 +248,56 @@ kazandırıyor.
    `boyamayıTazele`yi render öncesine taşımak. Üçgenleyici değişmiyor,
    şekiller değişmiyor; yalnız tekrar sayısı düşüyor. Kendi başına
    ölçülebilir ve ayrı incelenebilir.
-2. **Faz 2 — libtess NONZERO.** `lib/libtess.cat.js`, `jsDependencies`e
-   bir satır, ve `düzDizi`nin yanına bir `üçgenler` yolu. Değişen kod
-   `Turtle.scala`da iki `drawPolygon` çağrısı (`:111`, `:122`) — dar bir
-   dikiş yeri.
-3. **Faz 3 — sınama.** Yıldızın alanı elle hesaplanabildiği için üçgen
-   alanları toplamını 11226'ya karşı sınayan bir test yazılabilir; PIXI'siz,
-   Node'da koşar (`BoyamaYolu` gibi saf sınıf kalıbı). Ayrıca tan-theta için
-   `araclar/`a masaüstü referansına karşı piksel karşılaştırması eklenebilir.
+2. **Faz 2 — libtess NONZERO.** Scala tarafı dar: `düzDizi`nin yanına bir
+   `üçgenler` yolu ve `Turtle.scala`da iki `drawPolygon` çağrısı (`:111`,
+   `:122`). Asıl iş **kütüphaneyi her yere aynı anda koymak**. PIXI bugün
+   iki depoda beş yerde eşgüdümlü duruyor ve libtess de aynısını isteyecek:
 
-## 9. Ölçümün tekrarı
+   | yer | ne için |
+   |---|---|
+   | `lib/libtess.cat.js` | kaynak kopya |
+   | `run.html`, `run5.html` | geliştirme sayfaları (`<script>`) |
+   | `build.sbt` `jsDependencies` | tarayıcı sınamaları |
+   | `src/test/resources/` | sınama kopyası |
+   | `kojojs-editor/.../resultframe.scala.html` | **canlı site** (ayrı depo) |
+
+   `build.sbt`'nin kendi DİKKAT yorumu bu tuzağı anlatıyor: *"Editör
+   yükseltilirse ÜÇÜ birden tazelenmeli — CI depolar arasını göremiyor"*.
+   PIXI'de bu bir kez ısırdı: sınama harness'ı uzun süre 4'te kalınca
+   `PixiUyum.beşVeÜstü` hep false döndü ve bütün doku dolgusu yolu sessizce
+   sınanmadan kaldı. Faz 2 bunu hesaba katmalı; `uretecler.yml`'deki PIXI
+   `cmp` denetiminin eşi libtess için de konmalı.
+3. **Faz 3 — sınama.** Yıldızın alanı elle hesaplanabildiği için üçgen
+   alanları toplamını **11225.6994**'e karşı sınayan bir test yazılabilir.
+   Ama bu **tarayıcı sınamasıdır, Node sınaması değil**: Node kaçış yolu
+   `set jsDependencies := Seq()` ile bütün sağlanan JS'i düşürüyor, libtess
+   dahil. (Üçgenleyici saf Scala olsaydı Node'da koşardı; libtess'le
+   koşmuyor.) Ayrıca tan-theta için `araclar/`a masaüstü referansına karşı
+   piksel karşılaştırması eklenebilir.
+
+## 9. Doğrulanmayanlar
+
+Belgenin dayandığı ölçümlerin sınırları:
+
+- **Masaüstü referansı gerçek Koco değil, Java2D modeli.** 4. bölümdeki
+  %0.21 rakamı PIXI'yi, Kojo'yu açıp ekran görüntüsü alarak değil, masaüstü
+  çizim yolunun kaynaktan doğrulanmış bir yeniden kurulumuna karşı ölçüyor
+  (aynı `Path2D.Double` + `g2.fill`, `zoomXY`'nin kendi sayıları). Model
+  sadık ama yine de model.
+- **libtess PIXI içinde denenmedi.** Görsel ölçümlerde üçgenleri PIXI'ye
+  üçgen başına `drawPolygon` ile verdim. Gerçek uygulamada bunun mu yoksa
+  bir `Mesh`in mi doğru olduğu ölçülmedi — üçgen başına `drawPolygon` her
+  üçgen için earcut'ı yeniden çağırıyor (üç köşede ucuz, ama bedava değil).
+- **Faz 1'in kazancı hesaplandı, ölçülmedi.** 7. bölümdeki "27 302 ms yerine
+  109 ms" tembel üçgenlemenin tek atışa ineceği varsayımından çıkıyor;
+  uygulanıp ölçülmedi.
+- **Süre ölçümleri Node'da**, tarayıcıda değil. Tarayıcının JIT'i ve GC'si
+  farklı davranabilir.
+- **Kesişen şekillerde earcut'ın çıktısı "yanlış" diye ölçüldü** (alan ve
+  piksel), ama kaç kojo örneğinin bu duruma düştüğü sayılmadı; tan-theta
+  bilinen tek somut örnek.
+
+## 10. Ölçümün tekrarı
 
 Ölçümler `earcut@3.2.3` ve `libtess@1.2.2` ile, Node v22.22.2 ve headless
 Chromium 141.0.7390.37 (WebGL, ANGLE/SwiftShader) üzerinde yapıldı. Masaüstü referansı
