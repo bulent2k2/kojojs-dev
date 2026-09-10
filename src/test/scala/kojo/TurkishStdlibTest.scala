@@ -39,6 +39,7 @@ object TRDeneme
     with kojo.tr.SesYöntemleri
     with kojo.tr.GörünüşYöntemleri
     with kojo.tr.RenkYöntemleri
+    with kojo.tr.KlavyeYöntemleri
 
 class TurkishStdlibTest extends AnyFunSuite with Matchers {
   import TRDeneme._
@@ -990,5 +991,44 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
   test("yazı: küçük/büyük harf ayrımı yapmadan kıyaslama (Devre 1)") {
     "Kojo".eşitMiKüçükHarfBüyükHarfAyrımıYapmadan("kOJO") shouldBe true
     "a".kıyaslaKüçükHarfBüyükHarfAyrımıYapmadan("B") should be < 0
+  }
+
+  // Tuş adları masaüstüyle (kojo tr/klavye.scala) eşit olmalı.
+  //
+  // Neden: masaüstünde çalışan bir yazılımcık burada
+  // "value escape is not a member of ..." ile patlıyordu -- 12 İngilizce
+  // takma ad buradan eksikti, 7 ad da iki tarafta farklı yazılıyordu.
+  //
+  // DEĞERLER masaüstünden KOPYALANMAZ: buradakiler DOM keyCode, oradakiler
+  // AWT VK_*. Takma adlar Türkçe adlara bağlı, o yüzden DOM değerini alıyorlar.
+  // Aşağıdaki gir == 13 savı tam da bunu çiviliyor: 10 (AWT) olsaydı
+  // tuşBasılıMı(tuşlar.enter) hiçbir zaman doğru dönmezdi.
+  test("tuş adları: masaüstündeki İngilizce takma adlar burada da var") {
+    tuşlar.enter should be(tuşlar.gir)
+    tuşlar.back_space should be(tuşlar.silGeri)
+    tuşlar.cancel should be(tuşlar.iptal)
+    tuşlar.clear should be(tuşlar.temizle)
+    tuşlar.shift should be(tuşlar.kaldırma)
+    tuşlar.control should be(tuşlar.kontrol)
+    tuşlar.pause should be(tuşlar.dur)
+    tuşlar.escape should be(tuşlar.çık)
+    tuşlar.page_up should be(tuşlar.sayfaYukarı)
+    tuşlar.page_down should be(tuşlar.sayfaAşağı)
+    tuşlar.end should be(tuşlar.satırSonu)
+    tuşlar.home should be(tuşlar.satırBaşı)
+    // DOM değerleri korunuyor (AWT'ninkiler DEĞİL)
+    tuşlar.enter should be(13)
+    tuşlar.back_space should be(8)
+    tuşlar.escape should be(0x1b)
+  }
+
+  test("tuş adları: masaüstünün eskitilmiş yazımları aynı tuşu veriyor") {
+    tuşlar.sil_geri should be(tuşlar.silGeri)
+    tuşlar.büyük_harf_kilitleme should be(tuşlar.büyükHarfKilidi)
+    tuşlar.sayfa_yukarı should be(tuşlar.sayfaYukarı)
+    tuşlar.sayfa_aşağı should be(tuşlar.sayfaAşağı)
+    tuşlar.satır_sonu should be(tuşlar.satırSonu)
+    tuşlar.satır_başı should be(tuşlar.satırBaşı)
+    tuşlar.noktalı_virgül should be(tuşlar.noktalıVirgül)
   }
 }
