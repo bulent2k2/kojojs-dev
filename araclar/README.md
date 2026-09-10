@@ -39,6 +39,22 @@ kojojs-editor'daki yardım sayfalarının kendi "çalıştır" bağlantıların�
 
     araclar/ornek-dizini.py <kojojs-editor dizini>
 
+## `sozluk-renk-denetle.py` — sözlükteki renk satırları koddakiyle aynı mı
+
+`koco-sozlugu.html`'deki `key:"val"` tablosu elle tutulan HTML. Kodda bir renk
+adı eklenir/değişir ve tabloya yansıtılmazsa hiçbir şey hata vermez; sayfa
+sessizce eksik veri gösterir. Eylül 2026'da tam bu oldu: koddaki 39 renk adına
+karşılık sözlükte 6 satır vardı (#58).
+
+    araclar/sozluk-renk-denetle.py     # fark varsa 1 döner
+
+Karşılaştırma **İngilizce ad** üzerinden: bir sözlük satırı, İngilizce adı
+doodle paletinde (`CommonColors.scala`) geçiyorsa renk satırı sayılıyor —
+"Türkçesi renge benziyor mu" diye tahmin edilmiyor. Üç yönü de yakalar: kodda
+olup sözlükte olmayan, sözlükte olup kodda olmayan, Türkçesi tutmayan.
+
+`uretecler.yml`'de bir adım olarak koşuyor.
+
 ## gosteri-uret.py
 
 yardimKomutlar sayfasındaki kısa gösterilerin KAYNAĞI (G tablosu).
