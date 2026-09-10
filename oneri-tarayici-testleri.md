@@ -109,9 +109,15 @@ iletmesi (#33 incelemesinde elle yakalanmıştı), süs katmanının
 
 ## 5. Faz 3 — testler üretimdeki PIXI ile koşsun
 
-`jsDependencies` testlere `lib/pixi.min.js`, yani **PIXI 4** veriyor. Üretim
-ise PIXI 5'e geçti (kojojs-editor #22). Yani tarayıcı testleri şu an üretimde
-olmayan bir sürümü sınıyor.
+> **Güncelleme (#52):** bu faz yapıldı. Harness artık PIXI 5.3.12 yüklüyor --
+> sitenin sunduğu dosyanın ta kendisi -- ve `BoyaTest` "PIXI 4'e geri kaymamış"
+> savıyla bunu çiviliyor; #54 ise CI'da `cmp` ile dosya eşitliğini denetliyor.
+> Aşağıdaki gerekçe olduğu gibi bırakıldı, çünkü **ikisini de koşma** fikri
+> (v4 ve v5) hâlâ yapılmadı ve hâlâ değerli.
+
+`jsDependencies` testlere uzun süre `lib/pixi.min.js`, yani **PIXI 4** verdi.
+Üretim ise PIXI 5'e geçmişti (kojojs-editor #22). Yani tarayıcı testleri
+üretimde olmayan bir sürümü sınıyordu.
 
 `PixiUyum` bilerek iki sürümü birden desteklediği için doğrusu **ikisini de**
 koşmak: aynı takımı bir kez v4, bir kez v5 dokularıyla. Bu, ikili sürüm
@@ -131,10 +137,19 @@ başka sebeple. Bu PR'da adı düzeltildi.
 
 ## 6. Faz 4 — CI (karar gerektiriyor)
 
-kojojs-dev'de **hiç CI yok**. Faz 1'den sonra GitHub Actions'ta `sbt test`
-koşmak mümkün: koşucularda Chrome kurulu geliyor ve `test-tarayici.sh` eşleşen
-sürücüyü kendisi indiriyor. Bu ayrı bir karar (koşucu maliyeti, hangi
-depolarda, hangi tetikleyicilerle) -- onun için ayrı tutuyorum.
+> **Güncelleme (#51):** kojojs-dev'de artık CI var -- `uretecler.yml`, ama
+> yalnız SAF PYTHON: üreteçlerin çıktısı ağaçtakiyle aynı mı, gömülü sözlük
+> bloğu kaynağıyla aynı mı, harnessteki PIXI kütüphanedekiyle aynı mı.
+> Saniyeler sürüyor. Aşağıda konuşulan **tarayıcı takımını** CI'a koymak hâlâ
+> yapılmadı ve hâlâ açık bir karar. (kojo deposunda tam takım #53 ile CI'a
+> girdi.)
+
+Tarayıcı takımını GitHub Actions'ta koşmak mümkün: koşucularda Chrome kurulu
+geliyor ve `test-tarayici.sh` eşleşen sürücüyü kendisi indiriyor. Ama takım
+dakikalar sürüyor ve kırılgan -- bu oturumda bir kez `JS error: Script error.`
+ile düştü, yeniden koşumda geçti. Yeşilin anlamlı kalması için o kırılganlığın
+kaynağı anlaşılmadan eklemek doğru olmaz. Ayrı bir karar (koşucu maliyeti,
+hangi depolarda, hangi tetikleyicilerle) -- onun için ayrı tutuyorum.
 
 ## 7. Riskler ve sınırlar
 
