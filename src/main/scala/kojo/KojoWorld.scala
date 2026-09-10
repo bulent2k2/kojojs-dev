@@ -22,6 +22,49 @@ trait KojoWorld {
   def scheduleLater(fn: => Unit): Unit
   def runLater(ms: Double)(fn: => Unit): Unit
   def render(): Unit
+
+  // --- Bekleyen dolgular (tembel üçgenleme) ---------------------------------
+  //
+  // Kaplumbağa her kenarda dolgu çokgeninin TAMAMINI yeniden yayınlıyordu.
+  // Şeklin tamamlanmış yayınlanması gerekiyor (bkz. BoyamaYolu), ama her
+  // KENARDA yayınlanması gerekmiyor: render zaten bir requestAnimationFrame'e
+  // toplanıyor, yani n kenar tek render'a düşüyor ve n-1 üçgenleme çöpe
+  // gidiyor. Burada kirli çizerler biriktiriliyor; gerçek yayın render'dan
+  // hemen önce, çizer başına bir kez yapılıyor.
+  //
+  // LinkedHashSet: aynı çizer kaç kez kirlenirse kirlensin bir kez yayınlanır
+  // (asıl kazanç bu), ve kirlenme sırası korunur -- katman sırası önemli.
+  private val bekleyenBoyacılar = scala.collection.mutable.LinkedHashSet.empty[Boyacı]
+
+  /** Çizerin dolgusu bayatladı: sıraya al ve bir render iste. */
+  private[kojo] def boyaKirlendi(b: Boyacı): Unit = {
+    bekleyenBoyacılar += b
+    render()
+  }
+
+  /**
+   * Bekleyen dolguları yayınla. GERÇEK render'dan hemen önce çağrılmalı --
+   * `KojoWorldImpl.flushRender` bunu yapıyor. Sınamalarda, gerçek bir
+   * render'ın gireceği yerde elle çağrılıyor.
+   */
+  private[kojo] def boyalarıBoşalt(): Unit =
+    if (bekleyenBoyacılar.nonEmpty) {
+      // Yayın sırasında yeniden kirlenme olabilir; önce kopyala ve boşalt ki
+      // o kirlenme SONRAKİ kareye kalsın, burada sonsuz döngü olmasın.
+      val sıra = bekleyenBoyacılar.toList
+      bekleyenBoyacılar.clear()
+      sıra.foreach(_.boyayıYayınla())
+    }
+
+  /**
+   * BU çizerin bekleyen dolgusunu düşür -- kendi yolunu sildiği için.
+   *
+   * Çizer başına: küresel bir düşürme, dolgusu duran BAŞKA bir çizerin
+   * boyasını sessizce yok ediyordu (A'nın bekleyeni, B `sil()` deyince
+   * düşüyordu). Yayın istekliyken böyle bir pencere yoktu; tembelleşince
+   * açıldı.
+   */
+  private[kojo] def bekleyenBoyayıUnut(b: Boyacı): Unit = bekleyenBoyacılar -= b
   def moveToFront(obj: PIXI.DisplayObject): Unit
   def moveToBack(obj: PIXI.DisplayObject): Unit
 
@@ -496,6 +539,12 @@ class KojoWorldImpl extends KojoWorld {
   }
 
   def erasePictures(): Unit = {
+    // Bekleyen dolguları BİLEREK düşürmüyoruz. Bu yöntem "Turtle Layer" adlı
+    // çocukları silmiyor (aşağıya bak), yani hayatta kalan katmanlar tam
+    // olarak Boyacıların katmanları -- burada düşürmek, duran bir kaplumbağanın
+    // boyasını sessizce yok etmek olurdu. Katmanı gerçekten silinen bir çizer
+    // (bir resmin içindeki kaplumbağa) kalan yayınını kopmuş bir Graphics'e
+    // yapar; zararsız.
     resetBake() // pişmiş boyayı da temizle (yoksa dokuda hayalet kalır)
     val children = stage.children.toBuffer
     children.foreach { c =>
@@ -551,6 +600,9 @@ class KojoWorldImpl extends KojoWorld {
     if (renderPending) {
       renderPending = false
       window.cancelAnimationFrame(renderHandle)
+      // Bekleyen dolgular tam BURADA yayınlanıyor: kareye kadar biriken n
+      // kirlenme, çizer başına tek üçgenlemeye iniyor.
+      boyalarıBoşalt()
       renderer.render(stage)
     }
   }

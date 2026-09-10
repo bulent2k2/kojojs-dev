@@ -47,7 +47,8 @@ private[kojo] class PompaDurumu {
 
 class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = null)(implicit kojoWorld: KojoWorld)
   extends TurtleAPI
-  with RichTurtleCommands {
+  with RichTurtleCommands
+  with Boyacı {
   private[kojo] val turtleLayer = new PIXI.Container()
   private var turtleImage: PIXI.Container = _
   // Boyama AYRI bir yolda. Neden: PIXI 5'te her render yarım kalan çokgeni
@@ -74,7 +75,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   private def turtlePathMoveTo(x: Double, y: Double): Unit = {
     boyamayıİşle() // kalem kalkık taşınma çokgeni bitiriyor
     boyamaÇokgeni.taşındı(x, y)
-    boyamayıTazele()
+    boyamayıKirlet()
     turtlePath.moveTo(x, y)
     sonYolX = x; sonYolY = y
     prevMoveTo = Some(Point(x, y))
@@ -92,7 +93,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     sonYolX = x; sonYolY = y
     turtlePathPoints += ((x, y))
     boyamaÇokgeni.çizildi(x, y)
-    boyamayıTazele()
+    boyamayıKirlet()
   }
 
   /**
@@ -114,7 +115,24 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     }
   }
 
-  private def boyamayıTazele(): Unit = {
+  /**
+   * Dolgu bayatladı. Yayını YAPMIYOR, yalnız sıraya koyuyor: gerçek
+   * `drawPolygon` render'dan hemen önce, kare başına bir kez çalışıyor
+   * (bkz. Boyacı ve KojoWorld.boyalarıBoşalt).
+   *
+   * Eskiden burada doğrudan yayın vardı ve bu yöntem HER KENARDA çağrıldığı
+   * için n kenarlı bir şekil n kez üçgenleniyordu -- oysa çokHızlı'da bütün
+   * kenarlar tek render'a düşüyor. Ölçüldü (tan-theta, 241 nokta): 241 yayın,
+   * 1 render.
+   */
+  private def boyamayıKirlet(): Unit = kojoWorld.boyaKirlendi(this)
+
+  /**
+   * Bekleyen dolguyu şimdi yayınla. Şekil her zaman TAMAMLANMIŞ olarak
+   * (`drawPolygon`) yayınlanıyor -- bu kural değişmedi, yalnız kaç kez
+   * yayınlandığı değişti. İdempotent: `clear()` ile başlıyor.
+   */
+  private[kojo] def boyayıYayınla(): Unit = {
     boyamaYolu.clear()
     if (fillBoya != null && boyamaÇokgeni.alanVarMı) {
       boyamaYolu.lineStyle(0, 0, 0) // kenarlığı kalem çiziyor, dolgunun kendi çizgisi olmasın
@@ -530,7 +548,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     // kesiyordu -- şeklin dolması yalnız gecikme 0 iken (bütün kenarlar tek
     // blokta) rastlantıyla çalışıyordu.
     boyamaÇokgeni.boyaKuruldu(turtleImage.position.x, turtleImage.position.y)
-    boyamayıTazele()
+    boyamayıKirlet()
     kojoWorld.scheduleLater(queueHandler)
   }
 
@@ -771,6 +789,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     boyamaYolu.clear()
     boyamaBitmiş.clear()
     boyamaÇokgeni.temizle()
+    kojoWorld.bekleyenBoyayıUnut(this) // KENDİ yolunu sildi; ötekilerinki dursun
     initTurtleLayer()
     kojoWorld.render()
     kojoWorld.scheduleLater(queueHandler)
