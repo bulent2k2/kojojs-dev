@@ -43,12 +43,23 @@ class BoyamaGerilemeTest extends AsyncFunSuite with Matchers with RepeatCommands
       .map(_.asInstanceOf[js.Dynamic])
       .filter(d => js.typeOf(d.finishPoly) == "function")
 
-  /** Renderın dolguya yaptığı şey: yarım çokgeni olduğu yerde kapat. */
-  private def renderTaklidi(t: Turtle): Unit =
+  /**
+   * Renderın dolguya yaptığı şey: yarım çokgeni olduğu yerde kapat.
+   *
+   * Gerçek render iki adım: önce bekleyen dolguları yayınla
+   * (`KojoWorld.boyalarıBoşalt`, tembel üçgenleme), sonra çiz. Taklit de
+   * ikisini yapmalı -- yalnız `finishPoly` çağırmak, yayınlanmamış bir
+   * çokgeni "kesmiş" gibi davranıp kusuru gizlerdi.
+   */
+  private def renderTaklidi(t: Turtle): Unit = {
+    kojoWorld.boyalarıBoşalt()
     grafikler(t.turtleLayer).foreach(_.finishPoly())
+  }
 
-  /** Katmandaki DOLGULU parçaların köşe sayıları. */
-  private def dolguKöşeSayıları(t: Turtle): Seq[Int] =
+  /** Katmandaki DOLGULU parçaların köşe sayıları. Okumadan önce bekleyen
+    * dolguları yayınlıyoruz: gerçekte bunu render yapıyor. */
+  private def dolguKöşeSayıları(t: Turtle): Seq[Int] = {
+    kojoWorld.boyalarıBoşalt()
     grafikler(t.turtleLayer).flatMap { g =>
       g.finishPoly()
       g.geometry.graphicsData.asInstanceOf[js.Array[js.Dynamic]].toSeq
@@ -56,6 +67,7 @@ class BoyamaGerilemeTest extends AsyncFunSuite with Matchers with RepeatCommands
       .filter(gd => gd.fillStyle.visible.asInstanceOf[Boolean])
       .filter(gd => js.typeOf(gd.shape.points) != "undefined")
       .map(gd => gd.shape.points.asInstanceOf[js.Array[Double]].length / 2)
+  }
 
   /** Alan kaplayan (en az üç köşeli) dolgu parçası var mı. */
   private def alanKaplayanDolgu(t: Turtle): Seq[Int] = dolguKöşeSayıları(t).filter(_ >= 3)
