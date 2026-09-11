@@ -1003,26 +1003,36 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
   // AWT VK_*. Takma adlar Türkçe adlara bağlı, o yüzden DOM değerini alıyorlar.
   // Aşağıdaki gir == 13 savı tam da bunu çiviliyor: 10 (AWT) olsaydı
   // tuşBasılıMı(tuşlar.enter) hiçbir zaman doğru dönmezdi.
-  test("tuş adları: masaüstündeki İngilizce takma adlar burada da var") {
+  test("tuş adları: İngilizce takma adlar burada da var (camelCase)") {
     tuşlar.enter should be(tuşlar.gir)
-    tuşlar.back_space should be(tuşlar.silGeri)
+    tuşlar.backSpace should be(tuşlar.silGeri)
     tuşlar.cancel should be(tuşlar.iptal)
     tuşlar.clear should be(tuşlar.temizle)
     tuşlar.shift should be(tuşlar.kaldırma)
     tuşlar.control should be(tuşlar.kontrol)
     tuşlar.pause should be(tuşlar.dur)
     tuşlar.escape should be(tuşlar.çık)
-    tuşlar.page_up should be(tuşlar.sayfaYukarı)
-    tuşlar.page_down should be(tuşlar.sayfaAşağı)
+    tuşlar.pageUp should be(tuşlar.sayfaYukarı)
+    tuşlar.pageDown should be(tuşlar.sayfaAşağı)
     tuşlar.end should be(tuşlar.satırSonu)
     tuşlar.home should be(tuşlar.satırBaşı)
     // DOM değerleri korunuyor (AWT'ninkiler DEĞİL)
     tuşlar.enter should be(13)
-    tuşlar.back_space should be(8)
+    tuşlar.backSpace should be(8)
     tuşlar.escape should be(0x1b)
   }
 
-  test("tuş adları: masaüstünün eskitilmiş yazımları aynı tuşu veriyor") {
+  /**
+   * Eskitilmiş snake_case yazımlar HÂLÂ ÇALIŞMALI.
+   *
+   * NEDEN: masaüstü Kojo bu adları veriyor, yani onlarla yazılmış
+   * yazılımcıklar var; eskitmek "artık derlenmesin" demek değil. Sav
+   * ikisini birden tutuyor: ad duruyor VE aynı tuşu veriyor.
+   *
+   * Bu sınama bilerek eskitilmiş ad kullanıyor; derleyici uyarısı beklenen
+   * ve istenen bir şey -- eskitmenin çalıştığının kanıtı.
+   */
+  test("tuş adları: eskitilmiş snake_case yazımlar aynı tuşu veriyor") {
     tuşlar.sil_geri should be(tuşlar.silGeri)
     tuşlar.büyük_harf_kilitleme should be(tuşlar.büyükHarfKilidi)
     tuşlar.sayfa_yukarı should be(tuşlar.sayfaYukarı)
@@ -1030,5 +1040,124 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     tuşlar.satır_sonu should be(tuşlar.satırSonu)
     tuşlar.satır_başı should be(tuşlar.satırBaşı)
     tuşlar.noktalı_virgül should be(tuşlar.noktalıVirgül)
+    // Bu turda eskitilen üç İngilizce ad
+    tuşlar.back_space should be(tuşlar.backSpace)
+    tuşlar.page_up should be(tuşlar.pageUp)
+    tuşlar.page_down should be(tuşlar.pageDown)
+  }
+
+  test("tuş adları: yılan yazımın deve karşılığı EKSİKSİZ") {
+    // NE YAKALAR: bir çiftin yanlış bağlanması -- ölçtüm, `page_up`ı
+    // `pageDown`a bağlayınca kırmızı yanıyor (34 was not equal to 33).
+    // Bir deve adının silinmesi de yakalanır, ama DERLEME hatası olarak
+    // (`not found: value pageUp`), koşan bir sav olarak değil.
+    //
+    // NE YAKALAMAZ: klavye.scala'ya YENİ bir snake_case birincil ad
+    // eklenmesi. Liste elle yazılı (Scala.js'te yansıma yok), o yüzden yeni
+    // bir ad buraya hiç uğramaz -- ölçtüm, `val yeni_tus = 0x41` eklenince
+    // 41 sınamanın hepsi yeşil kalıyor. Aşağıdaki `size 10` savı da bunu
+    // değiştirmiyor: elle yazılı bir listenin boyunu ölçtüğü için yalnız BU
+    // listeden satır düşmesini yakalar, kaynak dosyayı gözetlemez.
+    val çiftler: List[(Int, Int)] = List(
+      tuşlar.sil_geri -> tuşlar.silGeri,
+      tuşlar.büyük_harf_kilitleme -> tuşlar.büyükHarfKilidi,
+      tuşlar.sayfa_yukarı -> tuşlar.sayfaYukarı,
+      tuşlar.sayfa_aşağı -> tuşlar.sayfaAşağı,
+      tuşlar.satır_sonu -> tuşlar.satırSonu,
+      tuşlar.satır_başı -> tuşlar.satırBaşı,
+      tuşlar.noktalı_virgül -> tuşlar.noktalıVirgül,
+      tuşlar.back_space -> tuşlar.backSpace,
+      tuşlar.page_up -> tuşlar.pageUp,
+      tuşlar.page_down -> tuşlar.pageDown
+    )
+    çiftler should have size 10
+    çiftler.foreach { case (yılan, deve) => yılan should be(deve) }
+  }
+
+  /**
+   * BÜTÜN tuş değerleri ÇİVİLİ -- 62 ad, tek tek.
+   *
+   * NEDEN: öbür savların hepsi BAĞIL -- takma adı Türkçe adına, yılan yazımı
+   * deve yazımına bağlıyorlar. Zincir kendi içinde tutarlı kaldıkça kök değer
+   * yanlış olsa da hepsi yeşil kalıyor.
+   *
+   * Bu sav önce yalnız bu turda adı değişen 10 adı çiviliyordu; inceleme
+   * bunun yetmediğini ÖLÇTÜ: `sol`u 0x99 yapınca 124 sınamanın hepsi yeşil
+   * kaldı. Üstelik çivilenen o 10 ad örneklerde HİÇ kullanılmıyor, `sol` ise
+   * en çok kullanılanlardan -- yani boşluk tam da klavye oyunlarının
+   * dayandığı tuşlarda açıktı. Şimdi 62'sinin hepsi çivili.
+   *
+   * Sayılar DOM `KeyboardEvent.keyCode`; masaüstünün AWT VK_* değerleri
+   * DEĞİL. Ayrıldıkları yerler bilerek böyle: `gir` burada 13 (AWT'de 10),
+   * `noktalıVirgül` 186 (AWT'de 0x3b).
+   *
+   * NE YAKALAMAZ: yeni bir ad EKLENMESİ. Liste elle yazılı (Scala.js'te
+   * yansıma yok), o yüzden yeni ad buraya uğramaz. Harf/rakam döngüleri de
+   * yalnız kendi listelerindeki adları görür.
+   */
+  test("tuş adları: BÜTÜN DOM değerleri çivili (62 ad)") {
+    // denetim ve düzenleme
+    tuşlar.gir should be(13)
+    tuşlar.silGeri should be(8)
+    tuşlar.sekme should be(9)
+    tuşlar.iptal should be(0x03)
+    tuşlar.temizle should be(0x0c)
+    tuşlar.kaldırma should be(0x10)
+    tuşlar.kontrol should be(0x11)
+    tuşlar.alt should be(0x12)
+    tuşlar.dur should be(0x13)
+    tuşlar.büyükHarfKilidi should be(0x14)
+    tuşlar.çık should be(0x1b)
+    tuşlar.boşluk should be(0x20)
+    tuşlar.sayfaYukarı should be(0x21)
+    tuşlar.sayfaAşağı should be(0x22)
+    tuşlar.satırSonu should be(0x23)
+    tuşlar.satırBaşı should be(0x24)
+
+    // ok tuşları -- örneklerin en çok kullandıkları
+    tuşlar.sol should be(0x25)
+    tuşlar.yukarı should be(0x26)
+    tuşlar.sağ should be(0x27)
+    tuşlar.aşağı should be(0x28)
+
+    // noktalama -- masaüstünden en çok ayrışan küme
+    tuşlar.virgül should be(188)
+    tuşlar.eksi should be(189)
+    tuşlar.nokta should be(190)
+    tuşlar.bölü should be(191)
+    tuşlar.noktalıVirgül should be(186)
+    tuşlar.eşittir should be(187)
+
+    // rakamlar ve harfler ASCII ile hizalı
+    val rakamlar = List(
+      tuşlar.n0, tuşlar.n1, tuşlar.n2, tuşlar.n3, tuşlar.n4,
+      tuşlar.n5, tuşlar.n6, tuşlar.n7, tuşlar.n8, tuşlar.n9
+    )
+    rakamlar should have size 10
+    rakamlar.zipWithIndex.foreach { case (değer, i) => değer should be(0x30 + i) }
+
+    val harfler = List(
+      tuşlar.a, tuşlar.b, tuşlar.c, tuşlar.d, tuşlar.e, tuşlar.f, tuşlar.g,
+      tuşlar.h, tuşlar.i, tuşlar.j, tuşlar.k, tuşlar.l, tuşlar.m, tuşlar.n,
+      tuşlar.o, tuşlar.p, tuşlar.q, tuşlar.r, tuşlar.s, tuşlar.t, tuşlar.u,
+      tuşlar.v, tuşlar.w, tuşlar.x, tuşlar.y, tuşlar.z
+    )
+    harfler should have size 26
+    harfler.zipWithIndex.foreach { case (değer, i) => değer should be(0x41 + i) }
+  }
+
+  /**
+   * Takma adlar kendi köklerine bağlı.
+   *
+   * Yukarıdaki sav kökleri çiviliyor; burası takma adların o köklerden
+   * KOPMADIĞINI tutuyor. Mutlak sayı YAZILMIYOR -- `backSpace should be(8)`
+   * yazmak `silGeri should be(8)`in tekrarı olurdu (ikisi aynı val).
+   */
+  test("tuş adları: takma adlar köklerinden kopmamış") {
+    tuşlar.backSpace should be(tuşlar.silGeri)
+    tuşlar.pageUp should be(tuşlar.sayfaYukarı)
+    tuşlar.pageDown should be(tuşlar.sayfaAşağı)
+    tuşlar.kaç should be(tuşlar.çık)
+    tuşlar.ev should be(tuşlar.satırBaşı)
   }
 }

@@ -149,15 +149,28 @@ def anlıkGörüntüyeGöre():
     """kojo klonu OLMADAN denetim (CI burayı koşuyor).
 
     Yakaladığı: ikojo'nun elindeki bir adı KAYBETMESİ (gerileme) -- hem
-    masaüstüyle ortak olanlar hem ikojo'ya ÖZGÜ olanlar (silGeri, koyuMor...).
+    masaüstüyle ortak olanlar hem ikojo'ya ÖZGÜ olanlar (koyuMor, saydam...).
     İkincisi baştan kapsam dışıydı: anlık görüntü yalnız masaüstü adlarını
     yazıyordu, dolayısıyla ikojo'nun kendi seçtiği adların hiç gözcüsü yoktu --
     yani ikojo'nun masaüstünden AYRILDIĞI noktalar korumasızdı (inceleme ölçtü,
     #60). Artık üçüncü bir durum var: "yalnız-ikojo".
 
-    Yakalayamadığı: masaüstünün YENİ bir ad eklemesi -- o, anlık görüntüde de
-    olmadığından buradan görünmez; onun için tam karşılaştırma (--kojo) gerek.
-    Bu sınır teknik: koşucuda masaüstü klonu yok.
+    Yakalayamadığı, ÜÇ ayrı yön (inceleme üçünü de ölçtü):
+
+    1. Masaüstünün YENİ bir ad eklemesi -- o, anlık görüntüde de olmadığından
+       buradan görünmez; onun için tam karşılaştırma (--kojo) gerek. Bu sınır
+       teknik: koşucuda masaüstü klonu yok.
+    2. Anlık görüntünün KENDİSİNİN küçülmesi. Bu sav görüntüden okuduğu adları
+       görüntüye göre denetliyor, yani döngüsel: TSV'den bir satır silinirse
+       "beklenen 85 ad yerinde" deyip EXIT=0 verir. Görüntünün doğru olduğunu
+       hiçbir şey tutmuyor.
+    3. TSV'nin masaüstü hakkındaki iddiasının YALAN olması -- masaüstünde artık
+       olmayan bir adı "var" diye taşıyabilir. Eş bir PR birleşmezse tam olarak
+       bu olur. --kojo bile yakalamıyor: `fazla = ikojo - masaüstü` kümesi
+       yazdırılıyor ama çıkış koduna girmiyor.
+
+    2 ve 3'ün kökü aynı: görüntüyü üreten ile denetleyen aynı veriye bakıyor.
+    Kayıtlı: #69.
     """
     beklenen = anlıkGörüntüyüOku()
     kötü = False
@@ -216,7 +229,7 @@ def tsvYaz(sonuç):
     Üçüncü sütun BUGÜNKÜ gerçeği yazıyor:
       var          -- masaüstünde ve ikojo'da
       boşluk       -- masaüstünde var, ikojo'da yok
-      yalnız-ikojo -- ikojo'nun kendi seçtiği ad (silGeri, koyuMor...)
+      yalnız-ikojo -- ikojo'nun kendi seçtiği ad (koyuMor, saydam...)
     CI 'var' ve 'yalnız-ikojo' satırlarını zorunlu tutuyor; 'boşluk' olanlar
     işi kırmızı yakmıyor ama İZLENEN bir dosyada, göz önünde duruyorlar.
     """

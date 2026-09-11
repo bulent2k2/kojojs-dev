@@ -74,11 +74,12 @@ Renkler	yeşilimsiSarı	var
 Renkler	zeytin	var
 Renkler	çelikMavisi	var
 #
-# tuşlar (tuş adları): 83 ortak, 0 boşluk, 0 yalnız-ikojo
+# tuşlar (tuş adları): 86 ortak, 0 boşluk, 0 yalnız-ikojo
 tuşlar	a	var
 tuşlar	alt	var
 tuşlar	aşağı	var
 tuşlar	b	var
+tuşlar	backSpace	var
 tuşlar	back_space	var
 tuşlar	boşluk	var
 tuşlar	bölü	var
@@ -127,6 +128,8 @@ tuşlar	noktalıVirgül	var
 tuşlar	noktalı_virgül	var
 tuşlar	o	var
 tuşlar	p	var
+tuşlar	pageDown	var
+tuşlar	pageUp	var
 tuşlar	page_down	var
 tuşlar	page_up	var
 tuşlar	pause	var
