@@ -85,6 +85,33 @@ jobs:
             exit 1
           fi
 
+      # PIXI'nin başına gelen libtess'e gelmesin: kütüphane iki yerde duruyor
+      # ve ayrışırsa sınamalar sayfanınkinden başka bir libtess koşar.
+      - name: test harnessindeki libtess kütüphanedekiyle aynı mı
+        run: |
+          if ! cmp src/test/resources/libtess.cat.js lib/libtess.cat.js; then
+            echo "::error::src/test/resources/libtess.cat.js ile lib/libtess.cat.js ayrışmış."
+            echo "Tazelemek için:  cp lib/libtess.cat.js src/test/resources/libtess.cat.js"
+            exit 1
+          fi
+
+      # libtess'i yükleyen HER sayfa yüklemeye devam etsin. Dolgu sarım kuralı
+      # buna bağlı: kütüphane yoksa Üçgenleyici çalışmaz ve kendini kesen
+      # yollar sessizce yanlış dolar (bkz. oneri-kesisen-dolgu.md).
+      - name: libtess'i yükleyen sayfalar eksiksiz mi
+        run: |
+          eksik=0
+          for sayfa in run.html run5.html; do
+            if ! grep -q "libtess.cat.js" "$sayfa"; then
+              echo "::error::$sayfa libtess.cat.js yüklemiyor."
+              eksik=1
+            fi
+          done
+          # Ayrı depodaki editör sayfası (kojojs-editor) BURADAN GÖRÜLMÜYOR:
+          # resultframe.scala.html de libtess yüklemeli, yoksa CANLI SİTE
+          # kütüphanesiz kalır. CI depolar arasını göremiyor -- elle izlenecek.
+          exit $eksik
+
       # Betiklerin kendi savları: yardim.json beklenen alanları taşıyor mu
       # (üretim bunun üzerine kuruluyor), ve her zrc gidiş-dönüş sınanıyor.
       - name: gösteri ve yardım örneklerini yeniden üret
