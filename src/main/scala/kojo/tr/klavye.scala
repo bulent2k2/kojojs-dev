@@ -84,10 +84,14 @@ trait KlavyeYöntemleri extends TemelTürler {
     // veriyor (kojo/.../i18n/tr/klavye.scala), yani onlarla yazılmış
     // yazılımcıklar var ve canlıda da derlenmeleri gerekiyor.
     //
-    // DÜZELTME: burada eskiden "masaüstü camelCase'e geçti" yazıyordu; yanlıştı.
-    // Masaüstü bu dosya yazıldığında hâlâ snake_case veriyordu. Geçişi masaüstü
-    // tarafında da yapan eş bir değişiklik var; eskitilmiş adlar iki tarafta da
-    // duruyor.
+    // GEÇMİŞ: yedi Türkçe ad masaüstünde bu dosyadan ÖNCE camelCase'e geçmişti
+    // (kojo c46f96f, 2026-09-10 14:19 UTC; bu dosyanın o turdaki hali 14:22).
+    // Bu turda kalan üç İNGİLİZCE ad da iki tarafta birden geçiyor.
+    //
+    // NOT: bir ara buraya "masaüstü hâlâ snake_case veriyordu, eski yorum
+    // yanlıştı" diye bir düzeltme yazılmıştı. DÜZELTMENİN KENDİSİ YANLIŞTI --
+    // yukarıdaki commit tarihleri bunu gösteriyor. Geri alındı; aynı yanlış
+    // bir daha yapılmasın diye kayda geçiriliyor.
     @deprecated("camelCase yazıma geçildi: silGeri kullanın", "Eylül 2026")
     val sil_geri = silGeri
     @deprecated("camelCase yazıma geçildi: backSpace kullanın", "Eylül 2026")

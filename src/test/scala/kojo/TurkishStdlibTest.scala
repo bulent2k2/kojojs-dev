@@ -1047,8 +1047,17 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
   }
 
   test("tuş adları: yılan yazımın deve karşılığı EKSİKSİZ") {
-    // Gözcü: yeni bir snake_case ad eklenirse (ya da bir deve adı silinirse)
-    // burası kırmızı yanar. Çiftler elle yazılı, çünkü yansıma yok.
+    // NE YAKALAR: bir çiftin yanlış bağlanması -- ölçtüm, `page_up`ı
+    // `pageDown`a bağlayınca kırmızı yanıyor (34 was not equal to 33).
+    // Bir deve adının silinmesi de yakalanır, ama DERLEME hatası olarak
+    // (`not found: value pageUp`), koşan bir sav olarak değil.
+    //
+    // NE YAKALAMAZ: klavye.scala'ya YENİ bir snake_case birincil ad
+    // eklenmesi. Liste elle yazılı (Scala.js'te yansıma yok), o yüzden yeni
+    // bir ad buraya hiç uğramaz -- ölçtüm, `val yeni_tus = 0x41` eklenince
+    // 41 sınamanın hepsi yeşil kalıyor. Aşağıdaki `size 10` savı da bunu
+    // değiştirmiyor: elle yazılı bir listenin boyunu ölçtüğü için yalnız BU
+    // listeden satır düşmesini yakalar, kaynak dosyayı gözetlemez.
     val çiftler: List[(Int, Int)] = List(
       tuşlar.sil_geri -> tuşlar.silGeri,
       tuşlar.büyük_harf_kilitleme -> tuşlar.büyükHarfKilidi,
@@ -1063,5 +1072,32 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     )
     çiftler should have size 10
     çiftler.foreach { case (yılan, deve) => yılan should be(deve) }
+  }
+
+  /**
+   * Deve adların DOM değerleri ÇİVİLİ.
+   *
+   * NEDEN: yukarıdaki savların hepsi BAĞIL -- takma adı Türkçe adına, yılan
+   * yazımı deve yazımına bağlıyorlar. Bu zincir kendi içinde tutarlı kaldığı
+   * sürece kök değer yanlış olsa da hepsi yeşil kalır. Ölçtüm:
+   * `sayfaYukarı`yı 0x99 yapınca (geçerli bir DOM keyCode bile değil)
+   * 41 sınamanın hepsi yeşil kaldı.
+   *
+   * Buradaki sayılar DOM `KeyboardEvent.keyCode` -- masaüstünün AWT VK_*
+   * değerleri DEĞİL. İkisinin ayrıldığı yerler bilerek böyle:
+   * `noktalıVirgül` burada 186, masaüstünde 0x3b (59).
+   */
+  test("tuş adları: deve adların DOM değerleri çivili") {
+    tuşlar.silGeri should be(8)
+    tuşlar.büyükHarfKilidi should be(0x14)
+    tuşlar.sayfaYukarı should be(0x21)
+    tuşlar.sayfaAşağı should be(0x22)
+    tuşlar.satırSonu should be(0x23)
+    tuşlar.satırBaşı should be(0x24)
+    tuşlar.noktalıVirgül should be(186)
+    // bu turda geçen üç İngilizce ad
+    tuşlar.backSpace should be(8)
+    tuşlar.pageUp should be(0x21)
+    tuşlar.pageDown should be(0x22)
   }
 }

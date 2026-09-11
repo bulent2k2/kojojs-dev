@@ -71,7 +71,7 @@ CI'ın klonu olmadığı için ikinci kip anlık görüntüye bakıyor
 | durum | anlamı | CI zorunlu tutuyor mu |
 |---|---|---|
 | `var` | masaüstünde ve ikojo'da | evet |
-| `yalnız-ikojo` | ikojo'nun kendi seçtiği ad (`silGeri`, `koyuMor`…) | evet |
+| `yalnız-ikojo` | ikojo'nun kendi seçtiği ad (`koyuMor`, `saydam`…) | evet |
 | `boşluk` | masaüstünde var, ikojo'da yok | hayır — kapatmak ayrı karar |
 
 `yalnız-ikojo` sonradan eklendi: anlık görüntü başta yalnız masaüstü adlarını

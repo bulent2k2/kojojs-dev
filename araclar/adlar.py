@@ -149,7 +149,7 @@ def anlıkGörüntüyeGöre():
     """kojo klonu OLMADAN denetim (CI burayı koşuyor).
 
     Yakaladığı: ikojo'nun elindeki bir adı KAYBETMESİ (gerileme) -- hem
-    masaüstüyle ortak olanlar hem ikojo'ya ÖZGÜ olanlar (silGeri, koyuMor...).
+    masaüstüyle ortak olanlar hem ikojo'ya ÖZGÜ olanlar (koyuMor, saydam...).
     İkincisi baştan kapsam dışıydı: anlık görüntü yalnız masaüstü adlarını
     yazıyordu, dolayısıyla ikojo'nun kendi seçtiği adların hiç gözcüsü yoktu --
     yani ikojo'nun masaüstünden AYRILDIĞI noktalar korumasızdı (inceleme ölçtü,
@@ -216,7 +216,7 @@ def tsvYaz(sonuç):
     Üçüncü sütun BUGÜNKÜ gerçeği yazıyor:
       var          -- masaüstünde ve ikojo'da
       boşluk       -- masaüstünde var, ikojo'da yok
-      yalnız-ikojo -- ikojo'nun kendi seçtiği ad (silGeri, koyuMor...)
+      yalnız-ikojo -- ikojo'nun kendi seçtiği ad (koyuMor, saydam...)
     CI 'var' ve 'yalnız-ikojo' satırlarını zorunlu tutuyor; 'boşluk' olanlar
     işi kırmızı yakmıyor ama İZLENEN bir dosyada, göz önünde duruyorlar.
     """
