@@ -24,17 +24,7 @@ dez açıRengi = Renk(0, 204, 51)
 dez eskiAçıRengi = açıkGri
 dez yayRengi = gri
 
-// ---- Şekiller -------------------------------------------------------------
-//
-// DİKKAT -- masaüstünden TEK sapma buradaki `götür(r, 0)` önekleri:
-// Resim.yay iki tarafta AYNI YERE çizmiyor.
-//   masaüstü (ArcPic):  yayın MERKEZİ (0,0), başlangıcı (r,0)
-//   ikojo (Turtle.realArc2, `trans.translate(-r, 0)`):
-//                       yayın BAŞLANGICI (0,0), merkezi (-r,0)
-// Yani ikojo'nun yayı tam r kadar solda. Öteleme olmadan eğriYçÇiz'in yayı
-// kendi uç noktacıklarına değmiyor, açıÇiz'in yayı açının tepesine oturmuyor,
-// süpürme çemberi de yarıçapın etrafına değil soluna çiziliyor.
-// Bu bir yazılımcık yaması; asıl fark ayrı bir Issue'da.
+// ---- Şekiller (masaüstü sürümdekilerle BİREBİR aynı) ----------------------
 
 tanım yarıçapıÇiz(açı: Sayı) = kalemRengi(renk) * döndür(açı) -> Resim.dizi(
     boyaRengi(renk) -> Resim.daire(3),
@@ -44,16 +34,16 @@ tanım yarıçapıÇiz(açı: Sayı) = kalemRengi(renk) * döndür(açı) -> Res
 
 tanım eğriYçÇiz(başı: Kesir, açı: Kesir) = kalemRengi(renk) * döndür(başı) -> Resim.dizi(
     götür(yçBoyu, 0) * boyaRengi(renk) -> Resim.daire(3),
-    götür(yçBoyu, 0) -> Resim.yay(yçBoyu, açı),
+    Resim.yay(yçBoyu, açı),
     döndür(açı) * götür(yçBoyu, 0) * boyaRengi(renk) -> Resim.daire(3)
 )
 
-tanım yayÇiz(açı: Sayı) = kalemRengi(yayRengi) * götür(yçBoyu, 0) -> Resim.yay(yçBoyu, açı)
+tanım yayÇiz(açı: Sayı) = kalemRengi(yayRengi) -> Resim.yay(yçBoyu, açı)
 
 tanım açıÇiz(başı: Kesir, açı: Kesir) = döndür(başı) -> Resim.dizi(
     Resim.yatay(yçBoyu),
     döndür(açı) -> Resim.yatay(yçBoyu),
-    götür(yçBoyu / 4, 0) -> Resim.yay(yçBoyu / 4, açı)
+    Resim.yay(yçBoyu / 4, açı)
 )
 
 tanım doğruÇiz(x1: Kesir, y1: Kesir, x2: Kesir, y2: Kesir) = {
