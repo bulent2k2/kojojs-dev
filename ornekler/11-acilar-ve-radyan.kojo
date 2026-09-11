@@ -79,6 +79,8 @@ tanım radyanAçıÇiz(kaçRadyan: Sayı) {
     açıYazısı = götür(-18, -yçBoyu / 4) -> Resim.yazı(s"$kaçRadyan radyan", 20)
     çiz(açıYazısı)
     eğer (kaçRadyan < 4) {
+        // Masaüstünde bu iki satır `a - (a - a*k)` yazıyor; cebirsel olarak
+        // `a*k` ile aynı, burada sadeleştirildi.
         işaret = doğruÇiz(0, -çeyrekYÇ, çeyrekYÇ * kosinüs(30.radyana), çeyrekYÇ * sinüs(30.radyana))
         çiz(işaret)
         işaret2 = doğruÇiz(0, -çeyrekYÇ, yçBoyu * kosinüs(30.radyana), yçBoyu * sinüs(30.radyana))
@@ -120,17 +122,21 @@ den süpürüyor = yanlış
 // Yazının kendi ölçüsü tarayıcıda ölçüldü ("Sonraki  >", 20 punto): 91 x 22.
 dez yazıEni = 91.0
 dez yazıBoyu = 22.0
+// Resim.yazı kalem rengini kullanır, o da varsayılan olarak KIRMIZI: gri
+// düğmenin üstünde okunmuyordu. Arayüz yazıları koyu, çizimin kendi yazıları
+// (yçYazısı, açıYazısı) masaüstündeki gibi kırmızı kalıyor.
+dez arayüzRengi = Renk(51, 51, 51)
 
 dez düğme = götür(düğmeX, düğmeY) -> Resim.dizi(
     kalemRengi(gri) * boyaRengi(Renk(238, 238, 238)) -> Resim.dikdörtgen(düğmeEni, düğmeBoyu),
-    götür((düğmeEni - yazıEni) / 2, (düğmeBoyu + yazıBoyu) / 2) -> Resim.yazı("Sonraki  >", 20)
+    götür((düğmeEni - yazıEni) / 2, (düğmeBoyu + yazıBoyu) / 2) -> Resim.yazıRenkli("Sonraki  >", 20, arayüzRengi)
 )
 
-den anlatım = götür(düğmeX, düğmeY - 34) -> Resim.yazı("", 18)
+den anlatım = götür(düğmeX, düğmeY - 34) -> Resim.yazıRenkli("", 18, arayüzRengi)
 
 tanım anlat(metin: Yazı) {
     anlatım.sil()
-    anlatım = götür(düğmeX, düğmeY - 34) -> Resim.yazı(metin, 18)
+    anlatım = götür(düğmeX, düğmeY - 34) -> Resim.yazıRenkli(metin, 18, arayüzRengi)
     çiz(anlatım)
     düğme.öneAl()
 }
@@ -150,7 +156,7 @@ tanım sonrakiAdım() {
         durum 2 => {
             yçYazısı.kondur(yçBoyu + 5, yçBoyu / 2 + 10)
             birYarıçap.döndürMerkezli(-90, yçBoyu, 0)
-            anlat("Yarıçapı çemberin üstüne yatırdık.")
+            anlat("Yarıçapı çemberin kenarına diktik; şimdi onu çembere saracağız.")
         }
         durum 3 => {
             birYarıçap.sil()
@@ -205,6 +211,10 @@ canlandır {
         eğer (süpürmeAçısı >= 360) {
             süpürüyor = yanlış
             anlat("Bir tam dönüş: 360 derece.")
+            // Tek süpürme adımı bitti; sonraki adımların hiçbiri kare kare
+            // devinim istemiyor. Döngüyü açık bırakmak her karede boşuna bir
+            // denetim demek olurdu.
+            canlandırmayıDurdur()
         }
     }
 }
