@@ -74,7 +74,7 @@ Renkler	yeşilimsiSarı	var
 Renkler	zeytin	var
 Renkler	çelikMavisi	var
 #
-# tuşlar (tuş adları): 83 ortak, 0 boşluk, 0 yalnız-ikojo
+# tuşlar (tuş adları): 76 ortak, 0 boşluk, 7 yalnız-ikojo
 tuşlar	a	var
 tuşlar	alt	var
 tuşlar	aşağı	var
@@ -82,7 +82,7 @@ tuşlar	b	var
 tuşlar	back_space	var
 tuşlar	boşluk	var
 tuşlar	bölü	var
-tuşlar	büyükHarfKilidi	var
+tuşlar	büyükHarfKilidi	yalnız-ikojo
 tuşlar	büyük_harf_kilitleme	var
 tuşlar	c	var
 tuşlar	cancel	var
@@ -123,7 +123,7 @@ tuşlar	n7	var
 tuşlar	n8	var
 tuşlar	n9	var
 tuşlar	nokta	var
-tuşlar	noktalıVirgül	var
+tuşlar	noktalıVirgül	yalnız-ikojo
 tuşlar	noktalı_virgül	var
 tuşlar	o	var
 tuşlar	p	var
@@ -133,18 +133,18 @@ tuşlar	pause	var
 tuşlar	q	var
 tuşlar	r	var
 tuşlar	s	var
-tuşlar	satırBaşı	var
-tuşlar	satırSonu	var
+tuşlar	satırBaşı	yalnız-ikojo
+tuşlar	satırSonu	yalnız-ikojo
 tuşlar	satır_başı	var
 tuşlar	satır_sonu	var
-tuşlar	sayfaAşağı	var
-tuşlar	sayfaYukarı	var
+tuşlar	sayfaAşağı	yalnız-ikojo
+tuşlar	sayfaYukarı	yalnız-ikojo
 tuşlar	sayfa_aşağı	var
 tuşlar	sayfa_yukarı	var
 tuşlar	sağ	var
 tuşlar	sekme	var
 tuşlar	shift	var
-tuşlar	silGeri	var
+tuşlar	silGeri	yalnız-ikojo
 tuşlar	sil_geri	var
 tuşlar	sol	var
 tuşlar	t	var
