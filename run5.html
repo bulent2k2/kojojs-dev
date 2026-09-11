@@ -14,6 +14,13 @@
 
 
 <!-- Include Scala.js compiled code -->
+<!-- DİKKAT (kaynak haritası): pixi5.min.js'in içine gömülü işaret
+     "//# sourceMappingURL=pixi.min.js.map" diyor -- v4 yapısınınkiyle AYNI ad.
+     Yani devtools burada lib/pixi.min.js.map'i (PIXI 4) çeker, v5'inkini değil.
+     lib/pixi5.min.js.map v5'in doğru haritası ve editöre senkronlanan kaynak
+     kopyadır (kojojs-editor/sync-lib.sh); tarayıcı onu kendiliğinden bulmaz.
+     Gerekirse devtools'tan elle bağlanır. Gömülü işareti değiştirmek satıcı
+     dosyasını düzenlemek olurdu, ondan kaçınıyoruz. -->
 <script type="text/javascript" src="./lib/pixi5.min.js"></script>
 <script type="text/javascript" src="./lib/jsts.min.js"></script>
 <script type="text/javascript" src="./lib/libtess.cat.js"></script>
