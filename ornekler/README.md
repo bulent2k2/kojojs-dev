@@ -19,6 +19,7 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 | `08-kumanda-kolu.kojo` | `kumandaKolu`, `oynatSahneİçinde` — fareyle sürülen top |
 | `09-nerede-ve-dokunma.kojo` | `konumuOku`, `yönüOku`, `dokunuyorMu` — kuyruktan okuma |
 | `10-anahtar-kelimeler.kojo` | Türkçe **anahtar kelimeleri** bir arada gösterir: `tanım`, `dez`, `den`, `eğer`/`yoksa`, `için`, `eşle`/`durum` |
+| `11-acilar-ve-radyan.kojo` | Radyan nedir — adım adım devinimli anlatım. Masaüstündeki `samples/tr/angles.kojo`'nun tarayıcı sürümü: geçişler `durakla` yerine bir **düğmeye** bağlı (bkz. aşağıdaki not) |
 
 ## Nasıl çalıştırılır
 
@@ -27,6 +28,23 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 3. **Çalıştır**
 
 İlk derleme makine yeni başladıysa 10-15 saniye sürebilir; sonrakiler ~1 saniye.
+
+## `durakla` masaüstündeki gibi çalışmaz
+
+Masaüstünde `durakla(n)` iş parçacığını uyutur, yani ondan sonraki **her şey**
+bekler. ikojo'da tarayıcıyı bloklamak yok: `durakla` yalnız **kaplumbağa komut
+kuyruğuna** bir bekleme ekler. `çiz` / `.sil()` / `.döndür()` gibi **resim**
+çağrıları kuyruğa girmez, hemen çalışır.
+
+Sonuç: baştan sona resimle çizen bir masaüstü betiği burada **derlenir ama
+yanlış çizer** — bütün adımlar tek karede olup biter, ekranda yalnız son hâl
+kalır. Hiçbir hata iletisi çıkmaz.
+
+Tarayıcıda doğru olan iki yol:
+
+* **kullanıcının ilerlettiği adımlar** → bir resmi düğme yapıp
+  `fareyeTıklayınca` ile bağlamak (örnek: `11-acilar-ve-radyan.kojo`)
+* **sürekli devinim** → `canlandır { ... }`, her karede bir çalışır
 
 ## Hız hakkında
 
