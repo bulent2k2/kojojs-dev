@@ -124,9 +124,16 @@ den adım = 0
 den süpürmeAçısı = 0
 den süpürüyor = yanlış
 
+// Resim.yazı'nın (0,0)'ı yazının sol ÜST köşesi: yazı oradan AŞAĞI sarkıyor.
+// Bu yüzden dikey ortalamak için yazının üstünü kutunun ortasından yarım yazı
+// boyu YUKARI almak gerekiyor -- (düğmeBoyu + yazıBoyu) / 2.
+// Yazının kendi ölçüsü tarayıcıda ölçüldü ("Sonraki  >", 20 punto): 91 x 22.
+dez yazıEni = 91.0
+dez yazıBoyu = 22.0
+
 dez düğme = götür(düğmeX, düğmeY) -> Resim.dizi(
     kalemRengi(gri) * boyaRengi(Renk(238, 238, 238)) -> Resim.dikdörtgen(düğmeEni, düğmeBoyu),
-    götür(22, 15) -> Resim.yazı("Sonraki  >", 20)
+    götür((düğmeEni - yazıEni) / 2, (düğmeBoyu + yazıBoyu) / 2) -> Resim.yazı("Sonraki  >", 20)
 )
 
 den anlatım = götür(düğmeX, düğmeY - 34) -> Resim.yazı("", 18)
