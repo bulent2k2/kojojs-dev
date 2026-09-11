@@ -112,6 +112,14 @@ jobs:
           # kütüphanesiz kalır. CI depolar arasını göremiyor -- elle izlenecek.
           exit $eksik
 
+      # kojojs-core'a giden paket listesi elle tutuluyor: yeni bir üst düzey
+      # paket eklenip listeye yazılmazsa senkron sessizce eksik kopyalar ve
+      # core DERLENMEZ. #65'te tam bu oldu (libtessjs). Asıl senkron Faz 3'e
+      # kadar kilitli olduğu için liste yıllarca hiç koşmayabilirdi; --denetle
+      # kipi kilitten bağımsız ve saniyeler sürüyor.
+      - name: çalışma zamanı paketleri senkron listesinde mi
+        run: ./sync-kojojs-core.sh --denetle
+
       # Betiklerin kendi savları: yardim.json beklenen alanları taşıyor mu
       # (üretim bunun üzerine kuruluyor), ve her zrc gidiş-dönüş sınanıyor.
       - name: gösteri ve yardım örneklerini yeniden üret
