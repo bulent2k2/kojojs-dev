@@ -41,6 +41,7 @@ object Üçgenleyici {
 
   private var uyarıldı = false
   private var tipUyarıldı = false
+  private var hataUyarıldı = false
 
   /**
    * Kütüphane sayfada yüklü mü.
@@ -113,8 +114,14 @@ object Üçgenleyici {
     // (libtess.cat.js:3829 callErrorCallback -- errorCallback_ yoksa hiçbir şey
     // yapmıyor). Üçgenleme bir hata verirse dolgu boş ya da yanlış çıkar ve
     // hiçbir yerde iz kalmazdı.
+    // Bir kez bas: canlandırma içinde bozuk bir yol her karede hata verir ve
+    // susturmasız bir ileti konsolu doldurup asıl iletiyi görünmez kılar.
+    // `uyarıldı` ve `tipUyarıldı` ile aynı kalıp.
     val hataOldu: js.Function1[Double, Unit] = e => {
-      js.Dynamic.global.console.error("libtess üçgenleme hatası: " + e)
+      if (!hataUyarıldı) {
+        hataUyarıldı = true
+        js.Dynamic.global.console.error("libtess üçgenleme hatası: " + e)
+      }
       ()
     }
 
