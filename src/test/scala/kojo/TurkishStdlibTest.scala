@@ -1075,29 +1075,89 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
   }
 
   /**
-   * Deve adların DOM değerleri ÇİVİLİ.
+   * BÜTÜN tuş değerleri ÇİVİLİ -- 62 ad, tek tek.
    *
-   * NEDEN: yukarıdaki savların hepsi BAĞIL -- takma adı Türkçe adına, yılan
-   * yazımı deve yazımına bağlıyorlar. Bu zincir kendi içinde tutarlı kaldığı
-   * sürece kök değer yanlış olsa da hepsi yeşil kalır. Ölçtüm:
-   * `sayfaYukarı`yı 0x99 yapınca (geçerli bir DOM keyCode bile değil)
-   * 41 sınamanın hepsi yeşil kaldı.
+   * NEDEN: öbür savların hepsi BAĞIL -- takma adı Türkçe adına, yılan yazımı
+   * deve yazımına bağlıyorlar. Zincir kendi içinde tutarlı kaldıkça kök değer
+   * yanlış olsa da hepsi yeşil kalıyor.
    *
-   * Buradaki sayılar DOM `KeyboardEvent.keyCode` -- masaüstünün AWT VK_*
-   * değerleri DEĞİL. İkisinin ayrıldığı yerler bilerek böyle:
-   * `noktalıVirgül` burada 186, masaüstünde 0x3b (59).
+   * Bu sav önce yalnız bu turda adı değişen 10 adı çiviliyordu; inceleme
+   * bunun yetmediğini ÖLÇTÜ: `sol`u 0x99 yapınca 124 sınamanın hepsi yeşil
+   * kaldı. Üstelik çivilenen o 10 ad örneklerde HİÇ kullanılmıyor, `sol` ise
+   * en çok kullanılanlardan -- yani boşluk tam da klavye oyunlarının
+   * dayandığı tuşlarda açıktı. Şimdi 62'sinin hepsi çivili.
+   *
+   * Sayılar DOM `KeyboardEvent.keyCode`; masaüstünün AWT VK_* değerleri
+   * DEĞİL. Ayrıldıkları yerler bilerek böyle: `gir` burada 13 (AWT'de 10),
+   * `noktalıVirgül` 186 (AWT'de 0x3b).
+   *
+   * NE YAKALAMAZ: yeni bir ad EKLENMESİ. Liste elle yazılı (Scala.js'te
+   * yansıma yok), o yüzden yeni ad buraya uğramaz. Harf/rakam döngüleri de
+   * yalnız kendi listelerindeki adları görür.
    */
-  test("tuş adları: deve adların DOM değerleri çivili") {
+  test("tuş adları: BÜTÜN DOM değerleri çivili (62 ad)") {
+    // denetim ve düzenleme
+    tuşlar.gir should be(13)
     tuşlar.silGeri should be(8)
+    tuşlar.sekme should be(9)
+    tuşlar.iptal should be(0x03)
+    tuşlar.temizle should be(0x0c)
+    tuşlar.kaldırma should be(0x10)
+    tuşlar.kontrol should be(0x11)
+    tuşlar.alt should be(0x12)
+    tuşlar.dur should be(0x13)
     tuşlar.büyükHarfKilidi should be(0x14)
+    tuşlar.çık should be(0x1b)
+    tuşlar.boşluk should be(0x20)
     tuşlar.sayfaYukarı should be(0x21)
     tuşlar.sayfaAşağı should be(0x22)
     tuşlar.satırSonu should be(0x23)
     tuşlar.satırBaşı should be(0x24)
+
+    // ok tuşları -- örneklerin en çok kullandıkları
+    tuşlar.sol should be(0x25)
+    tuşlar.yukarı should be(0x26)
+    tuşlar.sağ should be(0x27)
+    tuşlar.aşağı should be(0x28)
+
+    // noktalama -- masaüstünden en çok ayrışan küme
+    tuşlar.virgül should be(188)
+    tuşlar.eksi should be(189)
+    tuşlar.nokta should be(190)
+    tuşlar.bölü should be(191)
     tuşlar.noktalıVirgül should be(186)
-    // bu turda geçen üç İngilizce ad
-    tuşlar.backSpace should be(8)
-    tuşlar.pageUp should be(0x21)
-    tuşlar.pageDown should be(0x22)
+    tuşlar.eşittir should be(187)
+
+    // rakamlar ve harfler ASCII ile hizalı
+    val rakamlar = List(
+      tuşlar.n0, tuşlar.n1, tuşlar.n2, tuşlar.n3, tuşlar.n4,
+      tuşlar.n5, tuşlar.n6, tuşlar.n7, tuşlar.n8, tuşlar.n9
+    )
+    rakamlar should have size 10
+    rakamlar.zipWithIndex.foreach { case (değer, i) => değer should be(0x30 + i) }
+
+    val harfler = List(
+      tuşlar.a, tuşlar.b, tuşlar.c, tuşlar.d, tuşlar.e, tuşlar.f, tuşlar.g,
+      tuşlar.h, tuşlar.i, tuşlar.j, tuşlar.k, tuşlar.l, tuşlar.m, tuşlar.n,
+      tuşlar.o, tuşlar.p, tuşlar.q, tuşlar.r, tuşlar.s, tuşlar.t, tuşlar.u,
+      tuşlar.v, tuşlar.w, tuşlar.x, tuşlar.y, tuşlar.z
+    )
+    harfler should have size 26
+    harfler.zipWithIndex.foreach { case (değer, i) => değer should be(0x41 + i) }
+  }
+
+  /**
+   * Takma adlar kendi köklerine bağlı.
+   *
+   * Yukarıdaki sav kökleri çiviliyor; burası takma adların o köklerden
+   * KOPMADIĞINI tutuyor. Mutlak sayı YAZILMIYOR -- `backSpace should be(8)`
+   * yazmak `silGeri should be(8)`in tekrarı olurdu (ikisi aynı val).
+   */
+  test("tuş adları: takma adlar köklerinden kopmamış") {
+    tuşlar.backSpace should be(tuşlar.silGeri)
+    tuşlar.pageUp should be(tuşlar.sayfaYukarı)
+    tuşlar.pageDown should be(tuşlar.sayfaAşağı)
+    tuşlar.kaç should be(tuşlar.çık)
+    tuşlar.ev should be(tuşlar.satırBaşı)
   }
 }
