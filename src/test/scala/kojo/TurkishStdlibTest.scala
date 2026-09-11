@@ -1003,26 +1003,36 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
   // AWT VK_*. Takma adlar Türkçe adlara bağlı, o yüzden DOM değerini alıyorlar.
   // Aşağıdaki gir == 13 savı tam da bunu çiviliyor: 10 (AWT) olsaydı
   // tuşBasılıMı(tuşlar.enter) hiçbir zaman doğru dönmezdi.
-  test("tuş adları: masaüstündeki İngilizce takma adlar burada da var") {
+  test("tuş adları: İngilizce takma adlar burada da var (camelCase)") {
     tuşlar.enter should be(tuşlar.gir)
-    tuşlar.back_space should be(tuşlar.silGeri)
+    tuşlar.backSpace should be(tuşlar.silGeri)
     tuşlar.cancel should be(tuşlar.iptal)
     tuşlar.clear should be(tuşlar.temizle)
     tuşlar.shift should be(tuşlar.kaldırma)
     tuşlar.control should be(tuşlar.kontrol)
     tuşlar.pause should be(tuşlar.dur)
     tuşlar.escape should be(tuşlar.çık)
-    tuşlar.page_up should be(tuşlar.sayfaYukarı)
-    tuşlar.page_down should be(tuşlar.sayfaAşağı)
+    tuşlar.pageUp should be(tuşlar.sayfaYukarı)
+    tuşlar.pageDown should be(tuşlar.sayfaAşağı)
     tuşlar.end should be(tuşlar.satırSonu)
     tuşlar.home should be(tuşlar.satırBaşı)
     // DOM değerleri korunuyor (AWT'ninkiler DEĞİL)
     tuşlar.enter should be(13)
-    tuşlar.back_space should be(8)
+    tuşlar.backSpace should be(8)
     tuşlar.escape should be(0x1b)
   }
 
-  test("tuş adları: masaüstünün eskitilmiş yazımları aynı tuşu veriyor") {
+  /**
+   * Eskitilmiş snake_case yazımlar HÂLÂ ÇALIŞMALI.
+   *
+   * NEDEN: masaüstü Kojo bu adları veriyor, yani onlarla yazılmış
+   * yazılımcıklar var; eskitmek "artık derlenmesin" demek değil. Sav
+   * ikisini birden tutuyor: ad duruyor VE aynı tuşu veriyor.
+   *
+   * Bu sınama bilerek eskitilmiş ad kullanıyor; derleyici uyarısı beklenen
+   * ve istenen bir şey -- eskitmenin çalıştığının kanıtı.
+   */
+  test("tuş adları: eskitilmiş snake_case yazımlar aynı tuşu veriyor") {
     tuşlar.sil_geri should be(tuşlar.silGeri)
     tuşlar.büyük_harf_kilitleme should be(tuşlar.büyükHarfKilidi)
     tuşlar.sayfa_yukarı should be(tuşlar.sayfaYukarı)
@@ -1030,5 +1040,28 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     tuşlar.satır_sonu should be(tuşlar.satırSonu)
     tuşlar.satır_başı should be(tuşlar.satırBaşı)
     tuşlar.noktalı_virgül should be(tuşlar.noktalıVirgül)
+    // Bu turda eskitilen üç İngilizce ad
+    tuşlar.back_space should be(tuşlar.backSpace)
+    tuşlar.page_up should be(tuşlar.pageUp)
+    tuşlar.page_down should be(tuşlar.pageDown)
+  }
+
+  test("tuş adları: yılan yazımın deve karşılığı EKSİKSİZ") {
+    // Gözcü: yeni bir snake_case ad eklenirse (ya da bir deve adı silinirse)
+    // burası kırmızı yanar. Çiftler elle yazılı, çünkü yansıma yok.
+    val çiftler: List[(Int, Int)] = List(
+      tuşlar.sil_geri -> tuşlar.silGeri,
+      tuşlar.büyük_harf_kilitleme -> tuşlar.büyükHarfKilidi,
+      tuşlar.sayfa_yukarı -> tuşlar.sayfaYukarı,
+      tuşlar.sayfa_aşağı -> tuşlar.sayfaAşağı,
+      tuşlar.satır_sonu -> tuşlar.satırSonu,
+      tuşlar.satır_başı -> tuşlar.satırBaşı,
+      tuşlar.noktalı_virgül -> tuşlar.noktalıVirgül,
+      tuşlar.back_space -> tuşlar.backSpace,
+      tuşlar.page_up -> tuşlar.pageUp,
+      tuşlar.page_down -> tuşlar.pageDown
+    )
+    çiftler should have size 10
+    çiftler.foreach { case (yılan, deve) => yılan should be(deve) }
   }
 }

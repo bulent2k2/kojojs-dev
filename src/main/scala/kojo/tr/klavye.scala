@@ -65,27 +65,37 @@ trait KlavyeYöntemleri extends TemelTürler {
     // VK_*'ı. Masaüstünün sayılarını kopyalamak `tuşBasılıMı(tuşlar.enter)`i
     // HİÇ doğru döndürmezdi (AWT 10 / DOM 13).
     val enter = gir
-    val back_space = silGeri
+    val backSpace = silGeri
     val cancel = iptal
     val clear = temizle
     val shift = kaldırma
     val control = kontrol
     val pause = dur
     val escape = çık
-    val page_up = sayfaYukarı
-    val page_down = sayfaAşağı
+    val pageUp = sayfaYukarı
+    val pageDown = sayfaAşağı
     val end = satırSonu
     val home = satırBaşı
 
-    // --- Masaüstünün eskitilmiş yazımları ------------------------------------
+    // --- Eskitilmiş snake_case yazımlar --------------------------------------
     //
-    // Bu yedi ad masaüstünde snake_case idi ve camelCase'e geçti; orada takma
-    // ad olarak yaşamaya devam ediyorlar, yani onları kullanan yazılımcıklar
-    // hâlâ var. Buraya da eskitilmiş olarak konuyorlar ki o yazılımcıklar
-    // canlıda da derlensin -- temizlemeye çalıştığımız uyumsuzluk tam olarak
-    // bu. Yeni yazılımcıklar camelCase kullanmalı.
+    // Tuş adlarının tek yazımı camelCase ("deve"). snake_case ("yılan")
+    // yazımlar eskitiliyor ama SİLİNMİYOR: masaüstü Kojo bu adları hâlâ
+    // veriyor (kojo/.../i18n/tr/klavye.scala), yani onlarla yazılmış
+    // yazılımcıklar var ve canlıda da derlenmeleri gerekiyor.
+    //
+    // DÜZELTME: burada eskiden "masaüstü camelCase'e geçti" yazıyordu; yanlıştı.
+    // Masaüstü bu dosya yazıldığında hâlâ snake_case veriyordu. Geçişi masaüstü
+    // tarafında da yapan eş bir değişiklik var; eskitilmiş adlar iki tarafta da
+    // duruyor.
     @deprecated("camelCase yazıma geçildi: silGeri kullanın", "Eylül 2026")
     val sil_geri = silGeri
+    @deprecated("camelCase yazıma geçildi: backSpace kullanın", "Eylül 2026")
+    val back_space = backSpace
+    @deprecated("camelCase yazıma geçildi: pageUp kullanın", "Eylül 2026")
+    val page_up = pageUp
+    @deprecated("camelCase yazıma geçildi: pageDown kullanın", "Eylül 2026")
+    val page_down = pageDown
     @deprecated("camelCase yazıma geçildi: büyükHarfKilidi kullanın", "Eylül 2026")
     val büyük_harf_kilitleme = büyükHarfKilidi
     @deprecated("camelCase yazıma geçildi: sayfaYukarı kullanın", "Eylül 2026")
