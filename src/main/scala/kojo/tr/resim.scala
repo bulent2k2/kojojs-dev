@@ -54,8 +54,13 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def noktadan(işlev: GeoNokta => Birim): Resim = kb.Picture.fromPath(g => işlev(new GeoNokta(g)))
     // masaüstü: Resim.yazı(içerik, yazıyüzü[, renk]) -- Yazıyüzü ailesi PIXI metin stiline
     def yazı(içerik: Her, yy: Yazıyüzü): Resim = new kojo.TextPic(içerik, yy.boy, Renkler.siyah, yy.ad)
-    // masaüstü Picture.arc: kaplumbağa yayı (başlangıç merkezde, kuzeye bakar)
-    def yay(yarıçap: Kesir, açı: Kesir): Resim = kb.PictureT(t => t.arc(yarıçap, açı))
+    // masaüstü Picture.arc (ArcPic): yayın MERKEZİ (0,0), başlangıcı (r,0).
+    // ikojo'nun kaplumbağa yayı ise başlangıcı (0,0)'a, merkezi (-r,0)'a koyuyor
+    // (Turtle.realArc2 içindeki `trans.translate(-r, 0)`). Aradaki +r ötelemeyi
+    // burada kapatıyoruz, yoksa aynı yazılımcık iki tarafta farklı yere çiziyor
+    // ve ne derleyici ne de sınama bunu görüyor -- bkz. #75. Sınırları
+    // ResimYayTest çiviliyor.
+    def yay(yarıçap: Kesir, açı: Kesir): Resim = kb.trans(yarıçap, 0) -> kb.PictureT(t => t.arc(yarıçap, açı))
     def yazı(içerik: Her, yy: Yazıyüzü, renk: Renk): Resim = new kojo.TextPic(içerik, yy.boy, renk, yy.ad)
 
     def çiz(r: Resim): Birim = r.draw()
@@ -112,7 +117,19 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
   // ---- birleştirilebilir dönüşümler (serbest işlev) ----
   // İngilizce trans/rot/penColor... karşılığı. `*` ile zincirlenir, `->` ile
   // resme uygulanır: boyaRengi(mavi) * kalemRengi(siyah) -> Resim.daire(30)
-  def öteleme(x: Kesir, y: Kesir): Dönüştürücü = kb.trans(x, y)
+  // ÖTELEME AİLESİ -- `ötele` ve `götür` EŞİT baş ad, ikisi de eylem.
+  // `öteleme` isim hali olduğu için aykırı kalıyordu (depo kuralı: eylemle
+  // başlayan ad); eskitildi ama SİLİNMEDİ, onunla yazılmış yazılımcıklar
+  // derlenmeye devam ediyor.
+  // kb.trans TEKRARLANMIYOR, götür'e delege ediliyor: böylece üç ad tanım
+  // gereği ayrışamaz. (İlk yazımda üçü de ayrı ayrı kb.trans çağırıyordu --
+  // x/y yer değiştirse sessizce ayrışırlardı ve burada bunu yakalayacak
+  // davranış savı yok, yalnız derleme savı var.)
+  def ötele(x: Kesir, y: Kesir): Dönüştürücü = götür(x, y)
+  def ötele(n: Nokta): Dönüştürücü = götür(n)
+  def ötele(yy: Yöney2B): Dönüştürücü = götür(yy)
+  @deprecated("eylemle başlayan ada geçildi: ötele ya da götür kullanın", "Eylül 2026")
+  def öteleme(x: Kesir, y: Kesir): Dönüştürücü = götür(x, y)
   def döndürme(açı: Kesir): Dönüştürücü = kb.rot(açı)
   def büyütme(k: Kesir): Dönüştürücü = kb.scale(k)
   def kalemRengi(renk: Renk): Dönüştürücü = kb.penColor(renk)
@@ -218,6 +235,10 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def götür(x: Kesir, y: Kesir): Birim = r.translate(x, y)
     def götür(n: Nokta): Birim = r.translate(n.x, n.y)
     def götür(yy: Yöney2B): Birim = r.translate(yy.x, yy.y)
+    // `ötele` = `götür` (translate). İkisi de baş ad; bkz. dosyadaki öteleme notu.
+    def ötele(x: Kesir, y: Kesir): Birim = götür(x, y)
+    def ötele(n: Nokta): Birim = götür(n)
+    def ötele(yy: Yöney2B): Birim = götür(yy)
     def açıyaDön(açı: Kesir): Birim = r.setHeading(açı)
     def döndür(açı: Kesir): Birim = r.rotate(açı)
     def döndürMerkezli(açı: Kesir, x: Kesir, y: Kesir): Birim = r.rotateAboutPoint(açı, x, y)
