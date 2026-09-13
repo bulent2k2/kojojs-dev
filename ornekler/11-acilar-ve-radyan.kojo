@@ -24,17 +24,7 @@ dez açıRengi = Renk(0, 204, 51)
 dez eskiAçıRengi = açıkGri
 dez yayRengi = gri
 
-// ---- Şekiller -------------------------------------------------------------
-//
-// DİKKAT -- masaüstünden TEK sapma buradaki `götür(r, 0)` önekleri:
-// Resim.yay iki tarafta AYNI YERE çizmiyor.
-//   masaüstü (ArcPic):  yayın MERKEZİ (0,0), başlangıcı (r,0)
-//   ikojo (Turtle.realArc2, `trans.translate(-r, 0)`):
-//                       yayın BAŞLANGICI (0,0), merkezi (-r,0)
-// Yani ikojo'nun yayı tam r kadar solda. Öteleme olmadan eğriYçÇiz'in yayı
-// kendi uç noktacıklarına değmiyor, açıÇiz'in yayı açının tepesine oturmuyor,
-// süpürme çemberi de yarıçapın etrafına değil soluna çiziliyor.
-// Bu bir yazılımcık yaması; asıl fark ayrı bir Issue'da.
+// ---- Şekiller (masaüstü sürümdekilerle BİREBİR aynı) ----------------------
 
 tanım yarıçapıÇiz(açı: Sayı) = kalemRengi(renk) * döndür(açı) -> Resim.dizi(
     boyaRengi(renk) -> Resim.daire(3),
@@ -44,16 +34,16 @@ tanım yarıçapıÇiz(açı: Sayı) = kalemRengi(renk) * döndür(açı) -> Res
 
 tanım eğriYçÇiz(başı: Kesir, açı: Kesir) = kalemRengi(renk) * döndür(başı) -> Resim.dizi(
     götür(yçBoyu, 0) * boyaRengi(renk) -> Resim.daire(3),
-    götür(yçBoyu, 0) -> Resim.yay(yçBoyu, açı),
+    Resim.yay(yçBoyu, açı),
     döndür(açı) * götür(yçBoyu, 0) * boyaRengi(renk) -> Resim.daire(3)
 )
 
-tanım yayÇiz(açı: Sayı) = kalemRengi(yayRengi) * götür(yçBoyu, 0) -> Resim.yay(yçBoyu, açı)
+tanım yayÇiz(açı: Sayı) = kalemRengi(yayRengi) -> Resim.yay(yçBoyu, açı)
 
 tanım açıÇiz(başı: Kesir, açı: Kesir) = döndür(başı) -> Resim.dizi(
     Resim.yatay(yçBoyu),
     döndür(açı) -> Resim.yatay(yçBoyu),
-    götür(yçBoyu / 4, 0) -> Resim.yay(yçBoyu / 4, açı)
+    Resim.yay(yçBoyu / 4, açı)
 )
 
 tanım doğruÇiz(x1: Kesir, y1: Kesir, x2: Kesir, y2: Kesir) = {
@@ -89,6 +79,8 @@ tanım radyanAçıÇiz(kaçRadyan: Sayı) {
     açıYazısı = götür(-18, -yçBoyu / 4) -> Resim.yazı(s"$kaçRadyan radyan", 20)
     çiz(açıYazısı)
     eğer (kaçRadyan < 4) {
+        // Masaüstünde bu iki satır `a - (a - a*k)` yazıyor; cebirsel olarak
+        // `a*k` ile aynı, burada sadeleştirildi.
         işaret = doğruÇiz(0, -çeyrekYÇ, çeyrekYÇ * kosinüs(30.radyana), çeyrekYÇ * sinüs(30.radyana))
         çiz(işaret)
         işaret2 = doğruÇiz(0, -çeyrekYÇ, yçBoyu * kosinüs(30.radyana), yçBoyu * sinüs(30.radyana))
@@ -130,17 +122,21 @@ den süpürüyor = yanlış
 // Yazının kendi ölçüsü tarayıcıda ölçüldü ("Sonraki  >", 20 punto): 91 x 22.
 dez yazıEni = 91.0
 dez yazıBoyu = 22.0
+// Resim.yazı kalem rengini kullanır, o da varsayılan olarak KIRMIZI: gri
+// düğmenin üstünde okunmuyordu. Arayüz yazıları koyu, çizimin kendi yazıları
+// (yçYazısı, açıYazısı) masaüstündeki gibi kırmızı kalıyor.
+dez arayüzRengi = Renk(51, 51, 51)
 
 dez düğme = götür(düğmeX, düğmeY) -> Resim.dizi(
     kalemRengi(gri) * boyaRengi(Renk(238, 238, 238)) -> Resim.dikdörtgen(düğmeEni, düğmeBoyu),
-    götür((düğmeEni - yazıEni) / 2, (düğmeBoyu + yazıBoyu) / 2) -> Resim.yazı("Sonraki  >", 20)
+    götür((düğmeEni - yazıEni) / 2, (düğmeBoyu + yazıBoyu) / 2) -> Resim.yazıRenkli("Sonraki  >", 20, arayüzRengi)
 )
 
-den anlatım = götür(düğmeX, düğmeY - 34) -> Resim.yazı("", 18)
+den anlatım = götür(düğmeX, düğmeY - 34) -> Resim.yazıRenkli("", 18, arayüzRengi)
 
 tanım anlat(metin: Yazı) {
     anlatım.sil()
-    anlatım = götür(düğmeX, düğmeY - 34) -> Resim.yazı(metin, 18)
+    anlatım = götür(düğmeX, düğmeY - 34) -> Resim.yazıRenkli(metin, 18, arayüzRengi)
     çiz(anlatım)
     düğme.öneAl()
 }
@@ -160,7 +156,7 @@ tanım sonrakiAdım() {
         durum 2 => {
             yçYazısı.kondur(yçBoyu + 5, yçBoyu / 2 + 10)
             birYarıçap.döndürMerkezli(-90, yçBoyu, 0)
-            anlat("Yarıçapı çemberin üstüne yatırdık.")
+            anlat("Yarıçapı çemberin kenarına diktik; şimdi onu çembere saracağız.")
         }
         durum 3 => {
             birYarıçap.sil()
@@ -215,6 +211,10 @@ canlandır {
         eğer (süpürmeAçısı >= 360) {
             süpürüyor = yanlış
             anlat("Bir tam dönüş: 360 derece.")
+            // Tek süpürme adımı bitti; sonraki adımların hiçbiri kare kare
+            // devinim istemiyor. Döngüyü açık bırakmak her karede boşuna bir
+            // denetim demek olurdu.
+            canlandırmayıDurdur()
         }
     }
 }
