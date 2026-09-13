@@ -378,6 +378,25 @@ def zrc(kod):
     return base64.urlsafe_b64encode(gzip.compress(sarmala(kod).encode('utf-8'), mtime=0)).decode('ascii')
 
 
+# "Resim komutları" bölümü buradan gelir. Tek kaynak araclar/gosteri-uret.py'deki
+# G çizelgesi; aynı çizelge src/test/scala/kojo/OrnekDerlemeDeneme.scala'yı da
+# üretiyor, yani gösterilerin DERLENDİĞİ sınanıyor. Eskiden bölüm elle
+# yapıştırılıyordu ve `uret.py --twirl` her koşuda onu SİLİYORDU; bu yüzden
+# `<!-- gösteriler -->` işaretiyle buraya bağlandı.
+_gosteri = None
+
+
+def gosteri_modulu():
+    global _gosteri
+    if _gosteri is None:
+        import importlib.util
+        yol = os.path.join(IKOJO, 'araclar', 'gosteri-uret.py')
+        belirtim = importlib.util.spec_from_file_location('gosteri_uret', yol)
+        _gosteri = importlib.util.module_from_spec(belirtim)
+        belirtim.loader.exec_module(_gosteri)
+    return _gosteri
+
+
 def isaret_coz(isaret):
     """<!-- masaüstü: a→b, c --> / <!-- ikojo: a --> -> (zorla, sustur_hepsi, sustur, karşılıklar)"""
     zorla, sustur_hepsi, sustur, karsilik = False, False, set(), {}
@@ -487,6 +506,8 @@ def bolum_html(no, dosya, denetci, taban, baglam):
                 for s in sat if not ayirici_mi(s))
             parcalar.append('<div class="tablo-kap"><table>%s<tbody>%s</tbody></table></div>' % (th, tr))
         elif tur == 'yorum':
+            if re.match(r'<!--\s*gösteriler\s*-->', b[1].strip()):
+                parcalar.append(gosteri_modulu().bolumHtml(zrc, taban))
             continue
     return kimlik, baslik, '\n'.join(parcalar)
 
