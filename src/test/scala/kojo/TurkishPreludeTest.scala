@@ -256,6 +256,12 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       val t: Uzun = buAn
       val yayR = götür(Nokta(1, 2)) * döndür(30) * büyüt(2) * büyüt(1, 2) -> Resim.yay(50, 90)
       yayR.götür(1, 2); yayR.götür(Nokta(1, 2)); yayR.kondur(Nokta(0, 0)); yayR.kondur(3, 4); yayR.konumuKur(Nokta(0, 0))
+      // ÖTELEME AİLESİ -- `ötele` ve `götür` eşit baş ad, `öteleme` eskitildi.
+      // Bunlar DERLEME savı: adlar kaybolursa bu dosya derlenmez.
+      val ötR = ötele(1, 2) * ötele(Nokta(1, 2)) * ötele(Yöney2B(1, 2)) -> Resim.daire(5)
+      ötR.ötele(1, 2); ötR.ötele(Nokta(1, 2)); ötR.ötele(Yöney2B(1, 2))
+      // eskitilmiş ad HÂLÂ derlenmeli (uyarı bekleniyor, istenen de o)
+      (öteleme(1, 2) -> Resim.daire(5)).ötele(0, 0)
       val karışıkY: Yöney[Sayı] = rastgeleKarıştır(Yöney(1, 2, 3))
       val karışıkD: Dizin[Sayı] = rastgeleKarıştır(Dizin(1, 2, 3))
       çiz(Yöney(1, 2).işle(i => Resim.daire(i))); çiz(Dizin(yayR))
