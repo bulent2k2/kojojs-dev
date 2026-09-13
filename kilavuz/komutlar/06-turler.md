@@ -119,7 +119,9 @@ satıryaz(ey)
 | `Küme` | `Set` | |
 | `MiskinDizin` | `LazyList` | |
 | `Kuyruk` | `Queue` | collection.mutable |
+| `İkiUçluKuyruk` | `ArrayDeque` | iki ucundan da koyulup alınır (C++ `deque`) |
 | `ÖncelikSırası` | `PriorityQueue` | collection.mutable |
+| `ÖncelikKuyruğu` | `PriorityQueue` | `ÖncelikSırası` ile aynı tür |
 | `Yığın` | `Stack` | collection.mutable |
 | `Yöney` | `Vector` | collection.immutable |
 | `Yineleyici` | `Iterator` | |
