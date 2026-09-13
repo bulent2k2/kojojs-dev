@@ -297,3 +297,5 @@ yk2.ileri(300)
 // ilki hala yavaş
 sağ; ileri(300)
 ```
+
+<!-- gösteriler -->

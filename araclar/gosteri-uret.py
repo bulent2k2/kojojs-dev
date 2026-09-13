@@ -8,9 +8,12 @@ Aşağıdaki G tablosu tek kaynak. Betik iki şey üretir:
   --scala   src/test/scala/kojo/OrnekDerlemeDeneme.scala
             Gösterilerin ikojo API'sine karşı DERLENDİĞİNİ sınar. Bir komut
             adı ya da imzası değişirse `sbt Test/compile` kırılır.
-  --html    yardimKomutlar.scala.html'e yapıştırılacak <tr> satırları
-            (zrc bağlantısı burada üretiliyor; sarmalayıcı sayfadaki MEVCUT
-            bir bağlantıdan alınıyor ki biçim birebir olsun)
+  --html    Bölümün tam HTML'i (başlık + giriş + çizelge + "ikojo'da yok"
+            satırı). Artık YAPIŞTIRMAK İÇİN DEĞİL: kilavuz/uret.py bu bölümü
+            `<!-- gösteriler -->` işaretini görünce buradan (bolumHtml) kendisi
+            üretiyor, yani `uret.py --twirl` bölümü artık silmiyor. --html
+            gözle bakmak ve denetlemek için duruyor; sarmalayıcı sayfadaki
+            MEVCUT bir bağlantıdan alınıyor ki biçim birebir olsun.
 
 Üretilen her zrc gidiş-dönüş sınanır: çözülüp koda eşit mi diye bakılır.
 
@@ -36,6 +39,17 @@ import sys
 #
 # ikojo'da OLMADIĞI için çıkarılanlar: soluk, bulanık, eksenler, çizVeSakla,
 # merkezeTaşı, büyütXY -- bunlar masaüstü Koco'da var, ikojo'da yok.
+# (Aşağıdaki EKSIK listesiyle aynı olmalı; sayfanın dibindeki satırı o üretiyor.)
+
+# Bölümün çevresi. Markdown'a yazılamıyor, çünkü uret.py'nin satır içi
+# çözümleyicisi HTML'i kaçırıyor ve buradaki <span class="eksik"> ham HTML.
+BASLIK = 'Resim komutları'
+GIRIS = ('Kaplumbağa çizerek ilerler; <strong>resim</strong>ler ise önce kurulur, sonra çizilir. '
+         'Dönüştürücüler <code>*</code> ile zincirlenir, <code>-&gt;</code> ile resme uygulanır. '
+         'Aşağıdaki komutların her birine tıklayınca düzenleyicide çalışan bir gösteri açılır.')
+EKSIK = ['soluk', 'bulanık', 'eksenler', 'çizVeSakla', 'merkezeTaşı', 'büyütXY']
+EKSIK_SON = 'Bunlar masaüstü Koco\'da var; tarayıcı sürümüne henüz eklenmediler.'
+
 G = {
 # --- dönüştürücüler: çiz(dönüştürücü -> resim) ---
 "döndür": ("""silVeSakla
@@ -228,19 +242,42 @@ def coz(z):
     return t[a:t.index('// $FiddleEnd')].strip()
 
 
-def htmlYaz(editorDizini):
-    on, arka = sarmalayici(editorDizini)
-    def esc(t): return t.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+def esc(t):
+    return t.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+
+def bolumHtml(zrcYapan, taban=''):
+    """Bölümün tam HTML'i. `zrcYapan(kod)` -> zrc dizgesi, `taban` bağlantı öneki.
+
+    kilavuz/uret.py bunu `<!-- gösteriler -->` işaretini görünce çağırıyor ve
+    kendi `zrc`sini veriyor; böylece bağlantı biçimi sayfanın geri kalanıyla
+    birebir aynı oluyor (ölçüldü: 26 gösterinin 26'sında iki kodlayıcı da
+    aynı diziyi üretiyor). `--html` ise sarmalayıcıyı sayfadan okuyan
+    zrcYap'ı veriyor.
+
+    İKİ sütun: bu bölümde tablonun altında <pre> gösterisi yok, gösteri
+    doğrudan komut adına bağlı. Üçüncü ("Örnekler") sütunu 26 satırın
+    26'sında da boş kalıyordu, yalnız yer kaplıyordu.
+    """
+    satirlar = ['<h3>%s</h3>' % esc(BASLIK), '<p>%s</p>' % GIRIS,
+                '<div class="tablo-kap"><table><thead><tr><th>Komut</th><th>Açıklama</th>'
+                '</tr></thead><tbody>']
     for ad, (kod, aciklama) in G.items():
-        z = zrcYap(on, arka, kod)
+        z = zrcYapan(kod)
         if coz(z) != kod.strip():                     # gidiş-dönüş şart
             sys.exit('GİDİŞ-DÖNÜŞ HATASI: ' + ad)
-        # İKİ sütun: bu bölümde tablonun altında <pre> gösterisi yok, gösteri
-        # doğrudan komut adına bağlı. Üçüncü ("Örnekler") sütunu 25 satırın
-        # 25'inde de boş kalıyordu, yalnız yer kaplıyordu.
-        print('<tr><td><a class="calistir" href="/?zrc=%s" target="_blank" rel="noopener" '
-              'title="Editörde aç"><code>%s</code></a></td><td>%s</td></tr>'
-              % (z, esc(ad), esc(aciklama)))
+        satirlar.append('<tr><td><a class="calistir" href="%s/?zrc=%s" target="_blank" rel="noopener" '
+                        'title="Editörde aç"><code>%s</code></a></td><td>%s</td></tr>'
+                        % (taban, z, esc(ad), esc(aciklama)))
+    satirlar[-1] += '</tbody></table></div>'
+    satirlar.append('<p><span class="eksik">ikojo\'da yok: %s</span> %s</p>'
+                    % (' '.join('<code>%s</code>' % esc(a) for a in EKSIK), esc(EKSIK_SON)))
+    return '\n'.join(satirlar)
+
+
+def htmlYaz(editorDizini):
+    on, arka = sarmalayici(editorDizini)
+    print(bolumHtml(lambda kod: zrcYap(on, arka, kod)))
 
 
 if __name__ == '__main__':

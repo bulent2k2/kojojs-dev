@@ -21,12 +21,17 @@
 # Buradaki iş saniyeler sürüyor ve dış bağımlılığı yok -- yeşili anlamlı
 # kalsın diye kasten dar tutuldu. Ağır takımlar ayrı bir adımda konuşuluyor.
 #
-# KAPSAMADIĞI: gosteri-uret.py'nin --html çıktısı (kojojs-editor'daki
-# yardimKomutlar sayfasına yapıştırılan <tr> satırları) bu depoda bir
-# dosyaya yazılmıyor, dolayısıyla diff ile karşılaştırılamıyor. Örneğin
-# bir gösterinin AÇIKLAMASI değişirse burada hiçbir şey kırmızı yanmaz;
-# yalnız kod gövdesi değişirse üretilen Scala üzerinden yakalanır.
-# (Ölçüldü.) O tarafın denetimi iki depoyu birden gerektiriyor.
+# ESKİDEN KAPSANMAYAN, ARTIK KAPSANAN: gösteri satırları (döndür, büyüt,
+# Resim.daire, ...) eskiden yalnız kojojs-editor'daki sayfaya ELLE
+# yapıştırılıyordu, bu depoda bir dosyaya yazılmıyordu; bir gösterinin
+# AÇIKLAMASI değişse burada hiçbir şey kırmızı yanmazdı. Artık kilavuz/
+# uret.py o bölümü `<!-- gösteriler -->` işaretinden üretiyor ve çıktısı
+# kilavuz/html/komutlar.html'e düşüyor, yani aşağıdaki adımla izleniyor.
+#
+# KAPSAMADIĞI: kojojs-editor'daki Twirl şablonunun kendisi. Onu üretmek
+# --twirl ile öbür deponun ağacına yazmak demek; CI depolar arasını
+# göremiyor. Yani burada yeşil olması editördeki sayfanın taze olduğunu
+# SÖYLEMEZ; iki depo elle eşleniyor.
 name: üreteçler
 
 # push YALNIZ master'da: dal itmelerini zaten pull_request tetikliyor, ikisi
@@ -127,6 +132,22 @@ jobs:
           python3 araclar/gosteri-uret.py --scala
           python3 araclar/yardim-derleme-uret.py
 
+      # Kılavuz sayfaları da üretilmiş ve commit'li: kilavuz/html/*.html ve
+      # kilavuz/eksik-adlar.tsv. Kaynak kilavuz/{komutlar,skala}/*.md ve --
+      # "Resim komutları" bölümü için -- araclar/gosteri-uret.py'deki G
+      # çizelgesi. Bu adım olmadan G'ye bir gösteri eklemek ya da markdown'ı
+      # değiştirmek sayfayı SESSİZCE bayatlatırdı: ne test düşer ne sayfa
+      # bozulur, yalnız eski içerik gösterilir -- bu işin kovaladığı hatanın
+      # ta kendisi.
+      #
+      # Koşucuda masaüstü kojo klonu YOK; uret.py o durumda izlenen
+      # kilavuz/masaustu-adlar.txt önbelleğini OKUYOR (yazmıyor -- yazma yolu
+      # yalnız klon bulununca çalışıyor). Ölçüldü: klonsuz koşuda ağaç temiz
+      # kalıyor. Klonu olan bir geliştirici yerelde koşarsa önbellek
+      # tazelenebilir; o fark commit'lenince CI yine aynı çıktıyı üretir.
+      - name: kılavuz sayfaları yeniden üret
+        run: python3 kilavuz/uret.py
+
       - name: sözlükteki gömülü YARDIM bloğu yardim.json ile aynı mı
         run: python3 araclar/sozluk-denetle.py
 
@@ -165,5 +186,6 @@ jobs:
             echo "Yerelde şunları koşup çıkan farkı commit'leyin:"
             echo "  araclar/gosteri-uret.py --scala"
             echo "  araclar/yardim-derleme-uret.py"
+            echo "  python3 kilavuz/uret.py"
             exit 1
           fi

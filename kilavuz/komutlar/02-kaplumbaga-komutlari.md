@@ -81,15 +81,22 @@ Basit çizim komutları:
 
 ```scala
 sil
-canlandırmaHızınıKur(2) // çokHızlı'dan iki kat daha hızlı
+canlandırmaHızınıKur(0) // anında çiz: kare kare canlandırma yok
 // daha önce kullandığımız hızıKur(hız) komutuna benziyor,
-// ama daha hassas ayar yapmamıza yarıyor. Girdisi adım atma süresini belirliyor
-// onun için de bu iki komut ters çalışıyor:
-// hız tarifi ve karşılık gelen adım atma süreleri yaklaşık olarak şöyle:
-//   çokHızlı: 1
+// ama daha hassas ayar yapmamıza yarıyor. Sayı büyüdükçe yavaşlıyor, yani
+// bu iki komut ters çalışıyor. Girdi 100 ADIMLIK yolun süresi; bekleme
+// uzaklıkla ölçekleniyor, yani ileri(50) yarısını, ileri(200) iki katını
+// bekliyor. Hız tarifleri ve 100 adımın karşılık gelen süreleri şöyle:
+//   çokHızlı: 0  <- SIFIR. Canlandırma büsbütün kapanır, çizim anında biter
 //   hızlı:    10
-//   orta:     100 (varsayılan)
-//   yavaş:    1000
+//   orta:     100
+//   yavaş:    1000 (varsayılan -- hiç hız vermezsen kaplumbağa böyle gider)
+// 0 ile 1 arasındaki fark büyük: 0 canlandırmayı kapatıyor, 1 ise hâlâ
+// canlandırıyor -- ve canlandırılan her hareket en az bir ekran karesi
+// (~16 ms) yiyor. Aşağıdaki çizimde 840 ileri komutu var ve hepsi kısa
+// (20 ya da 100 adım), yani 1, 2 ve 10 hesaplanan beklemeyi bir karenin
+// altında bırakıyor: üçü de ~15 saniye sürüyor, 0 ile ~1 saniye.
+// Eksi (sıfırdan küçük) değer VERME: kabul edilmiyor, hata alırsın.
 yaklaş(0.2)
 kalemKalınlığınıKur(20)
 yinele(12) {
