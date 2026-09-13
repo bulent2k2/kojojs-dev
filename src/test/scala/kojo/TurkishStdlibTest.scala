@@ -616,6 +616,40 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     k2.boyu should be(3)         // değişmedi
   }
 
+  /**
+   * İkiUçluKuyruk yöntemlerinin Yığın ve Kuyruğa BULAŞMASI -- çivili.
+   *
+   * Scala 2.13'te Stack de Queue de ArrayDeque'ten türüyor ve İkiUçluKuyruk
+   * bir tür takma adı. Sonuç: deque'e ÖZGÜ adlar (`başaKoy`, `sondanAl`, ...)
+   * Yığın ve Kuyruk değerlerinde de çalışıyor -- LIFO/FIFO disiplinini bozacak
+   * biçimde. Bu bilinen bir bedel (bkz. kuyruk.scala'daki not), kaza değil.
+   *
+   * BU SAV DAVRANIŞI ONAYLAMIYOR, ÇİVİLİYOR: bugün böyle olduğunu yazıya
+   * geçiriyor ki yarın biri sarmalayıcıya çevirir ya da örtük sınıfı
+   * daraltırsa burası kırmızı yansın ve karar bilinçli verilsin.
+   */
+  test("sızıntı: deque yöntemleri Yığın ve Kuyruğa da bulaşıyor (çivili)") {
+    val ad = classOf[scala.collection.mutable.ArrayDeque[_]]
+    ad.isAssignableFrom(classOf[scala.collection.mutable.Stack[_]]) should be(true)
+    ad.isAssignableFrom(classOf[scala.collection.mutable.Queue[_]]) should be(true)
+
+    // Yığın: ortak adlar DOĞRU çalışıyor (daha özel örtük sınıf kazanıyor)
+    val y = Yığın.boş[Sayı]
+    y.koy(1); y.koy(2)
+    y.tepe should be(2)                 // push, append değil
+    // ama deque'e özgü adlar LIFO'yu bozuyor
+    y.başaKoy(0)
+    y.toList should be(List(0, 2, 1))
+    y.sondanAl() should be(1)           // yığının DİBİNDEN aldı
+
+    // Kuyruk: FIFO'yu bozuyor
+    val k = Kuyruk.boş[Sayı]
+    k.koy(1); k.koy(2)
+    k.başaKoy(0)
+    k.başı should be(0)                 // kuyruğa KAYNAK yaptı
+    k.sondanAl() should be(2)           // kuyruğun SONUNDAN aldı
+  }
+
   test("İkiUçluKuyruk: iki ucundan da koyulup alınıyor") {
     val d = İkiUçluKuyruk.boş[Sayı]
     d.koy(2); d.koy(3)           // sona
