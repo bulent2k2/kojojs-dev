@@ -5,7 +5,7 @@ sozluk-kapsam.py -- koco-sozlugu.html ile masaüstü Koco'nun ÜRETİLMİŞ çev
 sözlüğünü (bulent2k2/kojo: src/main/resources/i18n/tr/ceviri-sozlugu.tsv)
 karşılaştırır.
 
-NEDEN: sözlük sayfasındaki 1019 satır bir kez üretilip SONRA ELLE düzeltildi
+NEDEN: sözlük sayfasındaki 1022 satır bir kez üretilip SONRA ELLE düzeltildi
 (bkz. sozluk/README.md). Yani bugün onu kaynağa bağlayan bir şey yok: Türkçe
 katmana yeni bir ad girdiğinde sayfa sessizce eskiyor. Eylül 2026'daki tur
 201 adı elle işledi (754 -> 980); o turu kimse tetiklemedi, göz kararı
@@ -22,9 +22,22 @@ NEDEN KOPYA YOK: TSV bu depoda DURMUYOR, kojo klonundan okunuyor. Kopyalasak
 tam onu kapatmak için var. ornek-dizini.py'nin kojojs-editor dizinini argüman
 alması da aynı gerekçe.
 
+SÖZLÜĞÜN İKİ YARISI: üretilmiş TSV tek başına masaüstü sözlüğü DEĞİL. Yanında
+`ceviri-kurallar.tsv` duruyor: üretecin yanlış seçimlerini geçersiz kılmak için
+tam bu amaçla yazılmış elle kurallar. Yalnız üretilmişi okumak sahte çelişki
+üretiyor -- ölçüldü, `zıpla` sayfada `hop`, üretilmiş TSV'de `saveStyle`, ve
+kural dosyası zaten `tr>en zıpla * hop` diyor (kendi notu: "gövdeli tanım;
+ilk-zincir sezgisi saveStyle'ı görüyordu"). Çevirmen `kaplumbağa.zıpla(30)` için
+`turtle0.hop(30)` üretiyor, yani sayfa haklı.
+
 Çelişki sınıfları (aynı Türkçe ad, örtüşmeyen İngilizce karşılık):
+  kural      -- elle kural sayfayı DOĞRULUYOR; üretilmiş satır ölü veri, bakılacak
+                bir şey yok
   ayrı       -- iki taraf da yalın ad, yine de tutmuyor; gerçek aday
-  niteleme   -- yalnız niteleyici farkı (sayfa collection.Seq, TSV Seq); kozmetik
+  niteleme   -- yalnız niteleyici farkı (sayfa collection.Seq, TSV Seq); kozmetik.
+                SINIR: bileşke de buraya düşebiliyor (`tersİşle` sayfa `reverse.map`,
+                TSV `map`) -- son parça karşılaştırması niteleyici ile zinciri
+                ayırt etmiyor. Etkisi düşük: bu kova zaten incelenmiyor.
   imza       -- sayfanın hücresi yalın ad DEĞİL (`scale(x, y)`, `round(n, digits)`,
                 `log base t`): sayfa yer yer imza ya da düzyazı yazıyor,
                 tanımlayıcı gibi karşılaştırmak sahte çelişki üretiyor -- ölçüldü,
@@ -49,9 +62,12 @@ BURASI = os.path.dirname(os.path.abspath(__file__))
 IKOJO = os.path.dirname(BURASI)
 SAYFA = os.path.join(IKOJO, 'sozluk', 'koco-sozlugu.html')
 TSV_YOLU = os.path.join('src', 'main', 'resources', 'i18n', 'tr', 'ceviri-sozlugu.tsv')
+KURAL_YOLU = os.path.join('src', 'main', 'resources', 'i18n', 'tr', 'ceviri-kurallar.tsv')
 
-# Sayfadaki veri satırı: ["ingilizce","türkçe","açıklama"]  (satır başında, tek satır)
-SAYFA_SATIRI = re.compile(r'^\["((?:[^"\\]|\\.)*)","((?:[^"\\]|\\.)*)"', re.M)
+# Sayfadaki veri satırı: ["ingilizce","türkçe","açıklama"]  (tek satır; baştaki
+# boşluk yutuluyor -- sayfa yeniden biçimlenip girintilenirse satır SESSİZCE
+# düşmesin, sessiz kaymayı ölçen bir araçta bu bedava dayanıklılık).
+SAYFA_SATIRI = re.compile(r'^[ \t]*\["((?:[^"\\]|\\.)*)","((?:[^"\\]|\\.)*)"', re.M)
 
 
 def oku(yol):
@@ -84,6 +100,25 @@ def tsvSatırları(yol):
     return satırlar
 
 
+def kuralHedefleri(yol):
+    """tr>en kurallarının Türkçe ad -> hedef kümesi. `-` (çevirme) atlanır,
+    `^` (alıcıyı yut) ve `(2,1)` (argüman sırası) imleri soyulur."""
+    hedefler = collections.defaultdict(set)
+    if not os.path.exists(yol):
+        return hedefler
+    for l in oku(yol).split('\n'):
+        if not l.strip() or l.startswith('#'):
+            continue
+        a = l.split('\t')
+        if len(a) < 4 or a[0] != 'tr>en':
+            continue
+        hedefler[a[1]].add(re.sub(r'\(\d+(,\d+)*\)$', '', a[3].lstrip('^')))
+    return hedefler
+
+
+Çevirme = '-'
+
+
 def sonParça(ad):
     return ad.rsplit('.', 1)[-1]
 
@@ -96,7 +131,7 @@ def yalınMı(ad):
     return bool(YALIN_AD.match(ad))
 
 
-def karşılaştır(sayfa, tsv):
+def karşılaştır(sayfa, tsv, kurallar):
     sayfaHedefleri = collections.defaultdict(set)
     for tr, en in sayfa:
         sayfaHedefleri[tr].add(en)
@@ -122,20 +157,34 @@ def karşılaştır(sayfa, tsv):
         if s & t:
             continue
         sYalın = {x for x in s if yalınMı(x)}
-        if not sYalın:
+        k = kurallar.get(tr, set())
+        kYalın = {x for x in k if x != Çevirme}
+        # Elle kural sayfayı doğruluyorsa üretilmiş satır ölü veri: kuyruktan düşer.
+        # Doğrulamayan kural (kalemBoyu: kural penThickness, sayfa penWidth) kuyrukta
+        # KALIR ama listede görünür -- küratör hikâyeyi bir bakışta görsün.
+        if kYalın and (kYalın & s or {sonParça(x) for x in kYalın} & {sonParça(x) for x in sYalın}):
+            sınıf = 'kural'
+        elif not sYalın:
             sınıf = 'imza'
         elif {sonParça(x) for x in sYalın} & {sonParça(x) for x in t}:
             sınıf = 'niteleme'
         else:
             sınıf = 'ayrı'
-        çelişen.append({'tr': tr, 'sayfa': sorted(s), 'tsv': sorted(t),
-                        'sınıf': sınıf, 'kaynak': tsvKaynağı[tr][1]})
+        çelişen.append({'tr': tr, 'sayfa': sorted(s), 'tsv': sorted(t), 'sınıf': sınıf,
+                        'kural': sorted(k), 'kaynak': tsvKaynağı[tr][1]})
 
     # Ters yön: sayfada olup üretilmiş sözlükte hiç geçmeyen Türkçe ad. Çoğu
     # beklenen (arayüz sözcükleri, kavram çevirileri, ikojo'ya özgü adlar);
     # yine de sayısı kaymanın ikinci ölçüsü.
     sayfadaFazla = sorted(tr for tr in sayfaHedefleri if tr not in tsvHedefleri)
     return {'eksik': eksik, 'çelişen': çelişen, 'ortak': ortak, 'sayfadaFazla': sayfadaFazla}
+
+
+def kuralNotu(ç):
+    """Elle kural varsa listede göster: `-` "bilerek çevrilmiyor" demek."""
+    if not ç['kural']:
+        return ''
+    return '[kural: %s]' % ', '.join('çevirme' if x == Çevirme else x for x in ç['kural'])
 
 
 def yaz(r, sayfaSayısı, tsvSayısı, tümEksik, tümÇelişen):
@@ -156,14 +205,21 @@ def yaz(r, sayfaSayısı, tsvSayısı, tümEksik, tümÇelişen):
 
     sayım = collections.Counter(ç['sınıf'] for ç in r['çelişen'])
     ayrı = [ç for ç in r['çelişen'] if ç['sınıf'] == 'ayrı']
-    print('\n== çelişen çiftler: %d (ayrı: %d, yalnız niteleme farkı: %d, sayfa imza yazmış: %d)'
-          % (len(r['çelişen']), sayım['ayrı'], sayım['niteleme'], sayım['imza']))
-    print('   incelenmesi gereken yalnız "ayrı" olanlar:')
-    gösterilecek = ayrı if not tümÇelişen else r['çelişen']
-    for ç in gösterilecek if tümÇelişen else gösterilecek[:20]:
-        print('  %-24s sayfa: %-28s sözlük: %s' % (ç['tr'], ', '.join(ç['sayfa'][:2]), ', '.join(ç['tsv'][:3])))
-    if not tümÇelişen and len(ayrı) > 20:
-        print('  … (%d tane daha; --celisen ile tamamı)' % (len(ayrı) - 20))
+    print('\n== çelişen çiftler: %d (ayrı: %d, kural sayfayı doğruluyor: %d, '
+          'yalnız niteleme farkı: %d, sayfa imza yazmış: %d)'
+          % (len(r['çelişen']), sayım['ayrı'], sayım['kural'], sayım['niteleme'], sayım['imza']))
+    if tümÇelişen:
+        print('   tamamı, sınıfıyla:')
+        for ç in r['çelişen']:
+            print('  %-9s %-24s sayfa: %-28s sözlük: %-34s %s' % (ç['sınıf'], ç['tr'],
+                  ', '.join(ç['sayfa'][:2]), ', '.join(ç['tsv'][:3]), kuralNotu(ç)))
+    else:
+        print('   incelenmesi gereken yalnız "ayrı" olanlar:')
+        for ç in ayrı[:20]:
+            print('  %-24s sayfa: %-28s sözlük: %-34s %s' % (ç['tr'], ', '.join(ç['sayfa'][:2]),
+                  ', '.join(ç['tsv'][:3]), kuralNotu(ç)))
+        if len(ayrı) > 20:
+            print('  … (%d tane daha; --celisen ile tamamı, sınıf sütunuyla)' % (len(ayrı) - 20))
     print('\nBu bir rapor, kapı değil: hangi adın sayfaya gireceğine küratör karar verir.')
 
 
@@ -183,7 +239,8 @@ def main():
 
     sayfa = sayfaÇiftleri(a.sayfa)
     tsv = tsvSatırları(tsvYolu)
-    r = karşılaştır(sayfa, tsv)
+    kurallar = kuralHedefleri(os.path.join(a.kojo, KURAL_YOLU))
+    r = karşılaştır(sayfa, tsv, kurallar)
     yaz(r, (len(sayfa), len({t for t, _ in sayfa})), (len(tsv), len({s[1] for s in tsv})),
         a.eksik, a.celisen)
     if a.json_yolu:
