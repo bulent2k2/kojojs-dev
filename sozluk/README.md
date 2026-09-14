@@ -99,6 +99,18 @@ Sebep: bağlantılar zaten yalnız site ayaktayken anlamlı. Dosya gelmezse o
 bölüm görünmüyor, sözlüğün gerisi çalışmaya devam ediyor. DİKKAT: sunulan
 kopyaya koco-sozlugu.html ile BİRLİKTE ornekler.json de kopyalanmalı.
 
+## Kapsam denetimi
+
+Sayfa kaynağa bağlı DEĞİL: bir kez üretilip elle düzeltildi, yeni Türkçe adlar
+girdiğinde sessizce eskiyor. Farkı ölçen araç:
+
+    araclar/sozluk-kapsam.py --kojo <kojo klonu>
+
+Masaüstünün üretilmiş çeviri sözlüğüyle (`ceviri-sozlugu.tsv`) karşılaştırıp iki
+liste veriyor: sayfada olmayan adlar (kaynak dosyaya göre öbeklenmiş) ve çelişen
+çiftler. Rapor, kapı değil; hangi adın sayfaya gireceğine küratör karar verir.
+Ayrıntı: `../araclar/README.md`.
+
 ## Kaynak
 Şu dosyalardan derlendi (bulent2k2/kojo):
 - `lite/i18n/tr/dict.scala` — kavram çevirileri
