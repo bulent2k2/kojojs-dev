@@ -4,6 +4,8 @@ import org.scalatest.funsuite.AsyncFunSuite
 import org.scalatest.matchers.should.Matchers
 
 import scala.scalajs.js
+import scala.concurrent.Future
+import pixiscalajs.PIXI
 
 /**
  * Sorun #86'nın gerileme savı: ÖNCE çizilen bir şeklin kenarlığı, SONRA
@@ -106,6 +108,52 @@ class KatmanSirasiTest extends AsyncFunSuite with Matchers with RepeatCommands {
       söz.future.map { sonra =>
         withClue(s"sil() sonrası katman: ${sonra.mkString(" | ")} -- ") {
           sonra.count(_ == "Turtle Fill") shouldBe 0
+        }
+      }
+    }
+  }
+
+  /** Bir çizerin parçalarının çizgi biçemi: (genişlik, görünür) */
+  private def çizgiBiçemleri(g: PIXI.Graphics): Seq[(Double, Boolean)] = {
+    val gd = g.asInstanceOf[js.Dynamic].geometry.graphicsData.asInstanceOf[js.Array[js.Dynamic]]
+    gd.toSeq.map(d => (d.lineStyle.width.asInstanceOf[Double], d.lineStyle.visible.asInstanceOf[Boolean]))
+  }
+
+  /**
+   * #89 incelemesinde yakalanan gerileme. Şekil başına düğüme geçerken
+   * TurtlePicture'ın biçem dönüştürücüleri parçaların HEPSİNE uygulanmıştı --
+   * dolgu düğümleri dahil. Oysa dolgu düğümleri bilerek ÇİZGİSİZ doğuyor
+   * (`lineStyle(0,0,0)`; kenarlığı kalem çiziyor) ve `kalemiKur` her parçaya
+   * `lineStyle.visible = true` yazıyor. Sonuç: dolgunun ÜÇGENLEME DİKİŞİ
+   * görünür bir çizgiye dönüşüyordu. Ölçülmüştü -- dolgu düğümünün üç parçası
+   * (w=0, görünür=false) iken (w=8, görünür=true) oluyor ve
+   * `kalemKalınlığı(8) * kalemRengi(yeşil) -> Resim{dolgulu kare}` mavi karenin
+   * içinden kalın yeşil bir köşegen geçiriyordu.
+   *
+   * Takımın 153 sınaması bu gerilemeyi yakalamıyordu; sav bu yüzden var.
+   */
+  test("kalem biçemi DOLGU düğümlerine uygulanmıyor") {
+    val (p, t) = ikiKare()
+    p.draw()
+    p.ready.flatMap { _ =>
+      p.setPenThickness(8)
+      p.setPenColor(green)
+      // DİKKAT: TurtlePicture'ın dönüştürücüleri gövdelerini `ready.foreach`
+      // içinde koşturuyor, yani iş SATIR İÇİNDE değil bir MİKROGÖREVDE
+      // yapılıyor. Hemen sav yazmak yarışa girer -- ölçüldü: savlar
+      // dönüştürücüler hiç çalışmadan koşuyor ve sınama BOŞUNA geçiyordu
+      // (kalem biçemleri (2,true) olarak kalıyordu). Kuyruğa bir tur bırakıp
+      // öyle bakıyoruz.
+      Future(()).map { _ =>
+        val dolguBiçemleri = t().dolguParçaları.toSeq.flatMap(çizgiBiçemleri)
+        val kalemBiçemleri = t().kalemParçaları.toSeq.flatMap(çizgiBiçemleri)
+        withClue(s"dolgu: $dolguBiçemleri / kalem: $kalemBiçemleri -- ") {
+          // Sav ancak dönüştürücü GERÇEKTEN çalıştıysa bir şey söyler:
+          kalemBiçemleri.filter(_._2).map(_._1) should contain only 8.0
+          // ASIL SAV: dolguya sızmamalı
+          dolguBiçemleri should not be empty
+          dolguBiçemleri.map(_._2) should contain only false
+          dolguBiçemleri.map(_._1) should contain only 0.0
         }
       }
     }

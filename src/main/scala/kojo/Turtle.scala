@@ -83,9 +83,20 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   // 16.7 ms'lik kare bütçesinin içinde; üstelik render istek üzerine
   // (KojoWorld.render -> requestAnimationFrame), yani biten çizim bedava.
   private[kojo] var turtlePath = new PIXI.Graphics()
-  // Bu kaplumbağanın SAHİP OLDUĞU bütün çizerler, çizilme sırasıyla. Biçem
-  // dönüştürücüleri (TurtlePicture.setPenColor vb.) hepsine uygulanmalı.
-  private[kojo] val çizimParçaları = ArrayBuffer[PIXI.Graphics]()
+  // Kalem izleri ve tamamlanmış dolgular AYRI listelerde. Tek liste olmaz:
+  // dolgu düğümleri bilerek ÇİZGİSİZ doğuyor (`lineStyle(0,0,0)` -- kenarlığı
+  // kalem çiziyor), ve TurtlePicture'ın KALEM dönüştürücüleri her parçaya
+  // `lineStyle.visible = true` yazıyor. Karışık listeye uygulanınca dolgunun
+  // ÜÇGENLEME DİKİŞİ görünür bir çizgiye dönüşüyordu: ölçüldü, dolgu
+  // düğümünün üç parçası (w=0, görünür=false) iken (w=8, görünür=true) oldu ve
+  // `kalemKalınlığı(8) * kalemRengi(yeşil) -> Resim{dolgulu kare}` mavi karenin
+  // içinden kalın yeşil bir köşegen geçirdi.
+  private[kojo] val kalemParçaları = ArrayBuffer[PIXI.Graphics]()
+  private[kojo] val dolguParçaları = ArrayBuffer[PIXI.Graphics]()
+  /** Dolgu biçemi için hepsi: kalem izleri de dolgu taşıyabiliyor (nokta()
+    * daireleri, açık boyama). */
+  private[kojo] def çizimParçaları: Seq[PIXI.Graphics] =
+    kalemParçaları.toSeq ++ dolguParçaları.toSeq
   private[kojo] val turtlePathPoints = ArrayBuffer[(Double, Double)]()
   var prevMoveTo: Option[Point] = None
   // PIXI 5'te yol, çizimler arasında boşaltılabildiğinden (bkz.
@@ -138,7 +149,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
       // Dolgu, O ŞEKLİN kalem izinin hemen ALTINA: kenarlık kendi dolgusunun
       // üstünde kalsın, ama sonraki şeklin dolgusu bu kenarlığı örtebilsin.
       turtleLayer.addChildAt(dolgu, turtleLayer.getChildIndex(turtlePath))
-      çizimParçaları += dolgu
+      dolguParçaları += dolgu
       kalemYolunuDondur()
     }
   }
@@ -150,7 +161,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   private def kalemYolunuDondur(): Unit = {
     turtlePath = new PIXI.Graphics()
     turtlePath.name = "Turtle Path"
-    çizimParçaları += turtlePath
+    kalemParçaları += turtlePath
     turtleLayer.addChild(boyamaYolu)
     turtleLayer.addChild(turtlePath)
     if (!forPic && turtleImage != null) turtleLayer.addChild(turtleImage)
@@ -272,7 +283,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     turtleLayer.addChild(boyamaYolu)
     turtlePath.name = "Turtle Path"
     turtleLayer.addChild(turtlePath)
-    if (çizimParçaları.isEmpty) çizimParçaları += turtlePath
+    if (kalemParçaları.isEmpty) kalemParçaları += turtlePath
     if (!forPic) {
       turtleLayer.addChild(turtleImage)
     }
@@ -871,12 +882,20 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
 
   private def realClear(): Unit = {
     // Şekil başına düğümler: donmuş parçaları katmandan da çıkar, yoksa
-    // sil() sonrası eski çizim ekranda kalırdı.
-    çizimParçaları.foreach { g =>
-      if (g ne turtlePath) turtleLayer.removeChild(g)
+    // sil() sonrası eski çizim ekranda kalırdı. destroy() de şart: tek
+    // biriktirici modelinde clear() yeten iki kalıcı çizer vardı, şimdi her
+    // şekil YENİ Graphics doğuruyor ve her biri kendi GL tamponunu tutuyor.
+    // Bırakılmazsa her karede sil()+çiz yapan bir canlandır döngüsü bunları
+    // biriktirir (deponun kendi notu: KojoWorld'de bakeTexture.destroy(true)
+    // aynı gerekçeyle). Çıkarılanlara başka kimse tutunmuyor: listeler hemen
+    // aşağıda boşalıyor ve CANLI yol (dışarıdan TurtlePicture'ın tuttuğu
+    // turtlePath) bilerek atlanıyor.
+    (kalemParçaları ++ dolguParçaları).foreach { g =>
+      if (g ne turtlePath) { turtleLayer.removeChild(g); g.destroy() }
     }
-    çizimParçaları.clear()
-    çizimParçaları += turtlePath
+    kalemParçaları.clear()
+    dolguParçaları.clear()
+    kalemParçaları += turtlePath
     turtlePath.clear()
     turtlePathPoints.clear()
     boyamaYolu.clear()
