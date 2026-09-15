@@ -264,11 +264,29 @@ def karşılaştır(sayfa, tsv, kurallar, takmaAdlar=None):
     # Ters yön: sayfada olup üretilmiş sözlükte hiç geçmeyen Türkçe ad. Çoğu
     # beklenen (arayüz sözcükleri, kavram çevirileri, ikojo'ya özgü adlar);
     # yine de sayısı kaymanın ikinci ölçüsü.
-    # Yalnız sayfanın YAZDIĞI hâl sayılıyor: çıplak(tr) ile eklenen ikizler
-    # sayımı şişirirdi.
-    sayfadaFazla = sorted({tr for tr, _ in sayfa} - set(tsvHedefleri))
+    # Ters yön de AYNI üç yazım biçiminden geçiyor: sayfa `Resim.daire` yazarken
+    # sözlük `daire` diyor, `tuşlar.kaç` derken `kaç`, `Renk(kırmızı, ...)` derken
+    # `Renk`. Ham karşılaştırma bu adları "sayfada fazla" sayıyordu -- ölçüldü,
+    # 351'in 76'sı buymuş: 72 niteleme + 4 imza. Ölçüt yine İngilizce tarafın da
+    # tutması. İKİSİ DE raporlanır: sayı tutmazsa hangi adın nereye gittiği kaybolur
+    # (inceleme #90 ölçtü: 351-275=76 ama rapor 72 diyordu, 4 ad hiçbir kovada yoktu).
+    sayfadaFazla = []
+    örtükFazla = []
+    for tr, en in sorted({(t, e) for t, e in sayfa}):
+        if tr in tsvHedefleri:
+            continue
+        if çıplak(tr) in tsvHedefleri:
+            örtükFazla.append(('imza', tr))
+            continue
+        hedef = tsvHedefleri.get(sonParça(tr), set())
+        if hedef and sonParça(en) in {sonParça(h) for h in hedef}:
+            örtükFazla.append(('niteleme', tr))
+        else:
+            sayfadaFazla.append(tr)
+    örtükFazlaAdlar = {tr for _, tr in örtükFazla}
+    sayfadaFazla = sorted(set(sayfadaFazla) - örtükFazlaAdlar)
     return {'eksik': eksik, 'örtük': örtük, 'çelişen': çelişen, 'ortak': ortak,
-            'sayfadaFazla': sayfadaFazla}
+            'sayfadaFazla': sayfadaFazla, 'örtükFazla': sorted(set(örtükFazla))}
 
 
 def kuralNotu(ç):
@@ -284,14 +302,19 @@ def yaz(r, sayfaSayısı, tsvSayısı, tümEksik, tümÇelişen, tümÖrtük=Fal
     print('ortak ad: %d    sözlükte olup sayfada olmayan: %d    sayfada olup sözlükte olmayan: %d'
           % (r['ortak'], len(r['eksik']), len(r['sayfadaFazla'])))
     sayımÖ = collections.Counter(ö['sınıf'] for ö in r['örtük'])
-    print('örtük kapsanan: %d (sayfa niteleyerek yazmış: %d, "alt:" notunda: %d) '
-          '-- kuyruğa girmiyor, --ortuk ile listelenir'
-          % (len(r['örtük']), sayımÖ['niteleme'], sayımÖ['takma']))
+    sayımT = collections.Counter(sınıf for sınıf, _ in r['örtükFazla'])
+    print('örtük kapsanan: %d ileri (niteleme: %d, "alt:" notunda: %d) '
+          '+ %d ters (niteleme: %d, imza: %d) -- kuyruğa girmiyor, --ortuk ile listelenir'
+          % (len(r['örtük']), sayımÖ['niteleme'], sayımÖ['takma'],
+             len(r['örtükFazla']), sayımT['niteleme'], sayımT['imza']))
     if tümÖrtük:
         print('\n== örtük kapsanan adlar')
         for ö in r['örtük']:
             print('  %-9s %-28s %-28s %s' % (ö['sınıf'], ö['tr'], ', '.join(ö['en'][:2]),
                                              ', '.join(ö['sayfa'])))
+        print('\n-- ters yön: sözlüğün başka yazdığı sayfa adları')
+        for sınıf, tr in r['örtükFazla']:
+            print('  %-9s %s' % (sınıf, tr))
 
     print('\n== sayfada olmayan adlar, kaynak dosyaya göre')
     dosyalar = collections.Counter(e['kaynak'] for e in r['eksik'])

@@ -68,8 +68,23 @@ araclar/sozluk-kapsam.py --json /tmp/kapsam.json
 | rapor | bugünkü sayı | ne demek |
 |---|---|---|
 | sayfada olmayan | 147 ad | sözlükte var, sayfada hiç yok — kaynak dosyaya göre öbeklenmiş |
-| örtük kapsanan | 127 (64 niteleme, 63 alt) | sayfa adı başka bir yazım biçimiyle yazmış; kuyruğa girmiyor |
-| çelişen çift | 82 (37 ayrı, 6 kural, 24 niteleme, 15 imza) | aynı Türkçe ad, örtüşmeyen İngilizce karşılık |
+| sayfada fazla | 275 ad | sayfada var, sözlükte yok — beklenenin çoğu (örnek adları, terimler, anahtar sözcükler) |
+| örtük kapsanan | 127 ileri + 77 ters | iki taraf da adı başka bir yazım biçimiyle yazmış; kuyruğa girmiyor |
+| çelişen çift | aynı Türkçe ad, örtüşmeyen İngilizce karşılık | sınıfıyla listelenir |
+
+**Ters yön de aynı kapıdan geçiyor.** Sayfa `Resim.daire` yazarken sözlük
+`daire` diyor, `tuşlar.kaç` derken `kaç`, `Renk(kırmızı, …)` derken `Renk`. Ham
+karşılaştırma bunları "sayfada fazla" sayıyordu — ölçüldü, 351'in **76**'sı
+buymuş: 72 niteleme + 4 imza. Ölçüt yine İngilizce tarafın da tutması.
+
+İkisi de **raporlanıyor**, çünkü basılan sayılar birbirini tutmalı: imzalı
+satırlar bir ara sessizce düşüyordu ve `351 − 275 = 76` iken rapor 72 diyordu
+(inceleme #90 ölçtü). Şimdi `sayfadaFazla + örtükFazla` her zaman sayfanın
+sözlükte bulunmayan adlarının tamamı. Kalan 275'in 225'i beklenen içerik (89 örnek adı, 71 terim çevirisi,
+38 anahtar sözcük, 27 başvuru); geriye ~50 API adı kalıyor ve **ikojo'ya özgü
+adların ana hücreye sızdığı yer orası** — Eylül 2026'nın ikinci turu `renkliYazı`
+hatasını tam orada buldu, üçüncü turu da altı tane daha (`fareBasılınca`, `kur`,
+`bölünüyorMu`, `belirgin`, `resimleriSil`, `Dönüştürücü`).
 
 ### Sayfanın üç yazım biçimi
 

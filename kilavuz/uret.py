@@ -176,7 +176,15 @@ def ad_kumeleri(kojo):
     for k in adaylar:
         i18n = os.path.join(k, 'src/main/scala/net/kogics/kojo/lite/i18n')
         if os.path.isdir(i18n):
-            api_degil = re.compile(r'/(?:dict|help|templates|translate|data\w*)\.scala$')
+            # Çevirmen makinesi de API değil: cevirisozlugu/cevirmen/ceviridogrulama
+            # Satır, Kural, BağlamAlıcı, AlıcıylaBirlikte gibi İÇ adlar tanımlıyor ve
+            # bunlar önbelleğe girince "masaüstü API adı" sayılıyorlardı -- kod örneğinde
+            # hiç geçmedikleri için rozet mantığını bozmuyorlardı ama klonu olan her
+            # geliştiricide bu dosyayı kirletiyorlardı (ölçüldü: 420 satırlık fark).
+            # Liste, üretecin kendi atlananDosyalar kümesiyle aynı: ikisi de "bu dosya
+            # sarmalayıcı değil" diyor.
+            api_degil = re.compile(
+                r'/(?:dict|help|templates|translate|data\w*|cevirisozlugu|cevirmen|ceviridogrulama)\.scala$')
             masa = tanimlar([os.path.join(i18n, 'trInit.scala')] +
                             [f for f in glob.glob(os.path.join(i18n, 'tr/*.scala')) if not api_degil.search(f)])
             with open(onbellek, 'w', encoding='utf-8') as f:
