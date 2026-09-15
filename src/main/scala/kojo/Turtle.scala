@@ -882,14 +882,27 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
 
   private def realClear(): Unit = {
     // Şekil başına düğümler: donmuş parçaları katmandan da çıkar, yoksa
-    // sil() sonrası eski çizim ekranda kalırdı. destroy() de şart: tek
-    // biriktirici modelinde clear() yeten iki kalıcı çizer vardı, şimdi her
-    // şekil YENİ Graphics doğuruyor ve her biri kendi GL tamponunu tutuyor.
-    // Bırakılmazsa her karede sil()+çiz yapan bir canlandır döngüsü bunları
-    // biriktirir (deponun kendi notu: KojoWorld'de bakeTexture.destroy(true)
-    // aynı gerekçeyle). Çıkarılanlara başka kimse tutunmuyor: listeler hemen
-    // aşağıda boşalıyor ve CANLI yol (dışarıdan TurtlePicture'ın tuttuğu
-    // turtlePath) bilerek atlanıyor.
+    // sil() sonrası eski çizim ekranda kalırdı. destroy() de şart -- ama
+    // yalnız BİR ŞEKİL SINIFI için, ölçüldü.
+    //
+    // Tek biriktirici modelinde clear() yeten iki kalıcı çizer vardı; şimdi
+    // her şekil YENİ Graphics doğuruyor. PIXI küçük geometrileri tek partide
+    // topluyor, o yüzden onlar kendi GL kaynaklarını HİÇ almıyor: her karede
+    // sil()+altı kare çizen bir canlandır döngüsünde renderer'ın
+    // managedGeometries/managedBuffers sayıları destroy'lu da destroy'suz da
+    // 120 kare boyunca 1/2'de sabit kaldı -- yani orada bırakılacak bir şey
+    // yok.
+    //
+    // Parti DIŞI kalan çok köşeli şekiller (ölçümde 180 kenarlı) ise kendi
+    // geometrisini ve tamponlarını alıyor, ve orada fark büyük (120 kare):
+    //   destroy YOK : geometri 24 -> 172, tampon 48 -> 344   (doğrusal)
+    //   destroy VAR : geometri 2-6, tampon 4-12              (sınırlı)
+    // Deponun kendi notu da aynı gerekçeyi taşıyor: KojoWorld'de
+    // bakeTexture.destroy(true).
+    //
+    // Çıkarılanlara başka kimse tutunmuyor: listeler hemen aşağıda boşalıyor
+    // ve CANLI yol (dışarıdan TurtlePicture'ın tuttuğu turtlePath) bilerek
+    // atlanıyor.
     (kalemParçaları ++ dolguParçaları).foreach { g =>
       if (g ne turtlePath) { turtleLayer.removeChild(g); g.destroy() }
     }
