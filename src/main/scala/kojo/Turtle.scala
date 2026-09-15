@@ -56,15 +56,36 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   // kurduğu ve canlandırma açıkken her kenar ayrı kareye düştüğü için dolgu
   // hiç oluşmuyordu (bkz. BoyamaYolu). Burada şekil her seferinde TAMAMLANMIŞ
   // bir drawPolygon olarak yayınlanıyor -- onu render kesemiyor.
-  // İKİ katman gerekiyor: `boyamaBitmiş` tamamlanmış çokgenleri biriktiriyor
-  // (silinmiyor), `boyamaYolu` yalnız O ANDA çizilmekte olan şekli gösteriyor
-  // ve her köşede yeniden yayınlanıyor. Tek katmanla, her güncellemedeki
-  // clear() önceki kareleri de siliyordu (ölçüldü: 16 kareden yalnız sonuncusu
-  // kalıyordu, o da moveTo ile sıfırlandığı için hiçbiri görünmüyordu).
-  private[kojo] val boyamaBitmiş = new PIXI.Graphics()
+  // `boyamaYolu` yalnız O ANDA çizilmekte olan şekli gösteriyor ve her köşede
+  // yeniden yayınlanıyor; tamamlanan şekiller ise ŞEKİL BAŞINA kendi
+  // Graphics'ine yazılıyor (bkz. çizimParçaları).
   private[kojo] val boyamaYolu = new PIXI.Graphics()
   private val boyamaÇokgeni = new BoyamaYolu
-  private[kojo] val turtlePath = new PIXI.Graphics()
+
+  // ŞEKİL BAŞINA DÜĞÜM (sorun #86). Eskiden tamamlanmış dolguların TAMAMI tek
+  // `boyamaBitmiş`te, kalem izinin TAMAMI tek `turtlePath`te birikiyordu ve
+  // katman sırası bir kez kuruluyordu: dolgular altta, kalem üstte. Sonuç:
+  // ÖNCE çizilen bir şeklin kenarlığı SONRA çizilen bir şeklin dolgusunun
+  // üstünde kalıyordu. Ölçüldü: 10 kare çizen betikte turtleLayer'ın 4 çocuğu
+  // vardı -- "Turtle Fill (done)" (27 dolgu parçası) ve "Turtle Path" (40
+  // çizgi parçası) -- yani bütün kenarlıklar bütün dolguların üstünde.
+  //
+  // Artık her tamamlanan şekil kendi dolgu düğümünü alıyor ve O ŞEKLİN kalem
+  // izinin hemen ALTINA konuyor; kalem izi de orada donuyor, üstüne yeni bir
+  // canlı yol açılıyor. Katman sırası böylece çizilme sırasıyla örtüşüyor:
+  //   dolgu_1, kalem_1, dolgu_2, kalem_2, ..., boyamaYolu, canlı kalem, simge
+  // Masaüstü Kojo'nun şekil-başına-PNode modeli de böyle.
+  //
+  // Maliyeti ölçüldü (PIXI 5, aynı çizim iki yerleşimle): şekil başına düğüm
+  // çizim ÇAĞRISINI artırmıyor (PIXI küçük Graphics'leri tek partide
+  // topluyor: 1 çağrı, tek biriktiricide 2), CPU tarafı ise şekil sayısıyla
+  // büyüyor -- 100 şekilde 0.1, 500'de 0.6, 1000'de 1.0 ms/render (ortanca).
+  // 16.7 ms'lik kare bütçesinin içinde; üstelik render istek üzerine
+  // (KojoWorld.render -> requestAnimationFrame), yani biten çizim bedava.
+  private[kojo] var turtlePath = new PIXI.Graphics()
+  // Bu kaplumbağanın SAHİP OLDUĞU bütün çizerler, çizilme sırasıyla. Biçem
+  // dönüştürücüleri (TurtlePicture.setPenColor vb.) hepsine uygulanmalı.
+  private[kojo] val çizimParçaları = ArrayBuffer[PIXI.Graphics]()
   private[kojo] val turtlePathPoints = ArrayBuffer[(Double, Double)]()
   var prevMoveTo: Option[Point] = None
   // PIXI 5'te yol, çizimler arasında boşaltılabildiğinden (bkz.
@@ -107,12 +128,38 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   /** O anki çokgen bittiyse kalıcı katmana yaz -- sonraki clear() onu silmesin. */
   private def boyamayıİşle(): Unit = {
     if (fillBoya != null && boyamaÇokgeni.alanVarMı) {
-      boyamaBitmiş.lineStyle(0, 0, 0)
-      PixiUyum.boyamayaBaşla(boyamaBitmiş, fillBoya)(() => kojoWorld.render())
-      üçgenleriÇiz(boyamaBitmiş) // kalıcı katman da aynı sarım kuralını kullanmalı
-      boyamaBitmiş.endFill()
-      PixiUyum.tazele(boyamaBitmiş)
+      val dolgu = new PIXI.Graphics()
+      dolgu.name = "Turtle Fill"
+      dolgu.lineStyle(0, 0, 0)
+      PixiUyum.boyamayaBaşla(dolgu, fillBoya)(() => kojoWorld.render())
+      üçgenleriÇiz(dolgu) // kalıcı düğüm de aynı sarım kuralını kullanmalı
+      dolgu.endFill()
+      PixiUyum.tazele(dolgu)
+      // Dolgu, O ŞEKLİN kalem izinin hemen ALTINA: kenarlık kendi dolgusunun
+      // üstünde kalsın, ama sonraki şeklin dolgusu bu kenarlığı örtebilsin.
+      turtleLayer.addChildAt(dolgu, turtleLayer.getChildIndex(turtlePath))
+      çizimParçaları += dolgu
+      kalemYolunuDondur()
     }
+  }
+
+  /** Şekil bitti: o ana dek biriken kalem izi olduğu yerde donuyor, üstüne
+    * yeni bir canlı yol açılıyor. Sıranın kuyruğu her zaman
+    * [boyamaYolu, canlı kalem, simge] olmalı, o yüzden üçü yeniden üste alınıyor
+    * (PIXI'de var olan bir çocuğu addChild etmek onu en üste taşır). */
+  private def kalemYolunuDondur(): Unit = {
+    turtlePath = new PIXI.Graphics()
+    turtlePath.name = "Turtle Path"
+    çizimParçaları += turtlePath
+    turtleLayer.addChild(boyamaYolu)
+    turtleLayer.addChild(turtlePath)
+    if (!forPic && turtleImage != null) turtleLayer.addChild(turtleImage)
+    // Yeni çizer biçemsiz doğuyor; kalemi ve varsa açık boyamayı geri koy.
+    turtlePath.lineStyle(penWidth, penColor.toRGBDouble, penColor.alpha.get)
+    if (fillBoya != null) PixiUyum.boyamayaBaşla(turtlePath, fillBoya)(() => kojoWorld.render())
+    // Yolun sürekliliği: yoluSürdür boş yolu zaten sonYol'dan başlatıyor, ama
+    // arada moveTo gelmeyen yollar (realSetFillPaint) için burada da koyuyoruz.
+    turtlePath.moveTo(sonYolX, sonYolY)
   }
 
   /**
@@ -221,12 +268,11 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     // Picture{} katmanlarından bu çocuğa bakarak ayırıyor (öneAl'ın hedef sırası).
     turtleImage.name = BakePolicy.turtleIconName
 
-    boyamaBitmiş.name = "Turtle Fill (done)"
     boyamaYolu.name = "Turtle Fill (in progress)"
-    turtleLayer.addChild(boyamaBitmiş) // önce: kalem izi üstte kalsın
     turtleLayer.addChild(boyamaYolu)
     turtlePath.name = "Turtle Path"
     turtleLayer.addChild(turtlePath)
+    if (çizimParçaları.isEmpty) çizimParçaları += turtlePath
     if (!forPic) {
       turtleLayer.addChild(turtleImage)
     }
@@ -824,10 +870,16 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   }
 
   private def realClear(): Unit = {
+    // Şekil başına düğümler: donmuş parçaları katmandan da çıkar, yoksa
+    // sil() sonrası eski çizim ekranda kalırdı.
+    çizimParçaları.foreach { g =>
+      if (g ne turtlePath) turtleLayer.removeChild(g)
+    }
+    çizimParçaları.clear()
+    çizimParçaları += turtlePath
     turtlePath.clear()
     turtlePathPoints.clear()
     boyamaYolu.clear()
-    boyamaBitmiş.clear()
     boyamaÇokgeni.temizle()
     kojoWorld.bekleyenBoyayıUnut(this) // KENDİ yolunu sildi; ötekilerinki dursun
     initTurtleLayer()

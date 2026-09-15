@@ -72,30 +72,36 @@ class TurtlePicture private[kojo] (fn: Turtle => Unit)(implicit val kojoWorld: K
     Utils.Gf.createLineString(cab.toJSArray)
   }
 
+  // Kaplumbağanın çizimi ARTIK tek bir Graphics değil: her tamamlanan şekil
+  // kendi düğümünü alıyor (sorun #86, şekil başına katmanlama). Biçem
+  // dönüştürücüleri bu yüzden PARÇALARIN HEPSİNE uygulanmalı -- tek başına
+  // turtle.turtlePath yalnız o anda çizilmekte olan parçayı tutuyor.
+  private def parçalar = turtle.çizimParçaları
+
   def setFillColor(c: Color): Unit = {
     ready.foreach { u =>
-      PixiUyum.boyayıKur(turtle.turtlePath, c.toRGBDouble, c.alpha.get)
+      parçalar.foreach(g => PixiUyum.boyayıKur(g, c.toRGBDouble, c.alpha.get))
       kojoWorld.render()
     }
   }
 
   override def setFillPaint(b: Boya): Unit = {
     ready.foreach { u =>
-      PixiUyum.boyayıKurBoya(turtle.turtlePath, b) { () => kojoWorld.render() }
+      parçalar.foreach(g => PixiUyum.boyayıKurBoya(g, b) { () => kojoWorld.render() })
       kojoWorld.render()
     }
   }
 
   def setPenColor(c: Color): Unit = {
     ready.foreach { u =>
-      PixiUyum.kalemiKur(turtle.turtlePath, c.toRGBDouble, c.alpha.get)
+      parçalar.foreach(g => PixiUyum.kalemiKur(g, c.toRGBDouble, c.alpha.get))
       kojoWorld.render()
     }
   }
 
   def setPenThickness(t: Double): Unit = {
     ready.foreach { u =>
-      PixiUyum.kalemKalınlığınıKur(turtle.turtlePath, t)
+      parçalar.foreach(g => PixiUyum.kalemKalınlığınıKur(g, t))
       kojoWorld.render()
     }
   }
