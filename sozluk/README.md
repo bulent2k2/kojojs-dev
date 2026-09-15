@@ -154,6 +154,20 @@ tur), `klavye.scala`'nın eskitilmiş alt_çizgili yazımları (8), iç adlar
 `log2_e`, `PNokta`/`pNokta`/`tNokta`), ve tek bir Kojo adına karşılık gelmeyen
 bileşikler (`çarpışma`, `çarpışmalar`).
 
+Eylül 2026, üçüncü tur (ters yön): araç şimdiye dek yalnız "sözlükte var, sayfada
+yok" yönünü ölçüyordu. Öteki kova (`sayfada olup sözlükte olmayan`) hiç küratör
+görmemişti ve `renkliYazı` hatası tam oradaydı. Ölçüt simetrik yapıldı (351 -> 275,
+aradaki 72 niteleme artefaktıymış) ve kalan API adları ayıklandı. Altı ad **yalnız
+ikojo'da** çıktı, notlarına işlendi: `fareBasılınca` (masaüstünde `fareyeBasınca`),
+`kur`, `bölünüyorMu`, `belirgin`, `resimleriSil` (masaüstünde `Resim.sil`),
+`Dönüştürücü`. `ay.*` arayüz katmanının tamamı ters yönde: masaüstüne özgü,
+tarayıcıda yok — kategori notuna bir kez yazıldı.
+
+Aynı turda ikinci turun üç hatası da düzeltildi: `Resim.sil` NESNENİN yöntemi
+(`erasePictures`), sınıfın `r.sil()`'i `erase`; `noktaIşık`/`sahneIşığı` için
+yazdığım `PointLightEffect` var ama BİRLEŞTİRİLEMEZ, doğrusu `picture.pointLight`
+(bkz. kojo#68, üreteç zincir kaçağı).
+
 Canlı (Claude artifact): sözlük ve dokuz dilli dizin `/yardim`'den de bağlı.
 
 ## ikojo'da: `/yardim/sozluk`
