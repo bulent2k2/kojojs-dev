@@ -39,6 +39,64 @@ kojojs-editor'daki yardım sayfalarının kendi "çalıştır" bağlantıların�
 
     araclar/ornek-dizini.py <kojojs-editor dizini>
 
+## `sozluk-kapsam.py` — sözlük sayfası ↔ masaüstü üretilmiş sözlüğü
+
+`koco-sozlugu.html`'deki 1022 satır bir kez üretilip **sonra elle düzeltildi**
+(bkz. `../sozluk/README.md`). Bugün onu kaynağa bağlayan bir şey yok: Türkçe
+katmana yeni bir ad girince sayfa sessizce eskiyor. Eylül 2026 turu 201 adı
+elle işledi (754 → 980) ve o turu kimse tetiklemedi, göz kararı başladı.
+Bu araç aradaki farkı sayıyla söylüyor.
+
+Kaynak: masaüstü sözlüğünün **iki yarısı** da —
+`ceviri-sozlugu.tsv` (üretilmiş: sarmalayıcılardan türetilip derleyici
+sondasından geçmiş çiftler) ve `ceviri-kurallar.tsv` (üretecin yanlış
+seçimlerini geçersiz kılan elle kurallar). Yalnız üretilmişi okumak sahte
+çelişki üretiyor: `zıpla` sayfada `hop`, üretilmiş TSV'de `saveStyle`, ve kural
+dosyası zaten `tr>en zıpla * hop` diyor.
+
+```sh
+araclar/sozluk-kapsam.py                    # ../kojo klonunu bekler
+araclar/sozluk-kapsam.py --kojo ~/src/kojo
+araclar/sozluk-kapsam.py --eksik            # sayfada olmayan adların tam listesi
+araclar/sozluk-kapsam.py --celisen          # çelişen çiftlerin tamamı
+araclar/sozluk-kapsam.py --json /tmp/kapsam.json
+```
+
+İki rapor:
+
+| rapor | bugünkü sayı | ne demek |
+|---|---|---|
+| sayfada olmayan | 453 ad | sözlükte var, sayfada yok — kaynak dosyaya göre öbeklenmiş |
+| çelişen çift | 57 (31 ayrı, 5 kural, 9 niteleme, 12 imza) | aynı Türkçe ad, örtüşmeyen İngilizce karşılık |
+
+Çelişki sınıfları, sahte bulguyu ayıklamak için: **ayrı** iki taraf da yalın ad
+ama tutmuyor (incelenmesi gereken bunlar); **kural** elle kural sayfayı
+doğruluyor, üretilmiş satır ölü veri; **niteleme** yalnız niteleyici farkı
+(sayfa `collection.Seq`, sözlük `Seq`); **imza** sayfanın hücresi zaten yalın ad
+değil (`scale(x, y)`, `round(n, digits)`, `log base t`) — sayfa yer yer imza ya da
+düzyazı yazıyor, tanımlayıcı gibi karşılaştırmak sahte çelişki üretiyor. Ölçüldü:
+sınıflandırma olmadan 47 "ayrı" çıkıyordu, 20'si imza 5'i kuralmış.
+
+Sayfayı doğrulamayan kural kuyrukta KALIYOR ama listede görünüyor
+(`kalemBoyu … [kural: penThickness]`, sayfa `penWidth`): küratör hikâyeyi bir
+bakışta görsün. `[kural: çevirme]` "bilerek çevrilmiyor" demek.
+
+**Bu bir kapı değil, rapor.** Çıkış kodu her zaman 0 (yalnız kojo klonu
+bulunamazsa 1). Eksik adların çoğu sayfaya girmemeli — `cizim.scala`'nın 49
+imge yolu, `turler.scala`'nın 65 iç tür takma adı — karar küratörün. Araç
+sayfayı da DEĞİŞTİRMİYOR: `koco-sozlugu.html`'e dokunmak artifact'i ve
+ikojo'daki kopyayı yeniden yayımlamayı gerektiriyor (`../sozluk/README.md`'deki
+beş adım), o ayrı bir tur.
+
+TSV bu depoya **kopyalanmıyor**, kojo klonundan okunuyor: kopyalasak
+"üretilmiş dosya kaynağından ayrıldı" sınıfını yeniden açardık, `sozluk-denetle.py`
+tam onu kapatmak için var. (`ornek-dizini.py`'nin kojojs-editor dizinini argüman
+alması da aynı gerekçe.) Bu yüzden CI'da koşmuyor: kojo klonu ister.
+
+Araç TSV'nin yalnız ilk dört sütununu okuyor (`cins tr en kaynak`), böylece
+sözlüğe sütun eklenince kırılmıyor — Eylül 2026'da `sayı` sütunu eklendiğinde
+(kojo#65) böyle oldu.
+
 ## `adlar.py` — masaüstü ↔ ikojo ad karşılaştırması
 
 `ucurum.py` masaüstü **betiklerini** tarıyor, yani yalnız bir örneğin
