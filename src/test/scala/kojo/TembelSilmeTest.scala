@@ -12,9 +12,11 @@ import scala.scalajs.js
  * girdi. İlk uygulamada o pencerede bekleyenler KÜRESEL olarak düşürülüyordu
  * ve iki yerden dolgu sessizce yok oluyordu:
  *
- *   - `resimleriSil()` (erasePictures): "Turtle Layer" adlı çocukları BİLEREK
- *     silmiyor, yani hayatta kalan katmanlar tam olarak Boyacıların katmanları
- *     -- düşürülen dolgular da tam onlarınki.
+ *   - `resimleriSil()` (erasePictures): GERÇEK kaplumbağaların katmanlarını
+ *     BİLEREK silmiyor, yani hayatta kalan katmanlar tam olarak duran
+ *     Boyacıların katmanları -- düşürülen dolgular da tam onlarınki.
+ *     (Ölçüt bir ara ADA bakıyordu ve Resim{} katmanları da o adı taşıdığı için
+ *     hiç silinmiyordu; bkz. sorun #91 / KaynakSizintisiTest.)
  *   - `sil()` (Turtle.realClear): A kaplumbağasının bekleyeni, B kaplumbağası
  *     sil() deyince düşüyordu.
  *
@@ -101,7 +103,7 @@ class TembelSilmeTest extends AsyncFunSuite with Matchers {
   test("resimleriSil'in düşürmesi: hayatta kalan katmanın dolgusu düşmemeli") {
     // TestKojoWorld.erasePictures boş bir saplama olduğu için gerçek çağrı
     // yerini sınayamıyoruz; erasePictures'ın YAPTIĞI düşürmeyi sınıyoruz.
-    // KojoWorldImpl.erasePictures 'Turtle Layer' çocuklarını silmiyor, yani
+    // KojoWorldImpl.erasePictures gerçek kaplumbağa katmanlarını silmiyor, yani
     // burada düşen dolgu orada da düşerdi.
     val (p, t) = doluKare()
     p.draw()
