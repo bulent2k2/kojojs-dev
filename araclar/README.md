@@ -83,6 +83,14 @@ Bir adı sayfada aramak salt hücre karşılaştırması değil. Sayfa (a) üye 
 Yalnız hücreye bakan sürüm bu adları eksik sayıyordu: **453 → 404**, yani
 küratör turunun altıda biri sahte işmiş (ölçüldü, Eylül 2026).
 
+**Notun biçimi bağlayıcı:** ayrıştırıcı `alt:`ten sonra ilk virgüle, noktalı
+virgüle ya da parantez açmaya kadarını AD sayıyor. Yani önce ad, açıklama
+parantez içinde: `alt: fareyeTıklıyınca (eski yazım)` çalışır,
+`alt: fareyeTıklıyınca — eski yazım, iki tarafta da var` çalışmaz (adın
+tamamı "fareyeTıklıyınca — eski yazım" olur ve eşleşme düşer). Bu turda tam
+bu tuzağa düşüldü: bir not yeniden yazılınca kuyruk sessizce 147'den 148'e
+çıktı. Birden çok takma ad `/` ile ayrılır: `alt: ötele/öteleme`.
+
 Örtük sayılmak için **İngilizce taraf da tutmalı**, yoksa aynı Türkçe sözcüğün
 iki ayrı anlamı birbirini kapatırdı: `Görünüş.daire` (bir imge yolu) sayfadaki
 `daire`=`circle` ile kapanmıyor, `Resim.sil` (`erasePictures`) sayfadaki
