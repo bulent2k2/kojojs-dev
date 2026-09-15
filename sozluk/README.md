@@ -106,10 +106,11 @@ girdiğinde sessizce eskiyor. Farkı ölçen araç:
 
     araclar/sozluk-kapsam.py --kojo <kojo klonu>
 
-Masaüstünün üretilmiş çeviri sözlüğüyle (`ceviri-sozlugu.tsv`) karşılaştırıp iki
-liste veriyor: sayfada olmayan adlar (kaynak dosyaya göre öbeklenmiş) ve çelişen
-çiftler. Rapor, kapı değil; hangi adın sayfaya gireceğine küratör karar verir.
-Ayrıntı: `../araclar/README.md`.
+Masaüstünün üretilmiş çeviri sözlüğüyle (`ceviri-sozlugu.tsv` + elle
+`ceviri-kurallar.tsv`) karşılaştırıp üç liste veriyor: sayfada olmayan adlar
+(kaynak dosyaya göre öbeklenmiş), sayfanın başka bir yazım biçimiyle örtük
+kapsadıkları, ve çelişen çiftler. Rapor, kapı değil; hangi adın sayfaya
+gireceğine küratör karar verir. Ayrıntı: `../araclar/README.md`.
 
 ## Kaynak
 Şu dosyalardan derlendi (bulent2k2/kojo):
@@ -129,6 +130,29 @@ işlendi (754 -> 980). Yeni "Koleksiyon Türleri" kategorisi Yığın/Kuyruk/
 ortak çekirdek "Diziler ve Yazılar" altında. Adlar `lite/i18n/tr/*.scala`
 gövdelerinden üretildi (`def başıBelki ... = d.headOption` -> headOption =
 başıBelki), sonra elle düzeltildi.
+
+Eylül 2026, ikinci tur (araç destekli ilk tur): `sozluk-kapsam.py` 453 ad eksik
+saydı; aracın üç yazım biçimini (nitelenmiş ad, "alt:/eski adı:/takma ad:" notu,
+imzalı hücre) tanıması bunun 49'unun sahte olduğunu gösterdi, kalan gerçek kuyruk
+404. Turda 211 satır eklendi, 21 satırın notuna takma ad işlendi (1022 -> 1235
+satır); kuyruk **404 -> 147**'ye indi.
+
+Eklenenler, kaynak dosyaya göre: `resim.scala`'nın Resim sınıfı yöntemleri ve
+Resim nesnesi yapıcıları (en büyük gerçek boşluktu), `geo.scala` yol/şekil
+noktaları, `tuvalcizim.scala` (TuvalÇizim/CanvasDraw), `cinidunyasi.scala` çini
+dünyası, `kumanda.scala` oyun kumandası, `dosya.scala`, `arayuz.scala`'nın
+`ay.*` katmanı (Arayüz kategorisi 17 satırdan 49'a), `klavye.scala` tuş kodları
+(`tuşlar.*`), `Instrument.scala` çalgıları, İngilizce karşılığı olan giysiler,
+`yoney2b.scala`/`matematik.scala`, ve öğrencinin hata iletisinde göreceği
+`turler.scala` hata türleri.
+
+Bilerek DIŞARIDA kalan 147: `turler.scala`'nın Java interop takma adları ve
+kutulama dönüştürücüleri (54), `cizim.scala`/`ses.scala`'nın İngilizce karşılığı
+olmayan ham imge/ses yolları (45), `buan.scala`'nın takvim katmanı (13, ayrı bir
+tur), `klavye.scala`'nın eskitilmiş alt_çizgili yazımları (8), iç adlar
+(`richBuiltins`, `Col`, `Iter`, `a_kalıp`, `codeTemplates`, `helpContent`,
+`log2_e`, `PNokta`/`pNokta`/`tNokta`), ve tek bir Kojo adına karşılık gelmeyen
+bileşikler (`çarpışma`, `çarpışmalar`).
 
 Canlı (Claude artifact): sözlük ve dokuz dilli dizin `/yardim`'den de bağlı.
 

@@ -30,6 +30,22 @@ kural dosyası zaten `tr>en zıpla * hop` diyor (kendi notu: "gövdeli tanım;
 ilk-zincir sezgisi saveStyle'ı görüyordu"). Çevirmen `kaplumbağa.zıpla(30)` için
 `turtle0.hop(30)` üretiyor, yani sayfa haklı.
 
+SAYFANIN ÜÇ YAZIM BİÇİMİ: bir adı sayfada aramak salt hücre karşılaştırması
+değil. Sayfa (a) üye adlarını NİTELEYEREK yazıyor -- üretilmiş TSV `dikdörtgen`
+diyor, sayfa `Resim.dikdörtgen`; öğrenci de nitelenmişini yazıyor, yani sayfa
+haklı. (b) eşanlamlıları ayrı satıra değil NOTA koyuyor -- `["react","tepkiVer",
+"alt: canlan"]`, yani `canlan` sayfada var. Yalnız hücreye bakan bir sürüm bu
+46 adı eksik sayıyordu (453 -> 407); ölçüldü, küratör turunun altıda biri sahte
+işmiş. İkisi de İNGİLİZCE TARAF DA TUTUYORSA örtük sayılıyor: `Görünüş.daire`
+(bir imge yolu) sayfadaki `daire`=`circle` ile kapanmıyor, `Resim.sil`
+(`erasePictures`) sayfadaki `sil`=`clear` ile kapanmıyor, `arayüz`
+(`Picture.widget`) `interface`/`arabirim` satırının "alt: arayüz" notuyla
+kapanmıyor -- üçü de kuyrukta kalıyor.
+
+Örtük sınıfları:
+  niteleme   -- sayfa aynı adı niteleyerek yazmış (Resim.dikdörtgen)
+  takma      -- sayfa adı bir satırın "alt:" notunda anmış
+
 Çelişki sınıfları (aynı Türkçe ad, örtüşmeyen İngilizce karşılık):
   kural      -- elle kural sayfayı DOĞRULUYOR; üretilmiş satır ölü veri, bakılacak
                 bir şey yok
@@ -48,6 +64,7 @@ Kullanım:
   araclar/sozluk-kapsam.py --kojo ~/src/kojo
   araclar/sozluk-kapsam.py --eksik          # eksik adların tam listesi
   araclar/sozluk-kapsam.py --celisen        # çelişen çiftlerin tam listesi
+  araclar/sozluk-kapsam.py --ortuk          # sayfanın başka biçimde kapsadıkları
   araclar/sozluk-kapsam.py --json /tmp/kapsam.json
 """
 import argparse
@@ -68,6 +85,13 @@ KURAL_YOLU = os.path.join('src', 'main', 'resources', 'i18n', 'tr', 'ceviri-kura
 # boşluk yutuluyor -- sayfa yeniden biçimlenip girintilenirse satır SESSİZCE
 # düşmesin, sessiz kaymayı ölçen bir araçta bu bedava dayanıklılık).
 SAYFA_SATIRI = re.compile(r'^[ \t]*\["((?:[^"\\]|\\.)*)","((?:[^"\\]|\\.)*)"', re.M)
+# Üçüncü hücre (açıklama) ayrıca okunuyor: "alt: canlan" notu sayfanın eşanlamlı
+# yazma biçimi, satır açmıyor.
+SAYFA_SATIRI3 = re.compile(
+    r'^[ \t]*\["((?:[^"\\]|\\.)*)","((?:[^"\\]|\\.)*)","((?:[^"\\]|\\.)*)"\]', re.M)
+# Sayfa eşanlamlıyı üç sözle yazıyor: "alt:", "eski adı:", "takma ad:" -- ölçüldü,
+# sırasıyla 30/7/2 not. Üçü de aynı şey: satır o adı da kapsıyor.
+TAKMA_AD = re.compile(r'(?:alt|eski adı|takma ad)\s*:\s*([^,;()]+)')
 
 
 def oku(yol):
@@ -81,6 +105,28 @@ def sayfaÇiftleri(yol):
     if not çiftler:
         sys.exit('%s içinde ["en","tr",...] biçiminde satır bulunamadı' % yol)
     return çiftler
+
+
+def sayfaTakmaAdları(yol):
+    """Sayfanın "alt: X" notlarından takma ad -> o satırın (İngilizce, Türkçe) adı.
+
+    Türkçesi de tutuluyor: notun İngilizcesi satırın okunur hâli olabiliyor
+    (`ColorHSB(h, s, b)`) ve üretilmiş sözlüğün karşılığıyla (`hsla`) tutmuyor.
+    O zaman ikinci kanıt satırın KENDİ Türkçe adı: sözlük hem `RenkADA`ya hem
+    `RenkArıRenkDoygunlukAydınlık`a aynı İngilizceyi veriyorsa, sayfa
+    "biri ötekinin takma adı" derken haklı."""
+    takma = collections.defaultdict(set)
+    for m in SAYFA_SATIRI3.finditer(oku(yol)):
+        en, tr, açıklama = m.group(1), m.group(2), m.group(3)
+        for t in TAKMA_AD.finditer(açıklama):
+            for ad in t.group(1).split('/'):
+                ad = ad.strip()
+                if ad:
+                    takma[ad].add((en, tr))
+                    # Not da niteleyerek yazılabiliyor ("alt: Resim.köşegen"),
+                    # üretilmiş sözlükteki karşılığı ise yalın (`köşegen`).
+                    takma[sonParça(ad)].add((en, tr))
+    return takma
 
 
 def tsvSatırları(yol):
@@ -119,8 +165,20 @@ def kuralHedefleri(yol):
 Çevirme = '-'
 
 
+İMZA_KUYRUĞU = re.compile(r'\([^()]*\)$')
+
+
+def çıplak(ad):
+    """Hücrenin imza kuyruğunu atar: `RenkADA(arıRenk, doygunluk, aydınlık)` -> `RenkADA`.
+
+    Sayfa bir adı yer yer imzasıyla yazıyor (okunurluk için, bkz. `imza` sınıfı).
+    Üretilmiş sözlükte karşılığı hep yalın ad, yani imzalı hücre karşılaştırmaya
+    hiç girmiyordu: `RenkADA` sayfada dururken EKSİK sayılıyordu."""
+    return İMZA_KUYRUĞU.sub('', ad).strip()
+
+
 def sonParça(ad):
-    return ad.rsplit('.', 1)[-1]
+    return çıplak(ad).rsplit('.', 1)[-1]
 
 
 YALIN_AD = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$')
@@ -131,21 +189,51 @@ def yalınMı(ad):
     return bool(YALIN_AD.match(ad))
 
 
-def karşılaştır(sayfa, tsv, kurallar):
+def karşılaştır(sayfa, tsv, kurallar, takmaAdlar=None):
+    takmaAdlar = takmaAdlar or {}
     sayfaHedefleri = collections.defaultdict(set)
     for tr, en in sayfa:
         sayfaHedefleri[tr].add(en)
+        sayfaHedefleri[çıplak(tr)].add(en)
+    # Sayfa üye adlarını niteleyerek yazıyor: son parçadan tam satıra geri dönüş.
+    sayfaSonParça = collections.defaultdict(set)
+    for tr, en in sayfa:
+        if '.' in çıplak(tr):
+            sayfaSonParça[sonParça(tr)].add((tr, en))
     tsvHedefleri = collections.defaultdict(set)
     tsvKaynağı = {}
     for cins, tr, en, kaynak in tsv:
         tsvHedefleri[tr].add(en)
         tsvKaynağı.setdefault(tr, (cins, kaynak))
 
+    def örtükMü(tr, enler):
+        """Sayfa bu adı başka bir yazım biçimiyle kapsıyor mu? İngilizce taraf da
+        tutmalı: yoksa `Resim.sil`(erasePictures) sayfadaki `sil`(clear) ile
+        kapanmış görünürdü."""
+        parçalar = {sonParça(e) for e in enler}
+        for sayfaTr, sayfaEn in sorted(sayfaSonParça.get(sonParça(tr), ())):
+            if sonParça(sayfaEn) in parçalar:
+                return {'sınıf': 'niteleme', 'sayfa': ['%s = %s' % (sayfaTr, sayfaEn)]}
+        for ad in (tr, sonParça(tr)):
+            for sayfaEn, sayfaTr in sorted(takmaAdlar.get(ad, ())):
+                if (sonParça(sayfaEn) in parçalar
+                        or tsvHedefleri.get(çıplak(sayfaTr), set()) & enler):
+                    return {'sınıf': 'takma', 'sayfa': ['alt: %s (%s)' % (ad, sayfaEn)]}
+        return None
+
     eksik = []
+    örtük = []
     for tr in sorted(tsvHedefleri):
-        if tr not in sayfaHedefleri:
-            cins, kaynak = tsvKaynağı[tr]
-            eksik.append({'tr': tr, 'en': sorted(tsvHedefleri[tr]), 'cins': cins, 'kaynak': kaynak})
+        if tr in sayfaHedefleri:
+            continue
+        cins, kaynak = tsvKaynağı[tr]
+        satır = {'tr': tr, 'en': sorted(tsvHedefleri[tr]), 'cins': cins, 'kaynak': kaynak}
+        ö = örtükMü(tr, tsvHedefleri[tr])
+        if ö:
+            satır.update(ö)
+            örtük.append(satır)
+        else:
+            eksik.append(satır)
 
     çelişen = []
     ortak = 0
@@ -176,8 +264,11 @@ def karşılaştır(sayfa, tsv, kurallar):
     # Ters yön: sayfada olup üretilmiş sözlükte hiç geçmeyen Türkçe ad. Çoğu
     # beklenen (arayüz sözcükleri, kavram çevirileri, ikojo'ya özgü adlar);
     # yine de sayısı kaymanın ikinci ölçüsü.
-    sayfadaFazla = sorted(tr for tr in sayfaHedefleri if tr not in tsvHedefleri)
-    return {'eksik': eksik, 'çelişen': çelişen, 'ortak': ortak, 'sayfadaFazla': sayfadaFazla}
+    # Yalnız sayfanın YAZDIĞI hâl sayılıyor: çıplak(tr) ile eklenen ikizler
+    # sayımı şişirirdi.
+    sayfadaFazla = sorted({tr for tr, _ in sayfa} - set(tsvHedefleri))
+    return {'eksik': eksik, 'örtük': örtük, 'çelişen': çelişen, 'ortak': ortak,
+            'sayfadaFazla': sayfadaFazla}
 
 
 def kuralNotu(ç):
@@ -187,11 +278,20 @@ def kuralNotu(ç):
     return '[kural: %s]' % ', '.join('çevirme' if x == Çevirme else x for x in ç['kural'])
 
 
-def yaz(r, sayfaSayısı, tsvSayısı, tümEksik, tümÇelişen):
+def yaz(r, sayfaSayısı, tsvSayısı, tümEksik, tümÇelişen, tümÖrtük=False):
     print('sayfa: %d satır, %d ayrı Türkçe ad     üretilmiş sözlük: %d satır, %d ayrı Türkçe ad'
           % (sayfaSayısı[0], sayfaSayısı[1], tsvSayısı[0], tsvSayısı[1]))
     print('ortak ad: %d    sözlükte olup sayfada olmayan: %d    sayfada olup sözlükte olmayan: %d'
           % (r['ortak'], len(r['eksik']), len(r['sayfadaFazla'])))
+    sayımÖ = collections.Counter(ö['sınıf'] for ö in r['örtük'])
+    print('örtük kapsanan: %d (sayfa niteleyerek yazmış: %d, "alt:" notunda: %d) '
+          '-- kuyruğa girmiyor, --ortuk ile listelenir'
+          % (len(r['örtük']), sayımÖ['niteleme'], sayımÖ['takma']))
+    if tümÖrtük:
+        print('\n== örtük kapsanan adlar')
+        for ö in r['örtük']:
+            print('  %-9s %-28s %-28s %s' % (ö['sınıf'], ö['tr'], ', '.join(ö['en'][:2]),
+                                             ', '.join(ö['sayfa'])))
 
     print('\n== sayfada olmayan adlar, kaynak dosyaya göre')
     dosyalar = collections.Counter(e['kaynak'] for e in r['eksik'])
@@ -230,6 +330,8 @@ def main():
     p.add_argument('--sayfa', default=SAYFA, help='koco-sozlugu.html yolu')
     p.add_argument('--eksik', action='store_true', help='eksik adların tam listesi')
     p.add_argument('--celisen', action='store_true', help='çelişen çiftlerin tamamı')
+    p.add_argument('--ortuk', action='store_true',
+                   help='sayfanın başka bir yazım biçimiyle kapsadığı adlar')
     p.add_argument('--json', dest='json_yolu', help='tam raporu bu dosyaya JSON yaz')
     a = p.parse_args()
 
@@ -240,9 +342,9 @@ def main():
     sayfa = sayfaÇiftleri(a.sayfa)
     tsv = tsvSatırları(tsvYolu)
     kurallar = kuralHedefleri(os.path.join(a.kojo, KURAL_YOLU))
-    r = karşılaştır(sayfa, tsv, kurallar)
+    r = karşılaştır(sayfa, tsv, kurallar, sayfaTakmaAdları(a.sayfa))
     yaz(r, (len(sayfa), len({t for t, _ in sayfa})), (len(tsv), len({s[1] for s in tsv})),
-        a.eksik, a.celisen)
+        a.eksik, a.celisen, a.ortuk)
     if a.json_yolu:
         with io.open(a.json_yolu, 'w', encoding='utf-8') as d:
             d.write(json.dumps(r, ensure_ascii=False, indent=1, sort_keys=True))

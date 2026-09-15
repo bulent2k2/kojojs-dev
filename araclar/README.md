@@ -41,7 +41,7 @@ kojojs-editor'daki yardım sayfalarının kendi "çalıştır" bağlantıların�
 
 ## `sozluk-kapsam.py` — sözlük sayfası ↔ masaüstü üretilmiş sözlüğü
 
-`koco-sozlugu.html`'deki 1022 satır bir kez üretilip **sonra elle düzeltildi**
+`koco-sozlugu.html`'deki satırlar bir kez üretilip **sonra elle düzeltildi**
 (bkz. `../sozluk/README.md`). Bugün onu kaynağa bağlayan bir şey yok: Türkçe
 katmana yeni bir ad girince sayfa sessizce eskiyor. Eylül 2026 turu 201 adı
 elle işledi (754 → 980) ve o turu kimse tetiklemedi, göz kararı başladı.
@@ -59,15 +59,46 @@ araclar/sozluk-kapsam.py                    # ../kojo klonunu bekler
 araclar/sozluk-kapsam.py --kojo ~/src/kojo
 araclar/sozluk-kapsam.py --eksik            # sayfada olmayan adların tam listesi
 araclar/sozluk-kapsam.py --celisen          # çelişen çiftlerin tamamı
+araclar/sozluk-kapsam.py --ortuk            # sayfanın başka biçimde kapsadıkları
 araclar/sozluk-kapsam.py --json /tmp/kapsam.json
 ```
 
-İki rapor:
+Üç rapor:
 
 | rapor | bugünkü sayı | ne demek |
 |---|---|---|
-| sayfada olmayan | 453 ad | sözlükte var, sayfada yok — kaynak dosyaya göre öbeklenmiş |
-| çelişen çift | 57 (31 ayrı, 5 kural, 9 niteleme, 12 imza) | aynı Türkçe ad, örtüşmeyen İngilizce karşılık |
+| sayfada olmayan | 147 ad | sözlükte var, sayfada hiç yok — kaynak dosyaya göre öbeklenmiş |
+| örtük kapsanan | 127 (64 niteleme, 63 alt) | sayfa adı başka bir yazım biçimiyle yazmış; kuyruğa girmiyor |
+| çelişen çift | 82 (37 ayrı, 6 kural, 24 niteleme, 15 imza) | aynı Türkçe ad, örtüşmeyen İngilizce karşılık |
+
+### Sayfanın üç yazım biçimi
+
+Bir adı sayfada aramak salt hücre karşılaştırması değil. Sayfa (a) üye adlarını
+**niteleyerek** yazıyor — üretilmiş TSV `dikdörtgen` diyor, sayfa
+`Resim.dikdörtgen`; öğrenci de nitelenmişini yazıyor, yani sayfa haklı.
+(b) eşanlamlıyı ayrı satıra değil **nota** koyuyor — `["react","tepkiVer","alt: canlan"]`,
+üç sözle: `alt:` (30 not), `eski adı:` (7), `takma ad:` (2). (c) kimi hücreyi
+**imzasıyla** yazıyor — `RenkADA(arıRenk, doygunluk, aydınlık)`.
+
+Yalnız hücreye bakan sürüm bu adları eksik sayıyordu: **453 → 404**, yani
+küratör turunun altıda biri sahte işmiş (ölçüldü, Eylül 2026).
+
+**Notun biçimi bağlayıcı:** ayrıştırıcı `alt:`ten sonra ilk virgüle, noktalı
+virgüle ya da parantez açmaya kadarını AD sayıyor. Yani önce ad, açıklama
+parantez içinde: `alt: fareyeTıklıyınca (eski yazım)` çalışır,
+`alt: fareyeTıklıyınca — eski yazım, iki tarafta da var` çalışmaz (adın
+tamamı "fareyeTıklıyınca — eski yazım" olur ve eşleşme düşer). Bu turda tam
+bu tuzağa düşüldü: bir not yeniden yazılınca kuyruk sessizce 147'den 148'e
+çıktı. Birden çok takma ad `/` ile ayrılır: `alt: ötele/öteleme`.
+
+Örtük sayılmak için **İngilizce taraf da tutmalı**, yoksa aynı Türkçe sözcüğün
+iki ayrı anlamı birbirini kapatırdı: `Görünüş.daire` (bir imge yolu) sayfadaki
+`daire`=`circle` ile kapanmıyor, `Resim.sil` (`erasePictures`) sayfadaki
+`sil`=`clear` ile kapanmıyor, `arayüz` (`Picture.widget`) `interface`/`arabirim`
+satırının "alt: arayüz" notuyla kapanmıyor — üçü de kuyrukta kalıyor. Notun
+İngilizcesi satırın okunur hâliyse (`ColorHSB(h, s, b)`) ikinci kanıt satırın
+kendi Türkçe adı: sözlük hem `RenkADA`ya hem `RenkArıRenkDoygunlukAydınlık`a
+aynı İngilizceyi veriyorsa sayfa "biri ötekinin takma adı" derken haklı.
 
 Çelişki sınıfları, sahte bulguyu ayıklamak için: **ayrı** iki taraf da yalın ad
 ama tutmuyor (incelenmesi gereken bunlar); **kural** elle kural sayfayı
@@ -82,8 +113,8 @@ Sayfayı doğrulamayan kural kuyrukta KALIYOR ama listede görünüyor
 bakışta görsün. `[kural: çevirme]` "bilerek çevrilmiyor" demek.
 
 **Bu bir kapı değil, rapor.** Çıkış kodu her zaman 0 (yalnız kojo klonu
-bulunamazsa 1). Eksik adların çoğu sayfaya girmemeli — `cizim.scala`'nın 49
-imge yolu, `turler.scala`'nın 65 iç tür takma adı — karar küratörün. Araç
+bulunamazsa 1). Eksik adların çoğu sayfaya girmemeli — `cizim.scala`'nın
+imge yolları, `turler.scala`'nın iç tür takma adları — karar küratörün. Araç
 sayfayı da DEĞİŞTİRMİYOR: `koco-sozlugu.html`'e dokunmak artifact'i ve
 ikojo'daki kopyayı yeniden yayımlamayı gerektiriyor (`../sozluk/README.md`'deki
 beş adım), o ayrı bir tur.
