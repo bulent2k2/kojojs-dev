@@ -107,6 +107,15 @@ iletmesi (#33 incelemesinde elle yakalanmıştı), süs katmanının
 `resimleriSil()` sonrası geri gelmesi (#28 incelemesinde elle yakalanmıştı).
 Üçü de insan gözüyle bulundu; üçü de bu ortamda test edilebilirdi.
 
+> **Güncelleme (#91):** bir adım daha atıldı — testte artık GERÇEK
+> `KojoWorldImpl` kurulabiliyor, yani `TestKojoWorld`ün saplama bıraktığı
+> yollar (`erasePictures` gibi) ve çizicinin kendi sayaçları da sınanabiliyor.
+> Tarif `KaynakSizintisiTest`te: `fiddle-container` > `canvas-holder`
+> div'lerini elle kur, `new KojoWorldImpl()` de, kareleri
+> `requestAnimationFrame` ile sür. İki uyarı: (1) `render()` rAF'a toplandığı
+> için tek bir kareyi ölçmek kırılgan — birçok kare ölçüp EN BÜYÜĞE bakmak
+> sağlam oluyor; (2) WebGL bulunamazsa sınama patlamak yerine iptal etmeli.
+
 ## 5. Faz 3 — testler üretimdeki PIXI ile koşsun
 
 > **Güncelleme (#52):** bu faz yapıldı. Harness artık PIXI 5.3.12 yüklüyor --

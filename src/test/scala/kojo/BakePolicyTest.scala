@@ -53,6 +53,19 @@ class BakePolicyTest extends AnyFunSuite with Matchers {
     isStaleByName(name = null, lastMut = 9, frame = 10) shouldBe false
   }
 
+  test("gerçek kaplumbağa ölçütü: ad YETMEZ, simge çocuğu şart") {
+    // Turtle.init "Turtle Layer" adını forPic kaplumbağalara da veriyor; simgeyi
+    // yalnız gerçek kaplumbağaya ekliyor. Ada bakmak iki yeri birden bozuyordu
+    // (bkz. gerçekKaplumbağaMı'nın belgesi; sorun #91 erasePictures kolu).
+    gerçekKaplumbağaMı("Turtle Layer", Seq("Turtle Fill (in progress)", "Turtle Path", "Turtle Icon")) shouldBe true
+    // Resim{} katmanı: aynı ad, simge YOK -> silinebilir
+    gerçekKaplumbağaMı("Turtle Layer", Seq("Turtle Fill (in progress)", "Turtle Path")) shouldBe false
+    gerçekKaplumbağaMı("Turtle Layer", Seq.empty) shouldBe false
+    // başka adlar: simge olsa bile kaplumbağa değil
+    gerçekKaplumbağaMı("Resim", Seq("Turtle Icon")) shouldBe false
+    gerçekKaplumbağaMı("Decor Layer", Seq("Turtle Icon")) shouldBe false
+  }
+
   test("arkayaAt'ın dip sırası: süs yoksa 0") {
     dipSırası(Seq("Bake Layer", "Resim", "Turtle Layer")) shouldBe 0
     dipSırası(Seq.empty) shouldBe 0
