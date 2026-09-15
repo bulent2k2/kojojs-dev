@@ -157,7 +157,7 @@ bileşikler (`çarpışma`, `çarpışmalar`).
 Eylül 2026, üçüncü tur (ters yön): araç şimdiye dek yalnız "sözlükte var, sayfada
 yok" yönünü ölçüyordu. Öteki kova (`sayfada olup sözlükte olmayan`) hiç küratör
 görmemişti ve `renkliYazı` hatası tam oradaydı. Ölçüt simetrik yapıldı (351 -> 275,
-aradaki 72 niteleme artefaktıymış) ve kalan API adları ayıklandı. Altı ad **yalnız
+aradaki 76'sı yazım artefaktı: 72 niteleme + 4 imza) ve kalan API adları ayıklandı. Altı ad **yalnız
 ikojo'da** çıktı, notlarına işlendi: `fareBasılınca` (masaüstünde `fareyeBasınca`),
 `kur`, `bölünüyorMu`, `belirgin`, `resimleriSil` (masaüstünde `Resim.sil`),
 `Dönüştürücü`. `ay.*` arayüz katmanının tamamı ters yönde: masaüstüne özgü,
