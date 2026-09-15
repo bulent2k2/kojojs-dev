@@ -168,6 +168,22 @@ Aynı turda ikinci turun üç hatası da düzeltildi: `Resim.sil` NESNENİN yön
 yazdığım `PointLightEffect` var ama BİRLEŞTİRİLEMEZ, doğrusu `picture.pointLight`
 (bkz. kojo#68, üreteç zincir kaçağı).
 
+Eylül 2026, dördüncü tur (yansıt): `#68`/`#90` birleşince kapsam aracını yeni
+sözlükle koşturunca `ayrı` çelişki 37'den 29'a düşmüştü; kalan iki taneden biri
+gerçek bir sayfa hatası çıktı. `["flip","yansıt"]` satırı **üç ayrı işlemi** tek
+satıra sıkıştırıyordu:
+
+    yansıtY   = flipY   (Kojo'da flip ve flipAroundY de aynı)   resmi Y ekseninde çevirir
+    yansıtX   = flipX   (flipAroundX de aynı)                    X ekseninde çevirir
+    yansıt(n) = reflect(n)                                       resmin YANINA aynalı kopya koyar
+    Yöney2B.yansıt(y) = bounceOff(y)                             yöneyi yüzeyden sektirir
+
+Sayfa `flip`i `yansıt`a bağlıyordu, oysa `yansıt(n)` bambaşka bir şey yapıyor
+(`HPics(pic, trans(n,0)(FlipY(copy)))` -- çevirmiyor, aynalı ÇİFT üretiyor).
+Dördü de ayrı satır oldu. `reflect` yalnız masaüstünde; `Yöney2B.yansıt` ikisinde
+de var. Çevirmen zaten doğru ayırıyordu (alıcı bağlamına göre `y1.yansıt` ->
+`bounceOff`, yalın `yansıt(120)` -> `reflect`) -- yanlış olan yalnız sayfaydı.
+
 Canlı (Claude artifact): sözlük ve dokuz dilli dizin `/yardim`'den de bağlı.
 
 ## ikojo'da: `/yardim/sozluk`
