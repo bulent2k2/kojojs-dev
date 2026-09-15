@@ -193,6 +193,7 @@ object BakePolicy {
    * Karar burada, çünkü ada bakmak iki yerde birden yanlış sonuç veriyordu:
    * tepeSırası'nda (resim öteki resimlerin altına düşüyordu) ve
    * erasePictures'ta (Resim{} katmanları HİÇ silinmiyordu -- sorun #91).
+   * Üçüncü bir yer hâlâ ada bakıyor: isStaleByName (bkz. sorun #96).
    */
   def gerçekKaplumbağaMı(ad: String, çocukAdları: collection.Seq[String]): Boolean =
     ad == turtleLayerName && çocukAdları.contains(turtleIconName)
@@ -561,8 +562,13 @@ class KojoWorldImpl extends KojoWorld {
   def erasePictures(): Unit = {
     // Silinmeyen tek şey GERÇEK kaplumbağaların katmanı. Ölçüt ADA BAKMAK
     // DEĞİL: Turtle.init "Turtle Layer" adını Resim{} katmanlarına da veriyor,
-    // ve ada bakan eski sürüm bu yüzden resim katmanlarını HİÇ SİLMİYORDU --
-    // sahne ve GL kaynakları her karede büyüyordu (sorun #91, KaynakSizintisiTest).
+    // ve ada bakan eski sürüm bu yüzden resim katmanlarını HİÇ SİLMİYORDU.
+    //
+    // Bu bir kaynak sızıntısından ÖNCE bir DOĞRULUK kusuruydu: resimleriSil()
+    // Resim{} ile çizilmiş resimleri silmiyor, ekranda bırakıyordu (ölçüldü:
+    // master'da çağrıdan sonra resim.tnode.parent hâlâ sahne, görünür=true).
+    // Sahnenin ve GL kaynaklarının her karede büyümesi onun yan ürünüydü.
+    // (Sorun #91, KaynakSizintisiTest. Doku tarafı için #95, pişirme kolu #96.)
     //
     // Bekleyen dolguları BİLEREK düşürmüyoruz: hayatta kalan katmanlar duran
     // kaplumbağaların katmanları, orada düşürmek onların boyasını sessizce yok

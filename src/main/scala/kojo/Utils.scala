@@ -419,6 +419,14 @@ object PixiUyum {
    * olabiliyor, onu bırakmak başkasının çizimini bozardı. Bir düğümün Graphics
    * olup olmadığını deponun başka yerlerindeki ölçütle anlıyoruz: finishPoly
    * işlevi var mı.
+   *
+   * SINIR -- yalnız GEOMETRİ: gradyan (`Boya`) dolguların BaseTexture'ı ayrı
+   * bir kaynak ve burası ona dokunmuyor. Ölçüldü (gradyan dolgulu aynı döngü,
+   * 120 kare): geometri/tampon/sahne tavanlanıyor (4/8/2) ama doku sayacı
+   * 24'ten 218'e doğrusal çıkıyor -- master'da da öyle (29 -> 233), yani bu
+   * bırakma onu ne doğuruyor ne kötüleştiriyor. Doku ömrü `Boya`ya bağlı
+   * olmalı, resmin silinmesine değil (aynı Boya birden çok resimde olabilir):
+   * sorun #95.
    */
   def glKaynaklarınıBırak(düğüm: Any): Unit =
     if (beşVeÜstü && düğüm != null) {

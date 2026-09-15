@@ -30,9 +30,10 @@ import scala.scalajs.js
  *
  *  1. `erasePictures()` "Turtle Layer" ADLI çocukları atlıyordu -- ama
  *     `Turtle.init` o adı `forPic` kaplumbağalara da veriyor, yani Resim{}
- *     katmanları HİÇ SİLİNMİYORDU. Sahnedeki çocuk sayısı kare başına artıyordu
- *     (GL'den ayrı olarak O(N) çizim demek). Ölçüt artık BakePolicy'de:
- *     gerçek kaplumbağanın katmanında "Turtle Icon" çocuğu var.
+ *     katmanları HİÇ SİLİNMİYORDU. Bu, sızıntıdan ÖNCE bir doğruluk kusuru:
+ *     resimler ekranda kalıyordu. Sahnedeki çocuk sayısının kare başına
+ *     artması (GL'den ayrı olarak O(N) çizim) onun yan ürünüydü. Ölçüt artık
+ *     BakePolicy'de: gerçek kaplumbağanın katmanında "Turtle Icon" çocuğu var.
  *  2. Katmanı sahneden çıkarmak GL kaynağını BIRAKMIYOR: PIXI 5 geometriyi
  *     çizicinin managedGeometries/managedBuffers haritalarında tutuyor ve
  *     oradan yalnız `dispose()` düşürüyor.
@@ -44,6 +45,10 @@ import scala.scalajs.js
  * NEDEN ÇOK KÖŞELİ ŞEKİL: PIXI 5 küçük geometrileri tek partide topluyor, onlar
  * kendi GL kaynaklarını hiç almıyor. Kusur yalnız parti DIŞI kalan şekillerde
  * (çok köşeli çokgen, çember/yay) görünür oluyor -- 180 kenar bunun için.
+ *
+ * SINIR: gradyan (`Boya`) dolguların dokusu bu çarenin dışında kalıyor ve
+ * doğrusal büyümeye devam ediyor (ölçüldü; master'da da öyle) -- sorun #95.
+ * Pişirmede aynı ad karışıklığının ikinci kolu -- sorun #96.
  *
  * Ölçüm (aşağıdaki döngü, 120 kare; geometri/tampon/sahne çocuğu):
  *   düzeltmeden önce : 20. karede 29/58/36 ... 120. karede 229/458/236 (doğrusal)
