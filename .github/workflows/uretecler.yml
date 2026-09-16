@@ -159,6 +159,15 @@ jobs:
         run: python3 araclar/sozluk-renk-denetle.py
 
 
+      # Sözlük ikojo'da TEK BAŞINA açılmıyor: /yardim/sozluk onu bir iframe'e
+      # koyuyor. target'siz bir dış bağlantı iframe'in kendisini götürüyor ve
+      # çerçevelenmeyi reddeden bir siteye düşünce sözlük ekrandan kayboluyor
+      # ("refused to connect"). Dosyaya tek başına bakan bunu GÖREMİYOR --
+      # doğrudan açılan sayfada aynı bağlantı çalışıyor. Canlıda bulundu.
+      - name: sözlükteki bağlantılar iframe'den çıkabiliyor mu
+        run: python3 araclar/sozluk-baglanti-denetle.py
+
+
       # ikojo, masaüstünün anlık görüntüsündeki adları KAYBETMEMELİ.
       #
       # Neden anlık görüntü: koşucuda masaüstü klonu yok. Tam karşılaştırma
