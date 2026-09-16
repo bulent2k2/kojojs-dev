@@ -512,10 +512,16 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   }
 
   def clear(): Unit = {
+    // Yeni koşumun başı: sorun #73'ün notu yeniden düşebilsin (eşzamanlı kol;
+    // gerekçe DuraklamaUyarısı.unut'ta).
+    DuraklamaUyarısı.unut()
     sıraya(Clear)
   }
 
   def pause(seconds: Double): Unit = {
+    // forPic DEĞİL: Resim{} gövdesindeki durakla o resmin kendi kuyruğunda ve
+    // orada gerçekten geciktiriyor -- not düşmek yanlış alarm olurdu (#73).
+    if (!forPic) DuraklamaUyarısı.duraklama()
     sıraya(Pause(seconds))
   }
 

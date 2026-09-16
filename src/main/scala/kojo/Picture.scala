@@ -20,6 +20,10 @@ trait Picture {
 
   def realDraw(): Unit
   def draw(): Unit = {
+    // `durakla` + resim karışımını duyurabilmek için (sorun #73). Burada,
+    // realDraw'da değil: realDraw'ı alt sınıflar uyguluyor ve tnode'u sahneye
+    // ekleyen başka yollar da var; `draw` kullanıcının çağırdığı tek kapı.
+    DuraklamaUyarısı.resimÇizimi()
     realDraw()
     //    updateGeomTransform()
   }
