@@ -338,6 +338,63 @@ class KaynakSizintisiTest extends AsyncFunSuite with Matchers {
     }
   }
 
+  test("PAYLAŞILAN Boya: bir resim silinince ayakta kalan öteki bozulmuyor (#95)") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    if (dokuSayısı(w).isEmpty) Future.successful(cancel("WebGL çizici yok; doku sayacı okunamıyor"))
+    else {
+      // #95'in ASIL kaygısı buydu: "aynı b'yi birden çok resme vermek geçerli;
+      // bir resim silindi diye dokusunu körlemesine bırakmak, b'yi hâlâ tutan
+      // başka bir resmi bozardı." Yukarıdaki sav sil-sonra-YENİDEN-ÇİZ kurar;
+      // burada resim silinmiyor, SAHNEDE KALIYOR -- yani bırakılan dokuyu hâlâ
+      // kullanan canlı bir resim var. dispose() tembel yeniden yüklediği için
+      // bu da bozulmuyor; destroy() olsaydı bozulurdu (inceleme #97).
+      //
+      // YÜKÜ `kaynak` TAŞIYOR: kırma sınamasında (dispose -> destroy) parça
+      // sayısı 179'da KALIYOR, yani yapısal sayım bozulmayı görmüyor -- sav
+      // yalnız ona dayansa yeşil kalırdı. Kıran sav `resource`. İnceleme bunu
+      // bir kademe aşağıdan da doğruladı: destroy ile opak piksel 41975'ten
+      // 1441'e, ayrı renk 39'dan 1'e düşüyor (yani gradyan gerçekten çöküyor),
+      // ama parça sayısı aynı kalıyor.
+      val b = gradyan()
+      val taban = b.asInstanceOf[DokuBoya].doku.asInstanceOf[js.Dynamic].baseTexture
+      var önce = (0, 0)
+      var sonra = (0, -1)
+      var sağlam = (false, false, false)
+      var a: TurtlePicture = null
+      var kalan: TurtlePicture = null
+      kareler(40) { i =>
+        if (i == 3) { a = gradyanlıResim(b); a.draw(); kalan = gradyanlıResim(b); kalan.draw() }
+        if (i == 14) {
+          önce = (dolguDokuları(a).count(_ == "GRADYAN"), dolguDokuları(kalan).count(_ == "GRADYAN"))
+          a.erase()
+        }
+        if (i == 30) {
+          sonra = (dolguDokuları(kalan).count(_ == "GRADYAN"), dokuSayısı(w).get)
+          val düğüm = kalan.tnode.asInstanceOf[js.Dynamic]
+          sağlam = (
+            taban.valid.asInstanceOf[Boolean],
+            !js.isUndefined(taban.resource) && taban.resource != null,
+            !js.isUndefined(düğüm.parent) && düğüm.parent != null
+          )
+        }
+      }.map { _ =>
+        withClue(s"önce(A=${önce._1}, kalan=${önce._2}) parça, sonra kalan=${sonra._1} parça, " +
+          s"doku sayacı=${sonra._2}, valid=${sağlam._1} kaynak=${sağlam._2} sahnede=${sağlam._3} -- ") {
+          önce._1 should be > 0
+          önce._2 should be > 0
+          sağlam._3 shouldBe true // silinmeyen resim sahnede kalmalı
+          // Ayakta kalan resmin gradyan dolgusu eksiksiz duruyor.
+          sonra._1 shouldBe önce._2
+          // Kaynak ayakta: doku yeniden yüklenebilir. destroy() burayı koparır.
+          sağlam._2 shouldBe true
+          sağlam._1 shouldBe true
+          // Paylaşılan tek doku: sayaç şişmiyor.
+          sonra._2 should be <= 12
+        }
+      }
+    }
+  }
+
   private def şekilSayısı(p: Picture): Int = {
     val kap = p.tnode.asInstanceOf[pixiscalajs.PIXI.Container]
     kap.children.toSeq
