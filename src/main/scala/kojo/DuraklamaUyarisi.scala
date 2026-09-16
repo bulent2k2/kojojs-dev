@@ -14,7 +14,7 @@
  */
 package kojo
 
-import org.scalajs.dom.document
+import org.scalajs.dom.{document, window}
 
 import scala.scalajs.js
 
@@ -56,11 +56,37 @@ object DuraklamaUyarısı {
       "bekletir, resimler hemen çizilir. Resimlerle adım adım ilerlemek için " +
       "fareyeTıklayınca ile bir düğme ya da canlandır kullanın."
 
+  /**
+   * İki not arasındaki en az süre. ZAMAN KAPISI, koşum başına sayaç DEĞİL --
+   * ölçülmüş bir sebeple (#98 incelemesi).
+   *
+   * `unut()` kancası `clear()`ta, yani `sil()` bir DÖNGÜ gövdesindeyse not her
+   * turda yeniden silahlanıyordu: `yinele(20) { sil(); çiz(r); durakla(0.1) }`
+   * panele 20 özdeş satır basıyordu (ölçüldü). Ve bu kalıp rastgele değil --
+   * `durakla` ile adım adım ilerlemeye çalışan öğrencinin yazacağı ilk şey o,
+   * yani gürültü tam notun hedef kitlesine düşüyordu. Notun kendi gerekçesi
+   * bunu yasaklıyor: tekrar eden uyarı, yanlış uyarı kadar hızlı öğretiyor ki
+   * uyarılar okunmasın.
+   *
+   * Neden toplam tavan değil: tavan (ör. "en çok 3") döngüde yine 3 satır
+   * basar VE sonrasında sonsuza dek susar -- iki taraftan da yanlış. Zaman
+   * kapısı ikisini birden çözüyor, çünkü iki kalıp zamanda ayrışıyor:
+   * döngü gövdesi TEK bir eşzamanlı blok (turlar arası milisaniyeler), yeni
+   * bir koşum ise kullanıcının Çalıştır'a basmasını gerektiriyor (saniyeler).
+   */
+  private[kojo] val enAzAralıkMs = 2000.0
+
+  /** Sınama saati değiştirebilsin diye ayrı. */
+  private[kojo] var saat: () => Double = () => window.performance.now()
+
   private var resimÇizildi = false
   private var duraklandı = false
-  private var notDüşüldü = false
+  private var buKoşumdaBakıldı = false
+  private var sonNotZamanı = Double.NegativeInfinity
+  private var notSayısı = 0
 
-  private[kojo] def uyarıldıMı: Boolean = notDüşüldü
+  /** Panele GERÇEKTEN kaç not düştü. Zaman kapısına takılanlar sayılmıyor. */
+  private[kojo] def düşenNotSayısı: Int = notSayısı
 
   /** `Picture.draw` çağırıyor. */
   private[kojo] def resimÇizimi(): Unit = {
@@ -84,13 +110,27 @@ object DuraklamaUyarısı {
   private[kojo] def unut(): Unit = {
     resimÇizildi = false
     duraklandı = false
-    notDüşüldü = false
+    buKoşumdaBakıldı = false
+    // `sonNotZamanı` BİLEREK duruyor: zaman kapısının bütün işi koşumlar
+    // arasında hatırlamak.
+  }
+
+  /** Yalnız sınamalar için: saati ve sayacı da sıfırlar. */
+  private[kojo] def hepsiniUnut(): Unit = {
+    unut()
+    sonNotZamanı = Double.NegativeInfinity
+    notSayısı = 0
   }
 
   private def belkiNotDüş(): Unit =
-    if (resimÇizildi && duraklandı && !notDüşüldü) {
-      notDüşüldü = true
-      paneleYaz(metin)
+    if (resimÇizildi && duraklandı && !buKoşumdaBakıldı) {
+      buKoşumdaBakıldı = true
+      val şimdi = saat()
+      if (şimdi - sonNotZamanı >= enAzAralıkMs) {
+        sonNotZamanı = şimdi
+        notSayısı += 1
+        paneleYaz(metin)
+      }
     }
 
   /**

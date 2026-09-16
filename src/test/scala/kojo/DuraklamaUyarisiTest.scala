@@ -36,9 +36,16 @@ class DuraklamaUyarisiTest extends AsyncFunSuite with Matchers {
   implicit val kojoWorld: TestKojoWorld = new TestKojoWorld()
   implicit override def executionContext = scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  /** Her sınama temiz başlasın: nesne küresel durum tutuyor. */
+  /**
+   * Her sınama temiz başlasın: nesne küresel durum tutuyor. Saat de sahte --
+   * zaman kapısı (bkz. enAzAralıkMs) duvar saatine bağlı olsaydı sınamalar
+   * makinenin hızına göre değişirdi.
+   */
+  private var şimdi = 0.0
   private def sıfırla(): Unit = {
-    DuraklamaUyarısı.unut()
+    DuraklamaUyarısı.hepsiniUnut()
+    şimdi = 0.0
+    DuraklamaUyarısı.saat = () => şimdi
     Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
   }
 
@@ -57,7 +64,7 @@ class DuraklamaUyarisiTest extends AsyncFunSuite with Matchers {
     val k = new Turtle(0, 0)
     resim().draw()
     k.pause(0.01)
-    DuraklamaUyarısı.uyarıldıMı shouldBe true
+    DuraklamaUyarısı.düşenNotSayısı shouldBe 1
     withClue("not çıktı panelinde görünmeli -- ") {
       panel.textContent should include("durakla resim çizimini geciktirmez")
     }
@@ -69,10 +76,10 @@ class DuraklamaUyarisiTest extends AsyncFunSuite with Matchers {
     val k = new Turtle(0, 0)
     k.pause(0.01)
     withClue("tek başına durakla yetmemeli -- ") {
-      DuraklamaUyarısı.uyarıldıMı shouldBe false
+      DuraklamaUyarısı.düşenNotSayısı shouldBe 0
     }
     resim().draw()
-    DuraklamaUyarısı.uyarıldıMı shouldBe true
+    DuraklamaUyarısı.düşenNotSayısı shouldBe 1
   }
 
   test("yalnız resim: susuyor") {
@@ -80,7 +87,7 @@ class DuraklamaUyarisiTest extends AsyncFunSuite with Matchers {
     panelKur()
     resim().draw()
     resim().draw()
-    DuraklamaUyarısı.uyarıldıMı shouldBe false
+    DuraklamaUyarısı.düşenNotSayısı shouldBe 0
   }
 
   test("yalnız durakla (sprite-animation.kojo kalıbı): susuyor") {
@@ -89,7 +96,7 @@ class DuraklamaUyarisiTest extends AsyncFunSuite with Matchers {
     val k = new Turtle(0, 0)
     k.pause(0.01)
     k.pause(0.01)
-    DuraklamaUyarısı.uyarıldıMı shouldBe false
+    DuraklamaUyarısı.düşenNotSayısı shouldBe 0
   }
 
   test("Resim{} gövdesindeki durakla sayılmıyor: orada gerçekten geciktiriyor") {
@@ -103,7 +110,7 @@ class DuraklamaUyarisiTest extends AsyncFunSuite with Matchers {
     }
     p.draw()
     withClue("resim çizildi ama duraklama forPic kaplumbağasınındı -- ") {
-      DuraklamaUyarısı.uyarıldıMı shouldBe false
+      DuraklamaUyarısı.düşenNotSayısı shouldBe 0
     }
   }
 
@@ -125,14 +132,52 @@ class DuraklamaUyarisiTest extends AsyncFunSuite with Matchers {
     val k = new Turtle(0, 0)
     k.pause(0.01)
     resim().draw()
-    DuraklamaUyarısı.uyarıldıMı shouldBe true
+    DuraklamaUyarısı.düşenNotSayısı shouldBe 1
     k.clear() // silVeSakla'nın eşzamanlı kolu
-    withClue("sil() bayrakları sıfırlamalı -- ") {
-      DuraklamaUyarısı.uyarıldıMı shouldBe false
-    }
+    şimdi += DuraklamaUyarısı.enAzAralıkMs // gerçek yeniden koşum: kullanıcı Çalıştır'a bastı
     k.pause(0.01)
     resim().draw()
-    DuraklamaUyarısı.uyarıldıMı shouldBe true
+    withClue("yeni koşumda not yeniden düşmeli -- ") {
+      DuraklamaUyarısı.düşenNotSayısı shouldBe 2
+    }
+    panel.childNodes.length shouldBe 2
+  }
+
+  test("döngü içinde sil(): not TEK satır kalıyor (zaman kapısı)") {
+    // #98 incelemesinin bulgusu. Bu kalıp rastgele değil -- durakla ile adım
+    // adım ilerlemeye çalışan öğrencinin yazacağı ilk şey bu, yani gürültü tam
+    // notun hedef kitlesine düşüyordu. Kapıdan önce: 20 satır.
+    sıfırla()
+    val panel = panelKur()
+    val k = new Turtle(0, 0)
+    var i = 0
+    while (i < 20) {
+      k.clear()
+      resim().draw()
+      k.pause(0.1)
+      şimdi += 1.0 // döngü gövdesi tek eşzamanlı blok: turlar arası milisaniyeler
+      i += 1
+    }
+    withClue("20 yinelemede tek not olmalı -- ") {
+      DuraklamaUyarısı.düşenNotSayısı shouldBe 1
+      panel.childNodes.length shouldBe 1
+    }
+  }
+
+  test("kapı süresi geçince yeniden düşüyor: gerçek yeniden koşum susturulmuyor") {
+    sıfırla()
+    val panel = panelKur()
+    val k = new Turtle(0, 0)
+    k.pause(0.01); resim().draw()
+    k.clear()
+    şimdi += DuraklamaUyarısı.enAzAralıkMs - 1 // kılpayı içeride: susmalı
+    k.pause(0.01); resim().draw()
+    withClue("kapı süresi dolmadan susmalı -- ") {
+      panel.childNodes.length shouldBe 1
+    }
+    k.clear()
+    şimdi += 1 // tam sınırda: düşmeli
+    k.pause(0.01); resim().draw()
     panel.childNodes.length shouldBe 2
   }
 }
