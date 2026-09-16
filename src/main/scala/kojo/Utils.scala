@@ -398,6 +398,51 @@ object PixiUyum {
     }
 
   /**
+   * Graphics'in dolgu boyalarındaki gradyan dokularını bırakır (sorun #95).
+   *
+   * Gradyan (`Boya`) dolgunun BaseTexture'ı geometriden AYRI bir kaynak:
+   * katmanı sahneden çıkarmak onu çizicinin `managedTextures` dizisinden
+   * düşürmüyor, düşüren tek şey `dispose()`. Ölçüldü (gradyan dolgulu
+   * canlandır döngüsü, 120 kare): bırakmadan doku sayacı 0'dan 130'a doğrusal
+   * çıkıyor, bırakınca 3'te duruyor.
+   *
+   * Geometride olduğu gibi `dispose()`, `destroy()` DEĞİL -- ve burada bu daha
+   * da önemli, çünkü `Boya` kullanıcının elinde yaşıyor olabilir: aynı `b`yi
+   * birden çok resme vermek geçerli. `dispose()` yalnız GL yüklemesini
+   * bırakıyor, tuval KAYNAĞI (`resource`) duruyor ve doku bir daha çizilirse
+   * kendiliğinden geri yükleniyor. Ölçüldü: çizim sonrası sayaç 2, dispose
+   * sonrası 1, aynı Boya yeniden çizilince yine 2 ve `resource` ayakta. Yani
+   * paylaşılan bir Boya'yı bırakmak başkasının çizimini BOZMUYOR, olsa olsa
+   * bir yeniden yüklemeye mal oluyor. `destroy()` ile ayrım burada: o da
+   * sayacı düşürüp yeniden yüklenmiş gibi gösteriyor ve `valid` yine true
+   * kalıyor, ama `resource`u koparıyor -- doku bir daha asla üretilemiyor
+   * (ölçüldü; sınamadaki çivi bu yüzden `resource`, `valid` değil).
+   *
+   * YALNIZ İMLİ DOKULAR: yalnız `Boya.dokuYap`ın ürettiği gradyan dokuları
+   * bırakılıyor (`Boya.GradyanDokusuİmi`). `Texture.WHITE` gibi paylaşılan
+   * PIXI dokularına ve `Boya.dokuma`nın dosyadan yüklediği dokuya
+   * dokunulmuyor: ikincisi URL başına önbellekte paylaşılıyor, her karede
+   * bırakıp yeniden yüklemek gereksiz iş olurdu.
+   */
+  private def gradyanDokularınıBırak(geometri: js.Dynamic): Unit = {
+    val veri = geometri.graphicsData
+    if (!js.isUndefined(veri) && veri != null) {
+      veri.asInstanceOf[js.Array[js.Dynamic]].foreach { gd =>
+        val fs = gd.fillStyle
+        if (!js.isUndefined(fs) && fs != null) {
+          val doku = fs.texture
+          if (!js.isUndefined(doku) && doku != null) {
+            val taban = doku.baseTexture
+            if (!js.isUndefined(taban) && taban != null &&
+              taban.selectDynamic(Boya.GradyanDokusuİmi).asInstanceOf[js.UndefOr[Boolean]].contains(true) &&
+              js.typeOf(taban.dispose) == "function") taban.dispose()
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Sahneden çıkan bir düğümün (ve altındakilerin) GL kaynaklarını bırakır.
    *
    * NEDEN GEREKLİ: PIXI 5 bir Graphics'in geometrisini ÇİZİCİNİN
@@ -420,20 +465,21 @@ object PixiUyum {
    * olup olmadığını deponun başka yerlerindeki ölçütle anlıyoruz: finishPoly
    * işlevi var mı.
    *
-   * SINIR -- yalnız GEOMETRİ: gradyan (`Boya`) dolguların BaseTexture'ı ayrı
-   * bir kaynak ve burası ona dokunmuyor. Ölçüldü (gradyan dolgulu aynı döngü,
-   * 120 kare): geometri/tampon/sahne tavanlanıyor (4/8/2) ama doku sayacı
-   * 24'ten 218'e doğrusal çıkıyor -- master'da da öyle (29 -> 233), yani bu
-   * bırakma onu ne doğuruyor ne kötüleştiriyor. Doku ömrü `Boya`ya bağlı
-   * olmalı, resmin silinmesine değil (aynı Boya birden çok resimde olabilir):
-   * sorun #95.
+   * GEOMETRİ VE GRADYAN DOKUSU: gradyan (`Boya`) dolgunun BaseTexture'ı ayrı
+   * bir kaynak; onu da bırakıyoruz (bkz. gradyanDokularınıBırak, sorun #95).
+   * Eskiden yalnız geometri bırakılıyordu ve gradyan dolgulu aynı döngüde
+   * geometri/tampon/sahne tavanlanırken doku sayacı doğrusal büyümeyi
+   * sürdürüyordu.
    */
   def glKaynaklarınıBırak(düğüm: Any): Unit =
     if (beşVeÜstü && düğüm != null) {
       val d = dyn(düğüm)
       if (js.typeOf(d.finishPoly) == "function") {
         val geo = d.geometry
-        if (!js.isUndefined(geo) && geo != null && js.typeOf(geo.dispose) == "function") geo.dispose()
+        if (!js.isUndefined(geo) && geo != null) {
+          gradyanDokularınıBırak(geo)
+          if (js.typeOf(geo.dispose) == "function") geo.dispose()
+        }
       }
       val çocuklar = d.children
       if (!js.isUndefined(çocuklar) && çocuklar != null) {
