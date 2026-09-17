@@ -52,6 +52,12 @@ class TembelSilmeTest extends AsyncFunSuite with Matchers {
       .map(gd => gd.shape.points.asInstanceOf[js.Array[Double]].length / 2)
       .filter(_ >= 3)
 
+  /** Katman hâlâ bir ebeveyne bağlı mı (yani sahnede mi). */
+  private def sahnedeMi(t: Turtle): Boolean = {
+    val p = t.turtleLayer.asInstanceOf[js.Dynamic].parent
+    !js.isUndefined(p) && p != null
+  }
+
   private def doluKare(sonda: Turtle => Unit = _ => ()): (TurtlePicture, () => Turtle) = {
     var kaplumbağa: Turtle = null
     val p = PictureT { t =>
@@ -112,6 +118,70 @@ class TembelSilmeTest extends AsyncFunSuite with Matchers {
       kojoWorld.boyalarıBoşalt()
       withClue("çizer başına düşürme doğru çalışmalı -- ") {
         dolguKöşeleri(t()) shouldBe empty
+      }
+    }
+  }
+
+  // --- Silinen resim: TERS yön --------------------------------------------
+  //
+  // Yukarısı dolgunun KAYBOLMAMASINI çiviliyor. Buradan aşağısı tersini:
+  // sahneden ÇIKARILMIŞ bir resmin dolgusu yeniden YAYINLANMAMALI.
+  //
+  // TurtlePicture.picLayer kaplumbağanın KENDİ turtleLayer'ı, yani erase()
+  // katmanı sahneden çıkarıyor. removeLayer çizeri bilmiyor (bekleyenBoyayıUnut
+  // bir Boyacı istiyor, Boyacı katmanına gönderme taşımıyor), o yüzden düşürme
+  // erase()'in kendi işi. Düşürülmezse sahnede olmayan bir şekil bir kez daha
+  // üçgenleniyor -- n büyük ve kesişen şekillerde pahalı (bkz. #68).
+
+  test("silinen resim gerçekten sahneden çıkıyor (aşağıdaki sınamanın ön koşulu)") {
+    val (p, t) = doluKare()
+    p.draw()
+    for {
+      _ <- p.ready
+      önce = sahnedeMi(t())
+      _ = p.erase()
+      _ <- p.ready
+    } yield {
+      withClue("çizilince sahnede olmalı -- ") { önce shouldBe true }
+      withClue("erase sonrası sahnede olmamalı -- ") { sahnedeMi(t()) shouldBe false }
+    }
+  }
+
+  test("silinen resmin dolgusu boşaltmada YENİDEN yayınlanmıyor") {
+    val (p, t) = doluKare()
+    p.draw()
+    for {
+      _ <- p.ready
+      _ = p.erase()
+      _ <- p.ready
+    } yield {
+      withClue("erase sonrası, boşaltmadan önce dolgu olmamalı -- ") {
+        dolguKöşeleri(t()) shouldBe empty
+      }
+      kojoWorld.boyalarıBoşalt()
+      withClue("sahneden çıkmış resim yeniden üçgenlenip yayınlandı -- ") {
+        dolguKöşeleri(t()) shouldBe empty
+      }
+    }
+  }
+
+  test("silme BİR resmin bekleyenini düşürüyor, ÖTEKİNİNKİNİ değil") {
+    val (pA, tA) = doluKare()
+    val (pB, tB) = doluKare()
+    pA.draw()
+    for {
+      _ <- pA.ready
+      _ = pB.draw()
+      _ <- pB.ready
+      _ = pB.erase()
+      _ <- pB.ready
+    } yield {
+      kojoWorld.boyalarıBoşalt()
+      withClue("B'nin silinmesi A'nın bekleyen dolgusunu düşürmemeli -- ") {
+        dolguKöşeleri(tA()) should not be empty
+      }
+      withClue("B silindi, onda dolgu olmamalı -- ") {
+        dolguKöşeleri(tB()) shouldBe empty
       }
     }
   }
