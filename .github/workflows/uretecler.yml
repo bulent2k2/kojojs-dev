@@ -173,6 +173,17 @@ jobs:
       - name: indeksteki Türkçe girdi sayısı sözlükle aynı mı
         run: python3 araclar/sozluk-sayi-denetle.py
 
+      # Tuş adları göçü (#74/kojo#57) bütün BİRİNCİL adları camelCase yaptı;
+      # on snake_case yazım @deprecated takma ada dönüştü. O göçü koruyan
+      # hiçbir şey yoktu -- iki kayıt ayrı ayrı ölçtü: #76 (annotation
+      # silinirse hiçbir sınama kızarmıyor) ve #77 (yeni birincil snake_case
+      # eklenirse göç sessizce geri kayıyor). Tek kural ikisini de kapatıyor:
+      # her snake_case val @deprecated taşımalı.
+      #
+      # Bu adım klon istemiyor (yalnız ikojo), o yüzden HER PR'da koşuyor.
+      - name: tuş adları deve yazımda mı
+        run: python3 araclar/tus-yazim-denetle.py
+
       # dict.scala'daki bir terimin sözlük sayfasına hiç girmemesi, elle
       # bulunana dek görünmüyor: 2026-09'da `to` (|-|) vardı ama `until` (|-)
       # yoktu. Üstelik "1 until 4" DEYİMİ sözlükte olduğu için arama bir
@@ -212,6 +223,12 @@ jobs:
             echo "  araclar/adlar.py --tsv --kojo <kojo klonu>"
             exit 1
           fi
+
+      # Aynı kural masaüstü tarafında da tutulmalı: göç iki depoda birden
+      # yapıldı. Klon burada zaten var.
+      - name: masaüstünde de tuş adları deve yazımda mı
+        if: github.event_name == 'push'
+        run: python3 araclar/tus-yazim-denetle.py kojo-kaynak
 
 
       # ikojo, masaüstünün anlık görüntüsündeki adları KAYBETMEMELİ.
