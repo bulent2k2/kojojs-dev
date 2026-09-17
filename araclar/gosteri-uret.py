@@ -47,7 +47,7 @@ BASLIK = 'Resim komutları'
 GIRIS = ('Kaplumbağa çizerek ilerler; <strong>resim</strong>ler ise önce kurulur, sonra çizilir. '
          'Dönüştürücüler <code>*</code> ile zincirlenir, <code>-&gt;</code> ile resme uygulanır. '
          'Aşağıdaki komutların her birine tıklayınca düzenleyicide çalışan bir gösteri açılır.')
-EKSIK = ['soluk', 'bulanık', 'eksenler', 'çizVeSakla', 'merkezeTaşı', 'büyütXY']
+EKSIK = ['bulanık', 'eksenler', 'çizVeSakla', 'merkezeTaşı', 'büyütXY']
 EKSIK_SON = 'Bunlar masaüstü Koco\'da var; tarayıcı sürümüne henüz eklenmediler.'
 
 G = {
@@ -71,6 +71,11 @@ G = {
 çiz(boyaRengi(mavi) -> Resim.daire(50))
 çiz(saydamlık(0.5) * götür(40, 0) * boyaRengi(kırmızı) -> Resim.daire(50))""",
  "Resmi yarı saydam yapar: 0 görünmez, 1 tümüyle donuk."),
+"soluk": ("""silVeSakla
+çiz(götür(-120, 0) * boyaRengi(mavi) -> Resim.dikdörtgen(60, 200))
+çiz(soluk(120) * boyaRengi(mavi) -> Resim.dikdörtgen(60, 200))""",
+ "Resmi üstten aşağı verilen piksel boyunca söndürür, altını çizmez. "
+ "saydamlık tümünü eşit soldurur; bu ise geçiş verir."),
 "boyaRengi": ("""silVeSakla
 çiz(boyaRengi(yeşil) -> Resim.daire(40))""",
  "Resmin içini verilen renkle boyar."),
@@ -137,10 +142,13 @@ r.çiz()
 r.yansıtY()""",
  "Çizilmiş resmi Y ekseninde yansıtır (aynadaki gibi)."),
 "döndürMerkezli": ("""silVeSakla
-dez r = boyaRengi(mavi) -> Resim.dikdörtgen(100, 20)
+// DÖNÜŞTÜRÜCÜ biçimi: zincire girer, çizilmeden önce uygulanır
+çiz(boyaRengi(mavi) * döndürMerkezli(45, 100, 0) -> Resim.dikdörtgen(100, 20))
+// YÖNTEM biçimi: çizilmiş bir resmi yerinde döndürür
+dez r = boyaRengi(kırmızı) -> Resim.dikdörtgen(100, 20)
 r.çiz()
 r.döndürMerkezli(45, 0, 0)""",
- "Çizilmiş resmi verilen nokta çevresinde döndürür."),
+ "Resmi verilen nokta çevresinde döndürür. Hem dönüştürücü hem yöntem olarak kullanılır."),
 
 # --- tuval ve genel ---
 "çizMerkezde": ("""silVeSakla

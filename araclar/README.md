@@ -8,13 +8,24 @@ Türkçe API adını masaüstü tanımlarıyla (`bulent2k2/kojo`: `lite/i18n/trI
 `kojo/tr/*.scala`, İngilizce yüzey `kojo/*.scala`) karşılaştırır. Platform
 engellerini (`#yükle`, Swing `ay.*`, ses, öykü, dosya…) işaretler.
 
-Betik başına üç durum:
+Betik başına dört durum:
 
 | durum | anlam |
 |---|---|
-| `çalışır` | eksik ad yok, platform engeli yok — ikojo'da olduğu gibi derlenmesi beklenir |
+| `çalışır` | eksik ad yok, biçim uyuşmazlığı yok, platform engeli yok — ikojo'da olduğu gibi derlenmesi beklenir |
 | `eksik-ad` | ikojo'da tanımlı olmayan Türkçe ad(lar) kullanıyor; liste TSV'de |
+| `biçim` | ad VAR ama biçimi tutmuyor: betik dönüştürücü olarak kullanıyor, ikojo'da yalnız Resim yöntemi var |
 | `platform` | tarayıcıda karşılığı olmayan özellik kullanıyor (engel adı TSV'de) |
+
+`biçim` neden ayrı bir durum: masaüstünde bazı adlar HEM Resim yöntemi HEM
+dönüştürücü (`*` ile zincirlenip `->` ile uygulanan). İkojo'da yalnız yöntemi
+varsa ad taramada "var" görünür ama betik derlenmez. Eylül 2026'da tam bu oldu —
+`döndürMerkezli` yöntem olarak vardı, `unit-circle.kojo` onu dönüştürücü olarak
+kullanıyordu, tarama temiz diyordu. Tarayıcı artık ikojo'nun `implicit class`
+gövdesindeki tanımlarını ayrı tutuyor (onlar ancak `r.ad(...)` diye çağrılabilir)
+ve betiklerdeki dönüştürücü biçimli kullanımlarla karşılaştırıyor. Ayrım
+eklendiğinde ilk koşuda `döndürMerkezli` (3 betik) ile `soluk` (1 betik) çıktı;
+ikincisi `gosteri-uret.py`'deki elle tutulan EKSIK listesinde de duruyordu.
 
 ```sh
 araclar/ucurum.py                                     # ../kojo klonunu bekler
