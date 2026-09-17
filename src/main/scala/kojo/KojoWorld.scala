@@ -617,10 +617,16 @@ class KojoWorldImpl extends KojoWorld {
     //
     // TurtlePicture.erase() bunu çizer başına düşürerek kapattı; burada
     // kapanmadı, çünkü erasePictures Picture.erase()'ten geçmiyor -- sahne
-    // çocuklarını doğrudan atıyor, yani elinde katman var, çizer yok. Doğru
-    // çözüm büyük olasılıkla yayın anında korumak (Turtle.boyayıYayınla
-    // katmanı sahnede değilse hiçbir şey yapmasın); o bu PR'ın kapsamı
-    // dışında ve ölçülmedi.
+    // çocuklarını doğrudan atıyor, yani elinde katman var, çizer yok.
+    //
+    // BURADAKİ maliyeti ölçüldü (#109): her karede resimleriSil() + 10 dolu
+    // resim çizen döngüde dolgu yayınlarının YARISI sahne dışına gidiyor ve
+    // boyalarıBoşalt()'ın maliyetinin %96-99'u boşa (120 kenarda kare başına
+    // ~1.34 ms -> ~0.02 ms). Sebebi draw()'un eşzamansızlığı: resmin dolgusu
+    // bekleyene girdiğinde bir sonraki karenin resimleriSil()'i onu çoktan
+    // sahneden çıkarmış oluyor. İki aday yol #109'da: yayın anında koruma
+    // (Turtle.boyayıYayınla katmanı sahnede değilse çıksın) ya da burada
+    // çizer başına düşürme.
     resetBake() // pişmiş boyayı da temizle (yoksa dokuda hayalet kalır)
     val children = stage.children.toBuffer
     children.foreach { c =>
