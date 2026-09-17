@@ -599,10 +599,34 @@ class KojoWorldImpl extends KojoWorld {
     // Sahnenin ve GL kaynaklarının her karede büyümesi onun yan ürünüydü.
     // (Sorun #91, KaynakSizintisiTest. Doku tarafı için #95, pişirme kolu #96.)
     //
-    // Bekleyen dolguları BİLEREK düşürmüyoruz: hayatta kalan katmanlar duran
-    // kaplumbağaların katmanları, orada düşürmek onların boyasını sessizce yok
-    // etmek olurdu. Katmanı silinen bir çizer (bir resmin içindeki kaplumbağa)
-    // kalan yayınını kopmuş bir Graphics'e yapar; zararsız.
+    // Bekleyen dolguları KÜRESEL olarak düşürmüyoruz: hayatta kalan katmanlar
+    // duran kaplumbağaların katmanları, hepsini düşürmek onların boyasını
+    // sessizce yok etmek olurdu (bkz. TembelSilmeTest).
+    //
+    // Ama katmanı silinen çizer de düşürülmüyor ve BU BEDAVA DEĞİL. Eskiden
+    // öyle yazıyordu ("kopmuş bir Graphics'e yayın yapar; zararsız"); o not
+    // #94'ten önce, Resim{} katmanlarının buradan HİÇ ÇIKMADIĞI dünyada
+    // yazılmıştı. Artık çıkıyorlar, yani gerekçe değişti:
+    //
+    //   DOĞRULUK bakımından gerçekten zararsız -- görsel bir şey bozulmuyor,
+    //   ve GL kaynağı da geri yüklenmiyor (ölçüldü: çizici sahne dışı katmanı
+    //   ziyaret etmiyor, sayaçlar 0/0'da kalıyor).
+    //   MALİYET bakımından değil: bir sonraki boyalarıBoşalt() sahnede olmayan
+    //   şeklin ÇOKGENİNİ BAŞTAN üçgenliyor (n büyük ve kesişen şekillerde
+    //   ~95 ms, bkz. #68).
+    //
+    // TurtlePicture.erase() bunu çizer başına düşürerek kapattı; burada
+    // kapanmadı, çünkü erasePictures Picture.erase()'ten geçmiyor -- sahne
+    // çocuklarını doğrudan atıyor, yani elinde katman var, çizer yok.
+    //
+    // BURADAKİ maliyeti ölçüldü (#109): her karede resimleriSil() + 10 dolu
+    // resim çizen döngüde dolgu yayınlarının YARISI sahne dışına gidiyor ve
+    // boyalarıBoşalt()'ın maliyetinin %96-99'u boşa (120 kenarda kare başına
+    // ~1.34 ms -> ~0.02 ms). Sebebi draw()'un eşzamansızlığı: resmin dolgusu
+    // bekleyene girdiğinde bir sonraki karenin resimleriSil()'i onu çoktan
+    // sahneden çıkarmış oluyor. İki aday yol #109'da: yayın anında koruma
+    // (Turtle.boyayıYayınla katmanı sahnede değilse çıksın) ya da burada
+    // çizer başına düşürme.
     resetBake() // pişmiş boyayı da temizle (yoksa dokuda hayalet kalır)
     val children = stage.children.toBuffer
     children.foreach { c =>

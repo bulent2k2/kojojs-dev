@@ -57,6 +57,15 @@ class TurtlePicture private[kojo] (fn: Turtle => Unit)(implicit val kojoWorld: K
   // bir parçayı kapsıyordu.
   def erase(): Unit = {
     ready.foreach { _ =>
+      // Bekleyen dolguyu ÖNCE düşür: picLayer kaplumbağanın kendi katmanı,
+      // yani buradan sonra çizer sahnede değil. Düşürülmezse bir sonraki
+      // boyalarıBoşalt() onu yine yayınlıyor -- sahnede olmayan bir şeklin
+      // çokgeni bir kez daha üçgenleniyor (#68; n büyük ve kesişen
+      // şekillerde bu ~95 ms).
+      //
+      // Çizer başına, küresel değil: ötekilerin bekleyeni durmalı, yoksa
+      // başkasının dolgusu sessizce yok olur (bkz. TembelSilmeTest).
+      kojoWorld.bekleyenBoyayıUnut(turtle)
       kojoWorld.removeLayer(picLayer)
     }
   }
