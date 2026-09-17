@@ -215,6 +215,17 @@ def karşılaştır(kojo):
 
 
 def yazdır(sonuç):
+    """İki yönü de sayar. #78: eskiden 'ikojo'da fazla' yalnız YAZDIRILIYOR,
+    çıkış koduna girmiyordu -- yani araç ayrışmayı görüyor, söylüyor, ama
+    yeşil yanıyordu. 2026-09'da bu gerçekten oldu: eş PR'lar 16 dakika arayla
+    birleşti, o pencerede tuşlar.backSpace ikojo'da vardı masaüstünde yoktu,
+    ve hiçbir denetim kızarmadı.
+
+    Ama körü körüne saymıyor: 'yalnız-ikojo' MEŞRU bir durum (koyuMor, saydam
+    -- ikojo'nun bilerek kendi seçtiği adlar). Anlık görüntüde öyle işaretli
+    olanlar muaf; işaretsiz bir fazlalık hata.
+    """
+    beklenen = anlıkGörüntüyüOku() if os.path.exists(ANLIK) else {}
     print('%-10s %-14s %8s %8s  %s' % ('kapsayıcı', '', 'masaüstü', 'ikojo', 'ikojo\'da eksik'))
     top = 0
     for kapsayıcı, ne, masa, ik in sonuç:
@@ -225,7 +236,13 @@ def yazdır(sonuç):
             print('    ' + '  '.join('%-20s' % a for a in eksik[i:i + 6]))
         fazla = sorted(ik - masa)
         if fazla:
+            özgü = beklenen.get(kapsayıcı, {}).get('yalnız-ikojo', set())
+            beklenmeyen = sorted(set(fazla) - özgü)
             print('    (ikojo\'da fazla: %s)' % ', '.join(fazla))
+            if beklenmeyen:
+                top += len(beklenmeyen)
+                print('    ^ bunlar anlık görüntüde yalnız-ikojo diye işaretli DEĞİL: %s'
+                      % ', '.join(beklenmeyen))
     print('\ntoplam eksik: %d' % top)
     return top
 
