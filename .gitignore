@@ -13,3 +13,9 @@ __pycache__/
 
 # test-tarayici.sh'ın indirdiği chromedriver'lar (sürüm başına bir dizin)
 .chromedriver/
+
+# CI'nın kapsam denetimi için yan yana klonladığı kojo deposu
+# (araclar/sozluk-kapsam-denetle.py dict.scala'yı oradan okuyor).
+# Çalışma ağacında durursa "üretilenler ağaçtakiyle aynı mı" adımı
+# kırmızı yanar -- o adım izlenmeyen dosyaları BİLEREK görüyor.
+kojo-kaynak/
