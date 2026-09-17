@@ -336,6 +336,9 @@ class Builtins(implicit kojoWorld: KojoWorld) {
   def penWidth(t: Double) = transform(_.setPenThickness(t))
   def penThickness(t: Double) = transform(_.setPenThickness(t))
   def fillColor(c: Color) = transform(_.setFillColor(c))
+  // Masaüstü picture.fade: resmi üstten aşağı n piksel söndürür, altını
+  // çizmez. Gerekçe ve ölçüm kojo/Soluk.scala'da.
+  def fade(n: Int) = transform(_.fade(n))
   // Gradyan / dokuma boyası -- düz renk de geçerli (DüzBoya)
   def fillPaint(b: kojo.Boya) = transform(_.setFillPaint(b))
 

@@ -155,6 +155,17 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
   def büyüt(xOranı: Kesir, yOranı: Kesir): Dönüştürücü = kb.scaleXY_experimental(xOranı, yOranı)
   def götür(n: Nokta): Dönüştürücü = kb.trans(n.x, n.y)
   def götür(yy: Yöney2B): Dönüştürücü = kb.trans(yy.x, yy.y)
+  /**
+   * Resmi ÜSTTEN AŞAĞI n piksel boyunca söndürür, n'den aşağısını çizmez
+   * (masaüstü `soluk`/SolukBD, İngilizce `fade`). `saydamlık`tan farkı: o
+   * resmin tamamını eşit oranda saydamlaştırıyor, bu ise yukarıdan aşağı bir
+   * geçiş veriyor -- yansıma/silinme etkisi için.
+   *
+   *   çiz(yansıtX -> (soluk(230) -> eğreltiOtuResim))
+   *
+   * Gerekçe, PIXI süzgeci ve ölçümler: kojo/Soluk.scala.
+   */
+  def soluk(n: Sayı): Dönüştürücü = kb.fade(n)
   // masaüstünde saydamlığı ÇARPAR (opacMod); burada kurar -- tek katman için aynı sonuç
   def saydamlık(oran: Kesir): Dönüştürücü = kb.postDrawTransform(_.setOpacity(oran))
 

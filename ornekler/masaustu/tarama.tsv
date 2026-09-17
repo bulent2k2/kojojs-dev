@@ -36,7 +36,7 @@ src/main/resources/samples/tr/estimating-pi-mc.kojo	çalışır	27
 src/main/resources/samples/tr/eye-effects.kojo	eksik-ad	22		gürültü sahneIşığı	
 src/main/resources/samples/tr/eye.kojo	çalışır	25			
 src/main/resources/samples/tr/face-multi.kojo	çalışır	108			
-src/main/resources/samples/tr/fern.kojo	eksik-ad	36		bulanık	soluk
+src/main/resources/samples/tr/fern.kojo	eksik-ad	36		bulanık	
 src/main/resources/samples/tr/ferris-wheel.kojo	çalışır	44			
 src/main/resources/samples/tr/fib-tree.kojo	eksik-ad	33		aydınlık	
 src/main/resources/samples/tr/fireworks-canvas.kojo	platform	125	tuvalçizim	TuvalÇizim boya canlandırTuvalÇizimle fırça fırçaAğırlığı fırçasız	

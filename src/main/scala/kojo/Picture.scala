@@ -51,6 +51,28 @@ trait Picture {
     kojoWorld.render()
   }
 
+  /**
+   * Resmi üstten aşağı n piksel boyunca söndürür, altını çizmez (masaüstü
+   * `EffectablePicture.fade`). Gerekçe ve ölçüm: Soluk.scala.
+   *
+   * Süzgeçler EKLENİYOR, atanmıyor: `soluk(200) * başkaEtki(..)` gibi zincirde
+   * her dönüştürücü kendi süzgecini koyabilsin.
+   */
+  def fade(n: Int): Unit = {
+    Soluk.süzgeç(n.toDouble).foreach { f =>
+      val d = tnode.asInstanceOf[scala.scalajs.js.Dynamic]
+      val öncekiSüzgeçler = d.filters
+      val dizi =
+        if (scala.scalajs.js.isUndefined(öncekiSüzgeçler) || öncekiSüzgeçler == null)
+          scala.scalajs.js.Array[scala.scalajs.js.Dynamic]()
+        else öncekiSüzgeçler.asInstanceOf[scala.scalajs.js.Array[scala.scalajs.js.Dynamic]]
+      dizi.push(f)
+      d.filters = dizi
+    }
+    kojoWorld.noteMutation(tnode)
+    kojoWorld.render()
+  }
+
   def forwardInputTo(other: Picture): Unit = {
 
   }
