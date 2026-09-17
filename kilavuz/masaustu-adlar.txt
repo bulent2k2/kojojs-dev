@@ -432,6 +432,7 @@ biçimleriGeriYükle
 boy
 boya
 boyaRengi
+boyalı
 boyamaRenginiKur
 boyasız
 boyu
@@ -759,6 +760,7 @@ kalemBoyunuKur
 kalemKalınlığınıKur
 kalemRengi
 kalemRenginiKur
+kalemRenkli
 kalemiKaldır
 kalemiKapa
 kalemiİndir
@@ -946,6 +948,7 @@ rastgeleİkil
 rastgeleŞeffafRenk
 rb
 recurse
+renkKur
 renkler
 renksiz
 res
@@ -1072,6 +1075,7 @@ taraSağdan
 taraSoldan
 tarih
 tavan
+taşınmış
 temizle
 tepe
 tepesi
@@ -1115,6 +1119,7 @@ tuvaliDöndür
 tuvaliEtkinleştir
 tuvaliKaydır
 tuvaliSabitle
+tuvaliYakınlaştır
 tuvalinSağı
 tuvalinSolu
 tuvalinSınırları
