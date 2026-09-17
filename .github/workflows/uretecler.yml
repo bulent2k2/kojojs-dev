@@ -191,6 +191,28 @@ jobs:
         if: github.event_name == 'push'
         run: python3 araclar/sozluk-kapsam-denetle.py kojo-kaynak
 
+      # masaustu-adlar.tsv, masaüstü Koco'nun adlarının ANLIK GÖRÜNTÜSÜ.
+      # CI'daki adlar.py --anlik-goruntu onu yalnız KENDİSİNE karşı denetliyor,
+      # yani görüntünün doğru olduğunu hiçbir şey tutmuyordu (adlar.py'nin
+      # kendi yorumu bunu 2 ve 3 numaralı boşluk diye yazıyor; kayıt: #69).
+      # Eylül 2026'da tam bu oldu: yedi tuş adı bir gün boyunca "masaüstünde
+      # de var" diye işaretli kaldı, oysa yalnız ikojo'daydılar -- ve CI
+      # bütün o süre boyunca yeşil yandı.
+      #
+      # Buradaki sav deponun kendi deyimiyle aynı: YENİDEN ÜRETİM AĞAÇTAKİNİ
+      # DEĞİŞTİRMEMELİ. Yukarıdaki kojo klonu yeniden kullanılıyor.
+      - name: adlar anlık görüntüsü masaüstüyle güncel mi
+        if: github.event_name == 'push'
+        run: |
+          python3 araclar/adlar.py --tsv --kojo kojo-kaynak
+          if ! git diff --quiet araclar/masaustu-adlar.tsv; then
+            git --no-pager diff araclar/masaustu-adlar.tsv
+            echo "::error::masaustu-adlar.tsv masaüstü Koco'nun bugünkü hâlini yansıtmıyor (fark yukarıda)."
+            echo "Yerelde şunu koşup çıkan farkı commit'leyin:"
+            echo "  araclar/adlar.py --tsv --kojo <kojo klonu>"
+            exit 1
+          fi
+
 
       # ikojo, masaüstünün anlık görüntüsündeki adları KAYBETMEMELİ.
       #

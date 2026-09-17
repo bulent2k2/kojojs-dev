@@ -171,6 +171,13 @@ def anlıkGörüntüyeGöre():
 
     2 ve 3'ün kökü aynı: görüntüyü üreten ile denetleyen aynı veriye bakıyor.
     Kayıtlı: #69.
+
+    2 ve 3 ARTIK MASTER'DA KAPALI (#69): uretecler.yml'de "adlar anlık
+    görüntüsü masaüstüyle güncel mi" adımı kojo deposunu klonlayıp --tsv
+    koşuyor ve fark çıkarsa kırmızı yanıyor. Yani görüntü artık masaüstünün
+    KENDİSİNE karşı denetleniyor. Burası (kloncuz kip) değişmedi; PR'larda
+    hâlâ tek gözcü o, ve 1 numaralı sınır -- masaüstünün YENİ ad eklemesi --
+    PR'larda hâlâ görünmüyor, master'da görünüyor.
     """
     beklenen = anlıkGörüntüyüOku()
     kötü = False
