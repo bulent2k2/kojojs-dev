@@ -214,8 +214,14 @@ object BakePolicy {
    * Üçüncü yer de (pişirme adaylığı, isStaleCheap) artık buna bakıyor -- eskiden
    * ada bakıyordu ve Resim{} katmanları hiç pişmiyordu (sorun #96).
    */
-  def gerçekKaplumbağaMı(ad: String, çocukAdları: collection.Seq[String]): Boolean =
-    ad == turtleLayerName && çocukAdları.contains(turtleIconName)
+  // Çocuk adları IterableOnce: çağıran taraf TEMBEL verebilsin (bir Iterator),
+  // dizi kurmak zorunda kalmasın. Sorun #96 bu işlevi sıcak yola soktu (her
+  // kare, her durağan çocuk) ve heves eden `.map` orada ölçülebilir bir yük:
+  // 500 resimli 95 karelik koşuda 125.626 çağrı, 251.252 çocuk adı dizgisi
+  // (inceleme #102). `contains` zaten ilk eşleşmede duruyor; girdiyi de tembel
+  // vermek diziyi tümden kaldırıyor. Sınamalar Seq geçiyor -- o da IterableOnce.
+  def gerçekKaplumbağaMı(ad: String, çocukAdları: => IterableOnce[String]): Boolean =
+    ad == turtleLayerName && çocukAdları.iterator.contains(turtleIconName)
 
   // "öne al"ın hedef sırası: SONDAKİ kaplumbağa katmanlarının hemen ALTI.
   //
@@ -686,7 +692,10 @@ class KojoWorldImpl extends KojoWorld {
   private def kaplumbağaKatmanıMı(c: PIXI.DisplayObject): Boolean =
     c.name == BakePolicy.turtleLayerName && {
       val kap = c.asInstanceOf[PIXI.Container]
-      BakePolicy.gerçekKaplumbağaMı(c.name, (0 until kap.children.length).map(i => kap.getChildAt(i).name))
+      BakePolicy.gerçekKaplumbağaMı(
+        c.name,
+        Iterator.range(0, kap.children.length).map(i => kap.getChildAt(i).name)
+      )
     }
 
   // Sahnedeki son kaplumbağa katmanı öbeğinin hemen altındaki sıra.
