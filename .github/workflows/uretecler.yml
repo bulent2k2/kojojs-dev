@@ -173,6 +173,24 @@ jobs:
       - name: indeksteki Türkçe girdi sayısı sözlükle aynı mı
         run: python3 araclar/sozluk-sayi-denetle.py
 
+      # dict.scala'daki bir terimin sözlük sayfasına hiç girmemesi, elle
+      # bulunana dek görünmüyor: 2026-09'da `to` (|-|) vardı ama `until` (|-)
+      # yoktu. Üstelik "1 until 4" DEYİMİ sözlükte olduğu için arama bir
+      # sonuç veriyordu -- eksiklik böyle gizlendi.
+      #
+      # YALNIZ master'da: dict.scala BAŞKA depoda (bulent2k2/kojo). Orada bir
+      # terim eklenince buradaki her PR kırmızı yanardı, oysa o PR'ların
+      # konuyla ilgisi yok; sürekli kırmızı yanan gözcü okunmaz olur.
+      # master'da kırmızı ise sav gerçekten bozuk: sözlük kaynağın gerisinde.
+      - uses: actions/checkout@v7
+        if: github.event_name == 'push'
+        with:
+          repository: bulent2k2/kojo
+          path: kojo-kaynak
+      - name: dict.scala'daki terimlerin hepsi sözlükte mi
+        if: github.event_name == 'push'
+        run: python3 araclar/sozluk-kapsam-denetle.py kojo-kaynak
+
 
       # ikojo, masaüstünün anlık görüntüsündeki adları KAYBETMEMELİ.
       #
