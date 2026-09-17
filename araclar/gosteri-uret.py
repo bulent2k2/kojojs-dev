@@ -137,10 +137,13 @@ r.çiz()
 r.yansıtY()""",
  "Çizilmiş resmi Y ekseninde yansıtır (aynadaki gibi)."),
 "döndürMerkezli": ("""silVeSakla
-dez r = boyaRengi(mavi) -> Resim.dikdörtgen(100, 20)
+// DÖNÜŞTÜRÜCÜ biçimi: zincire girer, çizilmeden önce uygulanır
+çiz(boyaRengi(mavi) * döndürMerkezli(45, 100, 0) -> Resim.dikdörtgen(100, 20))
+// YÖNTEM biçimi: çizilmiş bir resmi yerinde döndürür
+dez r = boyaRengi(kırmızı) -> Resim.dikdörtgen(100, 20)
 r.çiz()
 r.döndürMerkezli(45, 0, 0)""",
- "Çizilmiş resmi verilen nokta çevresinde döndürür."),
+ "Resmi verilen nokta çevresinde döndürür. Hem dönüştürücü hem yöntem olarak kullanılır."),
 
 # --- tuval ve genel ---
 "çizMerkezde": ("""silVeSakla
