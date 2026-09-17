@@ -2,9 +2,10 @@ package kojo
 
 import org.scalatest.funsuite.AsyncFunSuite
 import org.scalatest.matchers.should.Matchers
-import org.scalajs.dom.document
+import org.scalajs.dom.{document, window}
 import org.scalajs.dom.raw.HTMLElement
 
+import scala.concurrent.{Future, Promise}
 import scala.scalajs.js
 
 /**
@@ -109,6 +110,67 @@ class SolukTest extends AsyncFunSuite with Matchers {
         withClue(s"$satır. satır: ") { alfa(e1, p1, satır) shouldBe alfa(e2, p2, satır) +- 1 }
       }
       succeed
+    }
+  }
+
+  /** n kare koştur. */
+  private def kareler(n: Int): Future[Unit] = {
+    val söz = Promise[Unit]()
+    var i = 0
+    def döngü(): Unit = {
+      i += 1
+      if (i >= n) söz.success(()) else window.requestAnimationFrame(_ => döngü())
+    }
+    window.requestAnimationFrame(_ => döngü())
+    söz.future
+  }
+
+  /**
+   * SAHNEYİ kendi RenderTexture'ımıza çizip belirli bir sütunu okur.
+   *
+   * NEDEN bu dolambaç -- iki ölçüm aracı da kare koştuktan sonra YALAN söylüyor,
+   * ölçüldü (2026-09, inceleme §5):
+   *  - `extract.pixels(düğüm)`: birkaç kareden sonra her satır 0 okuyor. Süzgeçle
+   *    İLGİSİ YOK; süzgeçsiz bir kontrol resmi de aynı şekilde 0 okuyor
+   *    (düğüm hâlâ Stage'e bağlı, görünür ve alfası 1).
+   *  - varsayılan tamponu doğrudan okumak: `preserveDrawingBuffer` kapalı
+   *    olduğu için kare birleştikten sonra tuval sıfır dönüyor.
+   * Sahneyi kendi dokumuza çizince ikisi de devre dışı kalıyor ve resim
+   * gerçekten oradaysa görünüyor.
+   */
+  private def sahnedenSütun(w: KojoWorldImpl, p: Picture, x: Int, ySatırları: Seq[Int]): Seq[Int] = {
+    val d = w.renderer.asInstanceOf[js.Dynamic]
+    val sahne = p.tnode.asInstanceOf[js.Dynamic].parent
+    val en = d.width.asInstanceOf[Double].toInt
+    val yük = d.height.asInstanceOf[Double].toInt
+    val rt = js.Dynamic.global.PIXI.RenderTexture.create(js.Dictionary("width" -> en, "height" -> yük))
+    d.render(sahne, rt, true)
+    val px = d.plugins.extract.pixels(rt).asInstanceOf[js.typedarray.Uint8Array]
+    ySatırları.map(y => px(((y * en) + x) * 4 + 3).toInt)
+  }
+
+  test("kareler geçtikten sonra resim hâlâ orada ve profili değişmiyor (inceleme §5)") {
+    val w = dünyaKurYaDaİptal()
+    implicit val kd: KojoWorld = w
+    val b = new kojo.syntax.Builtins()
+    // Tuvalin içine tam otursun: dünya x -150..-90, y -100..100 ->
+    // ekran x 50..110, y 50..250 (sahne merkezi 200,150; y ters).
+    val p = b.trans(-150, -100) -> (b.fade(100) -> dikdörtgen(b))
+    val satırlar = Seq(55, 70, 100, 130, 160, 200, 240)
+    p.draw()
+    for {
+      _ <- p.ready
+      _ <- kareler(3)
+      ilk = sahnedenSütun(w, p, 80, satırlar)
+      _ <- kareler(30)
+      son = { w.boyalarıBoşalt(); sahnedenSütun(w, p, 80, satırlar) }
+    } yield {
+      withClue(s"ilk=$ilk: ") {
+        ilk.head should be > 200 // üstte hâlâ boyalı
+        ilk.drop(4).foreach(_ shouldBe 0) // n'den (100 piksel) aşağısı silinmiş
+        ilk.take(4).sliding(2).foreach { case Seq(a, b2) => a should be > b2 } // sönüyor
+      }
+      withClue(s"ilk=$ilk son=$son: ") { son shouldBe ilk } // 30 kare sonra AYNI
     }
   }
 
