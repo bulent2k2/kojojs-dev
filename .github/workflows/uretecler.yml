@@ -167,6 +167,12 @@ jobs:
       - name: sözlükteki bağlantılar iframe'den çıkabiliyor mu
         run: python3 araclar/sozluk-baglanti-denetle.py
 
+      # İndeksteki "Entries" sayısı ELLE tutuluyordu ve hiçbir şey
+      # denetlemiyordu: 2026-09'da yayımdaki artifact 955, depo 975,
+      # sözlüğün kendi rozeti 1238 diyordu. Üç ayrı sayı.
+      - name: indeksteki Türkçe girdi sayısı sözlükle aynı mı
+        run: python3 araclar/sozluk-sayi-denetle.py
+
 
       # ikojo, masaüstünün anlık görüntüsündeki adları KAYBETMEMELİ.
       #
