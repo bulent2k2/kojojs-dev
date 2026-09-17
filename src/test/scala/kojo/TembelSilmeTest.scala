@@ -185,4 +185,51 @@ class TembelSilmeTest extends AsyncFunSuite with Matchers {
       }
     }
   }
+
+  // --- Silinen resim yeniden çizilirse ------------------------------------
+  //
+  // Düşürülen yayın BİLGİ taşıyor. Yukarıdaki düşürme sahne dışına boşa
+  // üçgenlemeyi önlüyor, ama hiç yayınlanmamış bir dolgu öyle kaybolursa
+  // resim yeniden çizilince dolgusuz görünür. Bu iki sınama o sınırı
+  // çiviliyor; ikincisi bir ara gerçekten kırıktı (bkz. TurtlePicture'daki
+  // dolguDüşürüldü notu).
+
+  test("yayınlanmış resim silinip yeniden çizilince dolgusu duruyor") {
+    val (p, t) = doluKare()
+    p.draw()
+    for {
+      _ <- p.ready
+      _ = kojoWorld.boyalarıBoşalt() // ilk yayın olsun
+      önce = dolguKöşeleri(t())
+      _ = p.erase()
+      _ <- p.ready
+      _ = p.draw()
+      _ <- p.ready
+      _ = kojoWorld.boyalarıBoşalt()
+    } yield {
+      withClue("ilk yayın olmuş olmalı (sınavın ön koşulu) -- ") { önce should not be empty }
+      withClue("silip yeniden çizince dolgu durmalı -- ") {
+        dolguKöşeleri(t()) should not be empty
+      }
+    }
+  }
+
+  test("HİÇ yayınlanmamış resim silinip yeniden çizilince dolgusu geri geliyor") {
+    val (p, t) = doluKare()
+    p.draw()
+    for {
+      _ <- p.ready
+      hiç = dolguKöşeleri(t()) // boşaltma YOK: dolgu hâlâ bekliyor
+      _ = p.erase()
+      _ <- p.ready
+      _ = p.draw()
+      _ <- p.ready
+      _ = kojoWorld.boyalarıBoşalt()
+    } yield {
+      withClue("boşaltmadan önce dolgu olmamalı (yayın tembel) -- ") { hiç shouldBe empty }
+      withClue("silme bekleyeni düşürdü; yeniden çizim onu geri istemeli -- ") {
+        dolguKöşeleri(t()) should not be empty
+      }
+    }
+  }
 }
