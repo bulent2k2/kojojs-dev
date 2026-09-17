@@ -17,9 +17,9 @@ O göçü koruyan hiçbir şey yoktu. İki ayrı kayıt bunu ölçtü:
 
 TEK KURAL İKİSİNİ DE KAPATIYOR:
 
-    tuşlar içindeki her snake_case `val`, @deprecated taşımalı.
+    tuşlar içindeki her snake_case `val`/`def`, @deprecated taşımalı.
 
-  - Annotation silinirse: o snake_case val artık işaretsiz -> kırmızı (#76).
+  - Annotation silinirse: o snake_case tanım artık işaretsiz -> kırmızı (#76).
   - Yeni birincil snake_case eklenirse: işaretsiz -> kırmızı (#77).
 
 Meşru olan tek şey, bilerek bırakılmış eskitilmiş takma adlar; onlar zaten
@@ -42,31 +42,68 @@ KOJO_YOL = 'src/main/scala/net/kogics/kojo/lite/i18n/tr/klavye.scala'
 
 # Türkçe harfler de ad karakteri: sayfa_aşağı, noktalı_virgül, satır_başı...
 AD = r'[a-zçğıöşü][A-Za-zÇĞİÖŞÜçğıöşü0-9]*'
-YILAN = re.compile(r'^\s*val\s+(%s(?:_%s)+)\s*[=:]' % (AD, AD))
-DEVE = re.compile(r'^\s*val\s+(%s)\s*[=:]' % AD)
+# `val` kadar `def` de: snake_case bir def aynı biçem gerilemesi olurdu.
+# Satır başı kadar `;` sonrası da: dosyanın kendi üslubu bu (bkz. rakam ve
+# harf kodlarının yazıldığı `val n0 = 0x30; val n1 = 0x31; ...` satırları),
+# yani oraya eklenecek bir ad yalnız satır başına bakan bir deyişe görünmezdi.
+YILAN = re.compile(r'(?:^|;)\s*(?:val|def)\s+(%s(?:_%s)+)\s*[=:]' % (AD, AD))
 ESKİ = re.compile(r'^\s*@deprecated\b')
 
 
+def eskitilmişMi(satırlar, i):
+    """i. satırdaki tanımın üstünde @deprecated var mı.
+
+    "Hemen üstteki boş olmayan satır" yetmiyor, çünkü annotation birkaç
+    satıra sarabiliyor:
+
+        @deprecated(
+          "camelCase yazıma geçildi: silGeri kullanın",
+          "Eylül 2026")
+        val sil_geri = silGeri
+
+    Bugünkü en uzun annotation 89 karakter; birkaç harf daha uzun bir ad
+    sarmayı kendiliğinden davet ediyor. O yüzden parantez dengesini sayıp
+    MANTIKSAL satır başlarına bakıyoruz. Bir önceki tanıma (ya da süslü
+    paranteze) çarpınca duruyoruz -- yoksa komşunun annotation'ını
+    kendimize sayardık.
+    """
+    denge = 0
+    for j in range(i - 1, -1, -1):
+        s = satırlar[j]
+        çıplak = s.strip()
+        if not çıplak or çıplak.startswith('//'):
+            continue
+        # Denge sayımından ÖNCE: ileti metnindeki dengesiz bir parantez
+        # (`@deprecated("bkz. sayfa 3)", ...)`) annotation'ı atlatmasın.
+        if ESKİ.match(s):
+            return True
+        denge += s.count(')') - s.count('(')
+        if denge > 0:
+            continue          # sarmış bir yapının ortasındayız, başı yukarıda
+        denge = 0
+        if çıplak.startswith('@'):
+            continue          # başka bir annotation (@inline gibi) -- geç
+        return False          # tanım, süslü parantez, ne olursa: blok bitti
+    return False
+
+
 def işaretsizYılanlar(yol):
-    """(satır, ad) -- @deprecated taşımayan snake_case val'ler."""
+    """(satır, ad) -- @deprecated taşımayan snake_case val/def'ler."""
     satırlar = io.open(yol, encoding='utf-8').read().split('\n')
     kötü, yılanSayısı = [], 0
     for i, s in enumerate(satırlar):
-        m = YILAN.match(s)
-        if not m:
-            continue
-        yılanSayısı += 1
-        # Hemen önceki BOŞ OLMAYAN satır @deprecated mı? Yorumlar araya
-        # girebiliyor, o yüzden yorum satırlarını da atlıyoruz.
-        j = i - 1
-        while j >= 0 and (not satırlar[j].strip() or satırlar[j].lstrip().startswith('//')):
-            j -= 1
-        if j < 0 or not ESKİ.match(satırlar[j]):
+        for m in YILAN.finditer(s):
+            yılanSayısı += 1
+            # Satır içinde İKİNCİ bir tanıma annotation yazılamaz; oradaki
+            # snake_case ad tanımı gereği işaretsizdir.
+            satırBaşında = not s[:m.start()].strip()
+            if satırBaşında and eskitilmişMi(satırlar, i):
+                continue
             kötü.append((i + 1, m.group(1)))
     if yılanSayısı == 0:
         # Bugün on tane var. Sıfıra düşmesi ya göç tamamlandı (güzel) ya da
         # deyiş bozuldu (kötü) demek -- ikisi ayırt edilemediği için duruyoruz.
-        sys.exit('%s içinde hiç snake_case val bulunamadı -- dosyanın biçimi\n'
+        sys.exit('%s içinde hiç snake_case tanım bulunamadı -- dosyanın biçimi\n'
                  'değişmiş olabilir; bu gözcünün deyişini gözden geçirin.' % yol)
     return kötü, yılanSayısı
 
@@ -88,7 +125,7 @@ def main():
             print('::error::%s: @deprecated taşımayan snake_case tuş adı var '
                   '(%d tane)' % (ne, len(işaretsiz)), file=sys.stderr)
             for satır, ad in işaretsiz:
-                print('    %s:%d  val %s' % (os.path.relpath(yol, kök), satır, ad),
+                print('    %s:%d  %s' % (os.path.relpath(yol, kök), satır, ad),
                       file=sys.stderr)
         else:
             print('%-9s %d snake_case tuş adının hepsi @deprecated taşıyor' % (ne, toplam))
