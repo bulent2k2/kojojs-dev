@@ -157,18 +157,36 @@ object BakePolicy {
   def shouldConsider(childCount: Int, unzoomed: Boolean): Boolean =
     childCount >= bakeChildThreshold && unzoomed
 
-  // Ucuz ön kontrol (ad + durağanlık). Etkileşim kontrolü pahalı (ağaç
+  // Ucuz ön kontrol (kimlik + durağanlık). Etkileşim kontrolü pahalı (ağaç
   // dolaşımı) olduğundan ayrı: yalnız bunu geçen adaylar için hesaplanır.
-  // Kaplumbağa katmanı gibi süs katmanı da pişirme dışı: pişirmek onu sahneden
-  // çıkarıp dokuya gömer; sonraki eksenleriGizle/ızgarayıGizle çağrısı görünür
-  // bir etki yapamaz ve ekranda hayalet eksen kalır.
-  def isStaleByName(name: String, lastMut: Long, frame: Long): Boolean =
-    name != turtleLayerName && name != decorLayerName && (frame - lastMut > bakeAfterFrames)
+  //
+  // GERÇEK kaplumbağa pişirme dışı: pişmek onu sahneden çıkarıp dokuya gömer,
+  // bir daha hareket edemez. Süs katmanı da öyle: sonraki eksenleriGizle /
+  // ızgarayıGizle görünür bir etki yapamaz, ekranda hayalet eksen kalır.
+  //
+  // Ölçüt ADA DEĞİL bayrağa bakıyor (sorun #96). Eskiden `name != turtleLayerName`
+  // yazıyordu, ama Turtle.init o adı forPic kaplumbağalara DA veriyor: Resim{}
+  // katmanları da "Turtle Layer" adını taşıyor ve muafiyete takılıp HİÇ
+  // pişmiyorlardı. Ölçüldü (canlandır döngüsü, 500 durağan Resim{}, 90 kare):
+  // ad ölçütüyle sahne çocuğu 501'de sabit kalıyordu, yani baskılamanın
+  // performans kazancı tam da kalabalık sahnede devre dışıydı.
+  // Bayrağı çağıran taraf hesaplıyor (BakePolicy.gerçekKaplumbağaMı), tıpkı
+  // kaplumbağaÖncesiTepe'nin yaptığı gibi -- burası saf kalsın diye.
+  //
+  // Bayrak ADI GEÇEREK (by-name) alınıyor ve EN SONA konuyor: hesaplaması
+  // çocuk adlarından bir dizi kuruyor ve bu sınıftaki her düğümün adı zaten
+  // "Turtle Layer", yani hedeflediğimiz kalabalık sahnede kısa devre hiç
+  // tutmuyor. Durağanlık kontrolü bedavaya yakın; önce o eleyince taze
+  // düğümler için dizi hiç kurulmuyor. (Ölçümde tek koşuda binlerce "taze"
+  // eleme görülüyor -- karşılığı o kadar boşa dizi olurdu.)
+  def isStaleCheap(gerçekKaplumbağa: => Boolean, name: String, lastMut: Long, frame: Long): Boolean =
+    name != decorLayerName && (frame - lastMut > bakeAfterFrames) && !gerçekKaplumbağa
 
-  // Bir sahne çocuğu pişmeye aday mı? Kaplumbağa katmanı ve etkileşimli
+  // Bir sahne çocuğu pişmeye aday mı? Gerçek kaplumbağa, süs ve etkileşimli
   // düğümler muaf; yalnızca bakeAfterFrames karedir damgalanmayanlar aday.
-  def isStaleCandidate(name: String, interactive: Boolean, lastMut: Long, frame: Long): Boolean =
-    isStaleByName(name, lastMut, frame) && !interactive
+  def isStaleCandidate(gerçekKaplumbağa: => Boolean, name: String, interactive: Boolean,
+      lastMut: Long, frame: Long): Boolean =
+    isStaleCheap(gerçekKaplumbağa, name, lastMut, frame) && !interactive
 
   // "arkaya at"ın hedef sırası: baştaki süs katmanlarının (eksen/ızgara) hemen
   // üstü. Süs, tuvalin süsü -- kullanıcının çizimi değil -- ve süsKatmanı onu
@@ -193,10 +211,17 @@ object BakePolicy {
    * Karar burada, çünkü ada bakmak iki yerde birden yanlış sonuç veriyordu:
    * tepeSırası'nda (resim öteki resimlerin altına düşüyordu) ve
    * erasePictures'ta (Resim{} katmanları HİÇ silinmiyordu -- sorun #91).
-   * Üçüncü bir yer hâlâ ada bakıyor: isStaleByName (bkz. sorun #96).
+   * Üçüncü yer de (pişirme adaylığı, isStaleCheap) artık buna bakıyor -- eskiden
+   * ada bakıyordu ve Resim{} katmanları hiç pişmiyordu (sorun #96).
    */
-  def gerçekKaplumbağaMı(ad: String, çocukAdları: collection.Seq[String]): Boolean =
-    ad == turtleLayerName && çocukAdları.contains(turtleIconName)
+  // Çocuk adları IterableOnce: çağıran taraf TEMBEL verebilsin (bir Iterator),
+  // dizi kurmak zorunda kalmasın. Sorun #96 bu işlevi sıcak yola soktu (her
+  // kare, her durağan çocuk) ve heves eden `.map` orada ölçülebilir bir yük:
+  // 500 resimli 95 karelik koşuda 125.626 çağrı, 251.252 çocuk adı dizgisi
+  // (inceleme #102). `contains` zaten ilk eşleşmede duruyor; girdiyi de tembel
+  // vermek diziyi tümden kaldırıyor. Sınamalar Seq geçiyor -- o da IterableOnce.
+  def gerçekKaplumbağaMı(ad: String, çocukAdları: => IterableOnce[String]): Boolean =
+    ad == turtleLayerName && çocukAdları.iterator.contains(turtleIconName)
 
   // "öne al"ın hedef sırası: SONDAKİ kaplumbağa katmanlarının hemen ALTI.
   //
@@ -459,10 +484,13 @@ class KojoWorldImpl extends KojoWorld {
       if (c ne bakeSprite) {
         val stamp = c.asInstanceOf[js.Dynamic].__kojoMut
         val last = if (js.isUndefined(stamp)) -1L else stamp.asInstanceOf[Double].toLong
-        // "Turtle Layer": kaplumbağa/Picture{} katmanları (Turtle.init hepsine
-        // bu adı verir) muaf. Etkileşimli düğümler de muaf (isabet testi).
-        // Ucuz ad/durağanlık kontrolünü ÖNCE yap; pahalı hasInteractive ağaç
+        // GERÇEK kaplumbağa muaf; Resim{} katmanları DEĞİL (ikisi de "Turtle Layer"
+        // adını taşıyor, ayırt eden şey "Turtle Icon" çocuğu -- sorun #96).
+        // Etkileşimli düğümler de muaf (isabet testi).
+        // Ucuz kimlik/durağanlık kontrolünü ÖNCE yap; pahalı hasInteractive ağaç
         // dolaşımını yalnız o kontrolü geçen adaylar için çalıştır.
+        // kaplumbağaKatmanıMı da ada bakıp kısa devre yapıyor, yani çocuk adları
+        // dizisi yalnız "Turtle Layer" adlı çocuklar için kuruluyor.
         // __kojoNoBake: bir kez pişirilip sonra değişen düğüm (her saniye güncellenen
         // FPS/skor yazısı gibi) bir daha pişirilmez -- yoksa her değişimde tüm iz
         // çözülüp yeniden pişiyordu (bkz. noteMutation). SINIR: bayrak kalıcıdır,
@@ -472,7 +500,8 @@ class KojoWorldImpl extends KojoWorld {
         // (ilk geri almada yeniden pişmeye izin, 2.-3.'de dışla) ya da uzun süre
         // durağan kalanın bayrağını silmek.
         val noBake = js.DynamicImplicits.truthValue(c.asInstanceOf[js.Dynamic].__kojoNoBake)
-        if (!noBake && BakePolicy.isStaleByName(c.name, last, frameCount) && !hasInteractive(c)) {
+        if (!noBake && BakePolicy.isStaleCheap(kaplumbağaKatmanıMı(c), c.name, last, frameCount)
+          && !hasInteractive(c)) {
           toBake += c
         }
       }
@@ -663,7 +692,10 @@ class KojoWorldImpl extends KojoWorld {
   private def kaplumbağaKatmanıMı(c: PIXI.DisplayObject): Boolean =
     c.name == BakePolicy.turtleLayerName && {
       val kap = c.asInstanceOf[PIXI.Container]
-      BakePolicy.gerçekKaplumbağaMı(c.name, (0 until kap.children.length).map(i => kap.getChildAt(i).name))
+      BakePolicy.gerçekKaplumbağaMı(
+        c.name,
+        Iterator.range(0, kap.children.length).map(i => kap.getChildAt(i).name)
+      )
     }
 
   // Sahnedeki son kaplumbağa katmanı öbeğinin hemen altındaki sıra.
