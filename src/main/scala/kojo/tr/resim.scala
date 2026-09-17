@@ -140,6 +140,17 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
   def kalemBoyu(k: Kesir): Dönüştürücü = kb.penThickness(k) // masaüstü adı (resim.scala KalemBoyuBD)
   // masaüstünün bağımsız dönüştürücü adları (trInit: döndür/büyüt/götür = *BD)
   def döndür(açı: Kesir): Dönüştürücü = kb.rot(açı)
+  /**
+   * (x, y) noktasının ÇEVRESİNDE döndüren dönüştürücü (masaüstü: rotp).
+   *
+   * Aynı adlı Resim YÖNTEMİ (aşağıda, ResimMetotları içinde) bir resmi
+   * yerinde döndürüyor; bu ise `*` ile zincirlenip `->` ile uygulanıyor --
+   * tıpkı döndür/büyüt/götür çiftlerinde olduğu gibi:
+   *   çiz(götür(-30, -200) * döndürMerkezli(-90, 0, 0) -> Resim.yazı(...))
+   * Bu biçim olmadan masaüstündeki yazılımcıkları (unit-circle, hunted,
+   * tangram-skier) üç satıra bölmeden taşımak mümkün değildi.
+   */
+  def döndürMerkezli(açı: Kesir, x: Kesir, y: Kesir): Dönüştürücü = kb.rotp(açı, x, y)
   def büyüt(oran: Kesir): Dönüştürücü = kb.scale(oran)
   def büyüt(xOranı: Kesir, yOranı: Kesir): Dönüştürücü = kb.scaleXY_experimental(xOranı, yOranı)
   def götür(n: Nokta): Dönüştürücü = kb.trans(n.x, n.y)

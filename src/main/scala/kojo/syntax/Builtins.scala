@@ -324,6 +324,10 @@ class Builtins(implicit kojoWorld: KojoWorld) {
   def postDrawTransform(fn: Picture => Unit) = PostDrawTransformc(fn)
 
   def rot(angle: Double) = transform(_.rotate(angle))
+  // Masaüstü Kojo'daki rotp (picture/package.scala): verilen noktanın
+  // ÇEVRESİNDE döndürür. Resim üstündeki rotateAboutPoint yöntemi zaten
+  // vardı; eksik olan, `*` ile zincirlenip `->` ile uygulanan biçimiydi.
+  def rotp(angle: Double, x: Double, y: Double) = transform(_.rotateAboutPoint(angle, x, y))
   def trans(x: Double, y: Double) = transform(_.translate(x, y))
   def offset(x: Double, y: Double) = transform(_.offset(x, y))
   def scale(f: Double) = transform(_.scale(f))
