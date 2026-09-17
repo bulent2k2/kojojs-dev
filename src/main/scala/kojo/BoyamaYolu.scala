@@ -89,4 +89,22 @@ trait Boyacı {
   /** Bekleyen dolguyu şimdi yayınla. Yayın idempotent olmalı: aynı çokgeni
     * iki kez yayınlamak, bir kez yayınlamakla aynı sonucu vermeli. */
   private[kojo] def boyayıYayınla(): Unit
+
+  /**
+   * Bu çizerin dolgusunun indiği katman. Silme yolları (erasePictures,
+   * removeLayer) sahneden çıkardıkları katmanın çizerini bunun üzerinden
+   * bulup bekleyen boya sırasından düşürüyor -- yoksa silinmiş bir resmin
+   * dolgusu kuyruğu boşaldıkça yeniden yeniden üçgenleniyor (sorun #108).
+   */
+  private[kojo] def boyacıKatmanı: pixiscalajs.PIXI.Container
+
+  /**
+   * Bu çizerin dolgusu hâlâ yayınlanmalı mı?
+   *
+   * Katmanı bir kez sahneye girip SONRA çıktıysa hayır: resim silinmiş, kalan
+   * yayınlar görünmeyen bir şekli üçgenliyor (sorun #108). Katmanı HENÜZ
+   * sahneye girmemişse evet -- Resim{} gövdesi çiz()'den ÖNCE çalışıyor, o
+   * yayınlar kesilirse dolgu hiç oluşmaz.
+   */
+  private[kojo] def boyasıSürüyor: Boolean
 }

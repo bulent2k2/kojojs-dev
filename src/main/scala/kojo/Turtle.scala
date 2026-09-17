@@ -190,6 +190,19 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
    * (`drawPolygon`) yayınlanıyor -- bu kural değişmedi, yalnız kaç kez
    * yayınlandığı değişti. İdempotent: `clear()` ile başlıyor.
    */
+  private[kojo] def boyacıKatmanı: PIXI.Container = turtleLayer
+
+  // Katman bir kez sahneye girdi mi? Girdikten SONRA çıkmışsa resim silinmiş
+  // demektir ve yayını sürdürmek boşa iş (#108). Girmemişse Resim{} gövdesi
+  // daha çalışıyordur -- orada kesmek dolguyu tümden yok ederdi.
+  private var katmanSahneyeGirdi = false
+
+  private[kojo] def boyasıSürüyor: Boolean = {
+    val sahnede = turtleLayer.parent != null
+    if (sahnede) katmanSahneyeGirdi = true
+    sahnede || !katmanSahneyeGirdi
+  }
+
   private[kojo] def boyayıYayınla(): Unit = {
     boyamaYolu.clear()
     if (fillBoya != null && boyamaÇokgeni.alanVarMı) {

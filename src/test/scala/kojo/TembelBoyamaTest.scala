@@ -21,6 +21,9 @@ class TembelBoyamaTest extends AnyFunSuite with Matchers {
 
   /** Yayın sayan sahte çizer -- gerçek Turtle'a ve PIXI'ye gerek yok. */
   private class Sayaç extends Boyacı {
+    // #108: sıradan düşürme katmana bakıyor; sayaç sahte bir katman taşıyor.
+    private[kojo] val boyacıKatmanı = new pixiscalajs.PIXI.Container()
+    private[kojo] def boyasıSürüyor = true
     var yayın = 0
     private[kojo] def boyayıYayınla(): Unit = yayın += 1
   }
@@ -62,6 +65,8 @@ class TembelBoyamaTest extends AnyFunSuite with Matchers {
     val dünya = new TestKojoWorld
     var sıra = List.empty[String]
     def çizer(ad: String) = new Boyacı {
+      private[kojo] val boyacıKatmanı = new pixiscalajs.PIXI.Container()
+      private[kojo] def boyasıSürüyor = true
       private[kojo] def boyayıYayınla(): Unit = sıra = ad :: sıra
     }
     val a = çizer("a"); val b = çizer("b")
@@ -76,6 +81,8 @@ class TembelBoyamaTest extends AnyFunSuite with Matchers {
     val dünya = new TestKojoWorld
     var yayın = 0
     lazy val kendiniKirleten: Boyacı = new Boyacı {
+      private[kojo] val boyacıKatmanı = new pixiscalajs.PIXI.Container()
+      private[kojo] def boyasıSürüyor = true
       private[kojo] def boyayıYayınla(): Unit = {
         yayın += 1
         if (yayın < 5) dünya.boyaKirlendi(kendiniKirleten) // gerçekte: doku yüklenince

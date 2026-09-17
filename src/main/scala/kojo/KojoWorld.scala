@@ -36,10 +36,28 @@ trait KojoWorld {
   // (asıl kazanç bu), ve kirlenme sırası korunur -- katman sırası önemli.
   private val bekleyenBoyacılar = scala.collection.mutable.LinkedHashSet.empty[Boyacı]
 
+  /** Bekleyen boya sırasının boyu -- sınama dikişi (bkz. #108 savı). */
+  private[kojo] def bekleyenBoyaSayısı: Int = bekleyenBoyacılar.size
+
+  /**
+   * Şimdiye dek yapılmış dolgu yayını sayısı -- sınama dikişi.
+   *
+   * #108'in savı bunu okuyor: silinmiş bir resim için yayın SÜRMEMELİ.
+   * Sırayı okumak yetmiyordu, çünkü flushRender sırayı kare sınırından önce
+   * boşaltıyor ve sınama hep 0 görüyordu (kırma sınamasıyla anlaşıldı).
+   */
+  private[kojo] var yayınSayısı = 0L
+
   /** Çizerin dolgusu bayatladı: sıraya al ve bir render iste. */
   private[kojo] def boyaKirlendi(b: Boyacı): Unit = {
-    bekleyenBoyacılar += b
-    render()
+    // Silinmiş bir resmin çizeri sıraya GERİ GİRMESİN. Katmanı silmek tek
+    // başına yetmiyordu: kaplumbağanın komut kuyruğu boşalmaya devam ediyor ve
+    // her kenar burayı yeniden çağırıyordu (ölçüldü: sıradan bir kez düşürmek
+    // ölü yayın sayısını hiç değiştirmedi -- sorun #108).
+    if (b.boyasıSürüyor) {
+      bekleyenBoyacılar += b
+      render()
+    }
   }
 
   /**
@@ -53,8 +71,25 @@ trait KojoWorld {
       // o kirlenme SONRAKİ kareye kalsın, burada sonsuz döngü olmasın.
       val sıra = bekleyenBoyacılar.toList
       bekleyenBoyacılar.clear()
-      sıra.foreach(_.boyayıYayınla())
+      sıra.foreach { b => yayınSayısı += 1; b.boyayıYayınla() }
     }
+
+  /**
+   * Sahneden ÇIKARILAN bir katmanın çizerini bekleyen sıradan düşür.
+   *
+   * Yoksa silinmiş bir resmin dolgusu, kaplumbağanın komut kuyruğu boşaldıkça
+   * yeniden yeniden üçgenleniyor: görünmeyen bir şekil için tam maliyet.
+   * Ölçüldü (sorun #108; resimleriSil + canlandır, 120 nokta x 7 kat, 40 kare):
+   * 80 canlı yayın 0 ms, 317-361 ÖLÜ yayın 512-531 ms -- üçgenleme süresinin
+   * ~%96'sı sahnede olmayan şekillere gidiyordu.
+   *
+   * Yalnız verilen katmanın çizerini düşürüyor: hayatta kalan kaplumbağaların
+   * bekleyen boyası duruyor (erasePictures'ın kendi notunun altını çizdiği
+   * ayrım). Çizer ileride yeniden kirlenirse boyaKirlendi onu sıraya geri
+   * koyar, yani bilgi kaybı yok.
+   */
+  private[kojo] def katmanınBoyasınıUnut(katman: PIXI.Container): Unit =
+    if (bekleyenBoyacılar.nonEmpty) bekleyenBoyacılar.filterInPlace(_.boyacıKatmanı ne katman)
 
   /**
    * BU çizerin bekleyen dolgusunu düşür -- kendi yolunu sildiği için.
@@ -366,6 +401,7 @@ class KojoWorldImpl extends KojoWorld {
     stage.removeChild(layer)
     // Sahneden çıkmak GL kaynağını bırakmıyor; bırakan tek şey dispose (#91).
     PixiUyum.glKaynaklarınıBırak(layer)
+    katmanınBoyasınıUnut(layer) // #108: silinen resmin dolgusu yayınlanmaya devam etmesin
     render()
   }
 
@@ -599,16 +635,19 @@ class KojoWorldImpl extends KojoWorld {
     // Sahnenin ve GL kaynaklarının her karede büyümesi onun yan ürünüydü.
     // (Sorun #91, KaynakSizintisiTest. Doku tarafı için #95, pişirme kolu #96.)
     //
-    // Bekleyen dolguları BİLEREK düşürmüyoruz: hayatta kalan katmanlar duran
-    // kaplumbağaların katmanları, orada düşürmek onların boyasını sessizce yok
-    // etmek olurdu. Katmanı silinen bir çizer (bir resmin içindeki kaplumbağa)
-    // kalan yayınını kopmuş bir Graphics'e yapar; zararsız.
+    // Bekleyen dolgular: hayatta kalan katmanlarınki DURUYOR (duran
+    // kaplumbağalar; orada düşürmek boyalarını sessizce yok ederdi), ama
+    // SİLDİĞİMİZ katmanlarınki düşüyor. Eskiden hiçbiri düşmüyordu ve yorum
+    // "kopmuş bir Graphics'e yayın yapar, zararsız" diyordu -- ölçünce zararsız
+    // ÇIKMADI: kuyruğu boşalan silinmiş resimler üçgenleme süresinin ~%96'sını
+    // yiyordu (sorun #108).
     resetBake() // pişmiş boyayı da temizle (yoksa dokuda hayalet kalır)
     val children = stage.children.toBuffer
     children.foreach { c =>
       if (!kaplumbağaKatmanıMı(c)) {
         stage.removeChild(c)
         PixiUyum.glKaynaklarınıBırak(c) // bkz. removeLayer / #91
+        katmanınBoyasınıUnut(c.asInstanceOf[PIXI.Container]) // #108
       }
     }
     render()
