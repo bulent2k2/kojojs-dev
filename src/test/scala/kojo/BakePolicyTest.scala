@@ -24,33 +24,50 @@ class BakePolicyTest extends AnyFunSuite with Matchers {
 
   test("bakeAfterFrames karedir damgalanmayan sıradan çocuk adaydır") {
     // frame 10, en son 0'da değişmiş -> 10 > 3, aday
-    isStaleCandidate(name = null, interactive = false, lastMut = 0, frame = 10) shouldBe true
+    isStaleCandidate(gerçekKaplumbağa = false, name = null, interactive = false, lastMut = 0, frame = 10) shouldBe true
   }
 
   test("yeni/az önce değişen çocuk aday değildir") {
-    isStaleCandidate(name = null, interactive = false, lastMut = 9, frame = 10) shouldBe false
-    isStaleCandidate(name = null, interactive = false, lastMut = 10, frame = 10) shouldBe false
+    isStaleCandidate(gerçekKaplumbağa = false, name = null, interactive = false, lastMut = 9, frame = 10) shouldBe false
+    isStaleCandidate(gerçekKaplumbağa = false, name = null, interactive = false, lastMut = 10, frame = 10) shouldBe false
   }
 
-  test("kaplumbağa katmanı hiç pişmez") {
-    isStaleCandidate(name = "Turtle Layer", interactive = false, lastMut = 0, frame = 100) shouldBe false
+  test("GERÇEK kaplumbağa hiç pişmez, ama aynı adlı Resim{} katmanı pişer (#96)") {
+    // Ayrım artık ADDA değil bayrakta. Turtle.init "Turtle Layer" adını forPic
+    // kaplumbağalara da verdiği için ada bakmak Resim{} katmanlarını da muaf
+    // tutuyordu: hiç pişmiyorlardı (ölçüldü: 500 durağan resimde sahne çocuğu
+    // 501'de sabit). Bu sav o iki durumu birbirinden ayırıyor -- ikisinin de ADI
+    // "Turtle Layer".
+    isStaleCandidate(gerçekKaplumbağa = true, name = "Turtle Layer",
+      interactive = false, lastMut = 0, frame = 100) shouldBe false
+    isStaleCandidate(gerçekKaplumbağa = false, name = "Turtle Layer",
+      interactive = false, lastMut = 0, frame = 100) shouldBe true
+  }
+
+  test("süs katmanı hiç pişmez") {
+    // Pişerse sahneden çıkıp dokuya gömülür; sonraki eksenleriGizle görünür bir
+    // etki yapamaz, ekranda hayalet eksen kalır.
+    isStaleCandidate(gerçekKaplumbağa = false, name = "Decor Layer",
+      interactive = false, lastMut = 0, frame = 100) shouldBe false
   }
 
   test("etkileşimli düğüm hiç pişmez") {
-    isStaleCandidate(name = null, interactive = true, lastMut = 0, frame = 100) shouldBe false
+    isStaleCandidate(gerçekKaplumbağa = false, name = null, interactive = true, lastMut = 0, frame = 100) shouldBe false
   }
 
   test("hiç damgalanmamış (lastMut çok eski) çocuk adaydır") {
-    isStaleCandidate(name = null, interactive = false, lastMut = -1, frame = 0) shouldBe false // 0 - (-1) = 1, not > 3
-    isStaleCandidate(name = null, interactive = false, lastMut = -1, frame = 5) shouldBe true  // 5 - (-1) = 6 > 3
+    isStaleCandidate(gerçekKaplumbağa = false, name = null, interactive = false, lastMut = -1, frame = 0) shouldBe false // 0 - (-1) = 1, not > 3
+    isStaleCandidate(gerçekKaplumbağa = false, name = null, interactive = false, lastMut = -1, frame = 5) shouldBe true  // 5 - (-1) = 6 > 3
   }
 
-  test("isStaleByName ucuz ön kontrol: ad + durağanlık (etkileşimden bağımsız)") {
-    isStaleByName(name = null, lastMut = 0, frame = 10) shouldBe true
-    isStaleByName(name = "Turtle Layer", lastMut = 0, frame = 10) shouldBe false
+  test("isStaleCheap ucuz ön kontrol: kimlik + durağanlık (etkileşimden bağımsız)") {
+    isStaleCheap(gerçekKaplumbağa = false, name = null, lastMut = 0, frame = 10) shouldBe true
+    isStaleCheap(gerçekKaplumbağa = true, name = "Turtle Layer", lastMut = 0, frame = 10) shouldBe false
+    // ADIN kendisi artık muafiyet vermiyor: bayrak false ise aynı ad pişebilir
+    isStaleCheap(gerçekKaplumbağa = false, name = "Turtle Layer", lastMut = 0, frame = 10) shouldBe true
     // süs katmanı (eksen/ızgara) da pişirme dışı: pişerse gizle/göster ölür
-    isStaleByName(name = "Decor Layer", lastMut = 0, frame = 10) shouldBe false
-    isStaleByName(name = null, lastMut = 9, frame = 10) shouldBe false
+    isStaleCheap(gerçekKaplumbağa = false, name = "Decor Layer", lastMut = 0, frame = 10) shouldBe false
+    isStaleCheap(gerçekKaplumbağa = false, name = null, lastMut = 9, frame = 10) shouldBe false
   }
 
   test("gerçek kaplumbağa ölçütü: ad YETMEZ, simge çocuğu şart") {
