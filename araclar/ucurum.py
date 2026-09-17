@@ -132,10 +132,12 @@ def ortuk_sinif_govdeleri(s):
                 paren -= 1
             elif c == '{' and paren == 0:
                 break
-            elif c == '\n' and paren == 0 and ORTUK_SINIF.match(s, i + 1):
-                i = len(s)  # gövdesiz bildirim: sonraki tanıma taşma
-                break
             i += 1
+        # Gövde açan `{` bulunamadıysa atla. (Eskiden burada ayrıca "sonraki
+        # implicit class'a taşma" koruması vardı; hiç tetiklenmiyordu -- newline
+        # sonrasına sabitlenmişti, bu depoda ise bütün bildirimler trait içinde
+        # girintili. Gövdesiz `implicit class` zaten geçerli Scala değil, ve
+        # `{` bulunamayınca döngü dosya sonunda durup aynı yere geliyor.)
         if i >= len(s):
             continue
         j, derinlik = i, 0
@@ -176,6 +178,9 @@ def tanimlar_bicimli(yollar, rx=TANIM):
 
 
 ADLI_CAGRI = re.compile(r'([^\W\d]\w*)\s*\(', re.U)
+# Çağrının solunda/sağında bakılan karakter sayısı. Aradığımız `*` ya da `->`
+# bitişik ya da bir-iki boşluk ötede; 8 fazlasıyla yetiyor.
+SOL_PENCERE = SAG_PENCERE = 8
 
 
 def donusturucu_kullanimlari(kod):
@@ -184,8 +189,13 @@ def donusturucu_kullanimlari(kod):
     İki imzadan biri yeter: çağrının solunda `*` var (zincirin içinde) ya da
     sağında `*` / `->` var (zincirleniyor veya bir resme uygulanıyor):
         götür(-30, -200) * döndürMerkezli(-90, 0, 0) -> Resim.yazı(...)
-    Çarpma (`3 * sin(x)`) gibi yanlış eşleşmeler olabilir; zararsız, çünkü
-    rapora yalnız ikojo'da SADECE yöntem olarak tanımlı adlar giriyor.
+    YANLIŞ-POZİTİF: çarpma (`3 * sin(x)`) de eşleşir. Zararsız, çünkü rapora
+    yalnız ikojo'da SADECE yöntem olarak tanımlı adlar giriyor.
+
+    YANLIŞ-NEGATİF: dönüştürücü bir ADA bağlanırsa iki imza da yok --
+    `dez d = döndürMerkezli(45, 0, 0)` satırında ne solda `*` var ne sağda `->`;
+    tarama onu göremez. Bu tarayıcının BİLİNEN kör noktası (commit'in bütün
+    derdi ne görüp ne göremediğini bilmek olduğu için burada yazılı).
     """
     bulunan = set()
     for m in ADLI_CAGRI.finditer(kod):
@@ -200,8 +210,10 @@ def donusturucu_kullanimlari(kod):
             i += 1
         else:
             continue
-        sol = kod[:m.start()].rstrip()
-        sag = kod[i + 1:].lstrip()
+        # Pencereli bakış: `kod[:m.start()]` ve `kod[i+1:]` tam kopya çıkarıyordu,
+        # yani çağrı başına O(dosya). Bakılan tek şey komşu birkaç karakter.
+        sol = kod[max(0, m.start() - SOL_PENCERE):m.start()].rstrip()
+        sag = kod[i + 1:i + 1 + SAG_PENCERE].lstrip()
         if sol.endswith('*') or sag.startswith('*') or sag.startswith('->'):
             bulunan.add(m.group(1))
     return bulunan
@@ -336,9 +348,27 @@ def yazdir(r, en_sik):
             print(f"  {t:40s} {n:3d}")
 
 
-def tsv_yaz(r, yol):
+def git_surumu(dizin):
+    """`dizin`deki klonun kısa commit'i; git yoksa ya da klon değilse '?'."""
+    try:
+        import subprocess
+        s = subprocess.run(['git', '-C', dizin, 'rev-parse', '--short', 'HEAD'],
+                           capture_output=True, text=True, timeout=10)
+        return s.stdout.strip() or '?'
+    except Exception:
+        return '?'
+
+
+def tsv_yaz(r, yol, kojo):
     with open(yol, 'w', encoding='utf-8') as f:
         f.write("# ucurum.py tarama sonucu (tanımlayıcı taraması, derleme değil)\n")
+        # HANGİ masaüstü sürümünden üretildiği. Bu satır olmadan dosya
+        # atfedilemez hale geliyordu: `eksik` sütunundaki bir değişiklik ikojo'dan
+        # mı yoksa yukarı akıştaki kojo'nun büyümesinden mi geldi, ayırt
+        # edilemiyordu -- ve gerçekten karıştı (bkz. #107 incelemesi, 18 satırlık
+        # fark). Üretilmiş dosyanın kaynağından ayrılması bu deponun aylardır
+        # kovaladığı hata sınıfı; iz bırakmak tek satır.
+        f.write(f"# masaüstü kojo: {git_surumu(kojo)}\n")
         f.write("betik\tdurum\tsatır\tengel\teksik\tbiçim\n")
         for b, v in r['dosyalar'].items():
             f.write(f"{b}\t{v['durum']}\t{v['satır']}\t{','.join(v['engel'])}\t"
@@ -357,7 +387,7 @@ def main():
     r = olc(os.path.abspath(a.kojo), os.path.abspath(a.ikojo), os.path.abspath(a.betikler))
     yazdir(r, a.en_sik)
     if a.tsv:
-        tsv_yaz(r, a.tsv)
+        tsv_yaz(r, a.tsv, os.path.abspath(a.kojo))
         print(f"\nTSV yazıldı: {a.tsv}")
     if a.json:
         with open(a.json, 'w', encoding='utf-8') as f:

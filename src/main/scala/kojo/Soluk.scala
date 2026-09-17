@@ -35,6 +35,17 @@ import scala.scalajs.js
  * SİLMEYİN.
  */
 object Soluk {
+  // n EKRAN PİKSELİDİR, resmin kendi birimi değil: `y` süzgecin giriş
+  // dokusundan (ekran uzayı) okunuyor. Ölçüldü (SolukTest): ekranda aynı boyu
+  // kaplayan iki resimden biri `büyüt(2)` ile büyütülmüş olsa da şerit ikisinde
+  // de 100 ekran pikseli. Masaüstüyle bu noktada KARŞILAŞTIRILMADI.
+  //
+  // `boy <= 0` -> her şey silinir. Masaüstü KAYNAĞINDAN okundu (ölçülmedi):
+  // FadeImageOp'ta `fillRect(0, 0, width, n)` n=0'da sıfır yükseklikli, yani
+  // hiçbir şey boyamıyor; ardından gelen `fillRect(0, n, width, height - n)`
+  // alfa 0 ve DST_IN ile resmin tamamını siliyor. (Aynı noktadan başlayıp biten
+  // GradientPaint kurulur ama hiç kullanılmaz -- patlamıyor.)
+  //
   // `resolution`u da PIXI'nin genel uniform kümesi veriyor. Bugün her zaman 1
   // (KojoWorld.rendererOptions varsayılanı), ama 2 olursa inputSize.y gerçek
   // piksel cinsinden iki katına çıkardı ve n görsel olarak yarıya inerdi;
@@ -55,18 +66,28 @@ object Soluk {
     """.stripMargin
 
   /**
-   * PIXI 5 gerekiyor (PIXI.Filter üç argümanlı kurucusuyla). PIXI 4'te süzgeç
-   * kurulamıyor; o durumda None dönüyoruz ve çağıran resmi olduğu gibi
+   * PIXI 5 gerekiyor; PIXI 4'te None dönüyoruz ve çağıran resmi olduğu gibi
    * bırakıyor -- Boya'nın PIXI 4'te düz renge düşmesiyle aynı yaklaşım.
+   *
+   * SÜRÜM DENETİMİ `PixiUyum.beşVeÜstü` İLE, `P.Filter` yokluğuyla DEĞİL.
+   * İlk yazımda öyleydi ve yanlıştı; deponun kendi paketlerinde ölçüldü:
+   *   lib/pixi.min.js  (4.8.9): "Filter" geçiyor,  "inputSize" HİÇ geçmiyor
+   *   lib/pixi5.min.js        : "inputSize" var
+   * Yani `PIXI.Filter` v4'te de var, kurucu da üç argümanlı -- yokluk sınaması
+   * hiç tetiklenmez, süzgeç kurulur, ama kabuk v4'ün sağlamadığı `inputSize`ı
+   * bildirdiği için o uniform 0 kalır: y = 0, a = clamp(1 - 0/boy) = 1, yani
+   * HİÇ SÖNME OLMAZ. Görsel sonuç kazara "resmi olduğu gibi bırak"a benziyordu
+   * ama tasarım değil tesadüftü. Depoda sürüm denetimi için tek yer
+   * PixiUyum.beşVeÜstü; buranın ondan sapmaması gerekiyor.
    *
    * Kabuk kaynağı her çağrıda aynı olduğu için PIXI'nin Program önbelleği
    * derlemeyi bir kez yapıyor; her resim yalnız kendi uniform'unu taşıyor.
    */
-  def süzgeç(n: Double): Option[js.Dynamic] = {
-    val P = js.Dynamic.global.PIXI
-    if (js.isUndefined(P) || js.isUndefined(P.Filter)) None
-    else
+  def süzgeç(n: Double): Option[js.Dynamic] =
+    if (!PixiUyum.beşVeÜstü) None
+    else {
+      val P = js.Dynamic.global.PIXI
       try Some(js.Dynamic.newInstance(P.Filter)(js.undefined, Parça, js.Dictionary("boy" -> n)))
       catch { case _: Throwable => None }
-  }
+    }
 }

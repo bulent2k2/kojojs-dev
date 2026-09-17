@@ -174,7 +174,55 @@ class SolukTest extends AsyncFunSuite with Matchers {
     }
   }
 
-  test("n <= 0 resmi tümüyle siler (masaüstündeki gibi)") {
+  /** Sahneyi kendi dokumuza çizip (x, y) piksellerini okumak için. */
+  private def sahneninPiksleri(w: KojoWorldImpl, p: Picture): (Int, js.typedarray.Uint8Array) = {
+    val d = w.renderer.asInstanceOf[js.Dynamic]
+    val en = d.width.asInstanceOf[Double].toInt
+    val yük = d.height.asInstanceOf[Double].toInt
+    val rt = js.Dynamic.global.PIXI.RenderTexture.create(js.Dictionary("width" -> en, "height" -> yük))
+    d.render(p.tnode.asInstanceOf[js.Dynamic].parent, rt, true)
+    (en, d.plugins.extract.pixels(rt).asInstanceOf[js.typedarray.Uint8Array])
+  }
+
+  test("sönme uzunluğu EKRAN pikseli: ölçek onu değiştirmiyor") {
+    val w = dünyaKurYaDaİptal()
+    implicit val kd: KojoWorld = w
+    val b = new kojo.syntax.Builtins()
+    // İkisi de ekranda 30x200: biri doğrudan, öteki 15x100'ün iki katı.
+    val ölçeksiz = b.trans(-150, -100) ->
+      (b.fade(100) -> (b.fillColor(kojo.doodle.Color.blue) -> b.Picture.rectangle(30, 200)))
+    val ölçekli = b.trans(-50, -100) ->
+      (b.scale(2) -> (b.fade(100) -> (b.fillColor(kojo.doodle.Color.green) -> b.Picture.rectangle(15, 100))))
+    ölçeksiz.draw(); ölçekli.draw()
+    for {
+      _ <- ölçeksiz.ready
+      _ <- ölçekli.ready
+    } yield {
+      val (en, px) = sahneninPiksleri(w, ölçeksiz)
+      def profil(p: Picture): Seq[Int] = {
+        val bb = p.tnode.getBounds()
+        val x = (bb.x + bb.width / 2).toInt
+        val üst = bb.y.toInt
+        Seq(2, 25, 50, 75, 95, 110, 150, 190).map(dy => px((((üst + dy) * en) + x) * 4 + 3).toInt)
+      }
+      val a = profil(ölçeksiz)
+      val ö = profil(ölçekli)
+      // Sönme, resmin KENDİ birimine göre olsaydı ölçekli olanınki iki kat uzun
+      // sürerdi; ölçüldü, sürmüyor -- şerit iki durumda da 100 EKRAN pikseli.
+      withClue(s"ölçeksiz=$a ölçekli=$ö: ") { ö shouldBe a }
+      withClue(s"ölçeksiz=$a: ") {
+        a.take(5).sliding(2).foreach { case Seq(x, y) => x should be > y }
+        a.drop(5).foreach(_ shouldBe 0)
+        succeed
+      }
+    }
+  }
+
+  // "masaüstündeki gibi" burada KAYNAKTAN okunmuş bir denklik, ölçülmüş değil:
+  // FadeImageOp'ta n=0 ilk fillRect'i sıfır yükseklikli yapıyor (hiçbir şey
+  // boyamıyor), ardından gelen tam-boy fillRect alfa 0 ve DST_IN ile resmi
+  // tümüyle siliyor. Bu depodan masaüstü davranışını koşturamıyoruz.
+  test("n <= 0 resmi tümüyle siler (masaüstü kaynağına göre)") {
     val w = dünyaKurYaDaİptal()
     implicit val kd: KojoWorld = w
     val b = new kojo.syntax.Builtins()

@@ -163,6 +163,9 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
    *
    *   çiz(yansıtX -> (soluk(230) -> eğreltiOtuResim))
    *
+   * `n` EKRAN pikselidir, resmin kendi birimi değil: `büyüt(2)` ile büyütülmüş
+   * bir resimde de şerit yine n ekran pikseli sürer (ölçüldü, SolukTest).
+   *
    * Gerekçe, PIXI süzgeci ve ölçümler: kojo/Soluk.scala.
    */
   def soluk(n: Sayı): Dönüştürücü = kb.fade(n)
