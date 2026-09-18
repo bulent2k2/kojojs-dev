@@ -508,9 +508,14 @@ object PixiUyum {
   // katmanlara gönderme tutardı (sızıntı). İm katmanla birlikte ölüyor.
   // (Aynı deyim Boya.GradyanDokusuİmi'nde de kullanılıyor.)
   //
-  // BİLİNEN SINIR (bu yamayla değişmiyor): yalnız addLayer/removeLayer'a
-  // VERİLEN katman imleniyor, altındaki iç içe resim katmanları değil --
-  // katmanınBoyasınıUnut de bugün tam olarak o kümeyi kapsıyor.
+  // İÇ İÇE RESİMLER: silme yolunda yalnız VERİLEN katman değil, altındaki
+  // katmanlar da imleniyor (bkz. altAğacıSilindiİmle, #115). Bir resim bir
+  // GPics'in içindeyse sahneden çıkan düğüm grubun kabı; çizerin kendi
+  // turtleLayer'ı onun ALTINDA kalıyor ve eskiden ne imleniyordu ne sıradan
+  // düşüyordu -- ölçüldü: 40 karede çıplak iki gül 74 yayın, aynı ikisi bir
+  // GPics içindeyken 512-533. İmi KALDIRAN yol (addLayer) zaten çocuk başına
+  // çalışıyor: BasePicSequence.realDraw her çocuk için p.draw() çağırıyor,
+  // o da addLayer'dan geçiyor.
   private val Silindiİmi = "__kocoKatmanSilindi"
 
   // İKİNCİ İM: "bu katmanın BEKLEYEN yayını düşürüldü".
@@ -546,6 +551,30 @@ object PixiUyum {
 
   /** Düşürülmüş bir yayın var mı? realDraw, addLayer imleri silmeden ÖNCE okuyor. */
   def düşenBoyaVarMı(katman: Any): Boolean = imVarMı(katman, DüşenBoyaİmi)
+
+  /**
+   * `katman`ı VE altındaki bütün düğümleri "silindi" diye imler (#115).
+   *
+   * Neden alt ağaç: bir GPics (BasePicSequence) silindiğinde sahneden çıkan
+   * düğüm grubun kabı, ama dolgusu bekleyen çizerlerin katmanı onun altındaki
+   * çocuklar. Yalnız kabı imlemek onları durdurmuyordu: kaplumbağanın komut
+   * kuyruğu boşaldıkça her kenar boyaKirlendi'yi yeniden çağırıp çizeri sıraya
+   * geri koyuyordu.
+   *
+   * Graphics/Sprite düğümlerini AYIKLAMIYORUZ: PIXI 5'te ikisi de Container'dan
+   * türüyor, yani ucuz ve güvenilir bir ayırt edici yok. Fazladan im koymak
+   * zararsız -- imi yalnız `boyasıSürüyor` (turtleLayer üstünde) ve
+   * `düşenBoyaVarMı` (tnode üstünde) okuyor; öteki düğümlerde kimse bakmıyor.
+   * Yürüyüşün kendisi glKaynaklarınıBırak'ın zaten yaptığı yürüyüşün aynısı.
+   */
+  def altAğacıSilindiİmle(düğüm: Any): Unit =
+    if (düğüm != null) {
+      katmanıSilindiİmle(düğüm)
+      val çocuklar = dyn(düğüm).children
+      if (!js.isUndefined(çocuklar) && çocuklar != null) {
+        çocuklar.asInstanceOf[js.Array[js.Dynamic]].foreach(altAğacıSilindiİmle)
+      }
+    }
 
   /** Katman (yeniden) sahneye giriyor: her iki imi de kaldır. addLayer çağırıyor. */
   def katmanınSilindiİminiSil(katman: Any): Unit = {

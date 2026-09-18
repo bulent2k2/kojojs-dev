@@ -23,6 +23,13 @@ class TestKojoWorld extends KojoWorld {
 
   def addLayer(layer: Container): Unit = {
     stage.addChild(layer)
+    // KojoWorldImpl.addLayer'ın yaptığının aynısı. Saplama bunu ATLIYORDU ve
+    // sessizce yanlış davranıyordu: "silindi" imi hiç kalkmadığı için yeniden
+    // çizilen bir resmin çizeri `boyasıSürüyor` kapısından geçemiyor, dolgusu
+    // hiç yayınlanmıyordu. Yani düşürülen dolgunun yeniden çizimde geri
+    // gelmesini (#111/#112/#115 telafisi) bu dünyada sınamak MÜMKÜN DEĞİLDİ --
+    // ölçüldü: im true, çizimden sonra bekleyen 0.
+    PixiUyum.katmanınSilindiİminiSil(layer)
   }
   def removeLayer(layer: Container): Unit = {
     stage.removeChild(layer)

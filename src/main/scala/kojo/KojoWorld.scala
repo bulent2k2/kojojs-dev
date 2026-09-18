@@ -98,18 +98,40 @@ trait KojoWorld {
     //             kalan 0-42'lik zamanlamaya bağlı sızıntıyı kapatıp sayıyı
     //             belirlenimci 76'ya, yani tam canlı işe çiviliyor
     // İkisi tek yerde duruyor ki ileride ayrı düşmesinler.
-    PixiUyum.katmanıSilindiİmle(katman)
+    //
+    // İKİSİ DE ALT AĞACA YÜRÜR (#115). Eskiden ikisi de yalnız `katman`ın
+    // KENDİSİNE bakıyordu; bir resim bir GPics'in içindeyse sahneden çıkan
+    // düğüm grubun kabı, çizerin kendi turtleLayer'ı ise onun ALTINDA, yani
+    // ne im tutuyordu ne `ne katman` eşleşiyordu. Ölçüldü, 40 kare:
+    //   çıplak iki gül      74 / 74 / 74
+    //   GPics(gül, gül)    512 / 533   ->  düzeltmeden sonra çıplakla aynı
+    PixiUyum.altAğacıSilindiİmle(katman)
     if (bekleyenBoyacılar.nonEmpty) {
-      val öncekiBoy = bekleyenBoyacılar.size
-      bekleyenBoyacılar.filterInPlace(_.boyacıKatmanı ne katman)
-      // GERÇEKTEN bir yayın düştüyse katmana onu da yaz: hiç yayınlanmamış bir
-      // dolgu bu düşmeyle KAYBOLUYOR, resim yeniden çizilince dolgusuz
-      // görünüyordu (#111'in erase() yolu için kapattığı kusurun aynısı, öteki
-      // kapıdan). TurtlePicture.realDraw imi okuyup yeniden kirletiyor.
-      // Koşullu: her silinende değil, yalnız gerçekten düşende -- yoksa bir kez
-      // çizilen her resme fazladan bir üçgenleme binerdi.
-      if (bekleyenBoyacılar.size != öncekiBoy) PixiUyum.düşenBoyayıİmle(katman)
+      // Çizer başına düşürüyoruz, küresel değil: hayatta kalan kardeşlerin
+      // bekleyeni durmalı (#106/#111'in kuralı). Alt ağaç ölçütü de çizer
+      // başına -- katmanı `katman`ın altındaysa düşer, değilse durur.
+      val düşenler = bekleyenBoyacılar.filter(b => altındaMı(b.boyacıKatmanı, katman)).toList
+      if (düşenler.nonEmpty) {
+        bekleyenBoyacılar --= düşenler
+        // GERÇEKTEN bir yayın düştüyse o çizerin KENDİ katmanına yaz: hiç
+        // yayınlanmamış bir dolgu bu düşmeyle KAYBOLUYOR, resim yeniden
+        // çizilince dolgusuz görünüyordu (#111'in erase() yolu için kapattığı
+        // kusurun aynısı, öteki kapıdan). TurtlePicture.realDraw imi okuyup
+        // yeniden kirletiyor. Grup kabına değil ÇOCUĞA yazılıyor: realDraw
+        // çocuğun kendi tnode'una bakıyor (#115).
+        düşenler.foreach(b => PixiUyum.düşenBoyayıİmle(b.boyacıKatmanı))
+      }
     }
+  }
+
+  /** `alt`, `üst`ün kendisi mi ya da altındaki bir düğüm mü? */
+  private def altındaMı(alt: PIXI.DisplayObject, üst: PIXI.Container): Boolean = {
+    var d: PIXI.DisplayObject = alt
+    var bulundu = false
+    while (d != null && !bulundu) {
+      if (d eq üst) bulundu = true else d = d.parent
+    }
+    bulundu
   }
 
   /**
