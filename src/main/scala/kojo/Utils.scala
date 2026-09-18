@@ -193,8 +193,12 @@ object PixiUyum {
             else p.kojoDolguÇevrildi = false
             i += 1
           }
-          bulundu = n.containsPoint(küresel).asInstanceOf[Boolean]
-          if (çevrilen > 0) {
+          // try/finally: geri alma bu döngüde ATLANMAMASI gereken tek şey.
+          // containsPoint'in patlaması beklenmez, ama atlanırsa görünmez
+          // dolgular KALICI olarak görünür kalır -- yani hem ekran değişir hem
+          // de 19x üçgenleme bedeli sürekli hâle gelir.
+          try bulundu = n.containsPoint(küresel).asInstanceOf[Boolean]
+          finally if (çevrilen > 0) {
             i = 0
             while (i < gd.length) {
               val p = gd(i)
