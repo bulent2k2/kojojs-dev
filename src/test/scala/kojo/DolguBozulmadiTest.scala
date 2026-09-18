@@ -164,9 +164,14 @@ class DolguBozulmadiTest extends AsyncFunSuite with Matchers {
       val yayın = w.yayınSayısı - başlangıç
       withClue(s"\n[E] $kareSayısı karede yayın = $yayın (kare başına 2 canlı resim çiziliyor)\n") {
         // Düzeltilmiş durum belirlenimci 76: sayı kare başına tam 2 canlı
-        // resme eşit, zamanlamadan bağımsız. Tavan 120 onun ÜSTÜNDE,
-        // "yalnız im" (152) ve düzeltmesiz (>=162) durumların ALTINDA.
-        yayın should be <= (kareSayısı * 3L)
+        // resme eşit, zamanlamadan bağımsız. Tavan onun ÜSTÜNDE, "yalnız im"
+        // (152) ve düzeltmesiz (>=162) durumların ALTINDA.
+        //
+        // Tavan kareSayısı*3 = 120 İDİ; incelemede "yalnız düşürme"
+        // koşularından biri TAM 120 ölçtü, yani tavan dağılımın kenarında
+        // oturuyordu. kareSayısı*2+15 = 95: belirlenimci 76'nın 19 üstünde,
+        // ölçülen her kırık durumun altında.
+        yayın should be <= (kareSayısı * 2L + 15L)
       }
     }
   }
