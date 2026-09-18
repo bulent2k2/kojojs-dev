@@ -34,7 +34,10 @@ abstract class BasePicSequence(val pics: Seq[Picture]) extends Picture with Read
     // İlk denememde tamamını korumuştum; #123 incelemesi bu bedeli ölçtü.
     //
     // makeDone'un "tam bir kez" sözleşmesi de böylece bozulmuyor: ikinci kez hiç çağrılmıyor.
-    // Orada patlaması, beklenmedik bir yerin onu çağırdığının işareti olarak kalıyor.
+    // ÖLÇÜLÜ OLMAK GEREK: bu sınıfta makeDone'u çağıran tek yer burası (ötekiler ImagePic,
+    // ImagePicRaw, TextPic, TurtlePicture, VectorGraphicsPic), yani gruplar için "ikinci
+    // yerleşim" uyarısı fiilen kalktı -- artık desteklenen bir işlem olduğu için doğrusu da
+    // bu. Sözleşme öteki resim türleri için duruyor; grup için bir işaret kaynağı değil.
     //
     // İki çizim ilk yerleşimden ÖNCE gelirse de doğru: iki geri çağrı da kaydolur,
     // birincisi made'i kurar, ikincisi yalnız yerleşimi yeniler.
@@ -241,6 +244,11 @@ class BatchPics(pics: Seq[Picture])(implicit val kojoWorld: KojoWorld) extends B
   //   layoutChildren yine  false,false,false   <- hiçbiri görünmüyor, currPicIndex=1
   // Yani hiçbiri görünmeyen bir ara oluşuyor ve sonraki showNext pics(2)'ye atlayarak
   // pics(1)'i hiç göstermiyor. İndeksi okuyunca yöntem idempotent oluyor.
+  //
+  // YAN ETKİSİ, bilinçli: görünürlük artık İDDİA EDİLİYOR, yalnız kuyruk gizlenmiyor. Bu
+  // yüzden gösterilen resmi elle `görünmez()` yapıp grubu yeniden çizmek onu GERİ GETİRİYOR
+  // (master'da o yol istisna atıyor ve gizli kalıyordu). Bir yığın resmi için "yerleşim"
+  // tam olarak bu demek. GrupYenidenCizimTest'te çivili (#123 incelemesi §4b).
   def layoutChildren(): Unit = pics.zipWithIndex.foreach { case (p, i) =>
     if (i == currPicIndex) p.visible() else p.invisible()
   }

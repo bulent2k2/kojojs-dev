@@ -132,6 +132,33 @@ class GrupYenidenCizimTest extends AsyncFunSuite with Matchers {
     }
   }
 
+  test("BatchPics: ELLE gizlenen gösterilen resim yeniden çizimde geri geliyor (#123 §4b)") {
+    // YENİ DAVRANIŞ, bilinçli: layoutChildren artık görünürlüğü İDDİA ediyor
+    // (i == currPicIndex -> visible), eskiden yalnız kuyruğu gizliyordu. Bu yüzden
+    // `g.pics(g.currPicIndex).invisible()` dedikten sonra grubu yeniden çizmek onu geri
+    // getiriyor. Master'da o yol istisna atıyor ve gizli kalıyordu.
+    //
+    // Bir yığın resmi için "yerleşim" tam olarak "gösterilen görünür, ötekiler değil"
+    // demek, yani savunulabilir -- ama YENİ, o yüzden çivileniyor. #123'ün incelemesi
+    // kendi önerisinin bu sonucunu işaretledi.
+    val g = kojo.BatchPics(kare(100), kare(60), kare(80))
+    g.draw()
+    for {
+      _ <- g.ready
+      ilk = g.pics.map(_.tnode.visible)
+      _ = g.pics(g.currPicIndex).invisible()
+      elleGizli = g.pics.map(_.tnode.visible)
+      _ = g.draw()
+      _ <- g.ready
+    } yield {
+      withClue(s"\nilk=$ilk elle gizlendi=$elleGizli yeniden çizim=${g.pics.map(_.tnode.visible)}\n") {
+        ilk shouldBe Seq(true, false, false)
+        elleGizli shouldBe Seq(false, false, false)
+        g.pics.map(_.tnode.visible) shouldBe Seq(true, false, false)
+      }
+    }
+  }
+
   test("layoutChildren idempotent (kayan nokta toleransında): konum oynamıyor") {
     // Yerleşimi ikinci çizimde koşturMAmayı seçtik, ama seçimin gerekçesi bu ölçüme
     // dayanıyor: konumlandıran alt sınıflarda formül bounds'u yeniden okuyup DELTA
