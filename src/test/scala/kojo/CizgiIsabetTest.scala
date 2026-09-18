@@ -171,4 +171,22 @@ class CizgiIsabetTest extends AsyncFunSuite with Matchers {
     ç.scale(0.25)
     kareler(4).map(_ => isabetAlıyorMu(w, ç, 60, 0) shouldBe true)
   }
+
+  test("KÜÇÜLTÜLMÜŞ çizginin payı da 1 EKRAN birimi: ucuz eleme kırpmıyor") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val b = new kojo.syntax.Builtins()(w)
+    import b._
+    val ç = penColor(kojo.doodle.Color.black) -> Picture.line(120, 0)
+    ç.draw(); ç.onMouseClick((_, _) => ())
+    ç.scale(0.05)
+    // Ölçek 0.05'te 1 EKRAN birimi = 20 YEREL birim. Çizginin üstünde değil,
+    // tam o payın ucunda bir noktayı sınıyoruz: pay gerçekten ekran biriminde
+    // ise isabet almalı. Sav çizginin ÜSTÜNDEN ölçseydi bunu göremezdi --
+    // ilk hâli öyleydi ve ucuz elemenin payı kırptığını kaçırmıştı.
+    kareler(4).map { _ =>
+      isabetAlıyorMu(w, ç, 60, 0) shouldBe true
+      isabetAlıyorMu(w, ç, 60, 15) shouldBe true   // ~0.75 ekran birimi: payın içi
+      isabetAlıyorMu(w, ç, 60, 60) shouldBe false  // 3 ekran birimi: payın dışı
+    }
+  }
 }

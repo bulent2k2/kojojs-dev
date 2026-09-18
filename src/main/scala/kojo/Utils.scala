@@ -241,7 +241,7 @@ object PixiUyum {
     val k = dyn(kök)
     if (!js.isUndefined(k.hitArea) && k.hitArea != null) return // elle kurulan alan üstün
 
-    def sor(n: js.Dynamic, küresel: js.Dynamic): Boolean = {
+    def sor(n: js.Dynamic, küresel: js.Dynamic, pay: Double): Boolean = {
       var bulundu = false
       if (js.typeOf(n.containsPoint) == "function") {
         val gd =
@@ -289,15 +289,6 @@ object PixiUyum {
             val yerel = n.toLocal(küresel)
             val yx = yerel.x.asInstanceOf[Double]
             val yy = yerel.y.asInstanceOf[Double]
-            // 1 birimlik pay EKRAN biriminde (masaüstündeki pick halo'su gibi);
-            // yerel birime çevirmek için dünya ölçeğine bölüyoruz, yoksa
-            // küçültülmüş bir resimde şerit orantısız büyür.
-            val dt = n.worldTransform
-            val ölçek = math.sqrt(
-              dt.a.asInstanceOf[Double] * dt.a.asInstanceOf[Double] +
-                dt.b.asInstanceOf[Double] * dt.b.asInstanceOf[Double]
-            )
-            val pay = if (ölçek > 0) 1.0 / ölçek else 1.0
             var j = 0
             while (j < gd.length && !bulundu) {
               val p = gd(j)
@@ -317,7 +308,7 @@ object PixiUyum {
         else {
           var i = 0
           var b = false
-          while (i < ç.length && !b) { b = sor(ç(i), küresel); i += 1 }
+          while (i < ç.length && !b) { b = sor(ç(i), küresel, pay); i += 1 }
           b
         }
       }
@@ -325,15 +316,36 @@ object PixiUyum {
 
     k.hitArea = js.Dynamic.literal(
       contains = js.Any.fromFunction2 { (x: Double, y: Double) =>
-        // ucuz eleme: yerel sınır kutusunun dışındaki nokta için geometriyi hiç gezme.
-        // Kutuyu 1 birim genişletiyoruz, yoksa şeridin payı (#118) tam kutunun
-        // kenarında kırpılırdı -- eleme, kararı veren sınamadan dar olamaz.
+        // Şeridin payı EKRAN biriminde (masaüstündeki pick halo'su gibi), yerel
+        // birime dünya ölçeğine bölerek çevriliyor. Ölçek iki eksende ayrı
+        // okunuyor ve KÜÇÜĞÜ alınıyor: eşit olmayan ölçekte (büyütXY) pay iki
+        // eksende de en az 1 ekran birimi kalsın.
+        val dt = k.worldTransform
+        val öx = math.sqrt(
+          dt.a.asInstanceOf[Double] * dt.a.asInstanceOf[Double] +
+            dt.b.asInstanceOf[Double] * dt.b.asInstanceOf[Double]
+        )
+        val öy = math.sqrt(
+          dt.c.asInstanceOf[Double] * dt.c.asInstanceOf[Double] +
+            dt.d.asInstanceOf[Double] * dt.d.asInstanceOf[Double]
+        )
+        val ölçek = math.min(öx, öy)
+        val pay = if (ölçek > 0) 1.0 / ölçek else 1.0
+
+        // ucuz eleme: yerel sınır kutusunun dışındaki nokta için geometriyi hiç
+        // gezme. Kutu, kararı veren sınamayla AYNI payla genişletiliyor. Sabit
+        // 1 birim kullanmak küçültülmüş resimlerde elemeyi şeritten dar
+        // bırakıyordu (ölçüldü: ölçek 0.05'te şeridin eşiği 21 yerel birim ama
+        // eleme 2 birimde kesiyordu, yani etkin pay 1 ekran birimi değil
+        // ölçek x 1 ekran birimiydi) -- eleme, kararı veren sınamadan dar olamaz.
         val s = k.getLocalBounds()
-        val sx = s.x.asInstanceOf[Double] - 1
-        val sy = s.y.asInstanceOf[Double] - 1
-        if (x < sx || y < sy || x > sx + s.width.asInstanceOf[Double] + 2 || y > sy + s.height.asInstanceOf[Double] + 2)
+        val sx = s.x.asInstanceOf[Double] - pay
+        val sy = s.y.asInstanceOf[Double] - pay
+        if (x < sx || y < sy ||
+            x > sx + s.width.asInstanceOf[Double] + 2 * pay ||
+            y > sy + s.height.asInstanceOf[Double] + 2 * pay)
           false
-        else sor(k, k.toGlobal(js.Dynamic.newInstance(js.Dynamic.global.PIXI.Point)(x, y)))
+        else sor(k, k.toGlobal(js.Dynamic.newInstance(js.Dynamic.global.PIXI.Point)(x, y)), pay)
       }
     )
   }
