@@ -486,4 +486,70 @@ object PixiUyum {
         çocuklar.asInstanceOf[js.Array[js.Dynamic]].foreach(glKaynaklarınıBırak)
       }
     }
+
+  // --- "Bu katman silindi" imi ------------------------------------------------
+  //
+  // Sahneden silinmiş bir resmin çizeri bekleyen boya sırasına GERİ GİRMESİN
+  // diye (#109): kaplumbağanın komut kuyruğu silmeden sonra da boşalmaya devam
+  // ediyor ve her kenar boyaKirlendi'yi yeniden çağırıyor. Sıradan bir kez
+  // düşürmek bu geri girişi kapatmıyor (ölçüm: KojoWorld.katmanınBoyasınıUnut
+  // yanındaki not) -- ikisi birlikte gerekiyor.
+  //
+  // NEDEN AÇIK BİR İM, katmanın `parent`'ının null olmasına BAKMAK DEĞİL:
+  // pişirme de düğümleri sahne dışında tutuyor (#96/#102) ve çizim yolu
+  // (turtlePathLineTo) noteMutation çağırmıyor -- yani çizmekte olan bir
+  // resmin katmanı durağan görünüp pişebilir. `parent`'a bakan bir çıkarım onu
+  // "silinmiş" sayıp dolgusunu sessizce düşürürdü. Bu im yalnız SİLME
+  // yollarının (removeLayer, erasePictures) koyduğu, yalnız addLayer'ın
+  // kaldırdığı bir bayrak; pişirme stage.removeChild/addChildAt'ı DOĞRUDAN
+  // çağırıyor, yani ime hiç dokunmuyor. Tehlike tasarımdan siliniyor.
+  //
+  // NEDEN KATMANIN ÜZERİNDE, KojoWorld'de bir küme değil: küme silinmiş
+  // katmanlara gönderme tutardı (sızıntı). İm katmanla birlikte ölüyor.
+  // (Aynı deyim Boya.GradyanDokusuİmi'nde de kullanılıyor.)
+  //
+  // BİLİNEN SINIR (bu yamayla değişmiyor): yalnız addLayer/removeLayer'a
+  // VERİLEN katman imleniyor, altındaki iç içe resim katmanları değil --
+  // katmanınBoyasınıUnut de bugün tam olarak o kümeyi kapsıyor.
+  private val Silindiİmi = "__kocoKatmanSilindi"
+
+  // İKİNCİ İM: "bu katmanın BEKLEYEN yayını düşürüldü".
+  //
+  // Düşürülen yayın BİLGİ taşıyor: hiç yayınlanmamış bir dolgu öyle kaybolur
+  // ve resim yeniden çizilince dolgusuz görünür. #111 bu telafiyi
+  // `Picture.erase()` yolu için ekledi (TurtlePicture.dolguDüşürüldü); aynı
+  // kusur `resimleriSil()` kapısından da geliyordu, çünkü o Picture.erase()'ten
+  // geçmiyor -- elinde katman var, çizer yok. Bu im o bilgiyi katmanın üzerinde
+  // taşıyor, realDraw okuyup yeniden kirletiyor (#109, #112 incelemesi).
+  //
+  // "Silindi"den AYRI bir im, çünkü koşulları farklı: her silinen katman
+  // imleniyor ama yalnız GERÇEKTEN bir yayın düşürülen katmanın yeniden
+  // kirletilmesi gerekiyor. Her çizimde kirletmek, bir kez çizilen her resme
+  // fazladan bir üçgenleme bindirirdi (#111'in altını çizdiği ayrım).
+  private val DüşenBoyaİmi = "__kocoDüşenBoya"
+
+  private def imKoy(o: Any, im: String): Unit = if (o != null) dyn(o).updateDynamic(im)(true)
+  private def imSil(o: Any, im: String): Unit = if (o != null) dyn(o).updateDynamic(im)(false)
+  private def imVarMı(o: Any, im: String): Boolean =
+    o != null && dyn(o).selectDynamic(im).asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
+
+  /** Katmanı "sahneden silindi" diye imle (silme yolları çağırıyor). */
+  def katmanıSilindiİmle(katman: Any): Unit = imKoy(katman, Silindiİmi)
+
+  /** Katman silinmiş mi? İm hiç konmamışsa HAYIR -- yeni kurulmuş bir katman
+    * (Resim{} gövdesi çiz()'den ÖNCE çalışıyor) canlı sayılmalı, yoksa dolgu
+    * hiç oluşmaz. */
+  def katmanSilindiMi(katman: Any): Boolean = imVarMı(katman, Silindiİmi)
+
+  /** Bu katmanın bekleyen yayını GERÇEKTEN düşürüldü diye imle. */
+  def düşenBoyayıİmle(katman: Any): Unit = imKoy(katman, DüşenBoyaİmi)
+
+  /** Düşürülmüş bir yayın var mı? realDraw, addLayer imleri silmeden ÖNCE okuyor. */
+  def düşenBoyaVarMı(katman: Any): Boolean = imVarMı(katman, DüşenBoyaİmi)
+
+  /** Katman (yeniden) sahneye giriyor: her iki imi de kaldır. addLayer çağırıyor. */
+  def katmanınSilindiİminiSil(katman: Any): Unit = {
+    imSil(katman, Silindiİmi)
+    imSil(katman, DüşenBoyaİmi)
+  }
 }
