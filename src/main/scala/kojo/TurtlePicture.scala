@@ -45,9 +45,30 @@ class TurtlePicture private[kojo] (fn: Turtle => Unit)(implicit val kojoWorld: K
     }
   }
 
+  // erase() bekleyen dolguyu düşürüyor (sahne dışına boşa üçgenleme olmasın,
+  // #68). Ama düşürülen yayın BİLGİ taşıyor: hiç yayınlanmamış bir dolgu öyle
+  // KAYBOLUYOR ve resim yeniden çizilince dolgusuz görünüyor. #106 bunu
+  // getirdi, #109'un incelemesinde ölçüldü:
+  //
+  //   çiz -> boşalt -> sil -> çiz -> boşalt : dolgu duruyor  (ilk yayın olmuş)
+  //   çiz -> sil -> çiz -> boşalt           : dolgu YOK      (hiç yayın olmadı)
+  //
+  // İkincisi ulaşılabilir, çünkü draw/erase eşzamansız (ready.foreach) ama
+  // mikro-görevler bir sonraki kareden ÖNCE koşuyor: `çiz(r); r.sil(); çiz(r)`
+  // diyen düz bir betik tam o sıraya giriyor.
+  //
+  // O yüzden düşürdüğümüzü hatırlıyoruz ve yeniden çizimde yeniden
+  // kirletiyoruz. Koşullu: her çizimde kirletmek, bir kez çizilen resme
+  // fazladan bir üçgenleme bindirirdi.
+  private var dolguDüşürüldü = false
+
   import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
   def realDraw(): Unit = {
     kojoWorld.addLayer(tnode)
+    if (dolguDüşürüldü) {
+      dolguDüşürüldü = false
+      kojoWorld.boyaKirlendi(turtle)
+    }
   }
 
   // GL kaynaklarını burada bırakmıyoruz: removeLayer katmanın ALTINDAKİ bütün
@@ -65,7 +86,7 @@ class TurtlePicture private[kojo] (fn: Turtle => Unit)(implicit val kojoWorld: K
       //
       // Çizer başına, küresel değil: ötekilerin bekleyeni durmalı, yoksa
       // başkasının dolgusu sessizce yok olur (bkz. TembelSilmeTest).
-      kojoWorld.bekleyenBoyayıUnut(turtle)
+      if (kojoWorld.bekleyenBoyayıUnut(turtle)) dolguDüşürüldü = true
       kojoWorld.removeLayer(picLayer)
     }
   }
