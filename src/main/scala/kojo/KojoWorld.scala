@@ -36,13 +36,13 @@ trait KojoWorld {
   // (asıl kazanç bu), ve kirlenme sırası korunur -- katman sırası önemli.
   private val bekleyenBoyacılar = scala.collection.mutable.LinkedHashSet.empty[Boyacı]
 
-  /** Bekleyen boya sırasının boyu -- sınama dikişi (bkz. #108 savı). */
+  /** Bekleyen boya sırasının boyu -- sınama dikişi (bkz. #109 savı). */
   private[kojo] def bekleyenBoyaSayısı: Int = bekleyenBoyacılar.size
 
   /**
    * Şimdiye dek yapılmış dolgu yayını sayısı -- sınama dikişi.
    *
-   * #108'in savı bunu okuyor: silinmiş bir resim için yayın SÜRMEMELİ.
+   * #109'in savı bunu okuyor: silinmiş bir resim için yayın SÜRMEMELİ.
    * Sırayı okumak yetmiyordu, çünkü flushRender sırayı kare sınırından önce
    * boşaltıyor ve sınama hep 0 görüyordu (kırma sınamasıyla anlaşıldı).
    */
@@ -50,10 +50,11 @@ trait KojoWorld {
 
   /** Çizerin dolgusu bayatladı: sıraya al ve bir render iste. */
   private[kojo] def boyaKirlendi(b: Boyacı): Unit = {
-    // Silinmiş bir resmin çizeri sıraya GERİ GİRMESİN. Katmanı silmek tek
-    // başına yetmiyordu: kaplumbağanın komut kuyruğu boşalmaya devam ediyor ve
-    // her kenar burayı yeniden çağırıyordu (ölçüldü: sıradan bir kez düşürmek
-    // ölü yayın sayısını hiç değiştirmedi -- sorun #108).
+    // Silinmiş bir resmin çizeri sıraya GERİ GİRMESİN. Katmanı sıradan bir kez
+    // düşürmek yetmiyor: kaplumbağanın komut kuyruğu silmeden SONRA da
+    // boşalmaya devam ediyor ve her kenar burayı yeniden çağırıp çizeri sıraya
+    // geri koyuyor (sorun #109). Ölçüldü, 40 karede: yalnız düşürme 77/82/118
+    // -- sızıntı zamanlamaya bağlı; bu kapıyla 76/76/76, yani tam canlı iş.
     if (b.boyasıSürüyor) {
       bekleyenBoyacılar += b
       render()
@@ -79,7 +80,7 @@ trait KojoWorld {
    *
    * Yoksa silinmiş bir resmin dolgusu, kaplumbağanın komut kuyruğu boşaldıkça
    * yeniden yeniden üçgenleniyor: görünmeyen bir şekil için tam maliyet.
-   * Ölçüldü (sorun #108; resimleriSil + canlandır, 120 nokta x 7 kat, 40 kare):
+   * Ölçüldü (sorun #109; resimleriSil + canlandır, 120 nokta x 7 kat, 40 kare):
    * 80 canlı yayın 0 ms, 317-361 ÖLÜ yayın 512-531 ms -- üçgenleme süresinin
    * ~%96'sı sahnede olmayan şekillere gidiyordu.
    *
@@ -88,8 +89,18 @@ trait KojoWorld {
    * ayrım). Çizer ileride yeniden kirlenirse boyaKirlendi onu sıraya geri
    * koyar, yani bilgi kaybı yok.
    */
-  private[kojo] def katmanınBoyasınıUnut(katman: PIXI.Container): Unit =
+  private[kojo] def katmanınBoyasınıUnut(katman: PIXI.Container): Unit = {
+    // Önce İMLE, sonra düşür -- iki ayrı sızıntıyı iki ayrı şey kapatıyor:
+    //   düşürme : sırada DURAN yayını atıyor (asıl kazanç; tek başına
+    //             40 karede 162-364'ten 77-118'e indiriyor)
+    //   im      : çizerin sıraya GERİ girmesini engelliyor (komut kuyruğu
+    //             boşaldıkça her kenar boyaKirlendi'yi yeniden çağırıyor);
+    //             kalan 0-42'lik zamanlamaya bağlı sızıntıyı kapatıp sayıyı
+    //             belirlenimci 76'ya, yani tam canlı işe çiviliyor
+    // İkisi tek yerde duruyor ki ileride ayrı düşmesinler.
+    PixiUyum.katmanıSilindiİmle(katman)
     if (bekleyenBoyacılar.nonEmpty) bekleyenBoyacılar.filterInPlace(_.boyacıKatmanı ne katman)
+  }
 
   /**
    * BU çizerin bekleyen dolgusunu düşür -- kendi yolunu sildiği için.
@@ -385,6 +396,9 @@ class KojoWorldImpl extends KojoWorld {
 
   def addLayer(layer: PIXI.Container): Unit = {
     stage.addChild(layer)
+    // (yeniden) sahneye giren katman silinmiş değil: "silindi" imini kaldır.
+    // İmi koyan tek yer silme yolları, kaldıran tek yer burası (#109).
+    PixiUyum.katmanınSilindiİminiSil(layer)
     // yeni düğümü bu kareyle damgala: yoksa hiç damgalanmadığından çizildiği
     // karenin sonunda pişer; "kur, birkaç kare sonra hareket ettir" kalıbı
     // pişir->unbake->pişir gel-gitine girerdi. Damgayla bakeAfterFrames kare
@@ -401,7 +415,7 @@ class KojoWorldImpl extends KojoWorld {
     stage.removeChild(layer)
     // Sahneden çıkmak GL kaynağını bırakmıyor; bırakan tek şey dispose (#91).
     PixiUyum.glKaynaklarınıBırak(layer)
-    katmanınBoyasınıUnut(layer) // #108: silinen resmin dolgusu yayınlanmaya devam etmesin
+    katmanınBoyasınıUnut(layer) // #109: silinen resmin dolgusu yayınlanmaya devam etmesin
     render()
   }
 
@@ -664,15 +678,18 @@ class KojoWorldImpl extends KojoWorld {
     // (Turtle.boyayıYayınla katmanı sahnede değilse çıksın) ya da burada
     // çizer başına düşürme.
     //
-    // BU DALDA (b) yolu uygulandı: katmanınBoyasınıUnut çizer başına düşürüyor
-    // (Boyacı artık katmanına gönderme taşıyor), yani erasePictures da kapalı.
+    // BU DALDA (b) yolu uygulandı: katmanınBoyasınıUnut hem katmanı "silindi"
+    // diye imliyor hem de çizeri sıradan düşürüyor (Boyacı artık katmanına
+    // gönderme taşıyor), yani erasePictures da kapalı. İm düşürmenin ÜSTÜNE
+    // geliyor: düşürme sırada duran yayını atıyor, im çizerin sıraya geri
+    // girmesini engelliyor (ölçüm: katmanınBoyasınıUnut'un yanındaki not).
     resetBake() // pişmiş boyayı da temizle (yoksa dokuda hayalet kalır)
     val children = stage.children.toBuffer
     children.foreach { c =>
       if (!kaplumbağaKatmanıMı(c)) {
         stage.removeChild(c)
         PixiUyum.glKaynaklarınıBırak(c) // bkz. removeLayer / #91
-        katmanınBoyasınıUnut(c.asInstanceOf[PIXI.Container]) // #108
+        katmanınBoyasınıUnut(c.asInstanceOf[PIXI.Container]) // #109
       }
     }
     render()

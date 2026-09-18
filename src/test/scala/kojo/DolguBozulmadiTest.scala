@@ -64,9 +64,10 @@ class DolguBozulmadiTest extends AsyncFunSuite with Matchers {
   test("C: KURULUP bekletilen, sonra çizilen resmin dolgusu oluşuyor") {
     implicit val w: KojoWorldImpl = try dünyaKur() catch { case t: Throwable => cancel(s"$t") }
     // TurtlePicture yapıcıda make() çağırıyor, yani resim gövdesi draw()'dan
-    // ÖNCE, katman sahnede DEĞİLKEN çalışıyor. #108 kapısı yalnız "sahnede mi"
+    // ÖNCE, katman sahnede DEĞİLKEN çalışıyor. #109 kapısı yalnız "sahnede mi"
     // diye sorsaydı bu yayınlar kesilir ve dolgu hiç oluşmazdı. Kapı bu yüzden
-    // "sahneye BİR KEZ girdikten SONRA çıktıysa kes" diyor.
+    // katmanın sahnede olup olmamasına DEĞİL, üzerine AÇIKÇA konmuş "silindi"
+    // imine bakıyor: im hiç konmamışsa katman canlı sayılıyor.
     val p = gül()
     var son = 0
     kareler(80) { i =>
@@ -77,7 +78,7 @@ class DolguBozulmadiTest extends AsyncFunSuite with Matchers {
     }
   }
 
-  test("D: silinen resmin çizeri yayın sırasına GERİ GİRMİYOR (#108)") {
+  test("D: silinen resmin çizeri yayın sırasına GERİ GİRMİYOR (#109)") {
     implicit val w: KojoWorldImpl = try dünyaKur() catch { case t: Throwable => cancel(s"$t") }
     // Düzeltmenin sözleşmesi bu. Katmanı silmek tek başına yetmiyordu:
     // kaplumbağanın komut kuyruğu boşalmaya devam ediyor ve her kenar
@@ -111,7 +112,7 @@ class DolguBozulmadiTest extends AsyncFunSuite with Matchers {
     }
   }
 
-  test("E: resimleriSil döngüsünde yayın sayısı canlı resimlerle sınırlı (#108)") {
+  test("E: resimleriSil döngüsünde yayın sayısı canlı resimlerle sınırlı (#109)") {
     implicit val w: KojoWorldImpl = try dünyaKur() catch { case t: Throwable => cancel(s"$t") }
     // D savı boyasıSürüyor'un DEĞERİNİ çiviliyor; bu sav boyaKirlendi'nin onu
     // KULLANDIĞINI. İkisi ayrı: kapıyı boyaKirlendi'den söküp attığımda D
@@ -119,7 +120,14 @@ class DolguBozulmadiTest extends AsyncFunSuite with Matchers {
     // komutluk kuyruk birkaç karede bitiyor, silinecek "canlı" iş kalmıyor.
     // Ayırt eden şey #91'in kendi kalıbı: her karede sil + yeniden çiz, yani
     // her an kuyruğu boşalan SİLİNMİŞ resimler var.
-    // Ölçüldü: kapısız 263-441 yayın, kapıyla 80 (kare başına tam 2 canlı resim).
+    // Bu ağaçta ÖLÇÜLDÜ (her durum 3 koşu, 40 kare):
+    //   ne im ne düşürme : 162 / 171 / 205 / 364  <- zamanlamaya bağlı, sınırsız
+    //   yalnız im        : 152 / 152 / 152        <- silinen resim başına TAM 1
+    //                      fazla yayın (sırada duran son yayın düşürülmüyor)
+    //   yalnız düşürme   :  77 /  82 / 118        <- geri giriş hâlâ sızıyor
+    //   ikisi birlikte   :  76 /  76 /  76        <- tam canlı iş, belirlenimci
+    // Tavan (120) düşürme yarısını çiviliyor: yalnız im 152'de kırmızı.
+    // İm yarısını D ve F savları çiviliyor.
     val kareSayısı = 40
     var kare = 0
     var başlangıç = 0L
@@ -134,11 +142,54 @@ class DolguBozulmadiTest extends AsyncFunSuite with Matchers {
       w.animating = false
       val yayın = w.yayınSayısı - başlangıç
       withClue(s"\n[E] $kareSayısı karede yayın = $yayın (kare başına 2 canlı resim çiziliyor)\n") {
-        // Tavan iki yarıyı da çiviliyor (ölçüldü, 40 karede):
-        //   master               : 320-427
-        //   yalnız boyaKirlendi kapısı : 152   <- tavanı AŞAR
-        //   kapı + katmanınBoyasınıUnut :  76-85
+        // Düzeltilmiş durum belirlenimci 76: sayı kare başına tam 2 canlı
+        // resme eşit, zamanlamadan bağımsız. Tavan 120 onun ÜSTÜNDE,
+        // "yalnız im" (152) ve düzeltmesiz (>=162) durumların ALTINDA.
         yayın should be <= (kareSayısı * 3L)
+      }
+    }
+  }
+
+  test("F: PİŞİRME gibi doğrudan sahne dışına alınan katman SİLİNMİŞ sayılmıyor (#109)") {
+    implicit val w: KojoWorldImpl = try dünyaKur() catch { case t: Throwable => cancel(s"$t") }
+    // Bu sav tasarım kararının kendisini çiviliyor: "silindi" AÇIK bir im,
+    // katmanın `parent`'ından çıkarılan bir şey DEĞİL.
+    //
+    // Neden önemli: pişirme (#96/#102) düğümleri stage.removeChild ile sahne
+    // dışında tutuyor, ve çizim yolu (turtlePathLineTo) noteMutation
+    // ÇAĞIRMIYOR -- yani çizmekte olan bir resmin katmanı durağan görünüp
+    // pişebilir. `parent == null` çıkarımı onu "silinmiş" sayar ve dolgusunu
+    // sessizce düşürürdü. Burada pişirmenin yaptığı şeyi birebir yapıyoruz.
+    val p = gül()
+    p.draw()
+    var çizilince = false
+    var sahneDışıyken = false
+    var geriKonunca = false
+    var silininceDurdu = false
+    kareler(70) { i =>
+      if (i == 20) çizilince = p.turtle.boyasıSürüyor
+      if (i == 25) {
+        // pişirmenin yaptığı: DOĞRUDAN removeChild, removeLayer'dan geçmeden
+        w.stage.removeChild(p.tnode)
+        sahneDışıyken = p.turtle.boyasıSürüyor
+        // ve geri koyması: DOĞRUDAN addChild, addLayer'dan geçmeden
+        w.stage.addChild(p.tnode)
+        geriKonunca = p.turtle.boyasıSürüyor
+      }
+      if (i == 40) p.erase() // GERÇEK silme: removeLayer'dan geçiyor
+      if (i == 60) silininceDurdu = !p.turtle.boyasıSürüyor
+    }.map { _ =>
+      withClue(s"\n[F] çizilince=$çizilince sahneDışıyken=$sahneDışıyken " +
+        s"geriKonunca=$geriKonunca silininceDurdu=$silininceDurdu\n") {
+        çizilince shouldBe true
+        withClue("pişirme sahne dışına aldı diye yayın DURMAMALI -- " +
+          "`parent` çıkarımına dönülürse bu kırılır -- ") {
+          sahneDışıyken shouldBe true
+        }
+        geriKonunca shouldBe true
+        withClue("gerçek silme (removeLayer) yayını hâlâ durdurmalı -- ") {
+          silininceDurdu shouldBe true
+        }
       }
     }
   }

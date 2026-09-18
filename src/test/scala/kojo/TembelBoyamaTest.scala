@@ -21,7 +21,7 @@ class TembelBoyamaTest extends AnyFunSuite with Matchers {
 
   /** Yayın sayan sahte çizer -- gerçek Turtle'a ve PIXI'ye gerek yok. */
   private class Sayaç extends Boyacı {
-    // #108: sıradan düşürme katmana bakıyor; sayaç sahte bir katman taşıyor.
+    // #109: sıradan düşürme katmana bakıyor; sayaç sahte bir katman taşıyor.
     private[kojo] val boyacıKatmanı = new pixiscalajs.PIXI.Container()
     private[kojo] def boyasıSürüyor = true
     var yayın = 0

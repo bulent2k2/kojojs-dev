@@ -192,16 +192,12 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
    */
   private[kojo] def boyacıKatmanı: PIXI.Container = turtleLayer
 
-  // Katman bir kez sahneye girdi mi? Girdikten SONRA çıkmışsa resim silinmiş
-  // demektir ve yayını sürdürmek boşa iş (#108). Girmemişse Resim{} gövdesi
-  // daha çalışıyordur -- orada kesmek dolguyu tümden yok ederdi.
-  private var katmanSahneyeGirdi = false
-
-  private[kojo] def boyasıSürüyor: Boolean = {
-    val sahnede = turtleLayer.parent != null
-    if (sahnede) katmanSahneyeGirdi = true
-    sahnede || !katmanSahneyeGirdi
-  }
+  // Katmana AÇIK olarak "silindi" imi konmuşsa hayır. İmi yalnız silme
+  // yolları koyuyor, yalnız addLayer kaldırıyor (bkz. PixiUyum.Silindiİmi).
+  // Katmanın `parent`'ının null olmasına BAKMIYORUZ: pişirme de düğümü sahne
+  // dışında tutuyor ve çizim yolu noteMutation çağırmadığı için çizmekte olan
+  // bir resim pişebilir -- `parent` çıkarımı onu silinmiş sanardı (#109).
+  private[kojo] def boyasıSürüyor: Boolean = !PixiUyum.katmanSilindiMi(turtleLayer)
 
   private[kojo] def boyayıYayınla(): Unit = {
     boyamaYolu.clear()

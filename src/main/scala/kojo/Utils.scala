@@ -486,4 +486,44 @@ object PixiUyum {
         çocuklar.asInstanceOf[js.Array[js.Dynamic]].foreach(glKaynaklarınıBırak)
       }
     }
+
+  // --- "Bu katman silindi" imi ------------------------------------------------
+  //
+  // Sahneden silinmiş bir resmin çizeri bekleyen boya sırasına GERİ GİRMESİN
+  // diye (#109): kaplumbağanın komut kuyruğu silmeden sonra da boşalmaya devam
+  // ediyor ve her kenar boyaKirlendi'yi yeniden çağırıyor. Sıradan bir kez
+  // düşürmek bu geri girişi kapatmıyor (ölçüm: KojoWorld.katmanınBoyasınıUnut
+  // yanındaki not) -- ikisi birlikte gerekiyor.
+  //
+  // NEDEN AÇIK BİR İM, katmanın `parent`'ının null olmasına BAKMAK DEĞİL:
+  // pişirme de düğümleri sahne dışında tutuyor (#96/#102) ve çizim yolu
+  // (turtlePathLineTo) noteMutation çağırmıyor -- yani çizmekte olan bir
+  // resmin katmanı durağan görünüp pişebilir. `parent`'a bakan bir çıkarım onu
+  // "silinmiş" sayıp dolgusunu sessizce düşürürdü. Bu im yalnız SİLME
+  // yollarının (removeLayer, erasePictures) koyduğu, yalnız addLayer'ın
+  // kaldırdığı bir bayrak; pişirme stage.removeChild/addChildAt'ı DOĞRUDAN
+  // çağırıyor, yani ime hiç dokunmuyor. Tehlike tasarımdan siliniyor.
+  //
+  // NEDEN KATMANIN ÜZERİNDE, KojoWorld'de bir küme değil: küme silinmiş
+  // katmanlara gönderme tutardı (sızıntı). İm katmanla birlikte ölüyor.
+  // (Aynı deyim Boya.GradyanDokusuİmi'nde de kullanılıyor.)
+  //
+  // BİLİNEN SINIR (bu yamayla değişmiyor): yalnız addLayer/removeLayer'a
+  // VERİLEN katman imleniyor, altındaki iç içe resim katmanları değil --
+  // katmanınBoyasınıUnut de bugün tam olarak o kümeyi kapsıyor.
+  private val Silindiİmi = "__kocoKatmanSilindi"
+
+  /** Katmanı "sahneden silindi" diye imle (silme yolları çağırıyor). */
+  def katmanıSilindiİmle(katman: Any): Unit =
+    if (katman != null) dyn(katman).updateDynamic(Silindiİmi)(true)
+
+  /** İmi kaldır -- katman (yeniden) sahneye giriyor. addLayer çağırıyor. */
+  def katmanınSilindiİminiSil(katman: Any): Unit =
+    if (katman != null) dyn(katman).updateDynamic(Silindiİmi)(false)
+
+  /** Katman silinmiş mi? İm hiç konmamışsa HAYIR -- yeni kurulmuş bir katman
+    * (Resim{} gövdesi çiz()'den ÖNCE çalışıyor) canlı sayılmalı, yoksa dolgu
+    * hiç oluşmaz. */
+  def katmanSilindiMi(katman: Any): Boolean =
+    katman != null && dyn(katman).selectDynamic(Silindiİmi).asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
 }
