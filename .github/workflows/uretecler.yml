@@ -261,6 +261,12 @@ jobs:
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             git status --short
+            # Farkın KENDİSİ de yazılsın: yalnız dosya adı, koşucuda üretilenin
+            # ağaçtakinden NEREDE ayrıldığını söylemiyor ve yerelde aynı koşum
+            # temiz çıkabiliyor (ortam farkı). Dökümü sınırlı tut -- üretilen
+            # sayfalar yüz binlerce bayt.
+            git --no-pager diff --stat
+            git --no-pager diff | head -120
             echo "::error::Üretilmiş dosyalar kaynağıyla uyuşmuyor (yukarıda)."
             echo "Yerelde şunları koşup çıkan farkı commit'leyin:"
             echo "  araclar/gosteri-uret.py --scala"
