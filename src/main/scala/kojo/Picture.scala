@@ -318,6 +318,18 @@ trait Picture {
   def showNext(): Unit = showNext(100)
   def showNext(gap: Long): Unit = Utils.notSupported("showNext", "for non-batch picture")
 
+  /**
+   * Fare olayına bağlanan her yol buradan geçiyor: etkileşimi aç ve isabet
+   * alanını kur. İkincisi olmadan dolgusu görünmeyen resim sessizce ölü
+   * kalıyor (#114) -- `interactive` doğru kuruluyor, ama PIXI'nin isabet
+   * sınaması görünmeyen dolguyu atladığı için hiçbir olay ulaşmıyor.
+   * Gerekçe ve bedel ölçümleri: PixiUyum.isabetAlanınıKur.
+   */
+  private def etkileşimeAç(): Unit = {
+    tnode.interactive = true
+    PixiUyum.isabetAlanınıKur(tnode)
+  }
+
   def handlerWrapper(fn: (Double, Double) => Unit, stop: Boolean = true)(event: InteractionEvent): Unit = {
     val pos = kojoWorld.positionOnStage(event.data)
     if (stop) {
@@ -327,26 +339,26 @@ trait Picture {
   }
 
   def onMousePress(fn: (Double, Double) => Unit): Unit = {
-    tnode.interactive = true
+    etkileşimeAç()
     val handler = handlerWrapper(fn)(_)
     tnode.on("pointerdown", handler)
   }
 
   def onMouseRelease(fn: (Double, Double) => Unit): Unit = {
-    tnode.interactive = true
+    etkileşimeAç()
     val handler = handlerWrapper(fn)(_)
     tnode.on("pointerup", handler)
     tnode.on("pointerupoutside", handler)
   }
 
   def onMouseClick(fn: (Double, Double) => Unit): Unit = {
-    tnode.interactive = true
+    etkileşimeAç()
     val handler = handlerWrapper(fn)(_)
     tnode.on("pointertap", handler)
   }
 
   def onMouseMove(fn: (Double, Double) => Unit): Unit = {
-    tnode.interactive = true
+    etkileşimeAç()
     val moveWrapper: (Double, Double) => Unit = { (x, y) =>
       if (!kojoWorld.isAMouseButtonPressed) {
         fn(x, y)
@@ -358,7 +370,7 @@ trait Picture {
 
   private var mousePressed = false
   def onMouseDrag(fn: (Double, Double) => Unit): Unit = {
-    tnode.interactive = true
+    etkileşimeAç()
 
     onMousePress { (_, _) =>
       mousePressed = true
@@ -381,13 +393,13 @@ trait Picture {
   }
 
   def onMouseEnter(fn: (Double, Double) => Unit): Unit = {
-    tnode.interactive = true
+    etkileşimeAç()
     val handler = handlerWrapper(fn)(_)
     tnode.on("pointerover", handler)
   }
 
   def onMouseExit(fn: (Double, Double) => Unit): Unit = {
-    tnode.interactive = true
+    etkileşimeAç()
     val handler = handlerWrapper(fn)(_)
     tnode.on("pointerout", handler)
   }
