@@ -148,6 +148,13 @@ jobs:
       - name: kılavuz sayfaları yeniden üret
         run: python3 kilavuz/uret.py
 
+      # Gezinti şeridi ÜÇ yerde kopyalı (uret.py, ornekler.py, kojojs-editor) ve
+      # hiçbiri ötekini görmüyor; ayrışırsa çubuk sayfadan sayfaya farklı
+      # sıralanır ve derleme/sınama/dağıtım sessizce geçer. Koşucuda editör
+      # klonu yok, o yüzden bu adım bu depodaki İKİ kaynağı denetler.
+      - name: yardım gezinti şeridi her yerde aynı sırada mı
+        run: python3 araclar/gezinti-denetle.py
+
       - name: sözlükteki gömülü YARDIM bloğu yardim.json ile aynı mı
         run: python3 araclar/sozluk-denetle.py
 
@@ -254,6 +261,12 @@ jobs:
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             git status --short
+            # Farkın KENDİSİ de yazılsın: yalnız dosya adı, koşucuda üretilenin
+            # ağaçtakinden NEREDE ayrıldığını söylemiyor ve yerelde aynı koşum
+            # temiz çıkabiliyor (ortam farkı). Dökümü sınırlı tut -- üretilen
+            # sayfalar yüz binlerce bayt.
+            git --no-pager diff --stat
+            git --no-pager diff | head -120
             echo "::error::Üretilmiş dosyalar kaynağıyla uyuşmuyor (yukarıda)."
             echo "Yerelde şunları koşup çıkan farkı commit'leyin:"
             echo "  araclar/gosteri-uret.py --scala"

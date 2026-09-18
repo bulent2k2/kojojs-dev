@@ -1,5 +1,5 @@
 # ucurum.py tarama sonucu (tanımlayıcı taraması, derleme değil)
-# masaüstü kojo: cd1e2a9
+# masaüstü kojo: 0c72c868
 betik	durum	satır	engel	eksik	biçim
 installer/examples/anagram/anagram_tr.kojo.installed	platform	60	yükle		
 installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	platform	48	dosya		
@@ -28,6 +28,12 @@ src/main/resources/samples/tr/angle-experiment.kojo	çalışır	72
 src/main/resources/samples/tr/angles.kojo	çalışır	141			
 src/main/resources/samples/tr/animated-square-creation.kojo	platform	72	canlandırma	Doğrusal DörtlüGirdiÇıktı Geçiş YumuşakGeçiş canlandırmaEşzamanlı	
 src/main/resources/samples/tr/arduino-prog.kojo	platform	122	öykü,dosya	Dosya dosyalar içinde seç yükle	
+src/main/resources/samples/tr/bounce-collision.kojo	çalışır	68			
+src/main/resources/samples/tr/bounce-friction.kojo	çalışır	32			
+src/main/resources/samples/tr/bounce-gravity.kojo	çalışır	20			
+src/main/resources/samples/tr/bounce-reflect.kojo	çalışır	20			
+src/main/resources/samples/tr/bounce-start.kojo	çalışır	33			
+src/main/resources/samples/tr/bounce-table.kojo	çalışır	28			
 src/main/resources/samples/tr/car-ride.kojo	çalışır	193			
 src/main/resources/samples/tr/circles.kojo	çalışır	16			
 src/main/resources/samples/tr/collidium.kojo	çalışır	152			
@@ -72,6 +78,12 @@ src/main/resources/samples/tr/lunar-lander.kojo	platform	112	arayüz
 src/main/resources/samples/tr/mandelbrot.kojo	eksik-ad	426		imgeNoktasınıKur paralel İmge	
 src/main/resources/samples/tr/memory-cards.kojo	çalışır	117			
 src/main/resources/samples/tr/multiplication-game.kojo	platform	191	arayüz	Sütun Sıra Tanıt TuşUyarlayıcısı TuşaBasmaOlayı Yazıgirdisi arayüz boşKenar değeri değişmez girdiDinleyiciEkle girdiOdağıOl olay sakla sütunSayısınıKur tuşHarfi tuşKodu tüket yatayDüzeniKur yazıyıAl yazıyıKur çerçeveci çerçeveyiKur çizgiKenar önalanıKur	
+src/main/resources/samples/tr/nbody-four-by-hand.kojo	çalışır	54			
+src/main/resources/samples/tr/nbody-four.kojo	çalışır	53			
+src/main/resources/samples/tr/nbody-solar.kojo	çalışır	51			
+src/main/resources/samples/tr/nbody-stable-triple.kojo	çalışır	58			
+src/main/resources/samples/tr/nbody-three.kojo	çalışır	48			
+src/main/resources/samples/tr/nbody-two.kojo	çalışır	40			
 src/main/resources/samples/tr/oyku-tanimlari.kojo	platform	93	öykü		
 src/main/resources/samples/tr/penta-pattern.kojo	çalışır	20			
 src/main/resources/samples/tr/physics-fma.kojo	çalışır	35			

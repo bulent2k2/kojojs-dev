@@ -1,4 +1,4 @@
-# uret.py: masaüstü Koco TR API adları (kojo). Elle düzenleme.
+# uret.py: masaüstü Koco TR API adları (master). Elle düzenleme.
 *
 +
 -

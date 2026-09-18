@@ -88,9 +88,12 @@ KILAVUZLAR = collections.OrderedDict([
     }),
 ])
 
-# Yardım sayfaları arası gezinti şeridi (mevcut yardim.scala.html ile aynı sıra)
-GEZINTI = [('/yardim', 'Yardım'), ('/yardim/skala', 'Skala'), ('/yardim/komutlar', 'Komutlar'),
-           ('/yardim/ornekler', 'Örnekler'), ('/yardim/sozluk', 'Sözlük'), ('/yardim/farklar', 'Farklar')]
+# Yardım sayfaları arası gezinti şeridi.
+# SIRA ÜÇ YERDE KOPYALI: burası (yardimSkala + yardimKomutlar), kilavuz/ornekler.py
+# (yardimOrnekler) ve kojojs-editor'deki elle tutulan sayfalar. Ayrışırsa çubuk
+# sayfadan sayfaya farklı sıralanır; araclar/gezinti-denetle.py bunu yakalıyor.
+GEZINTI = [('/yardim', 'Yardım'), ('/yardim/ornekler', 'Örnekler'), ('/yardim/komutlar', 'Komutlar'),
+           ('/yardim/sozluk', 'Sözlük'), ('/yardim/skala', 'Skala'), ('/yardim/farklar', 'Farklar')]
 
 # ikojo'da olmayan masaüstü adı -> ikojo karşılığı (bilinenler). Boş dizge: karşılığı yok.
 KARSILIK = {
@@ -383,7 +386,18 @@ def sarmala(kod):
 
 
 def zrc(kod):
-    return base64.urlsafe_b64encode(gzip.compress(sarmala(kod).encode('utf-8'), mtime=0)).decode('ascii')
+    ham = gzip.compress(sarmala(kod).encode('utf-8'), mtime=0)
+    # gzip başlığının 10. baytı (OS) İŞLETİM SİSTEMİNE göre yazılıyor: bu
+    # makinede 0xff ("bilinmiyor"), Linux koşucusunda 0x03 ("Unix"). CPython
+    # mtime=0 verilince gzip.compress'i zlib'e devrediyor ve baytı zlib'in
+    # derleme sabiti belirliyor. Sonuç: kaynakta HİÇBİR ŞEY değişmeden aynı
+    # betik iki ortamda iki farklı bağlantı üretiyor ve "üretilenler
+    # ağaçtakiyle aynı mı" denetimi kırmızı yanıyor (ölçüldü: 232 satır fark,
+    # her birinde tek ayrışan bayt buydu; çözülmüş kaynaklar birebir aynıydı).
+    # 0xff'e sabitle -- "bilinmiyor" zaten doğru cevap, çözücüler bu baytı
+    # kullanmıyor ve ağaçtaki bağlantılar zaten böyle.
+    ham = ham[:9] + b'\xff' + ham[10:]
+    return base64.urlsafe_b64encode(ham).decode('ascii')
 
 
 # "Resim komutları" bölümü buradan gelir. Tek kaynak araclar/gosteri-uret.py'deki
