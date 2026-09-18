@@ -163,11 +163,85 @@ object PixiUyum {
    * ELLE KURULMUŞ ALANA DOKUNMUYOR: kumanda kolu çevresine (#113) açık bir
    * PIXI.Circle konuyor; orada bu genel yol devreye girmiyor.
    */
+  /**
+   * Parçanın çokgeni KAPALI mı -- ilk ve son nokta çakışıyor mu.
+   *
+   * NEDEN GEREKLİ (#118): PIXI açık bir yolun dolgusunu, yolu örtük olarak
+   * kapatarak kuruyor. Yani L biçimli iki kenarlık bir kaplumbağa çiziminin
+   * "dolgusu", ÇİZİLMEMİŞ üçüncü kenarla kapanan bir üçgen. O üçgeni isabet
+   * alanı saymak, ekranda hiçbir şey olmayan yeri tıklanabilir yapıyordu
+   * (ölçüldü: L yolunun içi KENDİSİ dönüyordu). Bu yüzden görünmez dolguyu
+   * yalnız KAPALI parçalar için çeviriyoruz.
+   *
+   * Nokta dizisi olmayan parçalar (daire, elips, dikdörtgen) doğası gereği
+   * kapalı. İki noktalı bir parça düz çizgidir, kapalı olamaz.
+   *
+   * Yarım birimlik tolerans: kaplumbağanın kapattığı kare tam kapanmıyor
+   * (ölçüldü: son nokta (0,-0)), kayan nokta artığı kalıyor.
+   */
+  private def parçaKapalıMı(p: js.Dynamic): Boolean = {
+    val nk = p.shape.points
+    if (js.isUndefined(nk) || nk == null) true
+    else {
+      val a = nk.asInstanceOf[js.Array[Double]]
+      if (a.length < 6) false
+      else {
+        val dx = a(0) - a(a.length - 2)
+        val dy = a(1) - a(a.length - 1)
+        dx * dx + dy * dy <= 0.25
+      }
+    }
+  }
+
+  /** Noktanın doğru PARÇASINA uzaklığının karesi (doğrunun değil: uçlar sınırlı). */
+  private def uzaklıkKare(x: Double, y: Double, x1: Double, y1: Double, x2: Double, y2: Double): Double = {
+    val dx = x2 - x1
+    val dy = y2 - y1
+    val boy2 = dx * dx + dy * dy
+    val t = if (boy2 == 0) 0.0 else math.max(0.0, math.min(1.0, ((x - x1) * dx + (y - y1) * dy) / boy2))
+    val px = x1 + t * dx
+    val py = y1 + t * dy
+    (x - px) * (x - px) + (y - py) * (y - py)
+  }
+
+  /**
+   * Nokta parçanın KALEM ŞERİDİNİN içinde mi (#118).
+   *
+   * PIXI'nin isabet sınaması yalnız dolguya bakıyor ("only deal with fills"),
+   * kalem çizgisini hiç sınamıyor. Alanı olmayan bir yol -- Resim.çizgi,
+   * Resim.yatayÇizgi, kaplumbağa çizgisi -- bu yüzden sessizce ölüydü.
+   *
+   * MASAÜSTÜ KOJO NE YAPIYOR (kaynaktan okundu, tahmin değil): Piccolo'nun
+   * PPath.intersects'i dolgu sınaması başarısız olunca STROKE'LANMIŞ ŞEKLİ
+   * sınıyor, ve PInputManager isabeti `PCamera.pick(x, y, 1)` ile, yani
+   * 1 birimlik bir payla arıyor. Buradaki şerit tam onun karşılığı:
+   * kalem kalınlığının yarısı + 1 birim pay.
+   */
+  private def şeritteMi(p: js.Dynamic, x: Double, y: Double, pay: Double): Boolean = {
+    val nk = p.shape.points
+    if (js.isUndefined(nk) || nk == null) false
+    else {
+      val a = nk.asInstanceOf[js.Array[Double]]
+      val kalınlık =
+        if (beşVeÜstü) p.lineStyle.width.asInstanceOf[Double]
+        else p.lineWidth.asInstanceOf[Double]
+      val yarı = kalınlık / 2 + pay
+      val eşik = yarı * yarı
+      var i = 0
+      var bulundu = false
+      while (i + 3 < a.length && !bulundu) {
+        if (uzaklıkKare(x, y, a(i), a(i + 1), a(i + 2), a(i + 3)) <= eşik) bulundu = true
+        i += 2
+      }
+      bulundu
+    }
+  }
+
   def isabetAlanınıKur(kök: pixiscalajs.PIXI.DisplayObject): Unit = {
     val k = dyn(kök)
     if (!js.isUndefined(k.hitArea) && k.hitArea != null) return // elle kurulan alan üstün
 
-    def sor(n: js.Dynamic, küresel: js.Dynamic): Boolean = {
+    def sor(n: js.Dynamic, küresel: js.Dynamic, pay: Double): Boolean = {
       var bulundu = false
       if (js.typeOf(n.containsPoint) == "function") {
         val gd =
@@ -185,7 +259,9 @@ object PixiUyum {
             val görünür =
               if (beşVeÜstü) p.fillStyle.visible.asInstanceOf[Boolean]
               else p.fill.asInstanceOf[Boolean]
-            if (!görünür) {
+            // AÇIK parçanın dolgusunu çevirmiyoruz: o dolgu, çizilmemiş bir
+            // kapanış kenarıyla kurulmuş hayalet bir alan (#118).
+            if (!görünür && parçaKapalıMı(p)) {
               if (beşVeÜstü) p.fillStyle.visible = true else p.fill = true
               p.kojoDolguÇevrildi = true
               çevrilen += 1
@@ -208,6 +284,21 @@ object PixiUyum {
               i += 1
             }
           }
+          // Dolgu tutmadıysa KALEM ŞERİDİNE bak: alanı olmayan yollar (#118).
+          if (!bulundu) {
+            val yerel = n.toLocal(küresel)
+            val yx = yerel.x.asInstanceOf[Double]
+            val yy = yerel.y.asInstanceOf[Double]
+            var j = 0
+            while (j < gd.length && !bulundu) {
+              val p = gd(j)
+              val kalemGörünür =
+                if (beşVeÜstü) p.lineStyle.visible.asInstanceOf[Boolean]
+                else !js.isUndefined(p.lineWidth) && p.lineWidth.asInstanceOf[Double] > 0
+              if (kalemGörünür && şeritteMi(p, yx, yy, pay)) bulundu = true
+              j += 1
+            }
+          }
         }
       }
       if (bulundu) true
@@ -217,7 +308,7 @@ object PixiUyum {
         else {
           var i = 0
           var b = false
-          while (i < ç.length && !b) { b = sor(ç(i), küresel); i += 1 }
+          while (i < ç.length && !b) { b = sor(ç(i), küresel, pay); i += 1 }
           b
         }
       }
@@ -225,13 +316,36 @@ object PixiUyum {
 
     k.hitArea = js.Dynamic.literal(
       contains = js.Any.fromFunction2 { (x: Double, y: Double) =>
-        // ucuz eleme: yerel sınır kutusunun dışındaki nokta için geometriyi hiç gezme
+        // Şeridin payı EKRAN biriminde (masaüstündeki pick halo'su gibi), yerel
+        // birime dünya ölçeğine bölerek çevriliyor. Ölçek iki eksende ayrı
+        // okunuyor ve KÜÇÜĞÜ alınıyor: eşit olmayan ölçekte (büyütXY) pay iki
+        // eksende de en az 1 ekran birimi kalsın.
+        val dt = k.worldTransform
+        val öx = math.sqrt(
+          dt.a.asInstanceOf[Double] * dt.a.asInstanceOf[Double] +
+            dt.b.asInstanceOf[Double] * dt.b.asInstanceOf[Double]
+        )
+        val öy = math.sqrt(
+          dt.c.asInstanceOf[Double] * dt.c.asInstanceOf[Double] +
+            dt.d.asInstanceOf[Double] * dt.d.asInstanceOf[Double]
+        )
+        val ölçek = math.min(öx, öy)
+        val pay = if (ölçek > 0) 1.0 / ölçek else 1.0
+
+        // ucuz eleme: yerel sınır kutusunun dışındaki nokta için geometriyi hiç
+        // gezme. Kutu, kararı veren sınamayla AYNI payla genişletiliyor. Sabit
+        // 1 birim kullanmak küçültülmüş resimlerde elemeyi şeritten dar
+        // bırakıyordu (ölçüldü: ölçek 0.05'te şeridin eşiği 21 yerel birim ama
+        // eleme 2 birimde kesiyordu, yani etkin pay 1 ekran birimi değil
+        // ölçek x 1 ekran birimiydi) -- eleme, kararı veren sınamadan dar olamaz.
         val s = k.getLocalBounds()
-        val sx = s.x.asInstanceOf[Double]
-        val sy = s.y.asInstanceOf[Double]
-        if (x < sx || y < sy || x > sx + s.width.asInstanceOf[Double] || y > sy + s.height.asInstanceOf[Double])
+        val sx = s.x.asInstanceOf[Double] - pay
+        val sy = s.y.asInstanceOf[Double] - pay
+        if (x < sx || y < sy ||
+            x > sx + s.width.asInstanceOf[Double] + 2 * pay ||
+            y > sy + s.height.asInstanceOf[Double] + 2 * pay)
           false
-        else sor(k, k.toGlobal(js.Dynamic.newInstance(js.Dynamic.global.PIXI.Point)(x, y)))
+        else sor(k, k.toGlobal(js.Dynamic.newInstance(js.Dynamic.global.PIXI.Point)(x, y)), pay)
       }
     )
   }
