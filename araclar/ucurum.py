@@ -94,6 +94,99 @@ GENEL = {'apply', 'toString', 'length', 'size', 'map', 'foreach', 'filter', 'to'
          'x', 'y', 'z', 'a', 'b', 'n', 'i', 'j', 'k'}
 
 
+YEREL_TANIM = re.compile(r'\b(?:lazy\s+val|val|var)\b')
+
+
+def ifade_blogu(s, baş, girinti):
+    """`=`den sonraki İFADE gövdesinin ilk dengeli `{` bloğunu bulur; yoksa -1.
+
+    Neden gerekli: gövde `= {` ile başlamak zorunda değil --
+    `def f = if (...) { ... }`, `def f = x match { ... }` biçimlerinde blok
+    daha ileride. Onları kaçırınca içlerindeki yereller API sayılmaya devam
+    ediyordu (#120 incelemesi; ölçüldü: 14 ad daha).
+
+    NEREDE DURUR: ilk `{`e kadar, ama İFADE BİTİNCE durur -- girintisi def'in
+    girintisinden büyük OLMAYAN dolu bir satır görülünce. O sınır olmadan
+    ifade gövdeli bir def ilerideki bambaşka bir bloğu (bir sonraki def'in ya
+    da object'in gövdesini) kendi gövdesi sanar ve GERÇEK API adlarını
+    gizlerdi -- tehlikeli yön bu, sınır onun için var.
+    """
+    i, paren = baş, 0
+    while i < len(s):
+        c = s[i]
+        if c in '([':
+            paren += 1
+        elif c in ')]':
+            paren -= 1
+        elif c == '{':
+            # Parantez İÇİNDEKİ bloğu da alıyoruz: `getOrElseUpdate(k, { val x = ... })`
+            # gibi blok-argümanların gövdesi de yerel kapsam. İfadenin dışına
+            # taşma tehlikesini paren değil, aşağıdaki girinti sınırı kesiyor.
+            return i
+        elif c == '\n' and paren == 0:
+            j = i + 1
+            while j < len(s) and s[j] in ' \t':
+                j += 1
+            if j < len(s) and s[j] not in '\r\n' and (j - (i + 1)) <= girinti:
+                return -1  # ifade bitti
+        i += 1
+    return -1
+
+
+def def_govdeleri(s):
+    """`def ... = { ... }` gövdelerinin (başlangıç, bitiş) aralıkları.
+
+    NEDEN: `tanimlar` bir dosyadaki BÜTÜN val/var/def tanımlarını topluyordu,
+    yerel olanları da. Yani bir yöntemin içindeki `val eski = ...` ikojo'nun
+    "var olan adlar" kümesine giriyor ve bir betiğin gerçekten eksik olan adını
+    SAKLIYORDU. Gerçekten oldu (#117 turu): Picture.fade'e `val eski` yazınca
+    scala-tutorial.kojo'nun eksik listesinden `eski` düştü -- API'ye hiçbir şey
+    eklenmediği halde.
+
+    Gövdenin nerede başladığı KESİN olarak bulunuyor, tahminle değil: def
+    adından sonra parantez/köşeli derinliği 0'da gelen ilk `=` ya da `{`
+    hangisiyse o. `=` ise ardından gelen ilk karakter `{` değilse gövde tek
+    ifadedir ve içinde yerel tanım olamaz -- atlanıyor. Bu sınır olmadan
+    ifade gövdeli bir def, ilerideki bambaşka bir bloğu kendi gövdesi sanıp
+    gerçek API adlarını gizlerdi (tehlikeli yön bu).
+    """
+    araliklar = []
+    for m in re.finditer(r'\bdef\s+', s):
+        i, paren = m.end(), 0
+        gövde = -1
+        satırBaşı = s.rfind('\n', 0, m.start()) + 1
+        girinti = len(s[satırBaşı:m.start()]) - len(s[satırBaşı:m.start()].lstrip())
+        while i < len(s):
+            c = s[i]
+            if c in '([':
+                paren += 1
+            elif c in ')]':
+                paren -= 1
+            elif paren == 0:
+                if c == '{':
+                    gövde = i
+                    break
+                if c == '=' and s[i + 1:i + 2] != '=':
+                    gövde = ifade_blogu(s, i + 1, girinti)
+                    break
+                if c == '\n' and s[i + 1:i + 2] not in (' ', '\t'):
+                    break  # bildirim (gövdesiz soyut def)
+            i += 1
+        if gövde < 0:
+            continue
+        j, derinlik = gövde, 0
+        while j < len(s):
+            if s[j] == '{':
+                derinlik += 1
+            elif s[j] == '}':
+                derinlik -= 1
+                if derinlik == 0:
+                    break
+            j += 1
+        araliklar.append((gövde, j))
+    return araliklar
+
+
 def tanimlar(yollar, rx=TANIM):
     adlar = set()
     for y in yollar:
@@ -103,10 +196,18 @@ def tanimlar(yollar, rx=TANIM):
         except OSError:
             continue
         s = soy(s)  # yorumdaki tanımlar ("// def çıktıyıSil ...") var sayılmasın
+        govdeler = def_govdeleri(s)
         for m in rx.finditer(s):
             ad = m.group(1).strip('`')
-            if ad and ad != '_' and not ad.startswith('$'):
-                adlar.add(ad)
+            if not ad or ad == '_' or ad.startswith('$'):
+                continue
+            # Bir YÖNTEM GÖVDESİ içindeki val/var yereldir: betikten çağrılamaz,
+            # yani ikojo'nun yüzeyi değil. def/object/class/trait/type'a
+            # dokunmuyoruz -- onlar bu depoda yerel olmuyor ve fazladan eleme
+            # gerçek API adlarını gizleme riskini taşır.
+            if YEREL_TANIM.match(s, m.start()) and any(a <= m.start() <= b for a, b in govdeler):
+                continue
+            adlar.add(ad)
     return adlar
 
 

@@ -52,15 +52,16 @@ if [ "$DENETLE" = 1 ]; then
   exit 0
 fi
 
-# KİLİTLİ ADIM (Faz 2, bkz. oneri-scala-2.13.md): bu repo artık Scala 2.13.18;
-# kaynaklar 2.13'e özgü API kullanıyor (distinctBy, LazyList, toIntOption...).
-# kojojs-core'un build'i 2.13'e geçene (Faz 3) kadar senkron ONU KIRAR.
-# Core hazır olduğunda KOJOJS_CORE_213=1 ile çalıştırıp bu korumayı kaldırın.
-if [ "${KOJOJS_CORE_213:-}" != "1" ]; then
-  echo "error: kojojs-core henüz Scala 2.13'te değil; senkron core build'ini kırar." >&2
-  echo "       Faz 3 tamamlanınca: KOJOJS_CORE_213=1 $0" >&2
-  exit 1
-fi
+# KİLİT KALKTI (Faz 3 tamamlandı). Eskiden burada bir koruma vardı: bu repo
+# Scala 2.13.18'e geçtiğinde kaynaklar 2.13'e özgü API kullanmaya başladı
+# (distinctBy, LazyList, toIntOption...) ve kojojs-core hâlâ 2.12'deydi, yani
+# senkron core build'ini kırardı.
+#
+# Core artık 2.13: build.sbt'sinde `scalaVersion := "2.13.18"`,
+# project/build.properties'te sbt 1.10.11, Scala.js 1.x. Ölçüldü (Eylül 2026,
+# kojojs-core 2339b19): kojojs-dev master'ın kaynakları kopyalandıktan sonra
+# `page/clean; page/compile` başarılı ve uyarı sayısı senkrondan öncekiyle aynı.
+# Korumayı kaldırmak, onu kuran notun kendi koşuluydu.
 
 CORE=${KOJOJS_CORE:-$HERE/../kojojs-core}
 
@@ -75,8 +76,13 @@ echo "*** syncing $HERE/src/main/scala -> $DEST"
 
 # rsync --delete so sources dropped upstream also disappear downstream; plain
 # `cp` can only add and overwrite, which silently leaves stale files behind.
+# --exclude=target: kaynak ağacında sbt'nin bıraktığı `target/` dizinleri
+# olabiliyor (src/main/scala/kojo/tr/target/global-logging/*.log -- bu repoda
+# .gitignore'lu, ama diskte duruyor). Onlar olmadan kopyalanınca core'a izlenen
+# çöp olarak giriyorlardı; elle senkronda tam bu oldu ve beş log dosyası
+# temizlendi.
 for pkg in $PAKETLER; do
-  rsync -a --delete "$HERE/src/main/scala/$pkg/" "$DEST/$pkg/"
+  rsync -a --delete --exclude=target "$HERE/src/main/scala/$pkg/" "$DEST/$pkg/"
   echo "    $pkg"
 done
 
