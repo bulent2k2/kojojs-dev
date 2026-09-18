@@ -88,9 +88,12 @@ KILAVUZLAR = collections.OrderedDict([
     }),
 ])
 
-# Yardım sayfaları arası gezinti şeridi (mevcut yardim.scala.html ile aynı sıra)
-GEZINTI = [('/yardim', 'Yardım'), ('/yardim/skala', 'Skala'), ('/yardim/komutlar', 'Komutlar'),
-           ('/yardim/ornekler', 'Örnekler'), ('/yardim/sozluk', 'Sözlük'), ('/yardim/farklar', 'Farklar')]
+# Yardım sayfaları arası gezinti şeridi.
+# SIRA ÜÇ YERDE KOPYALI: burası (yardimSkala + yardimKomutlar), kilavuz/ornekler.py
+# (yardimOrnekler) ve kojojs-editor'deki elle tutulan sayfalar. Ayrışırsa çubuk
+# sayfadan sayfaya farklı sıralanır; araclar/gezinti-denetle.py bunu yakalıyor.
+GEZINTI = [('/yardim', 'Yardım'), ('/yardim/ornekler', 'Örnekler'), ('/yardim/komutlar', 'Komutlar'),
+           ('/yardim/sozluk', 'Sözlük'), ('/yardim/skala', 'Skala'), ('/yardim/farklar', 'Farklar')]
 
 # ikojo'da olmayan masaüstü adı -> ikojo karşılığı (bilinenler). Boş dizge: karşılığı yok.
 KARSILIK = {

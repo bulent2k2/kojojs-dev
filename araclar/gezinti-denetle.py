@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Yardım sayfalarının gezinti şeridi her yerde AYNI sırada mı.
+
+  python3 araclar/gezinti-denetle.py [--editor <kojojs-editor kökü>]
+
+NEDEN AYRI BİR SAV: şerit ÜÇ ayrı yerde kopyalı ve hiçbiri ötekini görmüyor --
+
+  kilavuz/uret.py      GEZINTI listesi   -> yardimSkala, yardimKomutlar
+  kilavuz/ornekler.py  gömülü HTML       -> yardimOrnekler
+  kojojs-editor        elle yazılmış     -> yardim, yardimSozluk, yardimFarklar
+
+Biri değişip ötekiler kalırsa çubuk sayfadan sayfaya farklı sıralanır. Kullanıcı
+bunu hemen görür ama derleme, sınama ve dağıtım sessizce geçer: uret.py'nin
+tazelik savı yalnız KENDİ ürettiğini denetliyor, ornekler.py ise CI'da hiç
+koşmuyordu. Eylül 2026'da sıra değiştirilirken bu üç kopya elle hizalandı;
+bu betik bir daha ayrışmasınlar diye var.
+
+uret.py'deki GEZINTI listesi TEK DOĞRU KAYNAK sayılır; ötekiler ona uymalı.
+"""
+import argparse
+import os
+import re
+import sys
+
+BURASI = os.path.dirname(os.path.abspath(__file__))
+KOK = os.path.dirname(BURASI)
+VARSAYILAN_EDITOR = os.path.join(KOK, '..', 'kojojs-editor')
+
+# Elle tutulan sayfalar (kojojs-editor). Üretilenler buraya girmez: onlar
+# zaten uret.py/ornekler.py çıktısı, yani kaynağı denetlemek yetiyor.
+ELLE = ['yardim.scala.html', 'yardimSozluk.scala.html', 'yardimFarklar.scala.html']
+
+BAG = re.compile(r'<a href="(/yardim(?:/[a-z]+)?)"[^>]*>([^<]+)</a>')
+
+
+def beklenen():
+    """uret.py'deki GEZINTI listesi -- tek doğru kaynak."""
+    s = open(os.path.join(KOK, 'kilavuz', 'uret.py'), encoding='utf-8').read()
+    m = re.search(r'^GEZINTI = \[(.*?)\]$', s, re.M | re.S)
+    if not m:
+        sys.exit('hata: kilavuz/uret.py içinde GEZINTI listesi bulunamadı')
+    return re.findall(r"\('([^']+)', '([^']+)'\)", m.group(1))
+
+
+def seritten(metin):
+    """<nav class="gezinti"> ... </nav> içindeki (yol, etiket) çiftleri."""
+    m = re.search(r'<nav class="gezinti">(.*?)</nav>', metin, re.S)
+    if not m:
+        return None
+    return BAG.findall(m.group(1))
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+    p.add_argument('--editor', default=VARSAYILAN_EDITOR,
+                   help='kojojs-editor kökü (varsayılan: ../kojojs-editor)')
+    a = p.parse_args()
+
+    bek = beklenen()
+    print('beklenen sıra (kilavuz/uret.py): %s' % ' '.join(e for _, e in bek))
+
+    kotu = []
+
+    # 1) ornekler.py'deki gömülü şerit
+    s = open(os.path.join(KOK, 'kilavuz', 'ornekler.py'), encoding='utf-8').read()
+    bulunan = seritten(s)
+    if bulunan is None:
+        kotu.append(('kilavuz/ornekler.py', 'gezinti şeridi bulunamadı'))
+    elif bulunan != bek:
+        kotu.append(('kilavuz/ornekler.py', ' '.join(e for _, e in bulunan)))
+
+    # 2) kojojs-editor'deki elle tutulan sayfalar
+    views = os.path.join(a.editor, 'server', 'src', 'main', 'twirl', 'views')
+    if not os.path.isdir(views):
+        print('uyarı: kojojs-editor bulunamadı (%s); yalnız bu depo denetlendi' % views,
+              file=sys.stderr)
+    else:
+        for ad in ELLE:
+            yol = os.path.join(views, ad)
+            if not os.path.exists(yol):
+                kotu.append((ad, 'dosya yok'))
+                continue
+            bulunan = seritten(open(yol, encoding='utf-8').read())
+            if bulunan is None:
+                kotu.append((ad, 'gezinti şeridi bulunamadı'))
+            elif bulunan != bek:
+                kotu.append((ad, ' '.join(e for _, e in bulunan)))
+
+    if kotu:
+        print('\nhata: %d yerde şerit beklenenden farklı:' % len(kotu), file=sys.stderr)
+        for nerede, ne in kotu:
+            print('       %-28s %s' % (nerede, ne), file=sys.stderr)
+        print('       Tek doğru kaynak kilavuz/uret.py; ötekileri ona uydurun.', file=sys.stderr)
+        return 1
+
+    print('aynı: şerit denetlenen her yerde aynı sırada')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

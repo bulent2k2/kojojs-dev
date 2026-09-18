@@ -148,6 +148,13 @@ jobs:
       - name: kılavuz sayfaları yeniden üret
         run: python3 kilavuz/uret.py
 
+      # Gezinti şeridi ÜÇ yerde kopyalı (uret.py, ornekler.py, kojojs-editor) ve
+      # hiçbiri ötekini görmüyor; ayrışırsa çubuk sayfadan sayfaya farklı
+      # sıralanır ve derleme/sınama/dağıtım sessizce geçer. Koşucuda editör
+      # klonu yok, o yüzden bu adım bu depodaki İKİ kaynağı denetler.
+      - name: yardım gezinti şeridi her yerde aynı sırada mı
+        run: python3 araclar/gezinti-denetle.py
+
       - name: sözlükteki gömülü YARDIM bloğu yardim.json ile aynı mı
         run: python3 araclar/sozluk-denetle.py
 

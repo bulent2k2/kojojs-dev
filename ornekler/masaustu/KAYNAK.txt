@@ -1,4 +1,4 @@
 kaynak: bulent2k2/kojo
-commit: 0cfdee47634120fb01356d506d6150ed1b592401
-tarih:  2026-09-08
-betik:  112
+commit: 0c72c86810246f32987c0e8244fa080ca647ee2e
+tarih:  2026-09-18
+betik:  124

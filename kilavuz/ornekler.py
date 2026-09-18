@@ -33,6 +33,8 @@ from uret import twirl_yap  # noqa: E402  (aynı @ kaçışı ve @("") parçalam
 
 ORNEKLER = os.path.join(KOK, 'ornekler')
 MASAUSTU = os.path.join(ORNEKLER, 'masaustu')
+# Başlangıç başlığının bağlandığı yer: örneklerin kaynağı.
+ORNEKLER_URL = 'https://github.com/bulent2k2/kojojs-dev/tree/master/ornekler'
 
 # AppMenu.scala'daki kök -> ornekler/masaustu altındaki dizin. Masaüstü
 # loadAndRunLocalizedResource ile "/samples/" kökünü Türkçe'de "/samples/tr/"
@@ -195,6 +197,9 @@ IKOJO_BASLIK = {
     '08-kumanda-kolu.kojo': 'Kumanda kolu',
     '09-nerede-ve-dokunma.kojo': 'Nerede ve dokunma',
     '10-anahtar-kelimeler.kojo': 'Anahtar kelimeler',
+    '11-acilar-ve-radyan.kojo': 'Açılar ve radyan',
+    '12-uc-cisim.kojo': 'Üç cisim',
+    '13-xox-yenilmez.kojo': 'XOX — yenilmez',
 }
 
 ROZETLER = {
@@ -243,10 +248,13 @@ def satır_html(baslik, göreli, durum_haritası, ikojo=False, aciklama=None):
             % (html.escape(yol), html.escape(baslik), ac, r, html.escape(os.path.basename(göreli))))
 
 
-def bolum(baslik, renk, alt, satirlar):
+def bolum(baslik, renk, alt, satirlar, baslik_url=None):
+    b = html.escape(baslik)
+    if baslik_url:
+        b = '<a href="%s">%s</a>' % (baslik_url, b)
     return ('<section>\n<h2><span class="im" style="background:%s"></span>%s</h2>\n'
             '<p class="alt">%s</p>\n<ul class="liste">\n%s</ul>\n</section>\n'
-            % (renk, html.escape(baslik), alt, ''.join(satirlar)))
+            % (renk, b, alt, ''.join(satirlar)))
 
 
 CSS = """
@@ -331,10 +339,10 @@ BAS = """<!DOCTYPE html>
         <a href="/"><img src="/assets/images/scalafiddle-logo.png" alt="iKoco"></a>
         <nav class="gezinti">
             <a href="/yardim">Yardım</a>
-            <a href="/yardim/skala">Skala</a>
-            <a href="/yardim/komutlar">Komutlar</a>
             <a href="/yardim/ornekler" class="secili">Örnekler</a>
+            <a href="/yardim/komutlar">Komutlar</a>
             <a href="/yardim/sozluk">Sözlük</a>
+            <a href="/yardim/skala">Skala</a>
             <a href="/yardim/farklar">Farklar</a>
         </nav>
         <a href="/" class="geri">← Düzenleme penceresine dön</a>
@@ -380,7 +388,9 @@ def main():
                            ikojo=True, aciklama=md_ici(ac))
                 for ad, ac in ikojo_ornekleri()]
     parçalar.append(bolum('Başlangıç', RENKLER['baslangic'],
-                          'iKoco için yazılmış on örnek; sırayla ilerlemek için.', satırlar))
+                          'iKoco için yazılmış örnekler; sırayla ilerlemek için. '
+                          'Kaynakları <a href="%s">ornekler/</a> dizininde.' % ORNEKLER_URL,
+                          satırlar, baslik_url=ORNEKLER_URL))
 
     # 2) Sergi
     for anahtar, kalemler in sergi_gruplari:
@@ -442,8 +452,9 @@ def main():
     os.makedirs(os.path.dirname(çıktı), exist_ok=True)
     open(çıktı, 'w', encoding='utf-8').write(metin)
     toplam = len(menüdekiler) + len(kalanlar) + len(ikojo_ornekleri())
-    print('yazıldı: %s  (%d betik; %d menüde, %d öteki, 10 ikojo)'
-          % (os.path.relpath(çıktı, KOK), toplam, len(menüdekiler), len(kalanlar)))
+    print('yazıldı: %s  (%d betik; %d menüde, %d öteki, %d ikojo)'
+          % (os.path.relpath(çıktı, KOK), toplam, len(menüdekiler), len(kalanlar),
+             len(ikojo_ornekleri())))
     print('durum kaynağı: %s (%s)' % (kaynak_türü, os.path.relpath(kaynak_yolu, KOK)))
     if eksik_dosya:
         print('menüde olup kopyada olmayan (atlandı): %s' % ', '.join(eksik_dosya))
