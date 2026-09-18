@@ -127,6 +127,112 @@ object PixiUyum {
   }
 
   /**
+   * Resmi, DOLGUSU GÖRÜNMESE DE tıklanabilir yapar (#114).
+   *
+   * NEDEN: PIXI'nin isabet sınaması yalnız GÖRÜNÜR dolguya bakıyor --
+   * `Graphics.containsPoint` `fillStyle.visible` olmayan parçaları atlıyor
+   * (v4'te aynı şey `data.fill`). Kalem çizgisi isabet sınamasına hiç
+   * girmiyor. Sonuç: dolgusu kurulmamış ya da saydam kurulmuş bir resme
+   * `fareyeTıklayınca` bağlanıyor, `interactive` doğru kuruluyor, ama resim
+   * hiçbir fare olayı almıyor -- sessizce ölü. Ölçüldü, dördü de ölüydü:
+   * dolgusuz daire, saydam dolgulu daire, kaplumbağa çizimi; yalnız görünür
+   * dolgulu olan çalışıyordu.
+   *
+   * ÇARE: isabet alanını açıkça kur ve geometriye SOR -- dolgunun
+   * görünürlüğüne bırakma. `hitArea.contains` çağrıldığında, alt ağaçtaki her
+   * Graphics'in görünmez dolgularını GEÇİCİ olarak görünür damgalayıp
+   * PIXI'nin KENDİ `containsPoint`'ini çağırıyor, sonra damgayı geri alıyoruz.
+   * Çevirme eşzamanlı ve aynı çağrının içinde geri alınıyor, yani araya render
+   * giremez; ekranda hiçbir şey değişmiyor.
+   *
+   * NEDEN "dolguyu kalıcı görünür damgala" DEĞİL (daha kısa olurdu): ölçtüm,
+   * pahalı. 200 noktalı kendini kesen bir kaplumbağa çiziminde geometri
+   * 804 köşe / 1200 dizinden 15.570 / 8.961'e çıkıyor (19x) ve render süresi
+   * ikiye katlanıyor -- kimsenin görmediği bir dolgu için libtess üçgenlemesi
+   * (#68'in bedeli). Bu yol render'a hiç dokunmuyor.
+   *
+   * NEDEN SINIR KUTUSU DEĞİL: kutu, şeklin dışını da tıklanabilir yapardı.
+   * Ölçüldü: bu yolla r=50 dairede yerel (40,40) -- kutunun içi, dairenin
+   * dışı -- isabet ALMIYOR. Kutu yalnız ucuz ELEME olarak kullanılıyor.
+   *
+   * BEDEL (ölçüldü, 2000 hitTest): yalın dairede satıcı yolu ~6-10 ms, bu yol
+   * ~15-19 ms. 2395 parçalı patolojik bir çizimde satıcı ~42-50 ms, bu yol
+   * ~108-122 ms; geometri iki ölçümde birebir aynı, yani fark bayrak çevirme.
+   * Çağrı başına ~0.04 ms; 60 Hz'de bir resim için saniyede ~2 ms.
+   *
+   * ELLE KURULMUŞ ALANA DOKUNMUYOR: kumanda kolu çevresine (#113) açık bir
+   * PIXI.Circle konuyor; orada bu genel yol devreye girmiyor.
+   */
+  def isabetAlanınıKur(kök: pixiscalajs.PIXI.DisplayObject): Unit = {
+    val k = dyn(kök)
+    if (!js.isUndefined(k.hitArea) && k.hitArea != null) return // elle kurulan alan üstün
+
+    def sor(n: js.Dynamic, küresel: js.Dynamic): Boolean = {
+      var bulundu = false
+      if (js.typeOf(n.containsPoint) == "function") {
+        val gd =
+          if (beşVeÜstü) {
+            val geo = n.geometry
+            if (js.isUndefined(geo) || geo == null) null
+            else geo.graphicsData.asInstanceOf[js.Array[js.Dynamic]]
+          }
+          else n.graphicsData.asInstanceOf[js.Array[js.Dynamic]]
+        if (gd != null && !js.isUndefined(gd) && gd.length > 0) {
+          var çevrilen = 0
+          var i = 0
+          while (i < gd.length) {
+            val p = gd(i)
+            val görünür =
+              if (beşVeÜstü) p.fillStyle.visible.asInstanceOf[Boolean]
+              else p.fill.asInstanceOf[Boolean]
+            if (!görünür) {
+              if (beşVeÜstü) p.fillStyle.visible = true else p.fill = true
+              p.kojoDolguÇevrildi = true
+              çevrilen += 1
+            }
+            else p.kojoDolguÇevrildi = false
+            i += 1
+          }
+          bulundu = n.containsPoint(küresel).asInstanceOf[Boolean]
+          if (çevrilen > 0) {
+            i = 0
+            while (i < gd.length) {
+              val p = gd(i)
+              if (p.kojoDolguÇevrildi.asInstanceOf[Boolean]) {
+                if (beşVeÜstü) p.fillStyle.visible = false else p.fill = false
+              }
+              i += 1
+            }
+          }
+        }
+      }
+      if (bulundu) true
+      else {
+        val ç = n.children.asInstanceOf[js.Array[js.Dynamic]]
+        if (js.isUndefined(ç) || ç == null) false
+        else {
+          var i = 0
+          var b = false
+          while (i < ç.length && !b) { b = sor(ç(i), küresel); i += 1 }
+          b
+        }
+      }
+    }
+
+    k.hitArea = js.Dynamic.literal(
+      contains = js.Any.fromFunction2 { (x: Double, y: Double) =>
+        // ucuz eleme: yerel sınır kutusunun dışındaki nokta için geometriyi hiç gezme
+        val s = k.getLocalBounds()
+        val sx = s.x.asInstanceOf[Double]
+        val sy = s.y.asInstanceOf[Double]
+        if (x < sx || y < sy || x > sx + s.width.asInstanceOf[Double] || y > sy + s.height.asInstanceOf[Double])
+          false
+        else sor(k, k.toGlobal(js.Dynamic.newInstance(js.Dynamic.global.PIXI.Point)(x, y)))
+      }
+    )
+  }
+
+  /**
    * Geometriyi yeniden kurdurur. v4 iki sayacı artırmakla yetiniyordu;
    * v5'te bunlar Graphics'te değil geometry'de ve invalidate() ile işliyor.
    */
