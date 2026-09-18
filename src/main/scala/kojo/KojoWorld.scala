@@ -64,7 +64,10 @@ trait KojoWorld {
    * düşüyordu). Yayın istekliyken böyle bir pencere yoktu; tembelleşince
    * açıldı.
    */
-  private[kojo] def bekleyenBoyayıUnut(b: Boyacı): Unit = bekleyenBoyacılar -= b
+  /** true: gerçekten bekleyen bir yayın vardı ve düşürüldü. Çağıranın bunu
+    * bilmesi gerekiyor -- düşürülen yayın BİLGİ taşıyor (bkz.
+    * TurtlePicture.erase). */
+  private[kojo] def bekleyenBoyayıUnut(b: Boyacı): Boolean = bekleyenBoyacılar.remove(b)
   def moveToFront(obj: PIXI.DisplayObject): Unit
   def moveToBack(obj: PIXI.DisplayObject): Unit
 

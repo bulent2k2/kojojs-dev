@@ -73,6 +73,22 @@ class TembelSilmeTest extends AsyncFunSuite with Matchers {
     (p, () => kaplumbağa)
   }
 
+  /** Aynı şekil, ama by-name kurucuyla: TurtlePicture.apply(fn: => Unit),
+    * yani GlobalTurtlePicture. erase/realDraw temel sınıftan geliyor. */
+  private def doluKareKüresel(): (TurtlePicture, () => Turtle) = {
+    var kaplumbağa: Turtle = null
+    val p = Picture {
+      val t = TurtlePicture.turtle
+      t.invisible()
+      t.setAnimationDelay(0)
+      t.setFillColor(blue)
+      kaplumbağa = t.globalTurtle
+      var i = 0
+      while (i < 4) { t.forward(100); t.right(90); i += 1 }
+    }
+    (p, () => kaplumbağa)
+  }
+
   test("kaplumbağanın dolgusu boşaltmadan ÖNCE bekliyor (mekanizma çalışıyor)") {
     val (p, t) = doluKare()
     p.draw()
@@ -183,6 +199,94 @@ class TembelSilmeTest extends AsyncFunSuite with Matchers {
       withClue("B silindi, onda dolgu olmamalı -- ") {
         dolguKöşeleri(tB()) shouldBe empty
       }
+    }
+  }
+
+  // --- Silinen resim yeniden çizilirse ------------------------------------
+  //
+  // Düşürülen yayın BİLGİ taşıyor. Yukarıdaki düşürme sahne dışına boşa
+  // üçgenlemeyi önlüyor, ama hiç yayınlanmamış bir dolgu öyle kaybolursa
+  // resim yeniden çizilince dolgusuz görünür. Bu iki sınama o sınırı
+  // çiviliyor; ikincisi bir ara gerçekten kırıktı (bkz. TurtlePicture'daki
+  // dolguDüşürüldü notu).
+
+  test("yayınlanmış resim silinip yeniden çizilince dolgusu duruyor") {
+    val (p, t) = doluKare()
+    p.draw()
+    for {
+      _ <- p.ready
+      _ = kojoWorld.boyalarıBoşalt() // ilk yayın olsun
+      önce = dolguKöşeleri(t())
+      _ = p.erase()
+      _ <- p.ready
+      _ = p.draw()
+      _ <- p.ready
+      _ = kojoWorld.boyalarıBoşalt()
+    } yield {
+      withClue("ilk yayın olmuş olmalı (sınavın ön koşulu) -- ") { önce should not be empty }
+      withClue("silip yeniden çizince dolgu durmalı -- ") {
+        dolguKöşeleri(t()) should not be empty
+      }
+    }
+  }
+
+  test("HİÇ yayınlanmamış resim silinip yeniden çizilince dolgusu geri geliyor") {
+    val (p, t) = doluKare()
+    p.draw()
+    for {
+      _ <- p.ready
+      hiç = dolguKöşeleri(t()) // boşaltma YOK: dolgu hâlâ bekliyor
+      _ = p.erase()
+      _ <- p.ready
+      _ = p.draw()
+      _ <- p.ready
+      _ = kojoWorld.boyalarıBoşalt()
+    } yield {
+      withClue("boşaltmadan önce dolgu olmamalı (yayın tembel) -- ") { hiç shouldBe empty }
+      withClue("silme bekleyeni düşürdü; yeniden çizim onu geri istemeli -- ") {
+        dolguKöşeleri(t()) should not be empty
+      }
+    }
+  }
+
+  test("sil/çiz turu İKİ KEZ yapılınca bayrak doğru tükeniyor") {
+    // Bayrak bir turda doğru davranıyor; soru art arda turlarda takılı kalıp
+    // kalmadığı ya da erken tükenip tükenmediği.
+    val (p, t) = doluKare()
+    p.draw()
+    for {
+      _ <- p.ready
+      _ = p.erase() // 1. tur: bekleyen düşürüldü
+      _ <- p.ready
+      _ = p.draw()
+      _ <- p.ready
+      _ = kojoWorld.boyalarıBoşalt()
+      tur1 = dolguKöşeleri(t())
+      _ = p.erase() // 2. tur: bu kez bekleyen YOK (yukarıda boşaltıldı)
+      _ <- p.ready
+      _ = p.draw()
+      _ <- p.ready
+      _ = kojoWorld.boyalarıBoşalt()
+    } yield {
+      withClue("1. turdan sonra dolgu durmalı -- ") { tur1 should not be empty }
+      withClue("2. turdan sonra da durmalı -- ") { dolguKöşeleri(t()) should not be empty }
+    }
+  }
+
+  test("by-name kurucuda (GlobalTurtlePicture) da aynı yol geçiyor") {
+    // erase/realDraw temel TurtlePicture'dan geliyor; kod okumasıyla
+    // varsaymak yerine koşturuyoruz.
+    val (p, t) = doluKareKüresel()
+    p.draw()
+    for {
+      _ <- p.ready
+      _ = p.erase()
+      _ <- p.ready
+      _ = p.draw()
+      _ <- p.ready
+      _ = kojoWorld.boyalarıBoşalt()
+    } yield {
+      dolguKöşeleri(t()) should not be empty
     }
   }
 }
