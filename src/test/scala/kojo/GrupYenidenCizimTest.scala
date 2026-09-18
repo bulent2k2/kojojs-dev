@@ -34,11 +34,12 @@ class GrupYenidenCizimTest extends AsyncFunSuite with Matchers {
     def copy = new SayanGrup(ps)
   }
 
-  test("ikinci çizimde yerleşim BİR KEZ koşuyor (#121)") {
-    // Doğrudan sayıyor. İlk yazdığım sav HPics'in konumlarını karşılaştırıyordu ve
-    // KIRILAMIYORDU: HPics idempotent olduğu için korumayı söküp koşturduğumda yeşil
-    // kaldı -- istisna sessiz, konumlar aynı, gözlenebilir hiçbir şey yok. Sayaç o
-    // boşluğu kapatıyor.
+  test("yerleşim HER çizimde koşuyor, makeDone yalnız bir kez (#121)") {
+    // Korunan yer layout()ün İÇİ: layoutChildren her çizimde koşar (çocuk değişmişse
+    // yeniden yerleşim GEREKLİ -- aşağıdaki scale savı), makeDone yalnız ilk kez.
+    //
+    // İlk denememde layout()ün TAMAMINI korumuştum ve bu sav `1` bekliyordu; #123
+    // incelemesi o yolun bayat yerleşim ürettiğini ölçtü. Sav da tersine döndü.
     val g = new SayanGrup(Seq(kare(100), kare(60)))
     g.draw()
     for {
@@ -49,7 +50,7 @@ class GrupYenidenCizimTest extends AsyncFunSuite with Matchers {
     } yield {
       withClue(s"\nilk çizimden sonra=$birinciden ikinci çizimden sonra=${g.yerleşimSayısı}\n") {
         birinciden shouldBe 1
-        g.yerleşimSayısı shouldBe 1
+        g.yerleşimSayısı shouldBe 2
         g.made shouldBe true
       }
     }
@@ -70,6 +71,22 @@ class GrupYenidenCizimTest extends AsyncFunSuite with Matchers {
       withClue(s"\nilk=$ilk sonra=${yerler(g)}\n") {
         g.made shouldBe true
         yerler(g) shouldBe ilk
+      }
+    }
+  }
+
+  test("ÇOCUK DEĞİŞİNCE ikinci çizim yeniden yerleştiriyor (#123 incelemesi)") {
+    val g = b.HPics(kare(100), kare(60), kare(80))
+    g.draw()
+    for {
+      _ <- g.ready
+      ilk = yerler(g)
+      _ = g.pics(0).scale(2) // ilk çocuk büyüdü: komşuları kaymalı
+      _ = g.draw()
+      _ <- g.ready
+    } yield {
+      withClue(s"\nilk=$ilk çocuk büyüyüp yeniden çizim=${yerler(g)}\n") {
+        yerler(g) should not be ilk
       }
     }
   }
@@ -99,14 +116,19 @@ class GrupYenidenCizimTest extends AsyncFunSuite with Matchers {
     }
   }
 
-  test("makeDone'un 'tam bir kez' sözleşmesi DURUYOR: elle ikinci layout() hâlâ patlıyor") {
-    // Seçilen yol makeDone'u gevşetmek değil; orada patlaması, beklenmedik bir yerin onu
-    // ikinci kez çağırdığının işareti olarak kalsın. Bu sav o tercihi çiviliyor: kusur
-    // kapandı ama sözleşme gevşetilmedi.
+  test("ikinci layout() artık patlamıyor, ama makeDone GEVŞETİLMEDİ (#121)") {
+    // Kusurun kendisi: eskiden buradan IllegalStateException geliyordu (sessizce, çünkü
+    // gerçek yolda bir future geri çağrısının içinde). Artık gelmiyor.
+    //
+    // Ama makeDone'un "tam bir kez" sözleşmesi GEVŞETİLMEDİ: çare orada değil, layout()te.
+    // makeDone ikinci kez hiç çağrılmıyor; çağrılırsa hâlâ patlar ve bu bir işaret olarak
+    // kalır. İlk denememde bu savı "hâlâ patlıyor" diye yazmıştım -- o zaman layout()ün
+    // tamamı korunuyordu ve çağrı makeDone'a hiç ulaşmıyordu.
     val g = b.GPics(kare(100), kare(60))
     g.draw()
     g.ready.map { _ =>
-      an[IllegalStateException] should be thrownBy g.layout()
+      noException should be thrownBy g.layout()
+      g.made shouldBe true
     }
   }
 
@@ -116,10 +138,12 @@ class GrupYenidenCizimTest extends AsyncFunSuite with Matchers {
     // hesaplıyor (offset bağıl), yani bir koşuda yakınsıyor. BatchPics'i ayıran şey
     // konum değil görünürlük olması.
     //
-    // TOLERANS gerekli, birebir eşitlik DEĞİL: ölçüldü, üst üste uygulama ~3e-15
-    // oynatıyor (19.999999999999993 -> ...96 -> ...93). Delta formülü sıfıra yakınsıyor
-    // ama tam sıfır çıkmıyor; toplama sırası yuvarlamayı değiştiriyor. İlk sondamda
-    // %.1f ile yazdırdığım için bunu görmemiştim.
+    // TOLERANS gerekli, birebir eşitlik DEĞİL -- ama ALT SINIFA BAĞLI, ölçüldü:
+    //   HPics          tam 0 oynuyor (aşağıdaki konum savı birebir eşitlikle geçiyor)
+    //   VPicsCentered  ~3e-15 oynuyor (19.999999999999993 -> ...96 -> ...93)
+    // Delta formülü sıfıra yakınsıyor, ama merkezleyen biçimde iki toplama daha var ve
+    // sıra yuvarlamayı değiştiriyor. İlk sondamda %.1f ile yazdırdığım için görmemiştim;
+    // #123 incelemesi de HPics'te tam 0 ölçüp ayrımın düzeneğe bağlı olduğunu gösterdi.
     val g = b.VPics2(kare(100), kare(60), kare(80))
     g.draw()
     g.ready.map { _ =>
