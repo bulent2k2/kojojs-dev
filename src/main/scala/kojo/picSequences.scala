@@ -30,8 +30,30 @@ abstract class BasePicSequence(val pics: Seq[Picture]) extends Picture with Read
     }
     kojoWorld.addLayer(tnode)
     import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+    // YERLEŞİM YALNIZ BİR KEZ. `çiz(g); ...; çiz(g)` kalıbı öteki resim türlerinde
+    // çalışıyor, grupta çalışmıyordu: childrenReady TAMAMLANMIŞ bir future olduğu için
+    // foreach ikinci çizimde de koşuyor, layout() -> makeDone() zaten tamamlanmış söze
+    // ikinci kez success diyor ve IllegalStateException atıyor. Üstelik SESSİZCE: hata bir
+    // future geri çağrısının içinde, betiğe hiç ulaşmıyor, yalnız konsola düşüyor (#121).
+    //
+    // NEDEN BURADA, makeDone'u idempotent yapmak DEĞİL: ikinci koşunun asıl zararı
+    // istisna değil, layoutChildren'ın yeniden koşması. Altı alt sınıf için zararsız
+    // (ölçüldü: HPics ve VPicsCentered, 3 çocuk, konumlar 1./2./3. uygulamada ~3e-15
+    // içinde aynı -- offset BAĞIL ve formül bounds'u yeniden okuyup delta hesaplıyor, yani
+    // bir koşuda yakınsıyor; tam sıfır değil, toplama sırası yuvarlamayı oynatıyor). Ama BatchPics'in layoutChildren'ı `pics.tail.invisible()` diyor ve
+    // showNext ilerlemişse GÖRÜNÜRLÜĞÜ SIFIRLIYOR -- ölçüldü:
+    //   ilk çizim            true,false,false
+    //   showNext ilerletince false,true,false
+    //   layoutChildren yine  false,false,false   <- hiçbiri görünmüyor, currPicIndex=1
+    // Yani hiçbiri görünmeyen bir ara oluşuyor ve pics(1) atlanıyor. Bu bugün de
+    // oluyordu (istisna layoutChildren'dan SONRA atılıyor); burada kapatmak ikisini
+    // birden kapatıyor. makeDone'un "tam bir kez" sözleşmesi de bozulmamış kalıyor:
+    // orada patlaması, beklenmedik bir yerin onu ikinci kez çağırdığının işareti.
+    //
+    // İki çizim ilk yerleşimden ÖNCE gelirse de doğru: iki geri çağrı da kaydolur,
+    // birincisi made'i kurar, ikincisi atlar.
     childrenReady.foreach { _ =>
-      layout()
+      if (!made) layout()
     }
   }
 
