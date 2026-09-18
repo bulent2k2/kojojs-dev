@@ -16,6 +16,7 @@ package kojo
 
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.HTMLElement
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -32,9 +33,29 @@ import org.scalatest.matchers.should.Matchers
  * Saat sahte: eşik ve zaman kapısı duvar saatine bağlı olsaydı sınamalar
  * makinenin hızına göre değişirdi -- DuraklamaUyarisiTest'teki aynı sebep.
  */
-class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers {
+class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers with BeforeAndAfterAll {
 
   private var şimdi = 0.0
+
+  /**
+   * Sahte saat KÜRESEL: geri vermezsek takım bitince `ÜçgenlemeUyarısı.saat`
+   * ölmüş bir takım nesnesinin son `şimdi` değerinde DONMUŞ kalıyor, ve o saat
+   * artık sıcak yolda (`Turtle.üçgenleriÇiz` her dolguda iki kez çağırıyor):
+   * `saat() - t0` hep 0 -> sonraki takımlarda uyarı bir daha hiç tetiklenmez.
+   *
+   * Bugün yeşil olması yalnız takım sırasına (K < U) bağlıydı, ve ScalaTest
+   * takım sırası bir sözleşme değil: sıra tersine dönseydi UcgenlemeKancaTest
+   * kendi `gerçekSaat`ini SIZMIŞ sahte saatten okur ve sonunda onu "gerçek
+   * saat" diye geri verirdi -- yani oradaki özenli geri verme sızıntıyı
+   * aklardı. (#124 incelemesi, §1.)
+   */
+  private val gerçekSaat = ÜçgenlemeUyarısı.saat
+
+  override def afterAll(): Unit = {
+    ÜçgenlemeUyarısı.saat = gerçekSaat
+    ÜçgenlemeUyarısı.hepsiniUnut()
+    Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
+  }
 
   private def sıfırla(): Unit = {
     ÜçgenlemeUyarısı.hepsiniUnut()
@@ -103,9 +124,22 @@ class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers {
     withClue(s"not: $m\n") {
       m should include("95 ms")            // NE oldu -- ölçülmüş sayı
       m should include("1000 nokta")
-      m should include("17 ms")            // neye göre ağır
+      m should include("16.7 ms")          // neye göre ağır
       m should include("karesel")          // NEDEN
       m should include("boyamaRenginiKur") // NE yapılabilir -- gerçek komut adı
+    }
+  }
+
+  test("eşiğin hemen üstünde not kendi gerekçesini yalanlamıyor") {
+    // `bütçeMs.round` 17 basarken süresi 17.0 olan bir dolgu için not
+    // "17 ms sürdü -- bir karelik bütçe 17 ms" diye okunuyordu: eşik
+    // aşıldığı için düşmüş bir not, bütçede kalındığını söylüyordu.
+    // Ölçekte dar bir bant ama YAVAŞ MAKİNELERİN bandı (#124 incelemesi, §2).
+    val m = ÜçgenlemeUyarısı.metin(17.0, 400)
+    withClue(s"not: $m\n") {
+      m should include("17 ms sürdü")
+      m should include("16.7 ms")
+      m should not include "bütçe 17 ms"
     }
   }
 

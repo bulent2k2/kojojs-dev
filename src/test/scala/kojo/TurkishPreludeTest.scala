@@ -384,6 +384,13 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
    *
    * TUTMADIĞI: anahtar kelime çevirisi ve gerçek çizim. Onlar için
    * `ornekleri-dogrula.sh` gerekiyor.
+   *
+   * KOPYA ELLE TUTULUYOR, ama gözcüsü var: `araclar/ornek-kopya-denetle.py`
+   * (CI'da "örnek gövdelerinin sınamalardaki kopyaları taze mi" adımı)
+   * aşağıdaki `gül` tanımını örnektekiyle karşılaştırıyor. O olmadan örnek
+   * değişip kopya değişmediğinde bu sav BAYAT koda karşı yeşil kalırdı ve
+   * örnek hakkında hiçbir şey kanıtlamazdı (#124 incelemesi, §3). Denetim
+   * yalnız `gül` gövdesine bakıyor; aşağıdaki çağrılar bilerek ayrı.
    */
   test("14-agir-dolgu.kojo'nun kitaplık adları prelude ile derleniyor (#68)") {
     import kojo.{TurkishTurtle, Turtle, Picture}

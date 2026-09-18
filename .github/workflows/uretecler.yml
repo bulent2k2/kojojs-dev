@@ -191,6 +191,16 @@ jobs:
       - name: tuş adları deve yazımda mı
         run: python3 araclar/tus-yazim-denetle.py
 
+      # Örnekleri GERÇEK derleyiciye gönderen yol (ornekleri-dogrula.sh) ikojo
+      # sunucusuna ağ üstünden gidiyor; koşucu oraya çıkamıyor. Telafi olarak
+      # bir örneğin gövdesi, anahtar kelimeleri çıkarılmış hâliyle bir sınamaya
+      # kopyalanıyor (#68 -> 14-agir-dolgu.kojo). Kopya ELLE tutuluyor: örnek
+      # değişip kopya değişmezse sav BAYAT koda karşı yeşil kalır ve örnek
+      # hakkında hiçbir şey kanıtlamaz -- yani telafinin kendisi sessizce
+      # telafi olmaktan çıkar. Bu adım o ayrışmayı görüyor (#124 incelemesi).
+      - name: örnek gövdelerinin sınamalardaki kopyaları taze mi
+        run: python3 araclar/ornek-kopya-denetle.py
+
       # dict.scala'daki bir terimin sözlük sayfasına hiç girmemesi, elle
       # bulunana dek görünmüyor: 2026-09'da `to` (|-|) vardı ama `until` (|-)
       # yoktu. Üstelik "1 until 4" DEYİMİ sözlükte olduğu için arama bir

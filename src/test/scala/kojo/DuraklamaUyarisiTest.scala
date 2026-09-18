@@ -14,6 +14,7 @@
  */
 package kojo
 
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AsyncFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalajs.dom.document
@@ -32,7 +33,7 @@ import org.scalajs.dom.raw.HTMLElement
  *     (orada konumuDeğiştir/giysiyiBüyült/birsonrakiGiysi kuyruğa giriyor,
  *      yani durakla gerçekten çalışıyor)
  */
-class DuraklamaUyarisiTest extends AsyncFunSuite with Matchers {
+class DuraklamaUyarisiTest extends AsyncFunSuite with Matchers with BeforeAndAfterAll {
   implicit val kojoWorld: TestKojoWorld = new TestKojoWorld()
   implicit override def executionContext = scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
@@ -42,6 +43,28 @@ class DuraklamaUyarisiTest extends AsyncFunSuite with Matchers {
    * makinenin hızına göre değişirdi.
    */
   private var şimdi = 0.0
+
+  /**
+   * Sahte saat KÜRESEL: geri vermezsek takım bitince `DuraklamaUyarısı.saat`
+   * donmuş sahte saatte kalıyor ve sonraki takımlarda zaman kapısı bir daha
+   * hiç açılmaz (#124 incelemesi §1).
+   *
+   * Kardeş `UcgenlemeUyarisiTest`te aynı sızıntı ÖLÇÜLDÜ: `Suites(...)` ile
+   * o takımın ARDINA sıralanan bir probe `saat()`i iki kez çağırınca a=0,
+   * b=0 alıyor, geri vermeyle canlı saat geliyor. BURADA ölçemedim: bu takım
+   * eşzamansız ve Scala.js'in kuyruk tabanlı EC'sinde `afterAll` ancak
+   * `run()` döndükten sonra koşuyor, yani eşzamanlı bir probe onun ARKASINA
+   * dizilemiyor (denendi: probe hep afterAll'dan önce koştu). Düzeltme aynı
+   * kusurun aynı çözümü -- ama sızıntının burada da kapandığı SINANMADI.
+   */
+  private val gerçekSaat = DuraklamaUyarısı.saat
+
+  override def afterAll(): Unit = {
+    DuraklamaUyarısı.saat = gerçekSaat
+    DuraklamaUyarısı.hepsiniUnut()
+    Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
+  }
+
   private def sıfırla(): Unit = {
     DuraklamaUyarısı.hepsiniUnut()
     şimdi = 0.0

@@ -66,8 +66,21 @@ object ÜçgenlemeUyarısı {
    */
   private[kojo] val enAzAralıkMs = 2000.0
 
-  /** Sınama saati değiştirebilsin diye ayrı. */
-  private[kojo] var saat: () => Double = () => window.performance.now()
+  /**
+   * Sınama saati değiştirebilsin diye ayrı.
+   *
+   * Varsayılanı `paneleYaz` ile AYNI özeni gösteriyor (tarayıcı yoksa
+   * çökmüyor) -- üstelik burası SICAK yol: `Turtle.üçgenleriÇiz` her dolguda
+   * iki kez çağırıyor. Tarayıcısız ortamda 0 dönmek doğru bozulma: süre hep 0
+   * çıkar, eşik hiç aşılmaz, not da düşmez -- zaten yazacak panel yok.
+   * Çözüm `lazy val`de bir kez yapılıyor, çağrı başına değil.
+   */
+  private[kojo] var saat: () => Double = () => tarayıcıSaati()
+
+  private lazy val tarayıcıSaati: () => Double =
+    if (js.typeOf(js.Dynamic.global.window) == "undefined" ||
+        js.isUndefined(js.Dynamic.global.window.performance)) () => 0.0
+    else () => window.performance.now()
 
   private var sonNotZamanı = Double.NegativeInfinity
   private var notSayısı = 0
@@ -99,12 +112,17 @@ object ÜçgenlemeUyarısı {
 
   /**
    * Okunabilir olsun diye üç parça: NE oldu (sayılarla), NEDEN, NE YAPILABİLİR.
+   *
    * Süre tam sayıya yuvarlanıyor -- ondalık burada bilgi taşımıyor ve ölçüm
-   * zaten koşudan koşuya oynuyor.
+   * zaten koşudan koşuya oynuyor. BÜTÇE yuvarlanMIYOR: `bütçeMs.round` 17
+   * basıyordu, yani süresi (16.7, 17.5) arasına düşen bir dolgu için not
+   * "17 ms sürdü -- bir karelik bütçe 17 ms" diye okunuyordu; eşik aşıldığı
+   * için düşen bir not kendi gerekçesini yalanlıyordu. Dar bir bant ama tam
+   * da yavaş makinelerin bandı: orada süreler eşiğin hemen üstünde kümelenir.
    */
   private[kojo] def metin(süreMs: Double, noktaSayısı: Int): String =
     s"Not: bu şeklin dolgusunu hesaplamak ${süreMs.round} ms sürdü " +
-      s"($noktaSayısı nokta) -- bir karelik bütçe ${bütçeMs.round} ms. " +
+      s"($noktaSayısı nokta) -- bir karelik bütçe $bütçeMs ms. " +
       "Kendini kesen şekillerde dolgu hesabı nokta sayısıyla karesele yakın " +
       "büyüyor, yani nokta sayısını yarıya indirmek süreyi dörtte bire yakın " +
       "düşürür. Canlandırma içindeyse daha az noktayla çizmeyi ya da " +

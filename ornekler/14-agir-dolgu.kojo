@@ -6,7 +6,7 @@
 // büyüyor. Ölçüldü (bkz. kojojs-dev#68):
 //
 //      250 nokta  ->    ~8 ms      sorunsuz
-//     1000 nokta  ->   ~95 ms      bir karelik bütçe 17 ms
+//     1000 nokta  ->   ~95 ms      bir karelik bütçe 16.7 ms
 //     2000 nokta  ->  ~440 ms
 //     4000 nokta  -> ~1840 ms
 //

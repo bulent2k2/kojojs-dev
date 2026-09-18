@@ -223,3 +223,29 @@ API'sine karşı DERLENEREK sınanıyor: bir komut adı ya da imzası değişirs
 
 Sıra: gösteriyi G'ye ekle -> --scala + sbt Test/compile -> --html ile satırı
 al, sayfaya yapıştır -> ornek-dizini.py ile sözlüğü tazele.
+
+## `ornek-kopya-denetle.py` — örnek gövdelerinin sınamalardaki kopyaları taze mi
+
+Örnekleri **gerçek derleyiciye** gönderen yol `ornekler/ornekleri-dogrula.sh`
+ve o ikojo sunucusuna ağ üstünden gidiyor; CI koşucusu ve geliştirme
+konteyneri oraya çıkamıyor. Telafi olarak bir örneğin gövdesi, Koco anahtar
+kelimeleri çıkarılmış hâliyle bir sınamaya kopyalanıyor — bugün
+`14-agir-dolgu.kojo`'nun `gül` tanımı `TurkishPreludeTest`'te (#68).
+
+    araclar/ornek-kopya-denetle.py     # ayrışma varsa 1 döner
+
+Kopya **elle** tutuluyor, yani telafinin kendi sessiz kusuru var: örnek
+değişip kopya değişmezse sav bayat koda karşı yeşil kalır ve örnek hakkında
+hiçbir şey kanıtlamaz (#124 incelemesi). Bu denetim o ayrışmayı görüyor.
+
+Karşılaştırma yorumlar atıldıktan ve anahtar kelimeler çevrildikten
+(`tanım`→`def`, `dez`→`val`, `den`→`var`) sonra. Tanımın **bulunamaması** da
+hata: yeniden adlandırılan bir tanım denetimi sessizce hiçbir şeye bakar hâle
+getirirdi.
+
+Denetlemediği: **çağrı satırları**. Onlar bilerek ayrı — örnek 250/1000 nokta
+çiziyor, sınama 20/30 ile yalnız derlemeye bakıyor. Ayrışması beklenen yeri
+denetlemek, denetimi ilk gerçek değişiklikte gürültüye çevirirdi.
+
+Yeni bir çoğaltma eklenince betiğin başındaki `ÇOĞALTMALAR` listesine bir
+satır yazılır. `uretecler.yml`'de bir adım olarak koşuyor.
