@@ -27,7 +27,7 @@ src/main/resources/samples/tr/addition-game.kojo	platform	191	arayüz	Sütun Sı
 src/main/resources/samples/tr/angle-experiment.kojo	çalışır	72			
 src/main/resources/samples/tr/angles.kojo	çalışır	141			
 src/main/resources/samples/tr/animated-square-creation.kojo	platform	72	canlandırma	Doğrusal DörtlüGirdiÇıktı Geçiş YumuşakGeçiş canlandırmaEşzamanlı	
-src/main/resources/samples/tr/arduino-prog.kojo	platform	122	öykü,dosya	Dosya dizin dosyalar içinde seç yükle	
+src/main/resources/samples/tr/arduino-prog.kojo	platform	122	öykü,dosya	Dosya dosyalar içinde seç yükle	
 src/main/resources/samples/tr/car-ride.kojo	çalışır	193			
 src/main/resources/samples/tr/circles.kojo	çalışır	16			
 src/main/resources/samples/tr/collidium.kojo	çalışır	152			
@@ -84,7 +84,7 @@ src/main/resources/samples/tr/random-dots.kojo	çalışır	12
 src/main/resources/samples/tr/rangoli.kojo	çalışır	83			
 src/main/resources/samples/tr/read-vector-bargraph.kojo	platform	25	dosya		
 src/main/resources/samples/tr/read-vector-mean.kojo	platform	19	dosya		
-src/main/resources/samples/tr/scala-tutorial.kojo	platform	1838	yükle,öykü	Hata adı değeri iç içinde oku olay olmaz tr zaman	
+src/main/resources/samples/tr/scala-tutorial.kojo	platform	1838	yükle,öykü	Hata adı değeri içinde oku olay olmaz tr zaman	
 src/main/resources/samples/tr/shapes-cols.kojo	çalışır	25			
 src/main/resources/samples/tr/sierpinski-tri.kojo	çalışır	42			
 src/main/resources/samples/tr/snowflake.kojo	çalışır	64			

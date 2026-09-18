@@ -97,6 +97,42 @@ GENEL = {'apply', 'toString', 'length', 'size', 'map', 'foreach', 'filter', 'to'
 YEREL_TANIM = re.compile(r'\b(?:lazy\s+val|val|var)\b')
 
 
+def ifade_blogu(s, baş, girinti):
+    """`=`den sonraki İFADE gövdesinin ilk dengeli `{` bloğunu bulur; yoksa -1.
+
+    Neden gerekli: gövde `= {` ile başlamak zorunda değil --
+    `def f = if (...) { ... }`, `def f = x match { ... }` biçimlerinde blok
+    daha ileride. Onları kaçırınca içlerindeki yereller API sayılmaya devam
+    ediyordu (#120 incelemesi; ölçüldü: 14 ad daha).
+
+    NEREDE DURUR: ilk `{`e kadar, ama İFADE BİTİNCE durur -- girintisi def'in
+    girintisinden büyük OLMAYAN dolu bir satır görülünce. O sınır olmadan
+    ifade gövdeli bir def ilerideki bambaşka bir bloğu (bir sonraki def'in ya
+    da object'in gövdesini) kendi gövdesi sanar ve GERÇEK API adlarını
+    gizlerdi -- tehlikeli yön bu, sınır onun için var.
+    """
+    i, paren = baş, 0
+    while i < len(s):
+        c = s[i]
+        if c in '([':
+            paren += 1
+        elif c in ')]':
+            paren -= 1
+        elif c == '{':
+            # Parantez İÇİNDEKİ bloğu da alıyoruz: `getOrElseUpdate(k, { val x = ... })`
+            # gibi blok-argümanların gövdesi de yerel kapsam. İfadenin dışına
+            # taşma tehlikesini paren değil, aşağıdaki girinti sınırı kesiyor.
+            return i
+        elif c == '\n' and paren == 0:
+            j = i + 1
+            while j < len(s) and s[j] in ' \t':
+                j += 1
+            if j < len(s) and s[j] not in '\r\n' and (j - (i + 1)) <= girinti:
+                return -1  # ifade bitti
+        i += 1
+    return -1
+
+
 def def_govdeleri(s):
     """`def ... = { ... }` gövdelerinin (başlangıç, bitiş) aralıkları.
 
@@ -118,6 +154,8 @@ def def_govdeleri(s):
     for m in re.finditer(r'\bdef\s+', s):
         i, paren = m.end(), 0
         gövde = -1
+        satırBaşı = s.rfind('\n', 0, m.start()) + 1
+        girinti = len(s[satırBaşı:m.start()]) - len(s[satırBaşı:m.start()].lstrip())
         while i < len(s):
             c = s[i]
             if c in '([':
@@ -129,11 +167,7 @@ def def_govdeleri(s):
                     gövde = i
                     break
                 if c == '=' and s[i + 1:i + 2] != '=':
-                    j = i + 1
-                    while j < len(s) and s[j] in ' \t\r\n':
-                        j += 1
-                    if j < len(s) and s[j] == '{':
-                        gövde = j
+                    gövde = ifade_blogu(s, i + 1, girinti)
                     break
                 if c == '\n' and s[i + 1:i + 2] not in (' ', '\t'):
                     break  # bildirim (gövdesiz soyut def)
