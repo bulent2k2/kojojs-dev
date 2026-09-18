@@ -27,6 +27,27 @@ class DolguBozulmadiTest extends AsyncFunSuite with Matchers {
     var i = 0
     while (i < 120) { val a = i * 7 * 2 * math.Pi / 120; t.moveTo(150 * math.cos(a), 150 * math.sin(a)); i += 1 }
   }
+  /**
+   * Boşaltma YAPMADAN, YALNIZ dolgu katmanının (boyamaYolu) parça sayısı.
+   *
+   * dolguParça'yı kullanamıyoruz: o hem boşaltıyor hem de kalem yolunu
+   * (turtlePath) sayıyor. İlk yazdığımda tam bu yüzden yanlış bir ön koşul
+   * kurdum -- boşaltmadan önce 38 parça gördüm ve onları dolgu sandım; oysa
+   * hepsi kalemdi.
+   */
+  private def dolguParçaSay(p: TurtlePicture): Int = {
+    val g = p.turtle.boyamaYolu.asInstanceOf[js.Dynamic]
+    g.finishPoly()
+    g.geometry.graphicsData.asInstanceOf[js.Array[js.Dynamic]].length
+  }
+
+  /** 4 kenarlı dolu kare -- tek burst'e sığıyor, yani araya rAF girmiyor. */
+  private def doluKare()(implicit w: KojoWorld): TurtlePicture = TurtlePicture { t =>
+    t.setAnimationDelay(0); t.setPenThickness(0); t.setFillColor(kojo.doodle.Color.blue)
+    var i = 0
+    while (i < 4) { t.forward(100); t.right(90); i += 1 }
+  }
+
   private def dolguParça(p: TurtlePicture)(implicit w: KojoWorldImpl): Int = {
     w.boyalarıBoşalt()
     p.tnode.asInstanceOf[js.Dynamic].children.asInstanceOf[js.Array[js.Dynamic]].toSeq.map { g =>
@@ -146,6 +167,41 @@ class DolguBozulmadiTest extends AsyncFunSuite with Matchers {
         // resme eşit, zamanlamadan bağımsız. Tavan 120 onun ÜSTÜNDE,
         // "yalnız im" (152) ve düzeltmesiz (>=162) durumların ALTINDA.
         yayın should be <= (kareSayısı * 3L)
+      }
+    }
+  }
+
+  test("G: resimleriSil() sonrası yeniden çizilen resmin dolgusu geri geliyor (#109)") {
+    implicit val w: KojoWorldImpl = try dünyaKur() catch { case t: Throwable => cancel(s"$t") }
+    // #111 bu telafiyi `p.erase()` yolu için ekledi: düşürülen yayın BİLGİ
+    // taşıyor, hiç yayınlanmamış bir dolgu öyle kayboluyor. Aynı kusur ÖTEKİ
+    // kapıdan -- resimleriSil() -- de geliyor, çünkü o Picture.erase()'ten
+    // geçmiyor. (#112'nin incelemesinde ölçüldü.)
+    //
+    // Pencere: arada HİÇ boyalarıBoşalt() yok. draw/erase eşzamansız ama
+    // mikro-görevler bir sonraki kareden ÖNCE koşuyor.
+    // KÜÇÜK resim: gül() 120 komut demek, o da scheduleLater'ın MaxBurst
+    // tavanını aşıp bir setTimeout'a düşüyor -- araya bir makro-görev, dolayısıyla
+    // bir rAF ve bir flushRender giriyor. O zaman dolgu ZATEN yayınlanmış
+    // oluyor ve "hiç yayınlanmamış" penceresi hiç açılmıyor (ilk denemede
+    // tam bunu gördüm: boşaltmadan önce 494 parça). 4 kenar tek burst'e sığıyor.
+    val p = doluKare()
+    for {
+      _ <- p.ready
+      _ = p.draw()
+      _ <- p.ready
+      hiç = dolguParçaSay(p) // boşaltma YOK: dolgu hâlâ bekliyor
+      _ = w.erasePictures()
+      _ = p.draw()
+      _ <- p.ready
+      _ = w.boyalarıBoşalt()
+      sonra = dolguParçaSay(p)
+    } yield {
+      withClue(s"\n[G] boşaltmadan önce=$hiç, resimleriSil+yeniden çizim sonrası=$sonra\n") {
+        withClue("boşaltmadan önce dolgu olmamalı (yayın tembel) -- ") { hiç shouldBe 0 }
+        withClue("resimleriSil bekleyeni düşürdü; yeniden çizim onu geri istemeli -- ") {
+          sonra should be > 0
+        }
       }
     }
   }

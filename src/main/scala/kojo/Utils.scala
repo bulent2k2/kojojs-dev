@@ -513,17 +513,43 @@ object PixiUyum {
   // katmanınBoyasınıUnut de bugün tam olarak o kümeyi kapsıyor.
   private val Silindiİmi = "__kocoKatmanSilindi"
 
-  /** Katmanı "sahneden silindi" diye imle (silme yolları çağırıyor). */
-  def katmanıSilindiİmle(katman: Any): Unit =
-    if (katman != null) dyn(katman).updateDynamic(Silindiİmi)(true)
+  // İKİNCİ İM: "bu katmanın BEKLEYEN yayını düşürüldü".
+  //
+  // Düşürülen yayın BİLGİ taşıyor: hiç yayınlanmamış bir dolgu öyle kaybolur
+  // ve resim yeniden çizilince dolgusuz görünür. #111 bu telafiyi
+  // `Picture.erase()` yolu için ekledi (TurtlePicture.dolguDüşürüldü); aynı
+  // kusur `resimleriSil()` kapısından da geliyordu, çünkü o Picture.erase()'ten
+  // geçmiyor -- elinde katman var, çizer yok. Bu im o bilgiyi katmanın üzerinde
+  // taşıyor, realDraw okuyup yeniden kirletiyor (#109, #112 incelemesi).
+  //
+  // "Silindi"den AYRI bir im, çünkü koşulları farklı: her silinen katman
+  // imleniyor ama yalnız GERÇEKTEN bir yayın düşürülen katmanın yeniden
+  // kirletilmesi gerekiyor. Her çizimde kirletmek, bir kez çizilen her resme
+  // fazladan bir üçgenleme bindirirdi (#111'in altını çizdiği ayrım).
+  private val DüşenBoyaİmi = "__kocoDüşenBoya"
 
-  /** İmi kaldır -- katman (yeniden) sahneye giriyor. addLayer çağırıyor. */
-  def katmanınSilindiİminiSil(katman: Any): Unit =
-    if (katman != null) dyn(katman).updateDynamic(Silindiİmi)(false)
+  private def imKoy(o: Any, im: String): Unit = if (o != null) dyn(o).updateDynamic(im)(true)
+  private def imSil(o: Any, im: String): Unit = if (o != null) dyn(o).updateDynamic(im)(false)
+  private def imVarMı(o: Any, im: String): Boolean =
+    o != null && dyn(o).selectDynamic(im).asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
+
+  /** Katmanı "sahneden silindi" diye imle (silme yolları çağırıyor). */
+  def katmanıSilindiİmle(katman: Any): Unit = imKoy(katman, Silindiİmi)
 
   /** Katman silinmiş mi? İm hiç konmamışsa HAYIR -- yeni kurulmuş bir katman
     * (Resim{} gövdesi çiz()'den ÖNCE çalışıyor) canlı sayılmalı, yoksa dolgu
     * hiç oluşmaz. */
-  def katmanSilindiMi(katman: Any): Boolean =
-    katman != null && dyn(katman).selectDynamic(Silindiİmi).asInstanceOf[js.UndefOr[Boolean]].getOrElse(false)
+  def katmanSilindiMi(katman: Any): Boolean = imVarMı(katman, Silindiİmi)
+
+  /** Bu katmanın bekleyen yayını GERÇEKTEN düşürüldü diye imle. */
+  def düşenBoyayıİmle(katman: Any): Unit = imKoy(katman, DüşenBoyaİmi)
+
+  /** Düşürülmüş bir yayın var mı? realDraw, addLayer imleri silmeden ÖNCE okuyor. */
+  def düşenBoyaVarMı(katman: Any): Boolean = imVarMı(katman, DüşenBoyaİmi)
+
+  /** Katman (yeniden) sahneye giriyor: her iki imi de kaldır. addLayer çağırıyor. */
+  def katmanınSilindiİminiSil(katman: Any): Unit = {
+    imSil(katman, Silindiİmi)
+    imSil(katman, DüşenBoyaİmi)
+  }
 }

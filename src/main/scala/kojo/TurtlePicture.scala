@@ -64,8 +64,12 @@ class TurtlePicture private[kojo] (fn: Turtle => Unit)(implicit val kojoWorld: K
 
   import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
   def realDraw(): Unit = {
+    // erasePictures() yolu Picture.erase()'ten geçmiyor, yani dolguDüşürüldü'yü
+    // kuramıyor -- elinde katman var, çizer yok. O yüzden bilgiyi katmanın
+    // üzerinden okuyoruz (#109). addLayer imleri siliyor, o yüzden ÖNCE.
+    val katmandanDüştü = PixiUyum.düşenBoyaVarMı(tnode)
     kojoWorld.addLayer(tnode)
-    if (dolguDüşürüldü) {
+    if (dolguDüşürüldü || katmandanDüştü) {
       dolguDüşürüldü = false
       kojoWorld.boyaKirlendi(turtle)
     }

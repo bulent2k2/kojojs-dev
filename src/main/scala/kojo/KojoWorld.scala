@@ -99,7 +99,17 @@ trait KojoWorld {
     //             belirlenimci 76'ya, yani tam canlı işe çiviliyor
     // İkisi tek yerde duruyor ki ileride ayrı düşmesinler.
     PixiUyum.katmanıSilindiİmle(katman)
-    if (bekleyenBoyacılar.nonEmpty) bekleyenBoyacılar.filterInPlace(_.boyacıKatmanı ne katman)
+    if (bekleyenBoyacılar.nonEmpty) {
+      val öncekiBoy = bekleyenBoyacılar.size
+      bekleyenBoyacılar.filterInPlace(_.boyacıKatmanı ne katman)
+      // GERÇEKTEN bir yayın düştüyse katmana onu da yaz: hiç yayınlanmamış bir
+      // dolgu bu düşmeyle KAYBOLUYOR, resim yeniden çizilince dolgusuz
+      // görünüyordu (#111'in erase() yolu için kapattığı kusurun aynısı, öteki
+      // kapıdan). TurtlePicture.realDraw imi okuyup yeniden kirletiyor.
+      // Koşullu: her silinende değil, yalnız gerçekten düşende -- yoksa bir kez
+      // çizilen her resme fazladan bir üçgenleme binerdi.
+      if (bekleyenBoyacılar.size != öncekiBoy) PixiUyum.düşenBoyayıİmle(katman)
+    }
   }
 
   /**
