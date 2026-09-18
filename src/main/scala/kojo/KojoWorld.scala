@@ -433,6 +433,14 @@ class KojoWorldImpl extends KojoWorld {
     stage.addChild(layer)
     // (yeniden) sahneye giren katman silinmiş değil: "silindi" imini kaldır.
     // İmi koyan tek yer silme yolları, kaldıran tek yer burası (#109).
+    //
+    // İSTİSNA -- süsKatmanı: eksen/ızgara katmanını addLayer'dan geçmeden,
+    // doğrudan `stage.addChildAt(g, 0)` ile geri takıyor. Yani resimleriSil()
+    // onu sahneden çıkarıp "silindi" diye imliyor ve o im BİR DAHA KALKMIYOR.
+    // Bugün zararsız: süs katmanı bir Graphics, çizeri yok, imine kimse
+    // bakmıyor. #115'in alt ağaç yürüyüşü imlenen kümeyi büyüttüğü için
+    // yazılı duruyor -- ileride süs katmanına bir çizer bağlanırsa burası
+    // sessizce yanlış davranır.
     PixiUyum.katmanınSilindiİminiSil(layer)
     // yeni düğümü bu kareyle damgala: yoksa hiç damgalanmadığından çizildiği
     // karenin sonunda pişer; "kur, birkaç kare sonra hareket ettir" kalıbı

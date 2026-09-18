@@ -20,9 +20,19 @@ import scala.concurrent.{Future, Promise}
  *   GPics(gül, gül)    önce 512 / 533 / 512    sonra 114 / 114 / 114
  *
  * Kalan 114-74 = 40 ÖLÜ İŞ DEĞİL: kare sayısıyla doğrusal ve belirlenimci
- * (40 kare 114, 80 kare 234; çıplak 74 ve 156), yani grup sarmalının canlı
- * maliyeti kare başına +1 yayın. Bozuk hâlde kare başına ~13 idi ve
- * zamanlamaya göre oynuyordu -- sınırsız ölü iş.
+ * (40 kare 114, 80 kare 234; çıplak 74 ve 156). Resim sayısından da BAĞIMSIZ,
+ * yani grup BAŞINA sabit bir fazlalık (40 karede ölçüldü):
+ *   1 resim  çıplak  36  grup  76      3 resim  çıplak 114  grup 152
+ *   2 resim  çıplak  74  grup 113
+ *
+ * AMA BU SAYI MAKİNEYE BAĞLI: #117'nin incelemesinde aynı senaryo için grup ile
+ * çıplak BİREBİR aynı ölçüldü (76 / 156), yani orada fazlalık sıfır. İki ölçüm
+ * de kendi makinesinde belirlenimci. Kirlenmeler LinkedHashSet'te çizer başına
+ * teklendiği için fazladan kirlenmenin aynı karenin boşaltmasına düşüp
+ * düşmemesi zamanlamaya bakıyor -- yani buradaki 40'ı grup sarmalının GENEL
+ * bir özelliği saymayın, bu düzeneğin okuması sayın. Niteliksel sonuç iki
+ * ölçümde de aynı: sınırlı ve kare sayısıyla doğrusal. Bozuk hâlde kare başına
+ * ~13 idi ve zamanlamaya göre oynuyordu -- sınırsız ölü iş.
  */
 class IcIceSilmeOlcumTest extends AsyncFunSuite with Matchers {
   implicit override def executionContext: scala.concurrent.ExecutionContextExecutor =

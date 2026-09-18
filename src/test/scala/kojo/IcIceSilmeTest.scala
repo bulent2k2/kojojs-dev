@@ -24,10 +24,9 @@ import pixiscalajs.PIXI
  *   çıplak iki gül     düzeltmeden önce  74 / 74 / 74     sonra  74 / 76 / 74
  *   GPics(gül, gül)    düzeltmeden önce 512 / 533 / 512   sonra 114 / 114 / 114
  *
- * Kalan 114-74 = 40 ÖLÜ İŞ DEĞİL: kare sayısıyla doğrusal ve belirlenimci
- * (40 kare 114, 80 kare 234; çıplak 74 ve 156). Yani grup sarmalının canlı
- * maliyeti kare başına +1 yayın; bozuk hâlde ise kare başına ~13 idi ve
- * zamanlamaya göre oynuyordu.
+ * Kalan 114-74 = 40 ÖLÜ İŞ DEĞİL: kare sayısıyla doğrusal ve belirlenimci,
+ * ve makineye bağlı (ayrıntı IcIceSilmeOlcumTest'te). Bozuk hâlde kare başına
+ * ~13 idi ve zamanlamaya göre oynuyordu.
  */
 class IcIceSilmeTest extends AsyncFunSuite with Matchers {
   implicit override def executionContext: scala.concurrent.ExecutionContextExecutor =
