@@ -368,4 +368,62 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
 
     succeed
   }
+
+  /**
+   * `ornekler/14-agir-dolgu.kojo`'nun gövdesi, KOCO ANAHTAR KELİMELERİ
+   * ÇIKARILMIŞ hâliyle (`dez` -> `val`, `tanım` -> `def`).
+   *
+   * NEDEN BURADA: örnekleri gerçek derleyiciye gönderen yol
+   * `ornekler/ornekleri-dogrula.sh` ve o ikojo sunucusuna ağ üstünden gidiyor;
+   * CI ve geliştirme konteyneri oraya çıkamayabiliyor. Anahtar kelimeler
+   * yamalı derleyiciyi ister, ama örneğin RİSKLİ yanı onlar değil -- kitaplık
+   * adları. Bu sav tam onu tutuyor: `sinüs`/`radyana` gerçekten var mı,
+   * `noktayaGit` iki Kesir alıyor mu, `boyamaRenginiKur` bir Renk alıyor mu,
+   * `Sayı`/`Kesir`/`Birim` tür adları doğru mu. Örnek bit çürümesine
+   * uğrarsa burası kırmızı yanar.
+   *
+   * TUTMADIĞI: anahtar kelime çevirisi ve gerçek çizim. Onlar için
+   * `ornekleri-dogrula.sh` gerekiyor.
+   *
+   * KOPYA ELLE TUTULUYOR, ama gözcüsü var: `araclar/ornek-kopya-denetle.py`
+   * (CI'da "örnek gövdelerinin sınamalardaki kopyaları taze mi" adımı)
+   * aşağıdaki `gül` tanımını örnektekiyle karşılaştırıyor. O olmadan örnek
+   * değişip kopya değişmediğinde bu sav BAYAT koda karşı yeşil kalırdı ve
+   * örnek hakkında hiçbir şey kanıtlamazdı (#124 incelemesi, §3). Denetim
+   * yalnız `gül` gövdesine bakıyor; aşağıdaki çağrılar bilerek ayrı.
+   */
+  test("14-agir-dolgu.kojo'nun kitaplık adları prelude ile derleniyor (#68)") {
+    import kojo.{TurkishTurtle, Turtle, Picture}
+    import kojo.doodle.Color._
+    import kojo.Speed._
+    import kojo.RepeatCommands._
+    import kojo.syntax.Builtins
+    implicit val kojoWorld = new TestKojoWorld()
+    val builtins = new Builtins()
+    import builtins._
+    import turtle._
+    import trTurtle._
+
+    sil()
+    artalanıKur(beyaz)
+    hızıKur(çokHızlı)
+    kalemKalınlığınıKur(0)
+
+    def gül(nokta: Sayı, kat: Sayı, yarıçap: Kesir, renk: Renk): Birim = {
+      val kenar = 2 * yarıçap * sinüs(radyana(kat * 180.0 / nokta))
+      val dönüş = kat * 360.0 / nokta
+      boyamaRenginiKur(renk)
+      yinele(nokta) { ileri(kenar); sağ(dönüş) }
+    }
+
+    // Örnekteki iki çağrı; nokta sayıları küçültüldü (sav derlemeyi sınıyor,
+    // 1000 noktalık dolguyu değil).
+    kalemiKaldır(); noktayaGit(-170, 0); kalemiİndir()
+    gül(20, 7, 40, mavi)
+    kalemiKaldır(); noktayaGit(170, 0); kalemiİndir()
+    gül(30, 7, 40, kırmızı)
+    gizle()
+
+    succeed
+  }
 }

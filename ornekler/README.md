@@ -22,6 +22,7 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 | `11-acilar-ve-radyan.kojo` | Radyan nedir — adım adım devinimli anlatım. Masaüstündeki `samples/tr/angles.kojo`'nun tarayıcı sürümü: geçişler `durakla` yerine bir **düğmeye** bağlı (bkz. aşağıdaki not) |
 | `12-uc-cisim.kojo` | Yerçekimi benzetimi — Newton mekaniğiyle üç gökcisminin birbirini çekmesi |
 | `13-xox-yenilmez.kojo` | **minimax** ve **alfa-beta budaması** — yenilmeyen bir oyun stratejisi nasıl programlanır |
+| `14-agir-dolgu.kojo` | Kendini kesen şekillerin dolgusu neden yavaşlar — ölçülmüş maliyet eğrisi, ve dolgu bir karelik bütçeyi aşınca çıkan not (bkz. aşağıdaki not) |
 
 ## Nasıl çalıştırılır
 
@@ -54,6 +55,28 @@ Tarayıcıda doğru olan iki yol:
 Varsayılan hız yavaştır (adım başına ~1 saniye), bu yüzden çok şekil çizen
 programlarda `çokHızlı` kullanmak gerekir. Ara değerler: `yavaş`, `orta`,
 `hızlı`.
+
+## Ağır dolgu hakkında
+
+Kendini kesen bir yolun içini boyamak için şekil üçgenlere ayrılıyor (NON_ZERO
+sarım kuralı — masaüstü Kojo'nun Java ile yaptığının aynısı). Bu hesap nokta
+sayısıyla **karesele yakın** büyüyor; ölçüldü (kojojs-dev#68):
+
+| nokta (7 kat sarılı) | süre |
+|---|---|
+| 250 | ~8 ms |
+| 1000 | ~95 ms |
+| 2000 | ~440 ms |
+| 4000 | ~1840 ms |
+
+Kesişmeyen bir yolda aynı nokta sayısı bedavaya yakın: 4000 noktalı bir çemberin
+dolgusu 6 ms'den az. Yani pahalı olan nokta sayısı değil, **kesişmeyle birlikte**
+nokta sayısı.
+
+Bir dolgu hesabı bir karelik bütçeyi (~17 ms) aşarsa ikojo çıktı paneline bir
+not düşer: ne kadar sürdüğünü, kaç nokta olduğunu ve ne yapılabileceğini yazar.
+Davranış değişmiyor — şekil yine çiziliyor; değişen şey, yavaşlığın artık
+**sessiz olmaması**. `14-agir-dolgu.kojo` bunu adım adım gösteriyor.
 
 ## Bu örnekler test ediliyor
 

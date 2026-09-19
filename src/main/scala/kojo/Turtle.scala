@@ -230,7 +230,13 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
       gr.drawPolygon(scala.scalajs.js.Array(boyamaÇokgeni.düzDizi: _*))
       return
     }
-    val ü = Üçgenleyici.nonzero(boyamaÇokgeni.düzDizi)
+    // Süre ÖLÇÜLÜYOR: pahalı dolguyu kullanıcıya bildirmek için (#68). Nokta
+    // sayısına bakmak yetmiyor -- kesişmeyen 4000 nokta 6 ms, kesişen 1000
+    // nokta 95 ms. Bedeli iki performance.now(); bkz. ÜçgenlemeUyarısı.
+    val düz = boyamaÇokgeni.düzDizi
+    val t0 = ÜçgenlemeUyarısı.saat()
+    val ü = Üçgenleyici.nonzero(düz)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(ÜçgenlemeUyarısı.saat() - t0, düz.length / 2)
     var i = 0
     while (i + 5 < ü.length) {
       gr.drawPolygon(scala.scalajs.js.Array(ü(i), ü(i + 1), ü(i + 2), ü(i + 3), ü(i + 4), ü(i + 5)))
