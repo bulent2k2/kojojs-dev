@@ -426,4 +426,65 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
 
     succeed
   }
+
+  /**
+   * `ornekler/15-mesh-olcumu.kojo`'nun gövdesi, Koco anahtar kelimeleri
+   * çıkarılmış hâliyle. Gerekçe yukarıdakiyle aynı (örnek gerçek derleyiciye
+   * gönderilemiyor), gözcüsü de aynı: `araclar/ornek-kopya-denetle.py`
+   * `gülÇiz` tanımını örnektekiyle karşılaştırıyor.
+   *
+   * O dosya bir ÖLÇÜ ALETİ (#125): kesişen bir şekli her karede yeniden çizen
+   * bir döngünün saniyede kaç kare verdiğini sayıyor, ki tek mesh değişikliği
+   * öncesi/sonrası aynı şeyle ölçülebilsin.
+   *
+   * `canlandır` ÇAĞRILMIYOR, yalnız bir işlev değerinin içine konuyor:
+   * adları ve imzaları derleyiciye doğrulatmak istiyoruz, sınama takımının
+   * içinde bir canlandırma döngüsü başlatmak değil. Yani bu sav `canlandır`ın
+   * VARLIĞINI tutuyor, DAVRANIŞINI değil.
+   */
+  test("15-mesh-olcumu.kojo'nun kitaplık adları prelude ile derleniyor (#125)") {
+    import kojo.{TurkishTurtle, Turtle, Picture}
+    import kojo.doodle.Color._
+    import kojo.Speed._
+    import kojo.RepeatCommands._
+    import kojo.syntax.Builtins
+    implicit val kojoWorld = new TestKojoWorld()
+    val builtins = new Builtins()
+    import builtins._
+    import turtle._
+    import trTurtle._
+
+    silVeSakla()
+    artalanıKur(beyaz)
+    hızıKur(çokHızlı)
+    gizle()
+
+    def gülÇiz(nokta: Sayı, kat: Sayı, yarıçap: Kesir): Birim = {
+      kalemKalınlığınıKur(0)
+      boyamaRenginiKur(mavi)
+      val kenar = 2 * yarıçap * sinüs(radyana(kat * 180.0 / nokta))
+      val dönüş = kat * 360.0 / nokta
+      yinele(nokta) { ileri(kenar); sağ(dönüş) }
+    }
+
+    // Örnekteki çağrı; nokta sayısı küçültüldü (sav derlemeyi sınıyor).
+    gülÇiz(20, 7, 40)
+
+    // Saat: örnek saniye çözünürlüğünde sayıyor, bu alan gerçekten var mı.
+    val saniye: Sayı = BuAn().saniye
+    saniye should be >= 0
+
+    // Döngünün gövdesi -- ÇAĞRILMIYOR (yukarıdaki yoruma bakın).
+    val döngü: () => Birim = () => {
+      canlandır {
+        sil()
+        gülÇiz(20, 7, 40)
+        canlandırmayıDurdur()
+      }
+    }
+    döngü should not be null
+    satıryaz("")
+
+    succeed
+  }
 }

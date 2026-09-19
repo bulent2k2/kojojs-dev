@@ -37,6 +37,7 @@ import sys
 # buraya bir satır eklenir.
 ÇOĞALTMALAR = [
     ('ornekler/14-agir-dolgu.kojo', 'src/test/scala/kojo/TurkishPreludeTest.scala', 'gül'),
+    ('ornekler/15-mesh-olcumu.kojo', 'src/test/scala/kojo/TurkishPreludeTest.scala', 'gülÇiz'),
 ]
 
 # Örnekte Koco anahtar kelimeleri var, kopyada Scala'nınkiler. Karşılaştırma

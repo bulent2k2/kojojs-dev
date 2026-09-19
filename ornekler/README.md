@@ -23,6 +23,7 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 | `12-uc-cisim.kojo` | Yerçekimi benzetimi — Newton mekaniğiyle üç gökcisminin birbirini çekmesi |
 | `13-xox-yenilmez.kojo` | **minimax** ve **alfa-beta budaması** — yenilmeyen bir oyun stratejisi nasıl programlanır |
 | `14-agir-dolgu.kojo` | Kendini kesen şekillerin dolgusu neden yavaşlar — ölçülmüş maliyet eğrisi, ve dolgu bir karelik bütçeyi aşınca çıkan not (bkz. aşağıdaki not) |
+| `15-mesh-olcumu.kojo` | **Örnek değil, ölçü aleti**: kesişen bir şekli her karede yeniden çizen döngünün saniyede kaç kare verdiğini sayar (bkz. aşağıdaki not) |
 
 ## Nasıl çalıştırılır
 
@@ -78,13 +79,38 @@ not düşer: ne kadar sürdüğünü, kaç nokta olduğunu ve ne yapılabileceğ
 Davranış değişmiyor — şekil yine çiziliyor; değişen şey, yavaşlığın artık
 **sessiz olmaması**. `14-agir-dolgu.kojo` bunu adım adım gösteriyor.
 
+## `15-mesh-olcumu.kojo` bir ölçü aleti
+
+Öteki dosyalar öğretmek için; bu dosya bir **değişikliğin öncesi ve sonrası
+aynı şeyle ölçülsün** diye var (kojojs-dev#125). Kesişen bir şekli her karede
+yeniden çizer ve saniyede kaç kare düştüğünü yazar.
+
+Ölçtüğü şey şu: bugün dolgu üçgenlere ayrılıp PIXI'ye **üçgen başına bir
+`drawPolygon`** ile veriliyor (250 noktalı gülde yayın başına 2 998 çağrı).
+#125 bunun yerine tek bir mesh vermeyi tartışıyor. Betik o değişikliği
+**yapamaz** — hangi PIXI nesnesinin kullanıldığı kitaplığın içinde; betiğin işi
+yalnız kareyi saymak.
+
+Düzeneğin üç kuralı, #68'de üç kez yanlış ölçülmüş olmasından geliyor:
+
+* **tek kaplumbağa**, `sil()` ile yeniden kullanılır — her karede yeni resim
+  yaratıp bırakmak sahneyi biriktirir ve senaryoyu değil sahneyi ölçtürür
+  (298 ms/kare diye okunan sayı buydu, gerçeği ~20 ms'ydi)
+* **ısınma kareleri sayılmaz** — ısıtılmamış çizici ilk kareleri şişiriyor
+* **tek sayı değil, birkaç saniyelik dizi** okunur — ölçüm koşudan koşuya %25
+  oynuyor
+
+Sınırı: `BuAn()` saniyeden ince ölçmüyor, yani çıkan sayı kare *süresi* değil
+saniyedeki kare *sayısı*. Kare süresinin dağılımı için tarayıcının
+profilleyicisi gerekir.
+
 ## Bu örnekler test ediliyor
 
 `ornekleri-dogrula.sh` her dosyayı gerçek derleyiciye gönderip hata dönmediğini
 kontrol eder — yani bozuk bir örnek fark edilmeden kalmaz:
 
 ```sh
-./ornekleri-dogrula.sh                              # canlı sunucuya karşı, bu dizindeki 10 örnek
+./ornekleri-dogrula.sh                              # canlı sunucuya karşı, bu dizindeki örneklerin hepsi
 KOCO=http://localhost:7860 ./ornekleri-dogrula.sh   # yerel konteynere karşı
 ./ornekleri-dogrula.sh masaustu                     # masaüstü betikleri (özyineli)
 ./ornekleri-dogrula.sh -g masaustu/derleme.tsv masaustu   # sonucu TSV'ye yaz
@@ -92,7 +118,7 @@ KOCO=http://localhost:7860 ./ornekleri-dogrula.sh   # yerel konteynere karşı
 ```
 
 Dosya ya da dizin verilebilir; `-b` olmadan her kaldı çıkış kodu 1'dir (buradaki
-10 örneğin hepsi geçmeli). `-b` ile beklenen durum dosyasına göre yalnız gerileme
+örneklerin hepsi geçmeli). `-b` ile beklenen durum dosyasına göre yalnız gerileme
 (geçti → kaldı) hata sayılır; ilerleme ⬆ ile işaretlenir.
 
 ## Masaüstü betikleri (`masaustu/`)
