@@ -1,0 +1,190 @@
+package kojo
+
+import org.scalatest.funsuite.AsyncFunSuite
+import org.scalatest.matchers.should.Matchers
+
+/**
+ * `çiz(g); ...; çiz(g)` kalıbı GRUP resimlerinde de çalışmalı (#121).
+ *
+ * Kusur sessizdi: ikinci çizimde `layout() -> makeDone()` zaten tamamlanmış söze ikinci
+ * kez `success` diyor ve IllegalStateException atıyor -- ama hata bir future geri
+ * çağrısının içinde olduğu için betiğe hiç ulaşmıyor, yalnız tarayıcı konsoluna düşüyor.
+ *
+ * Çare `realDraw`ta: yerleşim yalnız bir kez koşuyor (`if (!made) layout()`).
+ * `makeDone`'u idempotent yapmak DEĞİL -- ikinci koşunun asıl zararı istisna değil,
+ * layoutChildren'ın yeniden koşması (bkz. BatchPics savı).
+ */
+class GrupYenidenCizimTest extends AsyncFunSuite with Matchers {
+  implicit override def executionContext: scala.concurrent.ExecutionContextExecutor =
+    scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+  private implicit val w: TestKojoWorld = new TestKojoWorld()
+  private val b = new kojo.syntax.Builtins()
+
+  private def kare(n: Double): TurtlePicture = b.PictureT { t =>
+    t.invisible(); t.setAnimationDelay(0); t.setFillColor(kojo.doodle.Color.blue)
+    var i = 0; while (i < 4) { t.forward(n); t.right(90); i += 1 }
+  }
+  private def yerler(g: BasePicSequence): Seq[(Double, Double)] =
+    g.pics.map(p => (p.tnode.position.x, p.tnode.position.y))
+
+  /** layoutChildren'ın kaç kez koştuğunu sayan sınama grubu -- üretim kodunda sayaç yok. */
+  private class SayanGrup(ps: Seq[Picture])(implicit val kojoWorld: KojoWorld) extends BasePicSequence(ps) {
+    var yerleşimSayısı = 0
+    def layoutChildren(): Unit = yerleşimSayısı += 1
+    def copy = new SayanGrup(ps)
+  }
+
+  test("yerleşim HER çizimde koşuyor, makeDone yalnız bir kez (#121)") {
+    // Korunan yer layout()ün İÇİ: layoutChildren her çizimde koşar (çocuk değişmişse
+    // yeniden yerleşim GEREKLİ -- aşağıdaki scale savı), makeDone yalnız ilk kez.
+    //
+    // İlk denememde layout()ün TAMAMINI korumuştum ve bu sav `1` bekliyordu; #123
+    // incelemesi o yolun bayat yerleşim ürettiğini ölçtü. Sav da tersine döndü.
+    val g = new SayanGrup(Seq(kare(100), kare(60)))
+    g.draw()
+    for {
+      _ <- g.ready
+      birinciden = g.yerleşimSayısı
+      _ = g.draw() // ESKİDEN: sessiz IllegalStateException
+      _ <- g.ready
+    } yield {
+      withClue(s"\nilk çizimden sonra=$birinciden ikinci çizimden sonra=${g.yerleşimSayısı}\n") {
+        birinciden shouldBe 1
+        g.yerleşimSayısı shouldBe 2
+        g.made shouldBe true
+      }
+    }
+  }
+
+  test("grup ikinci kez çizilince konumlar oynamıyor (#121)") {
+    // Bu sav kusuru YAKALAMAZ (HPics idempotent; korumasız hâlde de yeşil kalıyor,
+    // ölçüldü) -- kullanıcının gördüğü sonucun bozulmadığını söylüyor, o kadar.
+    // Gerilemeyi tutan savlar: yukarıdaki sayaç ve aşağıdaki BatchPics.
+    val g = b.HPics(kare(100), kare(60), kare(80))
+    g.draw()
+    for {
+      _ <- g.ready
+      ilk = yerler(g)
+      _ = g.draw()
+      _ <- g.ready
+    } yield {
+      withClue(s"\nilk=$ilk sonra=${yerler(g)}\n") {
+        g.made shouldBe true
+        yerler(g) shouldBe ilk
+      }
+    }
+  }
+
+  test("ÇOCUK DEĞİŞİNCE ikinci çizim yeniden yerleştiriyor (#123 incelemesi)") {
+    val g = b.HPics(kare(100), kare(60), kare(80))
+    g.draw()
+    for {
+      _ <- g.ready
+      ilk = yerler(g)
+      _ = g.pics(0).scale(2) // ilk çocuk büyüdü: komşuları kaymalı
+      _ = g.draw()
+      _ <- g.ready
+    } yield {
+      withClue(s"\nilk=$ilk çocuk büyüyüp yeniden çizim=${yerler(g)}\n") {
+        yerler(g) should not be ilk
+      }
+    }
+  }
+
+  test("BatchPics ikinci çizimde görünürlüğünü KAYBETMİYOR (#121'in asıl zararı)") {
+    // BatchPics.layoutChildren `pics.tail.invisible()` diyor. showNext ilerledikten sonra
+    // yerleşim yeniden koşarsa HİÇBİRİ görünmez kalıyor (ölçüldü: true,false,false ->
+    // false,true,false -> false,false,false) ve currPicIndex 1'de kaldığı için sonraki
+    // showNext pics(2)'ye atlıyor: pics(1) hiç görünmüyor.
+    //
+    // Bu sav yerleşimin ikinci çizimde koşMAdığını KULLANICININ GÖRDÜĞÜ bir şeyle
+    // çiviliyor; "layout kaç kez çağrıldı" gibi bir sayaç dikişi gerekmiyor.
+    val g = kojo.BatchPics(kare(100), kare(60), kare(80))
+    g.draw()
+    for {
+      _ <- g.ready
+      _ = g.showNext(-1) // bir ilerlet: pics(1) görünür olsun
+      ilerletince = g.pics.map(_.tnode.visible)
+      _ = g.draw()
+      _ <- g.ready
+    } yield {
+      withClue(s"\nilerletince=$ilerletince ikinci çizimden sonra=${g.pics.map(_.tnode.visible)} " +
+        s"currPicIndex=${g.currPicIndex}\n") {
+        ilerletince shouldBe Seq(false, true, false)
+        g.pics.map(_.tnode.visible) shouldBe Seq(false, true, false)
+      }
+    }
+  }
+
+  test("ikinci layout() artık patlamıyor, ama makeDone GEVŞETİLMEDİ (#121)") {
+    // Kusurun kendisi: eskiden buradan IllegalStateException geliyordu (sessizce, çünkü
+    // gerçek yolda bir future geri çağrısının içinde). Artık gelmiyor.
+    //
+    // Ama makeDone'un "tam bir kez" sözleşmesi GEVŞETİLMEDİ: çare orada değil, layout()te.
+    // makeDone ikinci kez hiç çağrılmıyor; çağrılırsa hâlâ patlar ve bu bir işaret olarak
+    // kalır. İlk denememde bu savı "hâlâ patlıyor" diye yazmıştım -- o zaman layout()ün
+    // tamamı korunuyordu ve çağrı makeDone'a hiç ulaşmıyordu.
+    val g = b.GPics(kare(100), kare(60))
+    g.draw()
+    g.ready.map { _ =>
+      noException should be thrownBy g.layout()
+      g.made shouldBe true
+    }
+  }
+
+  test("BatchPics: ELLE gizlenen gösterilen resim yeniden çizimde geri geliyor (#123 §4b)") {
+    // YENİ DAVRANIŞ, bilinçli: layoutChildren artık görünürlüğü İDDİA ediyor
+    // (i == currPicIndex -> visible), eskiden yalnız kuyruğu gizliyordu. Bu yüzden
+    // `g.pics(g.currPicIndex).invisible()` dedikten sonra grubu yeniden çizmek onu geri
+    // getiriyor. Master'da o yol istisna atıyor ve gizli kalıyordu.
+    //
+    // Bir yığın resmi için "yerleşim" tam olarak "gösterilen görünür, ötekiler değil"
+    // demek, yani savunulabilir -- ama YENİ, o yüzden çivileniyor. #123'ün incelemesi
+    // kendi önerisinin bu sonucunu işaretledi.
+    val g = kojo.BatchPics(kare(100), kare(60), kare(80))
+    g.draw()
+    for {
+      _ <- g.ready
+      ilk = g.pics.map(_.tnode.visible)
+      _ = g.pics(g.currPicIndex).invisible()
+      elleGizli = g.pics.map(_.tnode.visible)
+      _ = g.draw()
+      _ <- g.ready
+    } yield {
+      withClue(s"\nilk=$ilk elle gizlendi=$elleGizli yeniden çizim=${g.pics.map(_.tnode.visible)}\n") {
+        ilk shouldBe Seq(true, false, false)
+        elleGizli shouldBe Seq(false, false, false)
+        g.pics.map(_.tnode.visible) shouldBe Seq(true, false, false)
+      }
+    }
+  }
+
+  test("layoutChildren idempotent (kayan nokta toleransında): konum oynamıyor") {
+    // Yerleşimi ikinci çizimde koşturMAmayı seçtik, ama seçimin gerekçesi bu ölçüme
+    // dayanıyor: konumlandıran alt sınıflarda formül bounds'u yeniden okuyup DELTA
+    // hesaplıyor (offset bağıl), yani bir koşuda yakınsıyor. BatchPics'i ayıran şey
+    // konum değil görünürlük olması.
+    //
+    // TOLERANS gerekli, birebir eşitlik DEĞİL -- ama ALT SINIFA BAĞLI, ölçüldü:
+    //   HPics          tam 0 oynuyor (aşağıdaki konum savı birebir eşitlikle geçiyor)
+    //   VPicsCentered  ~3e-15 oynuyor (19.999999999999993 -> ...96 -> ...93)
+    // Delta formülü sıfıra yakınsıyor, ama merkezleyen biçimde iki toplama daha var ve
+    // sıra yuvarlamayı değiştiriyor. İlk sondamda %.1f ile yazdırdığım için görmemiştim;
+    // #123 incelemesi de HPics'te tam 0 ölçüp ayrımın düzeneğe bağlı olduğunu gösterdi.
+    val g = b.VPics2(kare(100), kare(60), kare(80))
+    g.draw()
+    g.ready.map { _ =>
+      val a = yerler(g)
+      g.layoutChildren()
+      val bb = yerler(g)
+      g.layoutChildren()
+      val c = yerler(g)
+      def yakın(x: Seq[(Double, Double)], y: Seq[(Double, Double)]) =
+        x.zip(y).forall { case ((ax, ay), (bx, by)) => (ax - bx).abs < 1e-9 && (ay - by).abs < 1e-9 }
+      withClue(s"\n1=$a\n2=$bb\n3=$c\n") {
+        yakın(bb, a) shouldBe true
+        yakın(c, a) shouldBe true
+      }
+    }
+  }
+}
