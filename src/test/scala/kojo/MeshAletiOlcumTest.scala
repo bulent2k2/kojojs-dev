@@ -43,19 +43,23 @@ import scala.concurrent.{Future, Promise}
  * Yayın sayısı (KojoWorld.yayınSayısı) render'ın vekili -- yalnız flushRender
  * içinden artıyor, yani bir yayın gerçekten bir çizim karesi demek.
  *
- * ÖLÇÜLDÜ (SwiftShader, kat = 7, ısınma sayılmıyor; gül başına):
+ * ÖLÇÜLDÜ (SwiftShader, kat = 7, ısınma sayılmıyor; gül başına YAYIN dağılımı,
+ * ortalama değil -- ortalamanın neyi sakladığı için aşağıdaki `aletiKoştur`):
  * {{{
- *   nokta =  250, 10 gül   ->  3 - 3.4 yayın,   3.3 - 3.7 rAF karesi   (üç koşu)
- *   nokta = 1000,  5 gül   ->  9.6 yayın,      14 rAF karesi
- *   nokta =    4, 10 gül   ->  0 yayın,         0 rAF karesi
+ *   nokta =  250, 10 gül   5,4,3,3,3,3,3,2,2,2    en az 2   (üç koşu, üçünde de
+ *                          3,2,3,3,5,3,2,3,2,4    en az 2    en az 2 -- gövdeyi
+ *                          3,3,5,4,2,3,4,4,3,4    en az 2    inceleyenin kendi
+ *                                                            koşumu da 2)
+ *   nokta = 1000,  5 gül   9,10,13,11,10          en az 9
+ *   nokta =    4, 10 gül   0,0,0,0,0,0,0,0,0,0    en az 0
  * }}}
  *
  * Yani ALETİN KENDİ ÖLÇEĞİNDE (250 ve 1000) endişe ISIRMIYOR: bir gül birkaç
- * kareye yayılıyor, her gülün payına birden çok boyama düşüyor, sayılan gül ile
+ * kareye yayılıyor, EN AZ boyanan gül bile iki kez boyanıyor, sayılan gül ile
  * boyanan gül aynı. Ama mekanizma gerçek -- 4 noktalı gülde on gülün onu da
- * ilk rAF hiç ateşlenmeden bitiyor ve SIFIR kez boyanıyor. Bu yüzden sav bir
- * oran savı, sabit değil: aletin ölçeği değişirse (ya da makine çok hızlanırsa)
- * kırılır ve haber verir.
+ * ilk rAF hiç ateşlenmeden bitiyor ve SIFIR kez boyanıyor. Bu yüzden sav sabit
+ * bir sayı değil, gül başına EN KÜÇÜK delta: aletin ölçeği değişirse (ya da
+ * makine çok hızlanırsa) kırılır ve haber verir.
  */
 class MeshAletiOlcumTest extends AsyncFunSuite with Matchers {
   implicit override def executionContext: scala.concurrent.ExecutionContextExecutor =
@@ -84,18 +88,29 @@ class MeshAletiOlcumTest extends AsyncFunSuite with Matchers {
     while (i < nokta) { t.forward(kenar); t.right(dönüş); i += 1 }
   }
 
-  /** (sayılan gül, o sırada geçen yayın, o sırada geçen rAF karesi) */
-  private def aletiKoştur(nokta: Int, ısınma: Int, sayılan: Int): Future[(Int, Long, Int)] = {
+  /**
+   * Sayılan güllerin her biri için (o gül boyunca geçen yayın, geçen rAF
+   * karesi).
+   *
+   * TOPLAM DEĞİL, GÜL BAŞINA: ortalama, boyanmamış gülü SAKLAR (#130
+   * incelemesi, ikinci tur §3). 10 gül / 22 yayın ortalaması 2.2'dir ama
+   * "bir gülde 22, dokuz gülde 0" da aynı ortalamayı verir -- ve o
+   * dağılımda savın adı ("her gülün en az bir boyaması var") yalan olurdu.
+   * 4 noktalı ölçüm sıfır-yayınlı gül rejiminin gerçek olduğunu gösterdiği
+   * için bu kuramsal bir kaygı değil.
+   */
+  private def aletiKoştur(nokta: Int, ısınma: Int, sayılan: Int): Future[Vector[(Long, Int)]] = {
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
     val t = new Turtle(0, 0)
     t.setAnimationDelay(0)
     t.invisible()
 
     var kare = 0
-    var kareTaban = 0
+    var öncekiKare = 0
     var gül = 0
-    var yayınTaban = 0L
-    val söz = Promise[(Int, Long, Int)]()
+    var öncekiYayın = 0L
+    var deltalar = Vector.empty[(Long, Int)]
+    val söz = Promise[Vector[(Long, Int)]]()
 
     // Aletle YARIŞMAYAN bir kare sayacı: yalnız sayıyor, render istemiyor.
     def kareSay(): Unit = {
@@ -111,9 +126,10 @@ class MeshAletiOlcumTest extends AsyncFunSuite with Matchers {
       // varınca gül gerçekten bitmiştir.
       t.sync { () =>
         gül += 1
-        if (gül == ısınma) { yayınTaban = w.yayınSayısı; kareTaban = kare }
-        if (gül >= ısınma + sayılan) söz.success((sayılan, w.yayınSayısı - yayınTaban, kare - kareTaban))
-        else tur()
+        if (gül > ısınma) deltalar :+= (w.yayınSayısı - öncekiYayın, kare - öncekiKare)
+        öncekiYayın = w.yayınSayısı
+        öncekiKare = kare
+        if (gül >= ısınma + sayılan) söz.success(deltalar) else tur()
       }
     }
     tur()
@@ -121,24 +137,27 @@ class MeshAletiOlcumTest extends AsyncFunSuite with Matchers {
   }
 
   test("alet boyamayla eşleşiyor: sayılan her gülün en az bir boyaması var (#130 §2)") {
-    aletiKoştur(nokta = 250, ısınma = 3, sayılan = 10).map {
-      case (güller, yayınlar, kareler) =>
-        val yayınOranı = yayınlar.toDouble / güller
-        val kareOranı = kareler.toDouble / güller
-        withClue(
-          s"$güller gül -> $yayınlar yayın ($yayınOranı/gül), $kareler rAF karesi ($kareOranı/gül) -- "
-        ) {
-          // ASIL SAV: gül başına en az bir yayın. Altına düşerse alet
-          // tamamlanan güllerin bir kısmını hiç boyatmadan sayıyor demektir --
-          // o durumda okunan sayı gül/s değil KUYRUK HIZI olur ve #125'in
-          // render kazancını göstermez.
-          //
-          // Kırılabilir, ölçüldü: nokta = 4'te on gülün onu da ilk rAF
-          // ateşlenmeden bitiyor -- oran 0, sav da alt sınır da kırmızı.
-          yayınOranı should be >= 1.0
-          // Alt sınır sıfır yayının savı boşa düşürmesini engelliyor.
-          yayınlar should be > 0L
-        }
+    aletiKoştur(nokta = 250, ısınma = 3, sayılan = 10).map { deltalar =>
+      val yayınlar = deltalar.map(_._1)
+      val kareler = deltalar.map(_._2)
+      val ortalama = yayınlar.sum.toDouble / deltalar.size
+      withClue(
+        s"gül başına yayın: ${yayınlar.mkString(",")} (en az ${yayınlar.min}, ortalama $ortalama); " +
+          s"rAF karesi: ${kareler.mkString(",")} -- "
+      ) {
+        // Sayılan gül sayısı beklendiği gibi; yoksa aşağıdaki min boş
+        // koleksiyon üstünde patlar ya da az örnekle karar verir.
+        deltalar.size shouldBe 10
+        // ASIL SAV: EN AZ boyanan gül bile en az bir kez boyanıyor. Ortalama
+        // DEĞİL -- ortalama boyanmamış gülü saklardı (bkz. aletiKoştur'un
+        // notu). Altına düşerse alet tamamlanan güllerin bir kısmını hiç
+        // boyatmadan sayıyor demektir; o durumda okunan sayı gül/s değil
+        // KUYRUK HIZI olur ve #125'in render kazancını göstermez.
+        //
+        // Kırılabilir, ölçüldü: nokta = 4'te on gülün onu da ilk rAF
+        // ateşlenmeden bitiyor -- her delta 0, sav kırmızı.
+        yayınlar.min should be >= 1L
+      }
     }
   }
 }
