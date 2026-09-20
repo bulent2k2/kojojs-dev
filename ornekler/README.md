@@ -63,12 +63,36 @@ Kendini kesen bir yolun içini boyamak için şekil üçgenlere ayrılıyor (NON
 sarım kuralı — masaüstü Kojo'nun Java ile yaptığının aynısı). Bu hesap nokta
 sayısıyla **karesele yakın** büyüyor; ölçüldü (kojojs-dev#68):
 
-| nokta (7 kat sarılı) | süre |
+| nokta (7 kat sarılı) | süre (ısıtılmış, yazılımsal çizici) |
 |---|---|
 | 250 | ~8 ms |
 | 1000 | ~95 ms |
 | 2000 | ~440 ms |
 | 4000 | ~1840 ms |
+
+**Bu tablo iyimser.** Sayılar aynı girdiyle tekrarlanan çağrıların ortancası
+(JIT ısınmış) ve SwiftShader üstünde alındı. Tek atışlık gerçek bir betikte
+libtess **soğuk** koşuyor. Gerçek bir tarayıcıda 250×7 ölçeğinde üç ölçüm
+(kojojs-dev#130):
+
+| nokta | süre |
+|---|---|
+| 146 | 44 ms |
+| 193 | 25 ms |
+| 236 | 27 ms |
+
+**Bu üç sayı düzeltme öncesi koddan** (kojojs-dev#130): o sırada not her
+*yayını* ayrı ayrı bildiriyordu, yani her sayı şeklin tek bir yarım yayınının
+süresi. Düzeltmeden sonra not şekil başına **toplamı** yazıyor — aynı örneği
+bugün koşturan kişi bu üçünü değil, daha büyük tek bir sayı görecek. Üçü burada
+duruyor çünkü aşağıdaki iki dersi hâlâ veriyorlar; dağıtımdan sonra yeniden
+ölçülüp değiştirilmeli.
+
+Yani tablodakinin birkaç katı. Nokta sayıları 250'den küçük, çünkü dolgu şekil
+bitmeden de yayınlanıyor; ve sıralama nokta sayısını **izlemiyor** (146 nokta
+44 ms, 236 nokta 27 ms) — bu ölçekte koşudan koşuya değişim baskın. Tabloyu
+**büyük ölçek farkları** için okuyun (250 ile 4000 arasındaki fark gerçek),
+yakın sayıları karşılaştırmak ya da mutlak eşik çıkarmak için değil.
 
 Kesişmeyen bir yolda aynı nokta sayısı bedavaya yakın: 4000 noktalı bir çemberin
 dolgusu 6 ms'den az. Yani pahalı olan nokta sayısı değil, **kesişmeyle birlikte**
@@ -78,6 +102,13 @@ Bir dolgu hesabı bir karelik bütçeyi (~17 ms) aşarsa ikojo çıktı paneline
 not düşer: ne kadar sürdüğünü, kaç nokta olduğunu ve ne yapılabileceğini yazar.
 Davranış değişmiyor — şekil yine çiziliyor; değişen şey, yavaşlığın artık
 **sessiz olmaması**. `14-agir-dolgu.kojo` bunu adım adım gösteriyor.
+
+Not **şekil başına en çok bir kez** düşer ve o şeklin **toplam** dolgu süresini
+söyler. Bunun sebebi ölçülmüş: bir şekil bitmeden birkaç kez yayınlanıyor
+(kaplumbağa komutları kuyrukta işleniyor), ve önceki sürüm her yayını ayrı ayrı
+bildirdiği için betikte olmayan nokta sayıları yazıyordu — 250 noktalık bir gül
+için "146 nokta" (kojojs-dev#125). Şekil henüz bitmemişken düşen not bunu
+açıkça söyler: *"şimdilik N nokta; şekil büyüdükçe artacak"*.
 
 ## `15-mesh-olcumu.kojo` bir ölçü aleti
 
@@ -99,6 +130,9 @@ Düzeneğin üç kuralı, #68'de üç kez yanlış ölçülmüş olmasından gel
 * **ısınma kareleri sayılmaz** — ısıtılmamış çizici ilk kareleri şişiriyor
 * **tek sayı değil, birkaç saniyelik dizi** okunur — ölçüm koşudan koşuya %25
   oynuyor
+* **tamamlanmış gül** sayılır, canlandırma tiki değil — ilk sürüm tiki sayıyordu
+  ve yanlıştı (komutlar kuyrukta, bir gül birkaç kareye yayılıyor); şimdi her
+  gülün ardındaki `konumuOku` geri çağrımı, kuyruk oraya varınca sayıyor
 
 Rapordaki her satır **tam bir saniyeyi** kapsar: saniye tabanı ısınma bitince
 alınıyor ve ilk (kısmi) saniye basılmadan atılıyor. Bu olmadan ilk satır
@@ -108,6 +142,17 @@ sistematik olarak eksik bir saniye sayıyordu — 30 kare/s'lik bir koşuda
 Sınırı: `BuAn()` saniyeden ince ölçmüyor, yani çıkan sayı kare *süresi* değil
 saniyedeki kare *sayısı*. Kare süresinin dağılımı için tarayıcının
 profilleyicisi gerekir.
+
+Sayılan gül ile **boyanan** gül aynı mı? Bitmiş bir gül boyanmamış olabilir:
+komut kuyruğunun `setTimeout(0)` hoplamaları rAF'i beklemiyor, ve bir gülün
+dolgu düğümü sonraki `sil()` ile kalkıyor. Render'ı eksik sayan bir alet, #125'i
+tam da kazancının en büyük olduğu yerde kendi aleyhine ölçerdi. Ölçüldü
+(`kojo.MeshAletiOlcumTest`, gül başına boyama sayısı — ortalama değil, çünkü
+ortalama boyanmamış gülü saklar): 250 noktada en düşük gül bile **2** kez, 1000
+noktada **9** kez boyanıyor; yani aletin ölçeğinde endişe ısırmıyor. Mekanizma
+yine de gerçek — 4 noktalık bir gülde on gülün onu da ilk rAF ateşlenmeden
+bitiyor ve **sıfır** kez boyanıyor. Aleti çok daha ucuz bir şekle çevirirsen o
+dağılımı yeniden ölç (kojojs-dev#130 incelemesi §2).
 
 ## Bu örnekler test ediliyor
 
