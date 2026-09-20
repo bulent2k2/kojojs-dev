@@ -72,9 +72,20 @@ sayısıyla **karesele yakın** büyüyor; ölçüldü (kojojs-dev#68):
 
 **Bu tablo iyimser.** Sayılar aynı girdiyle tekrarlanan çağrıların ortancası
 (JIT ısınmış) ve SwiftShader üstünde alındı. Tek atışlık gerçek bir betikte
-libtess **soğuk** koşuyor: gerçek bir tarayıcıda 250 nokta ölçeğinde **27-44 ms**
-görüldü (kojojs-dev#125), yani tablodakinin birkaç katı. Tabloyu **sıralama**
-için okuyun (büyüdükçe kötüleşiyor), mutlak eşik için değil.
+libtess **soğuk** koşuyor. Gerçek bir tarayıcıda 250×7 ölçeğinde üç ölçüm
+(kojojs-dev#130):
+
+| nokta | süre |
+|---|---|
+| 146 | 44 ms |
+| 193 | 25 ms |
+| 236 | 27 ms |
+
+Yani tablodakinin birkaç katı. Nokta sayıları 250'den küçük, çünkü dolgu şekil
+bitmeden de yayınlanıyor; ve sıralama nokta sayısını **izlemiyor** (146 nokta
+44 ms, 236 nokta 27 ms) — bu ölçekte koşudan koşuya değişim baskın. Tabloyu
+**büyük ölçek farkları** için okuyun (250 ile 4000 arasındaki fark gerçek),
+yakın sayıları karşılaştırmak ya da mutlak eşik çıkarmak için değil.
 
 Kesişmeyen bir yolda aynı nokta sayısı bedavaya yakın: 4000 noktalı bir çemberin
 dolgusu 6 ms'den az. Yani pahalı olan nokta sayısı değil, **kesişmeyle birlikte**

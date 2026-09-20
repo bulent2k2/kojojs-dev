@@ -12,10 +12,20 @@
 //
 // DİKKAT, BU TABLO İYİMSER: sayılar aynı girdiyle tekrarlanan çağrıların
 // ortancası (JIT ısınmış) ve yazılımsal bir çizici üstünde alındı. Tek
-// atışlık gerçek bir betikte libtess SOĞUK koşuyor; gerçek bir tarayıcıda
-// 250 nokta ölçeğinde 27-44 ms görüldü (kojojs-dev#125), yani tablodakinin
-// birkaç katı. Buradan çıkan kural: tablodaki sayıları SIRALAMA için oku
-// (büyüdükçe kötüleşiyor), mutlak eşik için değil.
+// atışlık gerçek bir betikte libtess SOĞUK koşuyor. Gerçek bir tarayıcıda
+// 250x7 ölçeğinde üç ölçüm (kojojs-dev#130):
+//
+//     146 nokta -> 44 ms      193 nokta -> 25 ms      236 nokta -> 27 ms
+//
+// Yani tablodakinin birkaç katı. İki şey daha var, ikisi de öğretici:
+//   - Bu nokta sayıları 250'den KÜÇÜK, çünkü dolgu şekil bitmeden de
+//     yayınlanıyor (kaplumbağa komutları kuyrukta işleniyor).
+//   - Sıralama nokta sayısını İZLEMİYOR: 146 nokta 44 ms, 236 nokta 27 ms.
+//     Bu ölçekte koşudan koşuya değişim, nokta sayısının etkisini bastırıyor.
+//
+// Buradan çıkan kural: tabloyu BÜYÜK ÖLÇEK farkları için oku (250 ile 4000
+// arasındaki fark gerçek), yakın sayıları karşılaştırmak ya da mutlak bir
+// eşik çıkarmak için değil.
 //
 // Kesişmeyen bir yolda aynı nokta sayısı bedavaya yakın: 4000 noktalı bir
 // çemberin dolgusu 6 ms'den az. Yani pahalı olan nokta sayısı DEĞİL,
