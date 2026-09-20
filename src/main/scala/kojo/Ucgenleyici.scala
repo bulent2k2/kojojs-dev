@@ -32,10 +32,22 @@ import scala.scalajs.js
  * libtess %0.21 (yalnız kenar yumuşatma).
  *
  * ÇIKTI BİÇİMİ: düz bir dizi -- her ardışık ALTI sayı bir üçgen
- * (x1,y1, x2,y2, x3,y3). PIXI'ye üçgen üçgen `drawPolygon` ile veriliyor;
- * ölçüldü ki tek bir Mesh'ten ucuz kurulup daha hızlı render oluyor ve
- * doku/gradyan dolgusu üçgen sınırlarını aşarak SÜREKLİ eşleniyor (doku
- * dolgusu dünya uzayında, şekil başına değil).
+ * (x1,y1, x2,y2, x3,y3). PIXI'ye üçgen üçgen `drawPolygon` ile veriliyor.
+ *
+ * DİKKAT, BURADA ESKİDEN YANLIŞ BİR CÜMLE VARDI: "ölçüldü ki tek bir Mesh'ten
+ * ucuz kurulup daha hızlı render oluyor". TERSİ ölçüldü (#125): ısıtılmış
+ * çizicide mesh 5-14 kat UCUZ; eski sayı, mesh'in soğuk ilk kurulumundaki
+ * bir kerelik 14-30 ms'lik shader derlemesini mesh'in hanesine yazmaktan
+ * geliyordu. Aynı yanlış cümlenin `Turtle.üçgenleriÇiz`teki kopyası #129'da
+ * düzeltilmişti, bu kopya gözden kaçmıştı.
+ *
+ * Cümlenin ikinci yarısı ("doku/gradyan dolgusu üçgen sınırlarını aşarak
+ * SÜREKLİ eşleniyor, çünkü doku dolgusu dünya uzayında") BUGÜNKÜ Graphics
+ * yolu için doğru. Mesh'e geçilirse bedava gelmiyor ama pahalı da değil:
+ * köşe başına `matris.applyInverse` ile UV hesaplanınca sonuç Graphics
+ * yoluyla BİT BİREBİR aynı çıkıyor (ölçüldü, `MeshUvSondaTest`).
+ *
+ * Üçgenlerin PIXI'ye veriliş biçimi bir TASARIM BORCU; kayıt #125.
  */
 object Üçgenleyici {
 
