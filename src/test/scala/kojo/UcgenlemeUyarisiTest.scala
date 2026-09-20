@@ -76,7 +76,7 @@ class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers with BeforeAndAfter
 
   test("bütçeyi AŞAN dolgu not düşürüyor") {
     sıfırla(); panelKur()
-    ÜçgenlemeUyarısı.üçgenlemeBitti(95.0, 1000)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(95.0, 1000, bitti = true)
     ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 1
     panelMetni should include("95 ms")
     panelMetni should include("1000 nokta")
@@ -85,16 +85,16 @@ class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers with BeforeAndAfter
   test("bütçenin ALTINDAKİ dolgu susuyor: sıradan ölçekte yanlış alarm yok") {
     sıfırla(); panelKur()
     // #68'in ölçümü: 250 nokta x 7 kat ~8 ms. Bugünkü örneklerin ölçeği bu.
-    ÜçgenlemeUyarısı.üçgenlemeBitti(8.0, 250)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(8.0, 250, bitti = true)
     ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 0
     panelMetni shouldBe ""
   }
 
   test("eşik tam bir karelik bütçe: 16.7 ms'nin iki yanı") {
     sıfırla(); panelKur()
-    ÜçgenlemeUyarısı.üçgenlemeBitti(16.0, 400)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(16.0, 400, bitti = true)
     ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 0
-    ÜçgenlemeUyarısı.üçgenlemeBitti(17.0, 400)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(17.0, 400, bitti = true)
     ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 1
   }
 
@@ -103,7 +103,7 @@ class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers with BeforeAndAfter
     // Her karede yeniden çizilen ağır bir şekil: 50 kare, kare başına 20 ms.
     var kare = 0
     while (kare < 50) {
-      ÜçgenlemeUyarısı.üçgenlemeBitti(95.0, 1000)
+      ÜçgenlemeUyarısı.üçgenlemeBitti(95.0, 1000, bitti = true)
       şimdi += 20.0
       kare += 1
     }
@@ -113,14 +113,14 @@ class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers with BeforeAndAfter
 
   test("kapı süresi geçince yeniden düşüyor: sorun sürüyorsa haber de sürüyor") {
     sıfırla(); panelKur()
-    ÜçgenlemeUyarısı.üçgenlemeBitti(95.0, 1000)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(95.0, 1000, bitti = true)
     şimdi += ÜçgenlemeUyarısı.enAzAralıkMs + 1
-    ÜçgenlemeUyarısı.üçgenlemeBitti(95.0, 1000)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(95.0, 1000, bitti = true)
     ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 2
   }
 
   test("not okunabilir: ne oldu, neden, ne yapılabilir") {
-    val m = ÜçgenlemeUyarısı.metin(95.0, 1000)
+    val m = ÜçgenlemeUyarısı.metin(95.0, 1000, bitti = true)
     withClue(s"not: $m\n") {
       m should include("95 ms")            // NE oldu -- ölçülmüş sayı
       m should include("1000 nokta")
@@ -135,7 +135,7 @@ class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers with BeforeAndAfter
     // "17 ms sürdü -- bir karelik bütçe 17 ms" diye okunuyordu: eşik
     // aşıldığı için düşmüş bir not, bütçede kalındığını söylüyordu.
     // Ölçekte dar bir bant ama YAVAŞ MAKİNELERİN bandı (#124 incelemesi, §2).
-    val m = ÜçgenlemeUyarısı.metin(17.0, 400)
+    val m = ÜçgenlemeUyarısı.metin(17.0, 400, bitti = true)
     withClue(s"not: $m\n") {
       m should include("17 ms sürdü")
       m should include("16.7 ms")
@@ -143,9 +143,64 @@ class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers with BeforeAndAfter
     }
   }
 
+  test("aynı şeklin yarım yayınları TEK not veriyor, toplam süreyle") {
+    // Gerçek tarayıcı çıktısı (#125): 250 noktalık bir gül için not "146 nokta"
+    // diyordu -- kullanıcının betiğinde olmayan bir sayı. Sebebi, şeklin
+    // bitmeden birkaç kez yayınlanması. Artık ölçüm şekil başına birikiyor.
+    sıfırla(); val panel = panelKur()
+    ÜçgenlemeUyarısı.üçgenlemeBitti(20.0, 100, bitti = false)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(25.0, 180, bitti = false)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(30.0, 250, bitti = true)
+    withClue(s"panel: '$panelMetni' -- ") {
+      ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 1
+      panel.childNodes.length shouldBe 1
+      // 20 + 25 = 45 ms, erken eşiği (3 x 16.7 = 50.1) aşmıyor, yani not
+      // ancak ÜÇÜNCÜ yayında (şekil bitince) düşüyor -- ve toplamı söylüyor.
+      panelMetni should include("75 ms")
+      panelMetni should include("250 nokta")
+    }
+  }
+
+  test("şekil bitmeden de konuşuyor: betiğin SON şekli hiç bitmeyebilir") {
+    // 14-agir-dolgu.kojo'nun 1000 noktalık gülü hiç tamamlanmıyor (ardından
+    // kalem kalkık taşınma ya da boya değişimi gelmiyor). Yalnız tamamlanmış
+    // şekle bakan bir uyarı, uyarılması gereken şekli susturuyordu.
+    sıfırla(); panelKur()
+    ÜçgenlemeUyarısı.üçgenlemeBitti(30.0, 120, bitti = false)
+    withClue("30 ms bütçeyi aşıyor ama erken eşiğin (50.1) altında -- ") {
+      ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 0
+    }
+    ÜçgenlemeUyarısı.üçgenlemeBitti(30.0, 240, bitti = false)
+    withClue("toplam 60 ms erken eşiği aştı, şekil bitmese de konuşmalı -- ") {
+      ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 1
+    }
+    panelMetni should include("şimdilik 240 nokta")
+    panelMetni should include("büyüdükçe artacak")
+  }
+
+  test("şekil bitince birikim sıfırlanıyor: sonraki şekil temiz başlıyor") {
+    sıfırla(); panelKur()
+    ÜçgenlemeUyarısı.üçgenlemeBitti(16.0, 200, bitti = true) // bütçe altı, sessiz
+    ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 0
+    ÜçgenlemeUyarısı.üçgenlemeBitti(16.0, 200, bitti = true) // birikseydi 32 ms olurdu
+    withClue("iki ayrı şeklin süresi TOPLANMAMALI -- ") {
+      ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 0
+    }
+  }
+
+  test("sil() yarım şeklin birikimini sonraki şekle taşımıyor") {
+    sıfırla(); panelKur()
+    ÜçgenlemeUyarısı.üçgenlemeBitti(30.0, 120, bitti = false)
+    ÜçgenlemeUyarısı.şekliUnut() // Turtle.realClear'ın yaptığı
+    ÜçgenlemeUyarısı.üçgenlemeBitti(30.0, 120, bitti = false)
+    withClue("taşınsaydı toplam 60 ms olup erken eşiği aşardı -- ") {
+      ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 0
+    }
+  }
+
   test("panel yoksa çökmüyor: konsola düşüyor") {
     sıfırla() // panel kurulmadı
-    ÜçgenlemeUyarısı.üçgenlemeBitti(95.0, 1000)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(95.0, 1000, bitti = true)
     ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 1
   }
 }

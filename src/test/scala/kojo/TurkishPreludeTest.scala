@@ -475,12 +475,12 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
     saniye should be >= 0
 
     // Döngünün gövdesi -- ÇAĞRILMIYOR (yukarıdaki yoruma bakın).
+    // `konumuOku` örneğin tamamlanma sinyali: kuyruk oraya varınca tetikleniyor.
     val döngü: () => Birim = () => {
-      canlandır {
-        sil()
-        gülÇiz(20, 7, 40)
-        canlandırmayıDurdur()
-      }
+      sil()
+      gülÇiz(20, 7, 40)
+      konumuOku { _ => canlandırmayıDurdur() }
+      canlandır { canlandırmayıDurdur() }
     }
     döngü should not be null
     satıryaz("")

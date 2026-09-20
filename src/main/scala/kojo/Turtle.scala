@@ -143,7 +143,9 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
       dolgu.name = "Turtle Fill"
       dolgu.lineStyle(0, 0, 0)
       PixiUyum.boyamayaBaşla(dolgu, fillBoya)(() => kojoWorld.render())
-      üçgenleriÇiz(dolgu) // kalıcı düğüm de aynı sarım kuralını kullanmalı
+      // bitti = true: KALICI düğüm, yani şekil tamamlandı -- not gerçek nokta
+      // sayısını söyleyebilir (bkz. ÜçgenlemeUyarısı, #125).
+      üçgenleriÇiz(dolgu, bitti = true)
       dolgu.endFill()
       PixiUyum.tazele(dolgu)
       // Dolgu, O ŞEKLİN kalem izinin hemen ALTINA: kenarlık kendi dolgusunun
@@ -210,7 +212,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     if (fillBoya != null && boyamaÇokgeni.alanVarMı) {
       boyamaYolu.lineStyle(0, 0, 0) // kenarlığı kalem çiziyor, dolgunun kendi çizgisi olmasın
       PixiUyum.boyamayaBaşla(boyamaYolu, fillBoya)(() => kojoWorld.render())
-      üçgenleriÇiz(boyamaYolu)
+      üçgenleriÇiz(boyamaYolu, bitti = false) // büyümekte olan şekil
       boyamaYolu.endFill()
     }
     PixiUyum.tazele(boyamaYolu)
@@ -276,7 +278,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
    *
    * Yani buradaki döngü bir TASARIM BORCU, ölçülmüş bir tercih değil; kayıt #125.
    */
-  private def üçgenleriÇiz(gr: PIXI.Graphics): Unit = {
+  private def üçgenleriÇiz(gr: PIXI.Graphics, bitti: Boolean): Unit = {
     if (!Üçgenleyici.kullanılabilir) {
       // Kütüphane sayfada yok. Çökmek yerine eski davranışa düşüyoruz: kendini
       // kesen yollar yanlış dolar ama öteki her şey yaşar. Konsola hata basıldı.
@@ -289,7 +291,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     val düz = boyamaÇokgeni.düzDizi
     val t0 = ÜçgenlemeUyarısı.saat()
     val ü = Üçgenleyici.nonzero(düz)
-    ÜçgenlemeUyarısı.üçgenlemeBitti(ÜçgenlemeUyarısı.saat() - t0, düz.length / 2)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(ÜçgenlemeUyarısı.saat() - t0, düz.length / 2, bitti)
     var i = 0
     while (i + 5 < ü.length) {
       gr.drawPolygon(scala.scalajs.js.Array(ü(i), ü(i + 1), ü(i + 2), ü(i + 3), ü(i + 4), ü(i + 5)))
@@ -986,6 +988,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     turtlePathPoints.clear()
     boyamaYolu.clear()
     boyamaÇokgeni.temizle()
+    ÜçgenlemeUyarısı.şekliUnut() // yarım şeklin birikimi sonrakine taşınmasın
     kojoWorld.bekleyenBoyayıUnut(this) // KENDİ yolunu sildi; ötekilerinki dursun
     initTurtleLayer()
     kojoWorld.render()
