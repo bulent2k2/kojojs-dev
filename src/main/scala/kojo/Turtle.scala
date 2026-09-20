@@ -224,10 +224,24 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
    * `Path2D.Double` + `fill`, yani NON_ZERO. Kendini kesen yollarda iki taraf
    * farklı şekil çiziyordu (bkz. Ucgenleyici, oneri-kesisen-dolgu.md).
    *
-   * Ölçüldü: üçgen başına `drawPolygon` tek bir Mesh'ten ucuz kuruluyor
-   * (0.275 ms / 0.56 ms) ve daha hızlı render oluyor; doku ve gradyan dolgusu
-   * üçgen sınırlarını aşarak SÜREKLİ eşleniyor, çünkü doku dolgusu dünya
-   * uzayında, şekil başına değil.
+   * NEDEN TEK MESH DEĞİL: bugün bunun İYİ sebebi doku/gradyan dolgusu --
+   * `beginTextureFill` eşlemeyi DÜNYA uzayında yapıyor, o yüzden dolgu üçgen
+   * sınırlarını aşarak sürekli görünüyor; Mesh'in kendi shader'ı ve UV'leri
+   * olur, süreklilik bedava gelmez. Aynısı `glKaynaklarınıBırak`, isabet alanı
+   * ve pişirme için de geçerli: üçü de düğümün Graphics olduğunu varsayıyor.
+   *
+   * BURADA ÖNCE "MESH DAHA PAHALI" YAZIYORDU (0.275 ms / 0.56 ms). O ölçüm
+   * YANLIŞTI -- ısıtılmamış bir çizicide alınmış: Mesh'in ilk kurulumu shader
+   * derlemesi + geometri yüklemesi yüzünden bir kerelik 20-30 ms ödüyor ve o
+   * bedel Mesh'in hanesine yazılmış. Isıtılmış ölçümde (üç koşu, dönüşümlü
+   * sıra, #125) Mesh HER İKİ YÖNDE de ucuz:
+   *
+   *   250 nokta x 7 kat   A kur 0.6-1.2  ren 2.2-3.4   | B kur 0.3-0.7 ren 0.2-0.3
+   *   1000 nokta x 7 kat  A kur 1.6-5.0  ren 10.6-21.0 | B kur 0.5-2.3 ren 0.4
+   *   toplam oran (A/B): 250'de 5-6 kat, 1000'de 10-14 kat
+   *
+   * Yani buradaki döngü bir TASARIM BORCU, ölçülmüş bir tercih değil. Geçiş
+   * yukarıdaki dört bağı çözmeyi gerektiriyor; kayıt #125.
    */
   private def üçgenleriÇiz(gr: PIXI.Graphics): Unit = {
     if (!Üçgenleyici.kullanılabilir) {
