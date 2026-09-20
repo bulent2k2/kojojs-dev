@@ -26,18 +26,33 @@ import scala.scalajs.js
  * bütün kenarlar tek blokta geliyor, çokgen kapanınca kocaman bir dolgu oluyor.
  *
  * Ölçüldü (#126 reprosunun kalıbı, turtleLayer çocukları):
- *   önce : [Turtle Fill: renk=ff] [Turtle Fill (in progress): renk=ff0000]
- *          [Turtle Path: renk=ff]        <- kalem yolu MAVİ dolguluydu, üstteydi
- *   sonra: [Turtle Path: renk=]          <- kalem yolunda dolgu yok
+ *   önce : [Turtle Fill: ff] [Turtle Path: ] [Turtle Fill (in progress): ff0000]
+ *          [Turtle Path: ff]        <- İKİNCİ kalem yolu MAVİ dolguluydu, üstteydi
+ *   sonra: [Turtle Path: ]          <- kalem yolunda dolgu yok
+ *
+ * BURADA İKİ AYRI KATMAN SINANIYOR (incelemenin 2. bulgusu):
+ *   - mekanizma: kalem yolları dolgu taşımıyor (aşağıdaki ilk iki sınama),
+ *   - belirti  : ikinci şekil GERÇEKTEN kendi renginde görünüyor (piksel
+ *     sınaması). Belirti, örtmenin başka bir yoldan (katman sırası, `öneAl`,
+ *     `boyamayıİşle`nin ekleme noktası) geri gelmesine de kızarır.
  *
  * Kırma sınaması (iki `boyamayaBaşla(turtlePath, fillBoya)` çağrısı geri
- * konarak ölçüldü): birinci sınama KIZARIYOR --
+ * konarak ölçüldü): mekanizma sınaması KIZARIYOR --
  *   "kalem yolları dolgusuz olmalı -- Vector("ff") was not empty".
- * İkinci sınama kırma altında da YEŞİL kalıyor; onu aşağıda anlatıyorum.
+ *
+ * ÖNKOŞUL NEDEN VAR (incelemenin 1. bulgusu): kusur ancak İKİNCİ
+ * `setFillColor`'da doğuyor; birinci kalem yolu kusurlu kodda BİLE dolgusuz
+ * (yukarıdaki "önce" satırı). Sabit bir kare sayısı beklemek, o ana varıldığını
+ * TUTMUYOR: kuyruk yavaş boşalırsa dökümde yalnız birinci kalem yolu olur ve
+ * sınama boş yere yeşil yanar. Bu yüzden her sınama "iki rengin de sahnede
+ * olması" koşulunu bekliyor ve varılamazsa AÇIKÇA kızarıyor.
  */
 class KalemDolgusuTest extends AsyncFunSuite with Matchers {
   implicit override def executionContext: scala.concurrent.ExecutionContext =
     scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+
+  private val Mavi = kojo.doodle.Color.blue.toRGBDouble.toInt.toHexString
+  private val Kırmızı = kojo.doodle.Color.red.toRGBDouble.toInt.toHexString
 
   private def dünyaKur(): KojoWorldImpl = {
     Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
@@ -48,13 +63,27 @@ class KalemDolgusuTest extends AsyncFunSuite with Matchers {
     new KojoWorldImpl()
   }
 
-  private def kareler(n: Int)(adım: Int => Unit): Future[Unit] = {
-    val söz = Promise[Unit](); var i = 0
-    def d(): Unit = { i += 1; adım(i); if (i >= n) söz.success(()) else window.requestAnimationFrame(_ => d()) }
-    window.requestAnimationFrame(_ => d()); söz.future
+  /** Koşul sağlanana kadar kare koştur; sağlandı mı diye döner (azami kare sonra false). */
+  private def koşulaKadar(azami: Int)(koşul: () => Boolean): Future[Boolean] = {
+    val söz = Promise[Boolean](); var i = 0
+    def d(): Unit = {
+      i += 1
+      if (koşul()) söz.success(true)
+      else if (i >= azami) söz.success(false)
+      else window.requestAnimationFrame(_ => d())
+    }
+    window.requestAnimationFrame(_ => d())
+    söz.future
   }
 
-  /** turtleLayer'daki her Graphics için (ad, görünür dolgu renkleri). */
+  /**
+   * turtleLayer'daki her Graphics için (ad, görünür dolgu renkleri).
+   *
+   * DİKKAT: salt-okunur DEĞİL -- `finishPoly()` çağırıyor, yani bekleyen
+   * çokgeni kapatıp `graphicsData`'ya yazıyor; sahneyi `_render`'ın yaptığı
+   * gibi ilerletiyor. Kusur tam da bu kapanmayla görünür olduğu için bilerek
+   * öyle. Zaten kapanmış bir çokgende `finishPoly` etkisiz.
+   */
   private def katmanDökümü(t: Turtle): Seq[(String, Seq[String])] = {
     val kap = t.turtleLayer.asInstanceOf[js.Dynamic]
     kap.children.asInstanceOf[js.Array[js.Dynamic]].toSeq.flatMap { g =>
@@ -69,6 +98,18 @@ class KalemDolgusuTest extends AsyncFunSuite with Matchers {
       }
     }
   }
+
+  private def dolguRenkleri(t: Turtle) =
+    katmanDökümü(t).filter(_._1.startsWith("Turtle Fill")).flatMap(_._2).distinct
+
+  /** İki rengin de sahnede olması = ikinci setFillColor koştu = kusurun doğduğu an. */
+  private def ikiRenkDeVarMı(t: Turtle): Boolean = {
+    val r = dolguRenkleri(t)
+    r.contains(Mavi) && r.contains(Kırmızı)
+  }
+
+  private def dökümYazısı(t: Turtle) =
+    katmanDökümü(t).map { case (a, r) => s"[$a: ${r.mkString(",")}]" }.mkString(" ")
 
   /** #126'nın reprosunun küçültülmüşü: iki gül, iki renk, çokHızlı. */
   private def ikiGül()(implicit w: KojoWorldImpl): Turtle = {
@@ -92,14 +133,16 @@ class KalemDolgusuTest extends AsyncFunSuite with Matchers {
   test("kalem yolu DOLGU TAŞIMIYOR: ikinci şekil birinci rengin altında kalmıyor (#126)") {
     implicit val w: KojoWorldImpl = try dünyaKur() catch { case t: Throwable => cancel(s"$t") }
     val t = ikiGül()
-    kareler(40) { _ => () }.map { _ =>
-      val döküm = katmanDökümü(t)
-      val kalemler = döküm.filter(_._1 == "Turtle Path")
-      withClue(s"\n${döküm.map { case (a, r) => s"[$a: ${r.mkString(",")}]" }.mkString(" ")}\n") {
+    koşulaKadar(180)(() => ikiRenkDeVarMı(t)).map { varıldı =>
+      withClue(s"\n${dökümYazısı(t)}\n") {
+        withClue(s"kusurun doğduğu ana (ikinci setFillColor) varılmış olmalı, yoksa sav boş -- ") {
+          varıldı shouldBe true
+        }
+        val kalemler = katmanDökümü(t).filter(_._1 == "Turtle Path")
+        kalemler should not be empty
         withClue("kalem yolları dolgusuz olmalı -- ") {
           kalemler.flatMap(_._2) shouldBe empty
         }
-        kalemler should not be empty // sondanın gerçekten kalem yolu gördüğünü doğrula
       }
     }
   }
@@ -111,17 +154,69 @@ class KalemDolgusuTest extends AsyncFunSuite with Matchers {
   // birlikte kaldıran bir değişiklik burada kızarır.
   test("iki şeklin dolgusu İKİ AYRI renkte (#126)") {
     implicit val w: KojoWorldImpl = try dünyaKur() catch { case t: Throwable => cancel(s"$t") }
-    val mavi = kojo.doodle.Color.blue.toRGBDouble.toInt.toHexString
-    val kırmızı = kojo.doodle.Color.red.toRGBDouble.toInt.toHexString
     val t = ikiGül()
-    kareler(40) { _ => () }.map { _ =>
-      val döküm = katmanDökümü(t)
-      // Biten şekil kalıcı "Turtle Fill"e, süren şekil "Turtle Fill (in progress)"e gidiyor.
-      val dolguRenkleri = döküm.filter(_._1.startsWith("Turtle Fill")).flatMap(_._2).distinct
-      withClue(s"\nmavi=$mavi kırmızı=$kırmızı\n" +
-        s"${döküm.map { case (a, r) => s"[$a: ${r.mkString(",")}]" }.mkString(" ")}\n") {
-        dolguRenkleri should contain(mavi)
-        dolguRenkleri should contain(kırmızı)
+    koşulaKadar(180)(() => ikiRenkDeVarMı(t)).map { varıldı =>
+      withClue(s"\nmavi=$Mavi kırmızı=$Kırmızı\n${dökümYazısı(t)}\n") {
+        varıldı shouldBe true
+      }
+    }
+  }
+
+  // --- belirti: ekranda ne görünüyor ------------------------------------------
+  // Piksel okuma kalıbı SolukTest'ten: sahneyi kendi RenderTexture'ımıza
+  // çizmek, çünkü kare birleştikten sonra hem extract.pixels(düğüm) hem de
+  // varsayılan tampon 0 okuyor (orada ölçülüp yazılmış).
+  //
+  // Gül yerine KARE: bir karenin ortası kuşkusuz dolgunun içi, ve ikinci
+  // karenin kalem yolu (kusurlu kodda mavi dolgulu) tam o dolgunun üstüne
+  // oturuyor -- belirti en yalın burada.
+
+  /** İki kare, mavi sonra kırmızı, çokHızlı. Köşeler: sol [-100,-20], sağ [20,100]. */
+  private def ikiKare()(implicit w: KojoWorldImpl): Turtle = {
+    val t = new Turtle(0, 0)
+    def kare(x0: Double, kenar: Double, renk: kojo.doodle.Color): Unit = {
+      t.penUp(); t.setPosition(x0, -kenar / 2); t.setHeading(90); t.penDown()
+      t.setFillColor(renk)
+      var i = 0; while (i < 4) { t.forward(kenar); t.right(90); i += 1 }
+    }
+    t.setAnimationDelay(0)
+    t.setPenThickness(0)
+    kare(-100, 80, kojo.doodle.Color.blue)
+    kare(20, 80, kojo.doodle.Color.red)
+    t.invisible()
+    t
+  }
+
+  /** Sahneyi kendi dokumuza çizip dünya (x,y) noktasının RGB'sini okur. */
+  private def noktanınRengi(w: KojoWorldImpl, t: Turtle, dx: Double, dy: Double): (Int, Int, Int) = {
+    val d = w.renderer.asInstanceOf[js.Dynamic]
+    val sahne = t.turtleLayer.asInstanceOf[js.Dynamic].parent
+    val en = d.width.asInstanceOf[Double].toInt
+    val yük = d.height.asInstanceOf[Double].toInt
+    // sahne dönüşümü: konum (en/2, yük/2), ölçek (1, -1) -> y ters
+    val sx = (sahne.position.x.asInstanceOf[Double] + dx).toInt
+    val sy = (sahne.position.y.asInstanceOf[Double] - dy).toInt
+    val rt = js.Dynamic.global.PIXI.RenderTexture.create(js.Dictionary("width" -> en, "height" -> yük))
+    d.render(sahne, rt, true)
+    val px = d.plugins.extract.pixels(rt).asInstanceOf[js.typedarray.Uint8Array]
+    val i = ((sy * en) + sx) * 4
+    (px(i).toInt, px(i + 1).toInt, px(i + 2).toInt)
+  }
+
+  test("BELİRTİ: ikinci şekil ekranda gerçekten KIRMIZI görünüyor (#126)") {
+    implicit val w: KojoWorldImpl =
+      try dünyaKur() catch { case t: Throwable => cancel(s"çizici kurulamadı (WebGL yok?): $t") }
+    val t = ikiKare()
+    koşulaKadar(180)(() => ikiRenkDeVarMı(t)).map { varıldı =>
+      withClue(s"\n${dökümYazısı(t)}\n") { varıldı shouldBe true }
+      w.boyalarıBoşalt()
+      val (sr, sg, sb) = noktanınRengi(w, t, -60, 0) // birinci karenin ortası
+      val (kr, kg, kb) = noktanınRengi(w, t, 60, 0)  // ikinci karenin ortası
+      withClue(s"\nsol(mavi olmalı)=($sr,$sg,$sb) sağ(kırmızı olmalı)=($kr,$kg,$kb)\n${dökümYazısı(t)}\n") {
+        withClue("birinci kare mavi kalmalı -- ") { sb should be > (sr + 60) }
+        withClue("ikinci kare KIRMIZI görünmeli (kusurda mavi görünüyordu) -- ") {
+          kr should be > (kb + 60)
+        }
       }
     }
   }
