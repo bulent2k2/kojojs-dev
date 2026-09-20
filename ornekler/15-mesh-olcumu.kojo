@@ -73,7 +73,8 @@ satıryaz("ölçüm başlıyor: " + nokta + " nokta x " + kat + " kat, " + ısı
 // İkisi olmadan raporun ilk (bazen ilk iki) satırı eksik saniye sayıyordu:
 // 30 kare/s'lik bir koşuda "29-31" yerine "1-31" okunuyordu -- yani aletin
 // verdiği aralık ölçtüğü şeyi değil kendi kurulum artığını gösteriyordu.
-// Bedeli bir saniyelik gecikme; ölçümün dürüstlüğü ona değer.
+// Bedeli 1-2 saniyelik gecikme (taban tam bir saniye sınırına düşerse 1,
+// düşmezse 2 -- ölçüldü); ölçümün dürüstlüğü ona değer.
 canlandır {
   sil()
   gülÇiz(nokta, kat, yarıçap)
@@ -116,6 +117,14 @@ canlandır {
 // buradaki sayı kare SÜRESİ değil, saniyedeki kare SAYISI. Kare süresinin
 // dağılımı (ortanca, en kötü kare) bu düzenekle görülmez; onun için
 // tarayıcının kendi profilleyicisi ya da #68'deki sınama harness'i gerekir.
+//
+// YAVAŞ UÇTA ÇÖZÜNÜRLÜK: satırlar düzeltmeden sonra da +-1 kare oynuyor --
+// tam sayı saniyeye bölmenin kaçınılmaz artığı, hata değil. Ama bu artık
+// ORANSAL: 60 kare/s'te %3, 12 kare/s'te %17. Yani 2. adım (nokta = 1000)
+// yavaş bir makinede 12 kare/s verirse aletin kendi çözünürlüğü tek başına
+// %17'lik bir aralık üretir; #125'in kazancı bunun altındaysa öncesi/sonrası
+// aralıkları örtüşür ve karşılaştırma sonuç vermez. Öyle bir durumda kaçSaniye
+// artırılmalı ya da tarayıcının profilleyicisine geçilmeli.
 //
 // SINIRIN ÖTEKİ YÜZÜ: bir kare 1 saniyeyi AŞARSA her kare bir saniye sınırı
 // sayılır ve panele "1 kare" satırları düşer. O satırlar "saniyede 1 kare"
