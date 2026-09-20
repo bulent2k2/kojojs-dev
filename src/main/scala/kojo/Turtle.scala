@@ -236,7 +236,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
    *
    * Sayılar SwiftShader (yazılımsal çizici) üstünde; gerçek GPU'da render
    * tarafı küçülebilir, kurulum tarafı CPU olduğu için değişmemeli. Bağımsız
-   * bir ikinci ölçüm daha BÜYÜK oran buldu (#125 incelemesi) ve farkın ölçüm
+   * bir ikinci ölçüm daha BÜYÜK oran buldu (#129 incelemesi) ve farkın ölçüm
    * gölgesi olmadığını `gl.finish` ile, iki yolun aynı pikselleri çizdiğini
    * `readPixels` ile doğruladı; yani buradaki oran ihtiyatlı.
    *
@@ -245,7 +245,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
    * şekilden itibaren başlıyor.
    *
    * NEDEN HÂLÂ ÜÇGEN ÜÇGEN: dördü de ikojo'nun Graphics'e bağlı yerleri, ve
-   * bir mesh denemesi bu sırayla çarpar (hepsi #125 incelemesinde ölçüldü):
+   * bir mesh denemesi bu sırayla çarpar (hepsi #129 incelemesinde ölçüldü):
    *
    *   1. `PixiUyum.tazele` PATLAR. Bu yöntemin iki çağıranı da (satır 148 ve
    *      216) hemen ardından onu çağırıyor; `tazele` v5 yolunda
@@ -261,8 +261,12 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
    *      VAR ve gerçek bir üçgen sınaması yapıyor; kıran şey PIXI değil,
    *      `Utils.isabetAlanınıKur` içindeki kendi kapımız: `containsPoint`
    *      yalnız `graphicsData.length > 0` iken soruluyor, Mesh'te o dizi yok,
-   *      dolayısıyla dolgu tıklanamaz olurdu. #118'deki açık yol hatasının
-   *      aynı şekli, ve aynı düzeltme ikisini birden kapatıyor. Yan kazanç:
+   *      dolayısıyla dolgu tıklanamaz olurdu. Düzeltme küçük: kapıya
+   *      "graphicsData yoksa doğrudan sor" diye tek bir dal. DİKKAT --
+   *      #118/#119'un kalem şeridi sınaması (`şeritteMi`) bu kapının
+   *      İÇİNDE duruyor, yani mesh'i KAPSAMIYOR: mesh kapıyı hiç açmadığı
+   *      için oraya hiç varılmaz. (#118'in nedeni başkaydı: orada kapı
+   *      açıktı, PIXI kalem şeridini sınamıyordu.) Yan kazanç:
    *      Mesh'te `fillStyle.visible` olmadığı için #114/#116'nın görünmez
    *      dolgu çevirme dansı (ve 19 katlık üçgenleme bedeli) gereksizleşir.
    *
