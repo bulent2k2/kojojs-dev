@@ -100,6 +100,11 @@ Düzeneğin üç kuralı, #68'de üç kez yanlış ölçülmüş olmasından gel
 * **tek sayı değil, birkaç saniyelik dizi** okunur — ölçüm koşudan koşuya %25
   oynuyor
 
+Rapordaki her satır **tam bir saniyeyi** kapsar: saniye tabanı ısınma bitince
+alınıyor ve ilk (kısmi) saniye basılmadan atılıyor. Bu olmadan ilk satır
+sistematik olarak eksik bir saniye sayıyordu — 30 kare/s'lik bir koşuda
+"29-31" yerine "1-31" okunurdu (kojojs-dev#127 incelemesi).
+
 Sınırı: `BuAn()` saniyeden ince ölçmüyor, yani çıkan sayı kare *süresi* değil
 saniyedeki kare *sayısı*. Kare süresinin dağılımı için tarayıcının
 profilleyicisi gerekir.

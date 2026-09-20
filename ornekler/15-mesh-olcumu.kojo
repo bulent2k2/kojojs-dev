@@ -53,28 +53,55 @@ tanım gülÇiz(nokta: Sayı, kat: Sayı, yarıçap: Kesir): Birim = {
 den kare = 0
 den sayaç = 0
 den satır = 0
-den sonSaniye = BuAn().saniye
+den sonSaniye = 0
+den tabanKuruldu = yanlış
+den ilkSınırGeçildi = yanlış
 
 satıryaz("ölçüm başlıyor: " + nokta + " nokta x " + kat + " kat, " + ısınmaKare + " kare ısınma")
 
+// HER RAPOR SATIRI TAM BİR SANİYEYİ KAPSAMALI. İki bayrak bunun için, ve
+// ikisi de gerekli (#127 incelemesi §1):
+//
+//   tabanKuruldu    -- saniye tabanı ısınma BİTİNCE alınıyor. Isınmadan önce
+//                      alınsaydı taban ısınma boyunca bayatlar, sayılan ilk
+//                      kare hemen bir "sınır" sayılır ve panele tek kareli
+//                      bir satır düşerdi.
+//   ilkSınırGeçildi -- taban alındığı an saniyenin ORTASINDAYIZ, yani ilk
+//                      sınıra kadar geçen süre kısmi. O satır BASILMIYOR,
+//                      yalnız sayacı hizalıyor.
+//
+// İkisi olmadan raporun ilk (bazen ilk iki) satırı eksik saniye sayıyordu:
+// 30 kare/s'lik bir koşuda "29-31" yerine "1-31" okunuyordu -- yani aletin
+// verdiği aralık ölçtüğü şeyi değil kendi kurulum artığını gösteriyordu.
+// Bedeli bir saniyelik gecikme; ölçümün dürüstlüğü ona değer.
 canlandır {
   sil()
   gülÇiz(nokta, kat, yarıçap)
   kare += 1
   eğer (kare > ısınmaKare) {
-    sayaç += 1
     dez şuAn = BuAn().saniye
-    eğer (şuAn != sonSaniye) {
-      satır += 1
-      satıryaz(satır + ". saniye: " + sayaç + " kare")
-      sayaç = 0
+    eğer (!tabanKuruldu) {
       sonSaniye = şuAn
-      eğer (satır >= kaçSaniye) {
-        canlandırmayıDurdur()
-        satıryaz("bitti. En düşük ve en yüksek satırı birlikte yazın --")
-        satıryaz("tek sayı vermeyin, bu ölçüm koşudan koşuya oynuyor.")
-      }
+      sayaç = 0
+      tabanKuruldu = doğru
     }
+    eğer (şuAn != sonSaniye) {
+      sonSaniye = şuAn
+      eğer (ilkSınırGeçildi) {
+        satır += 1
+        satıryaz(satır + ". saniye: " + sayaç + " kare")
+        eğer (satır >= kaçSaniye) {
+          canlandırmayıDurdur()
+          satıryaz("bitti. En düşük ve en yüksek satırı birlikte yazın --")
+          satıryaz("tek sayı vermeyin, bu ölçüm koşudan koşuya oynuyor.")
+        }
+      }
+      yoksa {
+        ilkSınırGeçildi = doğru
+      }
+      sayaç = 0
+    }
+    sayaç += 1
   }
 }
 
@@ -89,3 +116,9 @@ canlandır {
 // buradaki sayı kare SÜRESİ değil, saniyedeki kare SAYISI. Kare süresinin
 // dağılımı (ortanca, en kötü kare) bu düzenekle görülmez; onun için
 // tarayıcının kendi profilleyicisi ya da #68'deki sınama harness'i gerekir.
+//
+// SINIRIN ÖTEKİ YÜZÜ: bir kare 1 saniyeyi AŞARSA her kare bir saniye sınırı
+// sayılır ve panele "1 kare" satırları düşer. O satırlar "saniyede 1 kare"
+// DEĞİL, "kare başına en az 1 saniye" diye okunmalı -- ve orada bu aletin
+// çözünürlüğü bitmiştir, sayılar arasındaki farkı göstermez. 2. adımda
+// (nokta = 1000) yavaş bir makinede bu bölgeye girilebilir.
