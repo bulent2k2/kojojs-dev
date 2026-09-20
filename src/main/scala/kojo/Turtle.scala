@@ -224,15 +224,9 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
    * `Path2D.Double` + `fill`, yani NON_ZERO. Kendini kesen yollarda iki taraf
    * farklı şekil çiziyordu (bkz. Ucgenleyici, oneri-kesisen-dolgu.md).
    *
-   * NEDEN TEK MESH DEĞİL: bugün bunun İYİ sebebi doku/gradyan dolgusu --
-   * `beginTextureFill` eşlemeyi DÜNYA uzayında yapıyor, o yüzden dolgu üçgen
-   * sınırlarını aşarak sürekli görünüyor; Mesh'in kendi shader'ı ve UV'leri
-   * olur, süreklilik bedava gelmez. Aynısı `glKaynaklarınıBırak`, isabet alanı
-   * ve pişirme için de geçerli: üçü de düğümün Graphics olduğunu varsayıyor.
-   *
    * BURADA ÖNCE "MESH DAHA PAHALI" YAZIYORDU (0.275 ms / 0.56 ms). O ölçüm
    * YANLIŞTI -- ısıtılmamış bir çizicide alınmış: Mesh'in ilk kurulumu shader
-   * derlemesi + geometri yüklemesi yüzünden bir kerelik 20-30 ms ödüyor ve o
+   * derlemesi + geometri yüklemesi yüzünden bir kerelik 14-30 ms ödüyor ve o
    * bedel Mesh'in hanesine yazılmış. Isıtılmış ölçümde (üç koşu, dönüşümlü
    * sıra, #125) Mesh HER İKİ YÖNDE de ucuz:
    *
@@ -240,8 +234,43 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
    *   1000 nokta x 7 kat  A kur 1.6-5.0  ren 10.6-21.0 | B kur 0.5-2.3 ren 0.4
    *   toplam oran (A/B): 250'de 5-6 kat, 1000'de 10-14 kat
    *
-   * Yani buradaki döngü bir TASARIM BORCU, ölçülmüş bir tercih değil. Geçiş
-   * yukarıdaki dört bağı çözmeyi gerektiriyor; kayıt #125.
+   * Sayılar SwiftShader (yazılımsal çizici) üstünde; gerçek GPU'da render
+   * tarafı küçülebilir, kurulum tarafı CPU olduğu için değişmemeli. Bağımsız
+   * bir ikinci ölçüm daha BÜYÜK oran buldu (#125 incelemesi) ve farkın ölçüm
+   * gölgesi olmadığını `gl.finish` ile, iki yolun aynı pikselleri çizdiğini
+   * `readPixels` ile doğruladı; yani buradaki oran ihtiyatlı.
+   *
+   * SOĞUKTA KAZANÇ YOK: tek şekil çizip duran bir betikte iki yol birbirinin
+   * gürültüsü içinde (yukarıdaki bir kerelik bedel yüzünden). Kazanç ikinci
+   * şekilden itibaren başlıyor.
+   *
+   * NEDEN HÂLÂ ÜÇGEN ÜÇGEN: dördü de ikojo'nun Graphics'e bağlı yerleri, ve
+   * bir mesh denemesi bu sırayla çarpar (hepsi #125 incelemesinde ölçüldü):
+   *
+   *   1. `PixiUyum.tazele` PATLAR. Bu yöntemin iki çağıranı da (satır 148 ve
+   *      216) hemen ardından onu çağırıyor; `tazele` v5 yolunda
+   *      `geometry.invalidate()` diyor, o da GraphicsGeometry'ye ait --
+   *      PIXI.Geometry'de yok. İlk çarpılacak duvar bu, ve sesli çarpıyor.
+   *   2. `glKaynaklarınıBırak` SESSİZCE atlar (en ciddisi). Kapısı
+   *      `typeof finishPoly == "function"`; Mesh'te o yok, yani geometrisi
+   *      hiç `dispose` edilmez -- #91/#95'te kapatılan GL sızıntısı geri gelir.
+   *   3. Doku ve gradyan dolgusu. `beginTextureFill` eşlemeyi DÜNYA uzayında
+   *      yapıyor, o yüzden dolgu üçgen sınırlarını aşarak sürekli görünüyor;
+   *      Mesh'in kendi shader'ı ve UV'leri olur, süreklilik bedava gelmez.
+   *   4. İsabet alanı -- ama sanıldığı gibi değil, ve KÜÇÜK. `Mesh.containsPoint`
+   *      VAR ve gerçek bir üçgen sınaması yapıyor; kıran şey PIXI değil,
+   *      `Utils.isabetAlanınıKur` içindeki kendi kapımız: `containsPoint`
+   *      yalnız `graphicsData.length > 0` iken soruluyor, Mesh'te o dizi yok,
+   *      dolayısıyla dolgu tıklanamaz olurdu. #118'deki açık yol hatasının
+   *      aynı şekli, ve aynı düzeltme ikisini birden kapatıyor. Yan kazanç:
+   *      Mesh'te `fillStyle.visible` olmadığı için #114/#116'nın görünmez
+   *      dolgu çevirme dansı (ve 19 katlık üçgenleme bedeli) gereksizleşir.
+   *
+   *   PİŞİRME BU LİSTEDE DEĞİL: arandı, dayanağı yok. BakePolicy saf işlev
+   *   (ad/interactive/lastMut/frame) ve pişirme herhangi bir DisplayObject'i
+   *   dokuya çiziyor; mesh aynen pişerdi.
+   *
+   * Yani buradaki döngü bir TASARIM BORCU, ölçülmüş bir tercih değil; kayıt #125.
    */
   private def üçgenleriÇiz(gr: PIXI.Graphics): Unit = {
     if (!Üçgenleyici.kullanılabilir) {
