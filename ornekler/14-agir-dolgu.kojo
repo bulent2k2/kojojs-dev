@@ -17,6 +17,13 @@
 //
 //     146 nokta -> 44 ms      193 nokta -> 25 ms      236 nokta -> 27 ms
 //
+// BU ÜÇ SAYI DÜZELTME ÖNCESİ KODDAN (#130 incelemesi §3): o sırada not her
+// YAYINI ayrı ayrı bildiriyordu, yani her sayı şeklin TEK BİR yarım
+// yayınının süresi. Düzeltmeden sonra not şekil başına TOPLAMI yazıyor --
+// aynı örneği bugün koşturan kişi bu üçünü değil, daha büyük TEK bir sayı
+// görecek. Üçü burada duruyor çünkü aşağıdaki iki dersi hâlâ veriyorlar;
+// dağıtımdan sonra yeniden ölçülüp değiştirilmeli.
+//
 // Yani tablodakinin birkaç katı. İki şey daha var, ikisi de öğretici:
 //   - Bu nokta sayıları 250'den KÜÇÜK, çünkü dolgu şekil bitmeden de
 //     yayınlanıyor (kaplumbağa komutları kuyrukta işleniyor).

@@ -81,6 +81,13 @@ libtess **soğuk** koşuyor. Gerçek bir tarayıcıda 250×7 ölçeğinde üç �
 | 193 | 25 ms |
 | 236 | 27 ms |
 
+**Bu üç sayı düzeltme öncesi koddan** (kojojs-dev#130): o sırada not her
+*yayını* ayrı ayrı bildiriyordu, yani her sayı şeklin tek bir yarım yayınının
+süresi. Düzeltmeden sonra not şekil başına **toplamı** yazıyor — aynı örneği
+bugün koşturan kişi bu üçünü değil, daha büyük tek bir sayı görecek. Üçü burada
+duruyor çünkü aşağıdaki iki dersi hâlâ veriyorlar; dağıtımdan sonra yeniden
+ölçülüp değiştirilmeli.
+
 Yani tablodakinin birkaç katı. Nokta sayıları 250'den küçük, çünkü dolgu şekil
 bitmeden de yayınlanıyor; ve sıralama nokta sayısını **izlemiyor** (146 nokta
 44 ms, 236 nokta 27 ms) — bu ölçekte koşudan koşuya değişim baskın. Tabloyu
@@ -135,6 +142,16 @@ sistematik olarak eksik bir saniye sayıyordu — 30 kare/s'lik bir koşuda
 Sınırı: `BuAn()` saniyeden ince ölçmüyor, yani çıkan sayı kare *süresi* değil
 saniyedeki kare *sayısı*. Kare süresinin dağılımı için tarayıcının
 profilleyicisi gerekir.
+
+Sayılan gül ile **boyanan** gül aynı mı? Bitmiş bir gül boyanmamış olabilir:
+komut kuyruğunun `setTimeout(0)` hoplamaları rAF'i beklemiyor, ve bir gülün
+dolgu düğümü sonraki `sil()` ile kalkıyor. Render'ı eksik sayan bir alet, #125'i
+tam da kazancının en büyük olduğu yerde kendi aleyhine ölçerdi. Ölçüldü
+(`kojo.MeshAletiOlcumTest`, gül başına): 250 noktada **3 – 3.4** boyama, 1000
+noktada **9.6**; yani aletin ölçeğinde endişe ısırmıyor. Mekanizma yine de
+gerçek — 4 noktalık bir gülde on gülün onu da ilk rAF ateşlenmeden bitiyor ve
+**sıfır** kez boyanıyor. Aleti çok daha ucuz bir şekle çevirirsen o oranı
+yeniden ölç (kojojs-dev#130 incelemesi §2).
 
 ## Bu örnekler test ediliyor
 

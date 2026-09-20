@@ -51,6 +51,29 @@ import scala.scalajs.js
  * dolgu canlandırmayı tek başına düşüremez; üstüne çıkan düşürebilir.
  * Ölçümle yerleşimi: 250x7 (~8 ms) susuyor, 1000x7 (~95 ms) konuşuyor.
  */
+/**
+ * Bir ÇİZERİN o anki şeklinin birikimi.
+ *
+ * KÜRESEL OLAMAZ, ölçüldü (#130 incelemesi): `KojoWorld.boyalarıBoşalt` tek
+ * turda BİRDEN ÇOK çizerin boyasını yayınlıyor, yani iki ayrı `Resim{}`in iki
+ * ayrı şeklinin süresi aynı kovaya akardı. İlk sürümde tam bu oldu: iki resim,
+ * her biri 30 ms, panele "şu ana dek 60 ms" düştü -- oysa hiçbir şekil 60 ms
+ * harcamamıştı. Daha kötüsü, araya giren UCUZ ve BİTMİŞ bir şekil başkasının
+ * birikimini üstlenebiliyordu: 4 noktalı bir kareye 50 ms fatura edilip
+ * kullanıcıya o karenin nokta sayısını yarıya indirmesi öğütleniyordu.
+ *
+ * Yani düzeltilen kusurun (yanlış nokta sayısı) daha kötü bir biçimi: orada
+ * sayı yanlıştı ama ŞEKİL doğruydu; burada ikisi de yanlış olabiliyordu.
+ */
+private[kojo] final class ŞekilBirikimi {
+  private[kojo] var toplamMs = 0.0
+  private[kojo] var bildirildi = false
+  private[kojo] def unut(): Unit = {
+    toplamMs = 0.0
+    bildirildi = false
+  }
+}
+
 object ÜçgenlemeUyarısı {
 
   /** Bir karelik bütçe (60 kare/saniye). */
@@ -93,9 +116,6 @@ object ÜçgenlemeUyarısı {
    * düşüyor. Kullanıcının ödediği bedel zaten toplam: yarım yayınlar da
    * gerçekten harcanmış süre.
    */
-  private var toplamMs = 0.0
-  private var buŞekilBildirildi = false
-
   /**
    * Şekil BİTMEDEN konuşma eşiği. Bitmeyi beklemek yetmiyor, çünkü bir şekil
    * hiç bitmeyebilir: şekli tamamlayan tek şey kalem kalkık taşınma
@@ -112,15 +132,8 @@ object ÜçgenlemeUyarısı {
   /** Panele GERÇEKTEN kaç not düştü. Zaman kapısına takılanlar sayılmıyor. */
   private[kojo] def düşenNotSayısı: Int = notSayısı
 
-  /** Şekil bitti ya da silindi: birikim sıfırdan başlasın. */
-  private[kojo] def şekliUnut(): Unit = {
-    toplamMs = 0.0
-    buŞekilBildirildi = false
-  }
-
-  /** Yalnız sınamalar için. */
+  /** Yalnız sınamalar için: KÜRESEL durum (zaman kapısı ve sayaç). */
   private[kojo] def hepsiniUnut(): Unit = {
-    şekliUnut()
     sonNotZamanı = Double.NegativeInfinity
     notSayısı = 0
   }
@@ -131,19 +144,21 @@ object ÜçgenlemeUyarısı {
    * Bütçeyi aşmadıysa hiçbir şey yapmıyor -- sıcak yolda tek bir
    * karşılaştırma.
    */
-  private[kojo] def üçgenlemeBitti(süreMs: Double, noktaSayısı: Int, bitti: Boolean): Unit = {
-    toplamMs += süreMs
-    val konuşulabilir = toplamMs > bütçeMs && (bitti || toplamMs > erkenÇarpan * bütçeMs)
-    if (!buŞekilBildirildi && konuşulabilir) {
+  private[kojo] def üçgenlemeBitti(
+      birikim: ŞekilBirikimi, süreMs: Double, noktaSayısı: Int, bitti: Boolean): Unit = {
+    birikim.toplamMs += süreMs
+    val toplam = birikim.toplamMs
+    val konuşulabilir = toplam > bütçeMs && (bitti || toplam > erkenÇarpan * bütçeMs)
+    if (!birikim.bildirildi && konuşulabilir) {
       val şimdi = saat()
       if (şimdi - sonNotZamanı >= enAzAralıkMs) {
         sonNotZamanı = şimdi
         notSayısı += 1
-        buŞekilBildirildi = true
-        paneleYaz(metin(toplamMs, noktaSayısı, bitti))
+        birikim.bildirildi = true
+        paneleYaz(metin(toplam, noktaSayısı, bitti))
       }
     }
-    if (bitti) şekliUnut()
+    if (bitti) birikim.unut()
   }
 
   /**

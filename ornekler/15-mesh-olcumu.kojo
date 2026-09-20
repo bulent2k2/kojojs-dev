@@ -32,6 +32,26 @@
 //      ardına `konumuOku` konuyor; o geri çağrım kuyruk oraya varınca, yani
 //      gül GERÇEKTEN bitince çalışıyor.
 //
+// ALET BOYAMAYLA EŞLEŞİYOR MU (#130 incelemesi §2): sayılan şey biten gül,
+// ama biten bir gül BOYANMAMIŞ olabilir -- `scheduleLater`in `setTimeout(0)`
+// hoplamaları rAF'i beklemiyor, ve bir gülün dolgu düğümü sonraki `sil()` ile
+// kalkıyor. İki rAF arasında tamamlanıp kaldırılan bir gülün üçgenlemesi
+// ödenir ama GPU'ya hiç gitmez -- ve #125'in kazancı en çok render tarafında,
+// yani böyle bir alet mesh'i kendi aleyhine ölçer.
+//
+// Ölçüldü (kojo.MeshAletiOlcumTest, SwiftShader, gül başına):
+//
+//   nokta =  250 ->  3 - 3.4 boyama,  3.3 - 3.7 rAF karesi
+//   nokta = 1000 ->  9.6 boyama,     14 rAF karesi
+//   nokta =    4 ->  0 boyama,        0 rAF karesi
+//
+// Yani bu aletin iki ölçeğinde (250 ve 1000) endişe ISIRMIYOR: her gül birkaç
+// kareye yayılıyor, sayılan gül ile boyanan gül aynı. Mekanizma yine de
+// gerçek -- 4 noktalı gülde on gülün onu da ilk rAF ateşlenmeden bitiyor ve
+// hiç boyanmıyor. O yüzden aleti çok daha ucuz bir şekle çevirirsen ya da çok
+// hızlı bir makineye taşırsan önce o oranı yeniden ölç; sınama savı bir ORAN
+// savı, kırılırsa haber verir.
+//
 // UYARI: nokta = 1000 yaparsan çıktı panelinde "dolgu bir karelik bütçeyi
 // aştı" notu da görürsün (#68/#124). Beklenen -- burada tam da o pahalı
 // durumu ölçüyoruz.

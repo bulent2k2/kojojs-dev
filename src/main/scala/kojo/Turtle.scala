@@ -291,13 +291,16 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     val düz = boyamaÇokgeni.düzDizi
     val t0 = ÜçgenlemeUyarısı.saat()
     val ü = Üçgenleyici.nonzero(düz)
-    ÜçgenlemeUyarısı.üçgenlemeBitti(ÜçgenlemeUyarısı.saat() - t0, düz.length / 2, bitti)
+    ÜçgenlemeUyarısı.üçgenlemeBitti(şekilBirikimi, ÜçgenlemeUyarısı.saat() - t0, düz.length / 2, bitti)
     var i = 0
     while (i + 5 < ü.length) {
       gr.drawPolygon(scala.scalajs.js.Array(ü(i), ü(i + 1), ü(i + 2), ü(i + 3), ü(i + 4), ü(i + 5)))
       i += 6
     }
   }
+
+  /** Bu ÇİZERİN şekil birikimi -- küresel olamaz, bkz. ŞekilBirikimi (#130). */
+  private val şekilBirikimi = new ŞekilBirikimi
 
   private val tempForwardPath = new PIXI.Graphics()
 
@@ -988,7 +991,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     turtlePathPoints.clear()
     boyamaYolu.clear()
     boyamaÇokgeni.temizle()
-    ÜçgenlemeUyarısı.şekliUnut() // yarım şeklin birikimi sonrakine taşınmasın
+    şekilBirikimi.unut() // yarım şeklin birikimi sonrakine taşınmasın
     kojoWorld.bekleyenBoyayıUnut(this) // KENDİ yolunu sildi; ötekilerinki dursun
     initTurtleLayer()
     kojoWorld.render()
