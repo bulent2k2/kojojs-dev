@@ -54,9 +54,20 @@
 // dağılımı yeniden ölç; sınama savı gül başına EN KÜÇÜK boyama sayısı,
 // kırılırsa haber verir.
 //
-// UYARI: nokta = 1000 yaparsan çıktı panelinde "dolgu bir karelik bütçeyi
-// aştı" notu da görürsün (#68/#124). Beklenen -- burada tam da o pahalı
-// durumu ölçüyoruz.
+// UYARI: nokta = 1000 yaparsan çıktı panelinde dolgu notu da görürsün
+// (#68/#124). Beklenen -- burada tam da o pahalı durumu ölçüyoruz.
+//
+// AMA EŞİK SANDIĞIN YERDE DEĞİL. Bu aletin gülleri hiç TAMAMLANMIYOR:
+// `sil()` boyamaRenginiKur'dan önce geldiği için boyamayıİşle boş çokgen
+// buluyor. Tamamlanmamış bir şekil ise bir karelik bütçeyi (16.7 ms) aşınca
+// değil, ERKEN EŞİĞİ (3 x bütçe = 50.1 ms) aşınca konuşuyor. Yani buradaki
+// not 16.7'nin değil 50.1'in haberi.
+//
+// Ölçüldü (gerçek donanım, v59): nokta = 1000'de not gerçekten düşüyor ve
+// "şu ana dek 53 / 57 / 59 / 66 / 75 / 91 / 97 ms" diye okunuyor -- yani
+// TAMAMLANMIŞ biçim ("... sürdü") değil, sürmekte olan biçim. nokta = 250'de
+// ise hiç not düşmüyor, ve bu "250 ucuz" demek DEĞİL: yalnız 50.1'in altında
+// kaldığını söylüyor. (kojojs-dev#133, #134.)
 
 dez nokta = 250       // 250: bugünkü örneklerin ölçeği. 1000 dene: fark büyür.
 dez kat = 7           // nokta ile ARALARINDA ASAL olmalı, yoksa yol tekrar eder
