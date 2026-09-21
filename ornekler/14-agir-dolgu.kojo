@@ -23,12 +23,19 @@
 // sayılar yazıyordu: dolgu şekil bitmeden de yayınlanıyor ve not her yayını
 // ayrı ayrı bildiriyordu. Artık not ŞEKİL BAŞINA toplamı veriyor.)
 //
-// SOĞUK / SICAK, ikisi de aynı donanımda ölçüldü:
+// SOĞUK / SICAK farkı HENÜZ ÖLÇÜLMEDİ -- burada bir savım vardı, yanlıştı
+// (#133 incelemesi §2). Şöyleydi: "15-mesh-olcumu.kojo'nun döngüsünde hiç
+// not düşmüyor, demek ki sıcak süre <= 16.7 ms; yani soğuk/sıcak ~7 kat."
 //
-//     soğuk (bu örnek, tek atışlık)          35 ms
-//     sıcak (15-mesh-olcumu.kojo döngüsü)    <= 16.7 ms, muhtemelen ~5 ms
+// Çıkarım geçersiz, çünkü o çıkarım şeklin TAMAMLANMIŞ olmasını gerektiriyor
+// -- tamamlanmamış şekil ancak 50.1 ms'yi aşarsa konuşuyor. Ve aletin gülü
+// hiç tamamlanmıyor: `sil()` boyamaRenginiKur'dan ÖNCE geliyor, yani
+// boyamayıİşle boş çokgen buluyor. (Tam da bu dosyanın yukarıdaki
+// "şekli tamamla" satırıyla düzelttiği durum, orada hâlâ duruyor.)
 //
-// Yaklaşık yedi kat. Üstteki tablonun "iyimser" olmasının sebebi tam bu.
+// Doğru üst sınır 16.7 değil 50.1 ms. 35 ms soğuk ile <= 50.1 ms sıcak,
+// HİÇ FARK OLMAMASIYLA da uyumlu. Tablonun "iyimser" olduğu hâlâ makul bir
+// hipotez (#68'in sayıları ısıtılmış ortancalar) ama bu koşudan çıkmıyor.
 //
 // Buradan çıkan kural: tabloyu BÜYÜK ÖLÇEK farkları için oku (250 ile 4000
 // arasındaki fark gerçek), yakın sayıları karşılaştırmak ya da mutlak bir

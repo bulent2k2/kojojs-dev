@@ -85,9 +85,13 @@ ekleniyor. (Düzeltmeden önce bu örnek "146 nokta" gibi betikte karşılığı
 sayılar yazıyordu — dolgu şekil bitmeden de yayınlanıyor ve not her yayını ayrı
 ayrı bildiriyordu.)
 
-Soğukla sıcak arasındaki fark da aynı donanımda ölçüldü: bu örnek **tek atışlık**
-olduğu için 35 ms, `15-mesh-olcumu.kojo`'nun döngüsünde aynı şekil **≤16.7 ms**
-(muhtemelen ~5 ms) — yaklaşık yedi kat. Tablonun "iyimser" olmasının sebebi bu.
+Soğukla sıcak arasındaki fark **henüz ölçülmedi**. Burada bir sav vardı —
+"ölçü aletinin döngüsünde not düşmüyor, demek ki sıcak süre ≤16.7 ms, yani
+~7 kat" — ve yanlıştı (kojojs-dev#133 incelemesi): o çıkarım şeklin
+*tamamlanmış* olmasını gerektiriyor, oysa aletin gülü hiç tamamlanmıyor
+(`sil()` dolgu kurulumundan önce geliyor). Doğru üst sınır 50.1 ms, ve 35 ms
+soğuk ile ≤50.1 ms sıcak **hiç fark olmamasıyla da uyumlu**. Tablonun iyimser
+olduğu hâlâ makul bir hipotez, ama ölçülmüş değil.
 
 Tabloyu **büyük ölçek farkları** için okuyun (250 ile 4000 arasındaki fark
 gerçek), yakın sayıları karşılaştırmak ya da mutlak eşik çıkarmak için değil.
