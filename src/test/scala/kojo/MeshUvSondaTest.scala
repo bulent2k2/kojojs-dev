@@ -28,9 +28,11 @@ import pixiscalajs.PIXI
  * #125'in EN BÜYÜK İŞLEVSEL RİSKİ: mesh'e geçilirse doku/gradyan dolgusu
  * üçgen sınırlarında SÜREKLİ kalır mı?
  *
- * Bugün dolgu `Graphics.beginTextureFill` ile yapılıyor ve eşleme DÜNYA
- * uzayında: dolgu üçgenleri umursamıyor, şeklin altından geçen tek bir
- * gradyan/döşeme var. Mesh'in kendi shader'ı ve UV'leri olur, yani süreklilik
+ * Bugün dolgu `Graphics.beginTextureFill` ile yapılıyor ve eşleme ŞEKLİN
+ * YEREL uzayında, ŞEKİL BAŞINA: dolgu üçgenleri umursamıyor, şeklin altından
+ * geçen tek bir gradyan/döşeme var. Sürekliliğin sebebi "dünya" olması değil,
+ * ÜÇGEN BAŞINA DEĞİL ŞEKİL BAŞINA olması (#132 incelemesi §2; ölçüldü,
+ * "dolgu şeklin yereline çakılı" savı). Mesh'in kendi shader'ı ve UV'leri olur, yani süreklilik
  * BEDAVA GELMEZ -- kaydın gövdesi de, #129'un incelemesi de bunu yazdı, ama
  * ikisi de DENEMEDİ. Bu sonda o boşluğu kapatıyor.
  *
@@ -38,9 +40,9 @@ import pixiscalajs.PIXI
  * piksel piksel karşılaştırılıyor. Referans, bugünkü Graphics yolu.
  *
  *   A (referans)  Graphics + PixiUyum.boyamayaBaşla  -- bugünkü kod
- *   B (aday)      Mesh + MeshMaterial(doku), aTextureCoord köşe başına
- *                 DÜNYA
- *                 uzayından: uv = matris⁻¹ · köşe / (doku.en, doku.boy)
+ *   B (aday)      Mesh + MeshMaterial(doku), aTextureCoord köşe başına ŞEKLİN
+ *                 YEREL uzayından: uv = matris⁻¹ · köşe / (doku.en, doku.boy).
+ *                 Düğümün worldTransform'u bu hesaba GİRMİYOR (#132 §2).
  *   C (denetim)   Mesh, ama UV'ler ÜÇGEN BAŞINA 0..1 -- "naif" mesh, yani
  *                 sürekliliğin gerçekten bedava gelmediğini gösteren hâl
  *
@@ -52,11 +54,17 @@ import pixiscalajs.PIXI
  *
  * SONUÇ (SwiftShader, 60 nokta x 7 kat gül, 44 624 boyalı piksel):
  * {{{
- *   boya                        DÜNYA UV        NAİF UV (denetim)
+ *   boya                        YEREL UV        NAİF UV (denetim)
  *   doğrusal gradyan            0 piksel fark   41 975 (%94)
  *   merkezden gradyan           0 piksel fark   40 337 (%90)
  *   kısa dalgalı gradyan        0 piksel fark   41 543 (%93)
  *   döşeme, REPEAT              0 piksel fark   26 463 (%59)
+ * }}}
+ * DÖNÜŞTÜRÜLMÜŞ düğümde de (taşıma 37,-23 + eşit olmayan ölçek 1.7,0.6 +
+ * dönme 0.4 rad; 44 096 boyalı piksel) -- gerçek resimlerin hâli bu:
+ * {{{
+ *   doğrusal gradyan            0 piksel fark   41 514 (%94)
+ *   merkezden gradyan           0 piksel fark   40 084 (%91)
  * }}}
  * Dört boyada da fark SIFIR PİKSEL, en büyük kanal farkı SIFIR -- yaklaşık
  * değil, bit birebir, ve iki koşuda da aynı. Yani #125'in "süreklilik bedava
@@ -65,8 +73,8 @@ import pixiscalajs.PIXI
  *
  * UV HESABININ BEDELİ (düğüm kurulumu, render hariç; 41 ölçümün ortancası):
  * {{{
- *   2 998 üçgen    Graphics 0.4-0.5 ms   Mesh+dünyaUV 0.3 ms   Mesh+naifUV 0.2 ms
- *  11 998 üçgen    Graphics 1.5-1.6 ms   Mesh+dünyaUV 1.0 ms   Mesh+naifUV 0.7 ms
+ *   2 998 üçgen    Graphics 0.4-0.5 ms   Mesh+yerelUV 0.3 ms   Mesh+naifUV 0.2 ms
+ *  11 998 üçgen    Graphics 1.5-1.6 ms   Mesh+yerelUV 1.0 ms   Mesh+naifUV 0.7 ms
  * }}}
  * Yani UV ~0.1 ms (2 998) ve ~0.3 ms (11 998) ekliyor, ve mesh UV'lerle
  * BİRLİKTE bile Graphics'ten ucuz kuruluyor. (Üç koşudan biri gürültülüydü --
@@ -129,10 +137,17 @@ class MeshUvSondaTest extends AnyFunSuite with Matchers {
 
   // ---- B / C: mesh ----
   /**
-   * @param dünyaUv true ise UV dünya uzayından (aday yol); false ise üçgen
-   *                başına 0..1 (naif denetim).
+   * @param yerelUv true ise UV ŞEKLİN YEREL uzayından (aday yol); false ise
+   *                üçgen başına 0..1 (naif denetim).
+   *
+   * YEREL, DÜNYA DEĞİL. Bu ayrım kritik ve depoda üç yerde yanlış yazılmıştı
+   * (#132 incelemesi §2): eşlemeye düğümün `worldTransform`u HİÇ girmiyor.
+   * "Dünya uzayında" diye okuyan biri UV hesabına worldTransform'u katar ve
+   * resim her taşındığında dolgusu YÜZEN bir mesh elde eder. Doğru tarif
+   * koddaki hâli: yerel köşe -> `matris.applyInverse`, başka hiçbir şey.
+   * Ölçüldü, aşağıdaki "dolgu şeklin yereline çakılı" savı.
    */
-  private def meshDüğüm(ü: Array[Double], boya: DokuBoya, dünyaUv: Boolean): js.Dynamic = {
+  private def meshDüğüm(ü: Array[Double], boya: DokuBoya, yerelUv: Boolean): js.Dynamic = {
     val P = js.Dynamic.global.PIXI
     val n = ü.length / 2
     val köşeler = new js.typedarray.Float32Array(ü.length)
@@ -148,7 +163,7 @@ class MeshUvSondaTest extends AnyFunSuite with Matchers {
       val y = ü(2 * i + 1)
       köşeler(2 * i) = x.toFloat
       köşeler(2 * i + 1) = y.toFloat
-      if (dünyaUv) {
+      if (yerelUv) {
         m.applyInverse(js.Dynamic.literal(x = x, y = y), nokta)
         uvler(2 * i) = (nokta.x.asInstanceOf[Double] / dokuEn).toFloat
         uvler(2 * i + 1) = (nokta.y.asInstanceOf[Double] / dokuBoy).toFloat
@@ -202,15 +217,31 @@ class MeshUvSondaTest extends AnyFunSuite with Matchers {
     (farklı, enBüyük, dolu)
   }
 
-  private def sonda(ad: String, boya: DokuBoya): Unit = {
+  /**
+   * Düğümü gerçek bir `Resim{}` gibi taşı/döndür/ölçekle.
+   *
+   * Eşit OLMAYAN ölçek bilerek: A'nın dolgu matrisi çizim anında, B'nin
+   * UV'leri geometri kurulurken pişiyor, yani eşdeğerliğin dönüşüme duyarlı
+   * olması akla yakın bir kırılma yeriydi (#132 incelemesi §1). Dönüştürülmemiş
+   * düğüm göçün göndereceği durum değil -- ikojo'da her resim taşınıyor.
+   */
+  private def dönüştürülmüş(d: js.Dynamic): js.Dynamic = {
+    d.position.set(37, -23)
+    d.scale.set(1.7, 0.6)
+    d.rotation = 0.4
+    d
+  }
+
+  private def sonda(ad: String, boya: DokuBoya, dönüşümlü: Boolean = false): Unit = {
     val w = dünyaKurYaDaİptal()
     val düz = gülDüz(60, 7, 120.0)
     val ü = Üçgenleyici.nonzero(düz)
     withClue(s"$ad: libtess üçgen vermedi -- ") { ü.length should be > 0 }
 
-    val a = sahneyeKoyVeOku(w, dyn(grafikDüğüm(ü, boya)))
-    val b = sahneyeKoyVeOku(w, meshDüğüm(ü, boya, dünyaUv = true))
-    val c = sahneyeKoyVeOku(w, meshDüğüm(ü, boya, dünyaUv = false))
+    def hazırla(d: js.Dynamic): js.Dynamic = if (dönüşümlü) dönüştürülmüş(d) else d
+    val a = sahneyeKoyVeOku(w, hazırla(dyn(grafikDüğüm(ü, boya))))
+    val b = sahneyeKoyVeOku(w, hazırla(meshDüğüm(ü, boya, yerelUv = true)))
+    val c = sahneyeKoyVeOku(w, hazırla(meshDüğüm(ü, boya, yerelUv = false)))
 
     val (bFark, bEnBüyük, bDolu) = karşılaştır(a, b, hoşgörü = 8)
     val (cFark, cEnBüyük, _) = karşılaştır(a, c, hoşgörü = 8)
@@ -221,13 +252,13 @@ class MeshUvSondaTest extends AnyFunSuite with Matchers {
     val cYüzde = (cOran * 100).round / 100.0
     withClue(
       s"$ad -- boyalı piksel $bDolu; " +
-        s"DÜNYA UV: $bFark farklı (yüzde $bYüzde, en büyük kanal farkı $bEnBüyük); " +
+        s"YEREL UV: $bFark farklı (yüzde $bYüzde, en büyük kanal farkı $bEnBüyük); " +
         s"NAİF UV: $cFark farklı (yüzde $cYüzde, en büyük $cEnBüyük) -- "
     ) {
       // Ön koşul: gerçekten bir şey çizilmiş olmalı, yoksa "hepsi aynı" boş
       // iki siyah kareyi karşılaştırmaktan gelir.
       bDolu should be > 1000
-      // ASIL SORU: dünya-uzayı UV'li mesh bugünkü Graphics yolunu tutuyor mu?
+      // ASIL SORU: yerel-uzay UV'li mesh bugünkü Graphics yolunu tutuyor mu?
       // Kenar yumuşatma iki yolda birebir aynı olmak zorunda değil, o yüzden
       // eşik boyalı alanın %2'si.
       bOran should be < 2.0
@@ -267,7 +298,75 @@ class MeshUvSondaTest extends AnyFunSuite with Matchers {
     sonda("döşeme (dokuma dengi)", döşemeBoyası(-7, 11))
   }
 
-  test("gradyan dolgusu mesh'te de SÜREKLİ: dünya-uzayı UV Graphics yolunu tutuyor (#125)") {
+  test("DÖNÜŞTÜRÜLMÜŞ düğümde de bit birebir: taşıma + eşit olmayan ölçek + dönme (#132)") {
+    // Gerçek resimlerin hâli bu. Kırılma yeri akla yakındı: A'nın dolgu
+    // matrisi çizim anında uygulanıyor, B'nin UV'leri geometri kurulurken
+    // pişiyor -- dönüşüm ikisine farklı girseydi eşdeğerlik burada bozulurdu.
+    sonda("doğrusal gradyan, dönüşümlü",
+      Boya.doğrusal(-120, -120, kojo.doodle.Color.red, 120, 120, kojo.doodle.Color.blue,
+        dalgalıDevam = false).asInstanceOf[DokuBoya], dönüşümlü = true)
+  }
+
+  test("merkezden gradyan, DÖNÜŞTÜRÜLMÜŞ düğümde (#132)") {
+    sonda("merkezden gradyan, dönüşümlü",
+      Boya.merkezden(0, 0, kojo.doodle.Color.yellow, 120, kojo.doodle.Color.green,
+        dalgalıDevam = false).asInstanceOf[DokuBoya], dönüşümlü = true)
+  }
+
+  /**
+   * Dolgu ŞEKLİN YEREL uzayına çakılı mı, dünyaya mı? (#132 incelemesi §2)
+   *
+   * Depo üç yerde "dünya uzayında" yazıyordu; `DokuBoya`'nın kendi belgesi ise
+   * "doku pikselinden ŞEKLİN YEREL koordinatına" diyor. İkisi aynı anda doğru
+   * olamaz, ve fark salt terminoloji değil: göçü yapan kişi "dünya" okursa UV
+   * hesabına `worldTransform`u katar ve resim taşındıkça dolgusu YÜZER.
+   *
+   * AYIRT EDİCİ DENEY: döşeme dokusunu (32 px) yalnız x'te 7 px kaydır --
+   * döşemenin tam katı DEĞİL, yoksa iki hâl ayırt edilemez. Sonra kaydırılmamış
+   * görüntünün (x,y) pikselini kaydırılmışın (x+7,y) pikseliyle karşılaştır.
+   *
+   *   YEREL ise: desen şekille birlikte taşınır, görüntü SAF ÖTELEME, fark 0.
+   *   DÜNYA ise: desen yerinde kalır, şekil üstünden kayar, fark büyük.
+   */
+  test("dolgu ŞEKLİN YEREL uzayına çakılı, dünyaya DEĞİL (#132)") {
+    val w = dünyaKurYaDaİptal()
+    val ü = Üçgenleyici.nonzero(gülDüz(60, 7, 120.0))
+    val boya = döşemeBoyası(0, 0)
+    val kaydırma = 7
+
+    val yerinde = sahneyeKoyVeOku(w, dyn(grafikDüğüm(ü, boya)))
+    val kaymış = sahneyeKoyVeOku(w, {
+      val d = dyn(grafikDüğüm(ü, boya)); d.position.set(kaydırma, 0); d
+    })
+
+    val en = dyn(w.renderer).view.width.asInstanceOf[Int]
+    val boy = dyn(w.renderer).view.height.asInstanceOf[Int]
+    var farklı = 0
+    var dolu = 0
+    var y = 0
+    while (y < boy) {
+      var x = 0
+      while (x < en - kaydırma) {
+        val i = 4 * (y * en + x)
+        val j = 4 * (y * en + x + kaydırma)
+        if (yerinde(i + 3) != 0 || kaymış(j + 3) != 0) dolu += 1
+        var k = 0
+        var pf = false
+        while (k < 4) { if (math.abs(yerinde(i + k) - kaymış(j + k)) > 8) pf = true; k += 1 }
+        if (pf) farklı += 1
+        x += 1
+      }
+      y += 1
+    }
+    val oran = 100.0 * farklı / math.max(1, dolu)
+    withClue(s"boyalı $dolu, farklı $farklı (yüzde ${(oran * 100).round / 100.0}) -- ") {
+      dolu should be > 1000
+      // Saf öteleme: desen şekille geldi -> YEREL.
+      oran should be < 2.0
+    }
+  }
+
+  test("gradyan dolgusu mesh'te de SÜREKLİ: yerel-uzay UV Graphics yolunu tutuyor (#125)") {
     sonda("doğrusal gradyan",
       Boya.doğrusal(-120, -120, kojo.doodle.Color.red, 120, 120, kojo.doodle.Color.blue,
         dalgalıDevam = false).asInstanceOf[DokuBoya])

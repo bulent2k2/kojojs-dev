@@ -41,11 +41,19 @@ import scala.scalajs.js
  * geliyordu. Aynı yanlış cümlenin `Turtle.üçgenleriÇiz`teki kopyası #129'da
  * düzeltilmişti, bu kopya gözden kaçmıştı.
  *
- * Cümlenin ikinci yarısı ("doku/gradyan dolgusu üçgen sınırlarını aşarak
- * SÜREKLİ eşleniyor, çünkü doku dolgusu dünya uzayında") BUGÜNKÜ Graphics
- * yolu için doğru. Mesh'e geçilirse bedava gelmiyor ama pahalı da değil:
- * köşe başına `matris.applyInverse` ile UV hesaplanınca sonuç Graphics
- * yoluyla BİT BİREBİR aynı çıkıyor (ölçüldü, `MeshUvSondaTest`).
+ * Cümlenin ikinci yarısının SONUCU da doğruydu ama GEREKÇESİ yanlıştı:
+ * "doku/gradyan dolgusu üçgen sınırlarını aşarak SÜREKLİ eşleniyor, çünkü
+ * doku dolgusu DÜNYA uzayında, şekil başına değil". Eşleme tam tersine
+ * şeklin YEREL uzayında ve tam da ŞEKİL BAŞINA (#132 incelemesi §2; ölçüldü:
+ * düğüm 7 piksel kaydırılınca görüntü saf öteleme oluyor, yani desen şekille
+ * taşınıyor -- dünyada sabit olsaydı şeklin altından kayardı). Sürekliliğin
+ * sebebi "dünya" olması değil, ÜÇGEN BAŞINA DEĞİL ŞEKİL BAŞINA olması.
+ *
+ * Ayrım göç için kritik: "dünya" diye okuyan biri UV hesabına düğümün
+ * `worldTransform`unu katar ve resim taşındıkça dolgusu YÜZEN bir mesh yazar.
+ * Doğrusu yalnızca yerel köşe -> `matris.applyInverse`. Öyle yapılınca sonuç
+ * Graphics yoluyla BİT BİREBİR aynı çıkıyor, dönüştürülmüş düğümde de
+ * (ölçüldü, `MeshUvSondaTest`).
  *
  * Üçgenlerin PIXI'ye veriliş biçimi bir TASARIM BORCU; kayıt #125.
  */
