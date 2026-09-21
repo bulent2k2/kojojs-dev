@@ -198,7 +198,8 @@ gizle()
 //    "hesaplamak ... SÜRDÜ (N nokta)" -- çünkü şekil artık büyüyemez.
 //
 //    NEREDE ÇALIŞMAZ, bilerek: bu üçüncü yol ancak betiği UYANDIRABİLECEK
-//    hiçbir şey kalmadığında sayıyor. `canlandır`, `timer`, `tuşaBasınca` ve
+//    hiçbir şey kalmadığında sayıyor. `canlandır`, `yineleSayaçla`,
+//    `tuşaBasınca` ve
 //    resim fare işleyicilerinden biri varsa kuyruk boşalsa da şekle nokta
 //    gelebilir -- orada susuyoruz, çünkü "şu kadar SÜRDÜ (N nokta)" demek
 //    yanlış sayıyı kesin diye söylemek olurdu. O betiklerde eski yol
