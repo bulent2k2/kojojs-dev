@@ -200,6 +200,8 @@ IKOJO_BASLIK = {
     '11-acilar-ve-radyan.kojo': 'Açılar ve radyan',
     '12-uc-cisim.kojo': 'Üç cisim',
     '13-xox-yenilmez.kojo': 'XOX — yenilmez',
+    '14-agir-dolgu.kojo': 'Ağır dolgu',
+    '15-mesh-olcumu.kojo': 'Dolgu çizim maliyeti',
 }
 
 ROZETLER = {
