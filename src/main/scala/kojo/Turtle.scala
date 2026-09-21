@@ -629,12 +629,13 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
 
   private def queueHandler(): Unit = {
     if (commandQ.size == 0) {
-      // Kuyruk boşaldı. Canlandırma DÖNMÜYORSA betik bitmiş demektir ve bu
+      // Kuyruk boşaldı. Daha komut GELEMEYECEKSE betik bitmiş demektir ve bu
       // şekle bir daha nokta eklenmez -- biriken dolgu süresi artık nihai,
-      // bildirilebilir (#134). Canlandırma içindeyse bir sonraki kare
-      // yeniden çizecek, o yüzden susuyoruz: ölçüldü, boşalma orada kare
-      // başına 1.63 kez oluyor.
-      if (!kojoWorld.canlandırmaSürüyor) ÜçgenlemeUyarısı.şekilDurdu(şekilBirikimi)
+      // bildirilebilir (#134). Gelebiliyorsa susuyoruz; hangi üç yoldan
+      // gelebildiği ve niye üçünün de sayılması gerektiği `komutGelebilir`de
+      // yazılı (#140 incelemesi §1). Canlandırma o yolların yalnız biri, ve
+      // en sık olanı: boşalma orada kare başına 1.63 kez oluyor.
+      if (!kojoWorld.komutGelebilir) ÜçgenlemeUyarısı.şekilDurdu(şekilBirikimi)
       // Zincir burada kopuyor; bundan sonraki ilk komut pompayı yeniden başlatır.
       pompa.kuyrukBoşaldı()
     }

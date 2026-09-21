@@ -197,5 +197,13 @@ gizle()
 //    NOT BİÇİMİ de değişmeli: "şu ana dek ... aldı (şimdilik N nokta)" değil,
 //    "hesaplamak ... SÜRDÜ (N nokta)" -- çünkü şekil artık büyüyemez.
 //
+//    NEREDE ÇALIŞMAZ, bilerek: bu üçüncü yol ancak betiği UYANDIRABİLECEK
+//    hiçbir şey kalmadığında sayıyor. `canlandır`, `timer`, `tuşaBasınca` ve
+//    resim fare işleyicilerinden biri varsa kuyruk boşalsa da şekle nokta
+//    gelebilir -- orada susuyoruz, çünkü "şu kadar SÜRDÜ (N nokta)" demek
+//    yanlış sayıyı kesin diye söylemek olurdu. O betiklerde eski yol
+//    (erken eşik, 50.1 ms) hâlâ geçerli ve dürüst biçimiyle konuşuyor.
+//    `ornekler/11-acilar-ve-radyan.kojo` böyle bir betik.
+//
 //    Not ÇIKMAZSA satırı geri koy ve söyle: #134 canlıda çalışmıyor demektir,
 //    ve bunu ancak gerçek tarayıcı gösterir -- birim sınamaları yeşil.

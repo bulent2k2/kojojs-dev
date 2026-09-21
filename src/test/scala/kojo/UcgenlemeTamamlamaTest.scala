@@ -210,6 +210,60 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
    * ve panel büyümesi (her karede bir not). Kapı kaldırılırsa ikincisi,
    * `şekilDurdu` sahneye yazarsa birincisi kırmızıya döner.
    */
+  /**
+   * #140 incelemesi §1: "kuyruk boşaldı" ile "betik bitti" aynı şey DEĞİL.
+   *
+   * `canlandır` döngüsü tek uyandırıcı değil. `timer(ms)` bir `setInterval`,
+   * `tuşaBasınca` bir `keydown` dinleyicisi, resim fare işleyicileri de PIXI
+   * olayları -- hiçbiri `animating`i kurmuyor. Bu betiklerde kuyruk TIKLAR
+   * ya da TUŞLAR ARASINDA boşalıyor, ve bir sonraki olay şekle nokta ekliyor.
+   *
+   * İLK SÜRÜM bunları saymıyordu ve iki ayrı yanlış üretiyordu: (1) 17
+   * noktaya büyüyecek şekil için "30 ms sürdü (5 nokta)" -- kesin cümle,
+   * kısmi sayı; (2) `bildirildi` imi konduğu için `erkenÇarpan`ın sonradan
+   * düşeceği DÜRÜST not ("şimdilik N nokta; şekil büyüdükçe artacak") hiç
+   * gelmiyordu. İkinci sav aşağıda ayrıca çivili.
+   *
+   * SUSMAK SEÇİLDİ, "büyüyebilir" biçimiyle konuşmak değil: betiği gerçekten
+   * BİTMİŞ olan sıradan bir çizimde "şekil büyüdükçe artacak" demek de yanlış
+   * olurdu, ve o durum çok daha sık. Emin olunamayan yerde susup `erkenÇarpan`a
+   * bırakmak, master'ın o betikler için bugünkü davranışını aynen koruyor.
+   */
+  test("ZAMANLAYICI varken boşalma susuyor: tıklar arasında şekil büyüyebilir (#140)") {
+    val (w, t) = kareÇizenKur() // 30 ms: tek yayında bile bütçe üstü, yani kapı olmasa KONUŞURDU
+    w.zamanlayıcıVarMı = true
+    kuyrukBoşalanaKadar(w, t).map { n =>
+      withClue(s"panel: '$panelMetni' -- ") { n shouldBe 0 }
+    }
+  }
+
+  test("GİRDİ işleyicisi varken boşalma susuyor: tuşlar arasında şekil büyüyebilir (#140)") {
+    val (w, t) = kareÇizenKur() // 30 ms: tek yayında bile bütçe üstü, yani kapı olmasa KONUŞURDU
+    w.girdiİşleyicisiKaydedildi()
+    kuyrukBoşalanaKadar(w, t).map { n =>
+      withClue(s"panel: '$panelMetni' -- ") { n shouldBe 0 }
+    }
+  }
+
+  /**
+   * Bulgunun ikinci yarısı: boşalma yolu susarken `erkenÇarpan`ın DÜRÜST notu
+   * yerinde duruyor. İlk sürüm bunu önceliyordu -- 30 ms'de kesin konuşup imi
+   * koyuyor, 50.1 ms'de gelecek doğru sayılı not hiç düşmüyordu.
+   *
+   * Saat varsayılan 30: iki yayın 60 eder, yani erken eşiğin (50.1) üstü.
+   */
+  test("GİRDİ işleyicisi varken erkenÇarpan'ın dürüst notu hâlâ geliyor (#140)") {
+    val (w, t) = kareÇizenKur()
+    w.girdiİşleyicisiKaydedildi()
+    turlar(w, t, 2).map { _ =>
+      withClue(s"panel: '$panelMetni' -- ") {
+        ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 1
+        panelMetni should include("şimdilik")
+        panelMetni should include("büyüdükçe artacak")
+      }
+    }
+  }
+
   test("CANLANDIRMADA boşalma sessiz ve sahneyi büyütmüyor (#134 ölçüt 2)") {
     // Tur başına 9 ms: dört turun toplamı 36 -- bütçenin (16.7) üstünde, yani
     // `şekilDurdu` çağrılsaydı konuşurdu; ama erken eşiğin (50.1) altında, yani

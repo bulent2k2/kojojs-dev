@@ -77,7 +77,13 @@ class TestKojoWorld extends KojoWorld {
   // dönmüyor. Sınamalar canlandırma içindeki davranışı görebilsin diye bayrak
   // elle çevrilebiliyor (#134 ölçüt 2: `UcgenlemeTamamlamaTest`).
   private[kojo] var canlandırmaDönüyorMu = false
-  private[kojo] def canlandırmaSürüyor: Boolean = canlandırmaDönüyorMu
+  // Zamanlayıcı ve girdi işleyicisi yolları da sınanabilsin diye ayrı ayrı
+  // (gerçek dünyada biri `timers`, öteki `girdiİşleyicisiKaydedildi`).
+  private[kojo] var zamanlayıcıVarMı = false
+  private var girdiİşleyicisiVar = false
+  private[kojo] def girdiİşleyicisiKaydedildi(): Unit = girdiİşleyicisiVar = true
+  private[kojo] def komutGelebilir: Boolean =
+    canlandırmaDönüyorMu || zamanlayıcıVarMı || girdiİşleyicisiVar
 
   def animateWithState[S](initState: S)(nextState: S => S): Unit = {
 

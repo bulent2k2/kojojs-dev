@@ -121,8 +121,11 @@ için "146 nokta" (kojojs-dev#125). Şekil henüz bitmemişken düşen not bunu
 açıkça söyler: *"şimdilik N nokta; şekil büyüdükçe artacak"*.
 
 Bir şeklin **bittiğini** üç şey söyleyebiliyor: kalem kalkık taşınma, boya
-değişimi, ve — yenisi — **komut kuyruğunun boşalması** (canlandırma dönmüyorsa;
-kojojs-dev#134). Üçüncüsü olmadan betiğin **son** şekli çoğu zaman hiç
+değişimi, ve — yenisi — **komut kuyruğunun boşalması** (kojojs-dev#134).
+Üçüncüsü ancak betiği uyandırabilecek hiçbir şey kalmadığında sayılıyor:
+`canlandır`, `timer`, `tuşaBasınca` ya da bir resim fare işleyicisi varsa
+kuyruk boşalsa da şekle nokta gelebilir, ve orada not susuyor — yanlış bir
+sayıyı kesin diye söylemektense. Üçüncüsü olmadan betiğin **son** şekli çoğu zaman hiç
 "bitmiş" sayılmıyor, ve bütçeyi aşmasına rağmen sessiz kalabiliyordu:
 `14-agir-dolgu.kojo` tam bu yüzden bir süre sessizdi ve örneğe elle bir
 "şekli tamamla" satırı eklenmişti. O satırın artık gerekmediğini ölçen deney
