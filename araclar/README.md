@@ -224,6 +224,34 @@ API'sine karşı DERLENEREK sınanıyor: bir komut adı ya da imzası değişirs
 Sıra: gösteriyi G'ye ekle -> --scala + sbt Test/compile -> --html ile satırı
 al, sayfaya yapıştır -> ornek-dizini.py ile sözlüğü tazele.
 
+## `ornek-dizin-denetle.py` — örnekler sayfasının klonsuz savları
+
+Sayfayı üreten `kilavuz/ornekler.py` listeyi **dizinden değil**
+`ornekler/README.md` tablosundan okuyor (`ikojo_ornekleri`), başlıkları da
+masaüstü klonundan. Sayfanın tamamını klonsuz yeniden üretmek bu yüzden
+mümkün değil — ama dört ayrışma klonsuz görülebiliyor, dördü de sessiz:
+
+| ayrışma | sonucu |
+|---|---|
+| dosya var, tabloda yok | örnek sayfada **hiç** görünmez |
+| tabloda var, dosya yok | ölü satır |
+| tabloda var, sayfada yok | tablo güncellendi, sayfa tazelenmedi |
+| tabloda var, başlığı yok | sayfada **ham dosya adıyla** görünür |
+
+    araclar/ornek-dizin-denetle.py     # ayrışma varsa 1 döner
+
+Üçüncüsü #138'in ta kendisi: 14 ve 15 numaralı örnekler tabloda vardı,
+sayfada yoktu, aylarca hiçbir şey konuşmadı. Artık birleşmeden önce görünüyor.
+
+Tabloyu **üretecin kendisine** ayrıştırtıyor; desen buraya kopyalanmıyor.
+Kopyalanmıştı ve kopya daha gevşekti: üretecin deseni kapanış borusunu şart
+koşuyor, kopya koşmuyordu — satır sonuna görünmez bir boşluk koymak üreteci
+15'ten 14'e düşürürken denetçiyi yeşil bırakıyordu (#141 incelemesi).
+
+Sınırı: yalnız **eksik satırı** görür. Bayat açıklamayı, değişmiş başlığı ya
+da silinmiş örneğin sayfada kalmasını göremez; onlar için master'daki tam
+yeniden üretim adımı var. Bunun yerine değil, yanına.
+
 ## `ornek-kopya-denetle.py` — örnek gövdelerinin sınamalardaki kopyaları taze mi
 
 Örnekleri **gerçek derleyiciye** gönderen yol `ornekler/ornekleri-dogrula.sh`

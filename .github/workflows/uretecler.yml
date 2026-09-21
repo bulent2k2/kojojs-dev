@@ -201,6 +201,19 @@ jobs:
       - name: örnek gövdelerinin sınamalardaki kopyaları taze mi
         run: python3 araclar/ornek-kopya-denetle.py
 
+      # Örnekler sayfası listeyi DİZİNDEN DEĞİL, ornekler/README.md tablosundan
+      # okuyor (ornekler.py: ikojo_ornekleri), başlıkları da masaüstü klonundan.
+      # Sayfanın tamamını klonsuz yeniden üretmek bu yüzden mümkün değil -- ama
+      # dört ayrışma klonsuz görülebiliyor, dördü de sessiz:
+      #   dosya var/tabloda yok, tabloda var/dosya yok,
+      #   tabloda var/SAYFADA yok, tabloda var/başlığı yok.
+      # Üçüncüsü #138'in ta kendisi (14 ve 15 aylarca sayfada yoktu) ve bu adım
+      # sayesinde artık BİRLEŞMEDEN ÖNCE görünüyor; aşağıdaki tam yeniden üretim
+      # yalnız master'da koştuğu için o tek başına geç kalıyordu.
+      # Klon istemiyor -> HER PR'da koşuyor.
+      - name: örnekler dizini, tablosu, sayfası ve başlıkları tutuyor mu
+        run: python3 araclar/ornek-dizin-denetle.py
+
       # dict.scala'daki bir terimin sözlük sayfasına hiç girmemesi, elle
       # bulunana dek görünmüyor: 2026-09'da `to` (|-|) vardı ama `until` (|-)
       # yoktu. Üstelik "1 until 4" DEYİMİ sözlükte olduğu için arama bir
@@ -246,6 +259,35 @@ jobs:
       - name: masaüstünde de tuş adları deve yazımda mı
         if: github.event_name == 'push'
         run: python3 araclar/tus-yazim-denetle.py kojo-kaynak
+
+      # kilavuz/html/ornekler.html ÜRETİLMİŞ ama üreteci (kilavuz/ornekler.py)
+      # bu işte hiç koşmuyordu: listeyi ornekler/README.md tablosundan, başlıkları
+      # masaüstü klonundan (Bundle_tr.properties) okuyor -- klon ise yalnız push'ta
+      # çekiliyor. Sonuç: sayfa elle tazeleniyordu ve tazelenmeyi unutunca hiçbir
+      # şey kırmızı yanmıyordu.
+      #
+      # Eylül 2026'da tam bu oldu: 14-agir-dolgu.kojo (#124) ve 15-mesh-olcumu.kojo
+      # (#125) örneklere eklendi, sayfa aylarca onlarsız kaldı; fark ancak üreteç
+      # elle koşturulunca görüldü (#138). Üstelik eksikliğin kendisi de sessizdi --
+      # sayfa açılıyor, yalnız iki satır yok.
+      #
+      # Yukarıdaki klonsuz adım EKSİK satırı görüyor; burası onun göremediklerini
+      # tutuyor: bayat açıklama, değişmiş başlık, silinen örneğin sayfada kalması.
+      # Sav deponun kendi deyimiyle aynı: YENİDEN ÜRETİM AĞAÇTAKİNİ DEĞİŞTİRMEMELİ.
+      # Yukarıdaki kojo klonu yeniden kullanılıyor; adlar.py anlık görüntüsüyle
+      # aynı kalıp, aynı sebeple YALNIZ master'da (masaüstü başka depo: orada bir
+      # örnek adı değişince buradaki her PR kırmızı yanardı).
+      - name: örnekler sayfası README tablosuyla güncel mi
+        if: github.event_name == 'push'
+        run: |
+          python3 kilavuz/ornekler.py --kojo kojo-kaynak
+          if ! git diff --quiet kilavuz/html/ornekler.html; then
+            git --no-pager diff kilavuz/html/ornekler.html
+            echo "::error::kilavuz/html/ornekler.html, ornekler/README.md tablosunun bugünkü hâlini yansıtmıyor (fark yukarıda)."
+            echo "Yerelde şunu koşup çıkan farkı commit'leyin:"
+            echo "  python3 kilavuz/ornekler.py --kojo <kojo klonu>"
+            exit 1
+          fi
 
 
       # iKojo, masaüstünün anlık görüntüsündeki adları KAYBETMEMELİ.
