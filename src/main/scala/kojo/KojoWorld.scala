@@ -159,6 +159,18 @@ trait KojoWorld {
   def timer(ms: Long)(fn: => Unit): Unit
   def setRefreshRate(fps: Int): Unit
   def stopAnimation(): Unit
+
+  /**
+   * Canlandırma döngüsü şu an dönüyor mu.
+   *
+   * `Turtle.queueHandler` kuyruk boşalınca buna bakıyor (#134): boşalma
+   * canlandırma DIŞINDAYSA betik bitmiş demektir ve şekle bir daha nokta
+   * eklenmez; içindeyse bir sonraki kare yeniden çizecektir.
+   *
+   * Ölçüldü (#134): 250x7 gül, 30 kare. Canlandırma döngüsünde 49 boşalmanın
+   * 49'unda da bu true; tek atışlık betikte tek boşalmada false. Ayrım temiz.
+   */
+  private[kojo] def canlandırmaSürüyor: Boolean
   def setup(fn: => Unit): Unit
 
   def drawStage(fillc: Color)(implicit kojoWorld: KojoWorld)
@@ -940,6 +952,8 @@ class KojoWorldImpl extends KojoWorld {
     artalanaKoy("linear-gradient(to bottom, %s, %s)".format(cssRenk(c1), cssRenk(c2)))
 
   var animating = false
+
+  private[kojo] def canlandırmaSürüyor: Boolean = animating
   def notAssetLoading = !AssetLoader.loading
   var timers = Vector.empty[Int]
   private var prevFrameTime: Double = _

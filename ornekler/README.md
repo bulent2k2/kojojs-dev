@@ -120,6 +120,14 @@ bildirdiği için betikte olmayan nokta sayıları yazıyordu — 250 noktalık 
 için "146 nokta" (kojojs-dev#125). Şekil henüz bitmemişken düşen not bunu
 açıkça söyler: *"şimdilik N nokta; şekil büyüdükçe artacak"*.
 
+Bir şeklin **bittiğini** üç şey söyleyebiliyor: kalem kalkık taşınma, boya
+değişimi, ve — yenisi — **komut kuyruğunun boşalması** (canlandırma dönmüyorsa;
+kojojs-dev#134). Üçüncüsü olmadan betiğin **son** şekli çoğu zaman hiç
+"bitmiş" sayılmıyor, ve bütçeyi aşmasına rağmen sessiz kalabiliyordu:
+`14-agir-dolgu.kojo` tam bu yüzden bir süre sessizdi ve örneğe elle bir
+"şekli tamamla" satırı eklenmişti. O satırın artık gerekmediğini ölçen deney
+örneğin sonunda duruyor (4. deney).
+
 ## `15-mesh-olcumu.kojo` bir ölçü aleti
 
 Öteki dosyalar öğretmek için; bu dosya bir **değişikliğin öncesi ve sonrası

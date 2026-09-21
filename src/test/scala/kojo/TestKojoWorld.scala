@@ -73,6 +73,12 @@ class TestKojoWorld extends KojoWorld {
 
   }
 
+  // `animate` burada hiçbir şey yapmıyor, yani canlandırma KENDİLİĞİNDEN hiç
+  // dönmüyor. Sınamalar canlandırma içindeki davranışı görebilsin diye bayrak
+  // elle çevrilebiliyor (#134 ölçüt 2: `UcgenlemeTamamlamaTest`).
+  private[kojo] var canlandırmaDönüyorMu = false
+  private[kojo] def canlandırmaSürüyor: Boolean = canlandırmaDönüyorMu
+
   def animateWithState[S](initState: S)(nextState: S => S): Unit = {
 
   }
