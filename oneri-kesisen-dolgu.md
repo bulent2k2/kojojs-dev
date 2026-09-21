@@ -1,7 +1,7 @@
 # Öneri: Kendini Kesen Yolların Dolgusu
 
 **Amaç:** `tan-theta.kojo` gibi kendi üstünden geçen bir yol boyandığında
-ikojo'nun masaüstü Koco ile aynı şekli çizmesi.
+iKojo'nun masaüstü Koco ile aynı şekli çizmesi.
 
 **Durum (2026-09-10):** Sebep bulundu ve ölçüldü, çözüm önerisi. Bu PR yalnız
 belge; kod değişikliği yok. İlk taslak incelendi ve ölçümler yeniden
@@ -22,7 +22,7 @@ yaklaşXY(40, 10, 0, 0)
 
 `tanjant`ın -12..12 arasında sekiz düşey asimptotu var. Yol her asimptotta
 yukarıdan aşağıya atlıyor, yani **kendi üstünden geçiyor**. Masaüstünde
-dönüşümlü kanca deseni çıkıyor; ikojo'da üst yarı baştan sona dolu mavi.
+dönüşümlü kanca deseni çıkıyor; iKojo'da üst yarı baştan sona dolu mavi.
 
 ## 2. Sebep: iki tarafın dolgu kuralı farklı
 
@@ -40,7 +40,7 @@ if (fillPaint != null) { g2.setPaint(fillPaint); g2.fill(polyLinePath) }   // 10
 bu kurala göre yapıyor: bir noktanın içeride sayılması için etrafındaki
 dönme sayısının sıfırdan farklı olması gerekiyor.
 
-**ikojo** — `Turtle.scala:111` ve `:122`:
+**iKojo** — `Turtle.scala:111` ve `:122`:
 
 ```scala
 boyamaYolu.drawPolygon(scala.scalajs.js.Array(boyamaÇokgeni.düzDizi: _*))
@@ -63,7 +63,7 @@ Sürüm farkının sonucu değiştirmediğini ölçtüm: aşağıdaki sayısal �
 earcut 3.2.3 ile, görsel ölçümler PIXI'nin kendi paketlediği earcut ile
 yapıldı, ikisi de aynı yanlış şekli veriyor.)
 
-Yani ikojo'nun bir dolgu *hatası* yok; **başka bir dolgu kuralı** uyguluyor,
+Yani iKojo'nun bir dolgu *hatası* yok; **başka bir dolgu kuralı** uyguluyor,
 daha doğrusu hiçbir kural uygulamıyor.
 
 ## 3. Ölçüm 1: yıldız (alanı elle hesaplanabilen en küçük örnek)
@@ -110,10 +110,10 @@ piksel piksel karşılaştırdım (kenar yumuşatmayı saymamak için her piksel
 
 | PIXI tarafı | masaüstünden farklı piksel | oran |
 |---|---|---|
-| earcut (bugünkü ikojo) | 96 128 / 192 000 | **%50.07** |
+| earcut (bugünkü iKojo) | 96 128 / 192 000 | **%50.07** |
 | libtess NONZERO | 406 / 192 000 | **%0.21** |
 
-%0.21 yalnız kenar yumuşatma sınırları. Yani libtess NONZERO ile ikojo
+%0.21 yalnız kenar yumuşatma sınırları. Yani libtess NONZERO ile iKojo
 masaüstüyle **aynı** şekli çiziyor.
 
 ## 5. PIXI 5'e geçmek bunu çözmüyor

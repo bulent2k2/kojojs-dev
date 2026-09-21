@@ -30,7 +30,7 @@ annotation taşıyor.
 
 Kullanım:
   araclar/tus-yazim-denetle.py [kojo-dizini]   # kojo verilirse iki depoyu da
-                                               # denetler; verilmezse yalnız ikojo
+                                               # denetler; verilmezse yalnız iKojo
 """
 import io
 import os
@@ -110,7 +110,7 @@ def işaretsizYılanlar(yol):
 
 def main():
     kök = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    hedefler = [('ikojo', os.path.join(kök, IKOJO_YOL))]
+    hedefler = [('iKojo', os.path.join(kök, IKOJO_YOL))]
     if len(sys.argv) > 1:
         y = os.path.join(sys.argv[1], KOJO_YOL)
         if not os.path.exists(y):

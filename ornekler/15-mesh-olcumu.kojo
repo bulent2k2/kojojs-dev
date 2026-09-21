@@ -4,7 +4,7 @@
 // değişikliğin ÖNCESİ ve SONRASI aynı şeyle ölçülsün diye var.
 //
 // ÖLÇTÜĞÜ ŞEY: kesişen bir şekli HER KAREDE yeniden çizen bir döngünün
-// saniyede kaç kare verdiği. Bugün ikojo bu dolguyu üçgenlere ayırıp PIXI'ye
+// saniyede kaç kare verdiği. Bugün iKojo bu dolguyu üçgenlere ayırıp PIXI'ye
 // ÜÇGEN BAŞINA BİR drawPolygon ile veriyor: aşağıdaki 250 noktalı gülde
 // yayın başına 2 998 çağrı, 1000 noktalıda 11 998. #125 bunun yerine tek bir
 // mesh vermeyi tartışıyor; ölçülmüş kazanç 8-14 kat ama mutlak olarak küçük.

@@ -8,7 +8,7 @@ import scala.concurrent.Future
 /**
  * `döndürMerkezli` DÖNÜŞTÜRÜCÜ olarak da çalışmalı.
  *
- * KUSUR NEYDİ: ikojo'da `döndürMerkezli` yalnız Resim YÖNTEMİ olarak vardı
+ * KUSUR NEYDİ: iKojo'da `döndürMerkezli` yalnız Resim YÖNTEMİ olarak vardı
  * (`r.döndürMerkezli(45, 0, 0)`). Masaüstündeki yazılımcıklar ise onu
  * dönüştürücü olarak kullanıyor -- `*` ile zincirlenip `->` ile uygulanan
  * biçimde:

@@ -10,7 +10,7 @@ Kaplumbağamız yürürken çizgi çizip, boyama yapar. Onu yürüten ve yürür
 | `kalemiİndir` | Kalemi indir ve çizim yapmaya devam et. Örnek aşağıda. | |
 | `kalemiKaldır` | Kalemi kaldır ki bundan sonra hareket ederken çizim yapma. | (aşağıdaki ikinci örnek) |
 | `sil` | Tuvali temizler ve kaplumbağayı başlangıç noktasına döndürür | |
-| `silipSakla` | Tuvali temizler, kaplumbağayı başlangıç noktasına döndürür ve gizler. Diğer adı 'silVeSakla' (ikojo'da bu ad var) | `silVeSakla` |
+| `silipSakla` | Tuvali temizler, kaplumbağayı başlangıç noktasına döndürür ve gizler. Diğer adı 'silVeSakla' (iKojo'da bu ad var) | `silVeSakla` |
 
 ```scala
 yinele(3) {
@@ -112,4 +112,4 @@ yinele(12) {
 }
 ```
 
-ikojo'da `yaklaş(0.2)` yerine `yaklaşXY(0.2, 0.2, 0, 0)` yaz.
+iKojo'da `yaklaş(0.2)` yerine `yaklaşXY(0.2, 0.2, 0, 0)` yaz.

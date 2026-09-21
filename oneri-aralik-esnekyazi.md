@@ -23,7 +23,7 @@
 > **Sonradan:** `kapsam.py` bu sınırı artık ölçüyor. Hangi sarmalayıcının hangi
 > türe uyduğunu `isAssignableFrom` ile JVM'e soruyor ve iki sütun veriyor:
 > `kendi` (o sınıfta yazılanlar) ve `+miras` (kullanıcının gerçekten
-> çağırabildikleri). Düzeltilmiş rakamlar: masaüstü %92, ikojo %86;
+> çağırabildikleri). Düzeltilmiş rakamlar: masaüstü %92, iKojo %86;
 > Aralık %94/%93, EsnekYazı %90/%89, Yığın %71/%70.
 
 ## 1. Aralık: iki ayrı yüz
@@ -170,7 +170,7 @@ gerektirmiyor), sonra tampon tarafı yukarıdaki adlarla. Kapsam %1'den ~%85'e
 | 1 | Aralık: Seçenek A + ortak çekirdek | Aralık %6 → ~%90 |
 | 2 | EsnekYazı: dizi tarafı | %1 → ~%60 |
 | 3 | EsnekYazı: tampon tarafı (yeni adlar) | ~%60 → ~%85 |
-| 4 | ikojo'ya taşı (ikojo'da Range sarmalayıcısı hiç yok, o da eklenir) | — |
+| 4 | iKojo'ya taşı (iKojo'da Range sarmalayıcısı hiç yok, o da eklenir) | — |
 
 Her adım kendi testiyle gelir; ölçüm `araclar/kapsam.py` ile doğrulanır.
 

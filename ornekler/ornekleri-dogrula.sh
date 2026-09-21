@@ -1,14 +1,14 @@
 #!/bin/bash
 # Örnek betikleri gerçek derleyiciye (/compile) gönderir ve hata dönmediğini doğrular.
 #
-#   ./ornekleri-dogrula.sh                              # bu dizindeki 10 ikojo örneği
+#   ./ornekleri-dogrula.sh                              # bu dizindeki 10 iKojo örneği
 #   ./ornekleri-dogrula.sh masaustu                     # masaüstü betikleri (özyineli)
 #   ./ornekleri-dogrula.sh -g masaustu/derleme.tsv masaustu   # sonucu TSV'ye yaz
 #   ./ornekleri-dogrula.sh -b masaustu/derleme.tsv masaustu   # önceki sonuçla karşılaştır:
 #                                                        # yalnız GERİLEME varsa hata kodu döner
 #   KOCO=http://localhost:7860 ./ornekleri-dogrula.sh    # yerel konteynere karşı
 #
-# -b olmadan herhangi bir kaldı = çıkış kodu 1 (ikojo örnekleri için doğru davranış:
+# -b olmadan herhangi bir kaldı = çıkış kodu 1 (iKojo örnekleri için doğru davranış:
 # hepsi geçmeli). -b ile beklenen durum dosyası okunur; "geçti" beklenen bir betik
 # kalırsa gerileme sayılır; beklenen "kaldı" bir betik geçerse ilerleme olarak yazılır.
 # Üç durum: geçti / kaldı (derleyici hata verdi) / sunucu (HTTP 200 dönmedi -- betiğin

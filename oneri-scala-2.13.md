@@ -1,4 +1,4 @@
-# Öneri: KojoJS'i Kojo ile Aynı Scala Sürümüne (2.13.18) Taşımak
+# Öneri: iKojo'yu Kojo ile Aynı Scala Sürümüne (2.13.18) Taşımak
 
 **Amaç:** Masaüstü Koco'nun Türkçe anahtar kelime yaması (`dez`, `tanım`, `eğer`,
 `doğru`, `özellik`, …) ikojo-tr'de de çalışsın — çocuklar tarayıcıda da tam
@@ -31,7 +31,7 @@ dokunuyor:
 > çalışma zamanı (page, scalajs-library, link edilmiş fiddle JS'i) hiç
 > etkilenmiyor.**
 
-KojoJS mimarisinde fiddle'ları derleyen tek yer **kojojs-core
+iKojo mimarisinde fiddle'ları derleyen tek yer **kojojs-core
 `compilerServer`**: kendi JVM classpath'indeki `scala-compiler` +
 `scala-reflect` ile, sınıf olarak yüklediği Scala.js derleyici eklentisiyle
 (`GlobalInitCompat.initGlobal`), bellek içi `nsc.Global` kurup kullanıcı kodunu
@@ -123,7 +123,7 @@ Scala.js göçünü Scala göçünden ayırmak için iki sıçrama. 2.12.10 → 
 Çıkış ölçütü: `TurkishStdlibTest` Node'da, tam süit Selenium'da yeşil;
 `site/kojo.js` yeniden üretilip demo elle doğrulanmış.
 
-**Faz 2 — kojojs-dev: 2.13.18 (2–3 gün).** Koleksiyon göçü (çekirdek KojoJS
+**Faz 2 — kojojs-dev: 2.13.18 (2–3 gün).** Koleksiyon göçü (çekirdek iKojo
 kodu küçük ve düz — `JSConverters`/`mutable` kullanımları elden geçer) +
 `tr/` katmanının masaüstüyle hizalanması (şimlerin sökümü — bu iş külfet
 değil, bu geçişin ödülü). `scalajs-dom` 2.x'e bumplanabilir (isteğe bağlı).
@@ -178,7 +178,7 @@ imaj da üretilebilir (ikojo.fly.dev = en, ikojo-tr = tr gibi).
 Yamalı derleyici işin yalnızca "kabul etme" yarısı; editör deneyiminin üç
 parçası ayrıca ele alınmalı. Envanter (koda bakılarak çıkarıldı):
 
-| Parça | ikojo'da bugün | Türkçe anahtar kelimelerle |
+| Parça | iKojo'da bugün | Türkçe anahtar kelimelerle |
 |---|---|---|
 | Vurgulama | Ace, STOK `mode-scala.js` — iki ayrı yükleme yeri | Türkçe sözcükler düz tanımlayıcı renginde kalır → yapılacak iş var |
 | Biçimlendirme | **YOK** (düğmeler: Run/Reset; scalariform/scalafmt izi yok) | bozulacak bir şey yok; istenirse ayrı iş |
@@ -187,8 +187,8 @@ parçası ayrıca ele alınmalı. Envanter (koda bakılarak çıkarıldı):
 ### 5a. Vurgulama (Faz 4-5 ile birlikte, ~½–1 gün)
 
 Masaüstünde vurgulama yamalı **scalariform** + `ScalariformTokenMaker`
-(RSyntaxTextArea) ile olur — o mekanizmanın ikojo'da karşılığı YOK ve
-gerekmiyor: ikojo'da vurgulama tamamen tarayıcıda, Ace'in düzenli-ifade
+(RSyntaxTextArea) ile olur — o mekanizmanın iKojo'da karşılığı YOK ve
+gerekmiyor: iKojo'da vurgulama tamamen tarayıcıda, Ace'in düzenli-ifade
 tabanlı `mode-scala.js`'iyle. Stok modda Türkçe anahtar kelimeler düz
 tanımlayıcı görünür.
 
@@ -218,7 +218,7 @@ bedava bir iyileştirme — isteğe bağlı.
 
 ### 5b. Biçimlendirme (kapsam dışı — bilinçli)
 
-ikojo'da bugün kod biçimlendirme özelliği YOK; dolayısıyla geçişin bozacağı
+iKojo'da bugün kod biçimlendirme özelliği YOK; dolayısıyla geçişin bozacağı
 bir şey de yok ve masaüstünün yamalı `scalariform.jar`'ının buraya taşınması
 GEREKMİYOR (o, masaüstü editörünün hem biçimlendiricisi hem vurgulayıcısı).
 

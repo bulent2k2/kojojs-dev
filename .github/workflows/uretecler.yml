@@ -166,7 +166,7 @@ jobs:
         run: python3 araclar/sozluk-renk-denetle.py
 
 
-      # Sözlük ikojo'da TEK BAŞINA açılmıyor: /yardim/sozluk onu bir iframe'e
+      # Sözlük iKojo'da TEK BAŞINA açılmıyor: /yardim/sozluk onu bir iframe'e
       # koyuyor. target'siz bir dış bağlantı iframe'in kendisini götürüyor ve
       # çerçevelenmeyi reddeden bir siteye düşünce sözlük ekrandan kayboluyor
       # ("refused to connect"). Dosyaya tek başına bakan bunu GÖREMİYOR --
@@ -187,11 +187,11 @@ jobs:
       # eklenirse göç sessizce geri kayıyor). Tek kural ikisini de kapatıyor:
       # her snake_case val @deprecated taşımalı.
       #
-      # Bu adım klon istemiyor (yalnız ikojo), o yüzden HER PR'da koşuyor.
+      # Bu adım klon istemiyor (yalnız iKojo), o yüzden HER PR'da koşuyor.
       - name: tuş adları deve yazımda mı
         run: python3 araclar/tus-yazim-denetle.py
 
-      # Örnekleri GERÇEK derleyiciye gönderen yol (ornekleri-dogrula.sh) ikojo
+      # Örnekleri GERÇEK derleyiciye gönderen yol (ornekleri-dogrula.sh) iKojo
       # sunucusuna ağ üstünden gidiyor; koşucu oraya çıkamıyor. Telafi olarak
       # bir örneğin gövdesi, anahtar kelimeleri çıkarılmış hâliyle bir sınamaya
       # kopyalanıyor (#68 -> 14-agir-dolgu.kojo). Kopya ELLE tutuluyor: örnek
@@ -224,7 +224,7 @@ jobs:
       # yani görüntünün doğru olduğunu hiçbir şey tutmuyordu (adlar.py'nin
       # kendi yorumu bunu 2 ve 3 numaralı boşluk diye yazıyor; kayıt: #69).
       # Eylül 2026'da tam bu oldu: yedi tuş adı bir gün boyunca "masaüstünde
-      # de var" diye işaretli kaldı, oysa yalnız ikojo'daydılar -- ve CI
+      # de var" diye işaretli kaldı, oysa yalnız iKojo'daydılar -- ve CI
       # bütün o süre boyunca yeşil yandı.
       #
       # Buradaki sav deponun kendi deyimiyle aynı: YENİDEN ÜRETİM AĞAÇTAKİNİ
@@ -248,16 +248,16 @@ jobs:
         run: python3 araclar/tus-yazim-denetle.py kojo-kaynak
 
 
-      # ikojo, masaüstünün anlık görüntüsündeki adları KAYBETMEMELİ.
+      # iKojo, masaüstünün anlık görüntüsündeki adları KAYBETMEMELİ.
       #
       # Neden anlık görüntü: koşucuda masaüstü klonu yok. Tam karşılaştırma
       # (araclar/adlar.py --kojo <klon>) yerelde koşuyor; buradaki adım onun
       # yazdığı izlenen TSV'ye bakıyor.
       #
-      # SINIRI açık olsun: bu, ikojo'nun GERİLEMESİNİ yakalar. Masaüstünün
+      # SINIRI açık olsun: bu, iKojo'nun GERİLEMESİNİ yakalar. Masaüstünün
       # YENİ bir ad eklemesini yakalayamaz -- yeni ad anlık görüntüde de yok.
       # Onun için tam karşılaştırmayı elle koşmak gerekiyor.
-      - name: ikojo masaüstünün anlık görüntüsünün gerisine düşmemiş mi
+      - name: iKojo masaüstünün anlık görüntüsünün gerisine düşmemiş mi
         run: python3 araclar/adlar.py --anlik-goruntu
 
       # Asıl sav: yeniden üretim ağaçtakini DEĞİŞTİRMEMELİ.

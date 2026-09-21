@@ -6,9 +6,9 @@ gosteri-uret.py -- yardimKomutlar sayfasına eklenen kısa gösterilerin KAYNAĞ
 Aşağıdaki G tablosu tek kaynak. Betik iki şey üretir:
 
   --scala   src/test/scala/kojo/OrnekDerlemeDeneme.scala
-            Gösterilerin ikojo API'sine karşı DERLENDİĞİNİ sınar. Bir komut
+            Gösterilerin iKojo API'sine karşı DERLENDİĞİNİ sınar. Bir komut
             adı ya da imzası değişirse `sbt Test/compile` kırılır.
-  --html    Bölümün tam HTML'i (başlık + giriş + çizelge + "ikojo'da yok"
+  --html    Bölümün tam HTML'i (başlık + giriş + çizelge + "iKojo'da yok"
             satırı). Artık YAPIŞTIRMAK İÇİN DEĞİL: kilavuz/uret.py bu bölümü
             `<!-- gösteriler -->` işaretini görünce buradan (bolumHtml) kendisi
             üretiyor, yani `uret.py --twirl` bölümü artık silmiyor. --html
@@ -37,8 +37,8 @@ import sys
 # ad -> (kısa gösteri kodu, açıklama)
 # Hepsi kojojs-dev'e karşı derlenerek sınanıyor (OrnekDerlemeDeneme.scala üretilir).
 #
-# ikojo'da OLMADIĞI için çıkarılanlar: soluk, bulanık, eksenler, çizVeSakla,
-# merkezeTaşı, büyütXY -- bunlar masaüstü Koco'da var, ikojo'da yok.
+# iKojo'da OLMADIĞI için çıkarılanlar: soluk, bulanık, eksenler, çizVeSakla,
+# merkezeTaşı, büyütXY -- bunlar masaüstü Koco'da var, iKojo'da yok.
 # (Aşağıdaki EKSIK listesiyle aynı olmalı; sayfanın dibindeki satırı o üretiyor.)
 
 # Bölümün çevresi. Markdown'a yazılamıyor, çünkü uret.py'nin satır içi
@@ -182,7 +182,7 @@ SCALA_BASLIK = """package kojo
 
 /**
  * Sitedeki ScalaFiddle sarmalayıcısının aynısı (JSExport olmadan).
- * yardimKomutlar sayfasındaki kısa gösterilerin ikojo API'sine karşı
+ * yardimKomutlar sayfasındaki kısa gösterilerin iKojo API'sine karşı
  * DERLENDİĞİNİ sınar -- yani sayfaya bozuk örnek girmiyor.
  *
  * Üretilmiştir; kaynak: araclar/gosteri-uret.py
@@ -288,7 +288,7 @@ def bolumHtml(zrcYapan, taban=''):
                         'title="Editörde aç"><code>%s</code></a></td><td>%s</td></tr>'
                         % (taban, z, esc(ad), esc(aciklama)))
     satirlar[-1] += '</tbody></table></div>'
-    satirlar.append('<p><span class="eksik">ikojo\'da yok: %s</span> %s</p>'
+    satirlar.append('<p><span class="eksik">iKojo\'da yok: %s</span> %s</p>'
                     % (' '.join('<code>%s</code>' % esc(a) for a in EKSIK), esc(EKSIK_SON)))
     return '\n'.join(satirlar)
 

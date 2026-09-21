@@ -246,7 +246,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
    * gürültüsü içinde (yukarıdaki bir kerelik bedel yüzünden). Kazanç ikinci
    * şekilden itibaren başlıyor.
    *
-   * NEDEN HÂLÂ ÜÇGEN ÜÇGEN: dördü de ikojo'nun Graphics'e bağlı yerleri, ve
+   * NEDEN HÂLÂ ÜÇGEN ÜÇGEN: dördü de iKojo'nun Graphics'e bağlı yerleri, ve
    * bir mesh denemesi bu sırayla çarpar (hepsi #129 incelemesinde ölçüldü):
    *
    *   1. `PixiUyum.tazele` PATLAR. Bu yöntemin iki çağıranı da (satır 148 ve

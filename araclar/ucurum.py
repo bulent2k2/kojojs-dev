@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-ucurum.py -- masaüstü Koco betikleri ile ikojo'nun Türkçe API yüzeyi arasındaki
+ucurum.py -- masaüstü Koco betikleri ile iKojo'nun Türkçe API yüzeyi arasındaki
 uçurumu ölçer.
 
 Her .kojo betiğini yorum ve dizgelerden arındırıp tanımlayıcılarına ayırır, her
 adı üç kümeyle karşılaştırır:
   * masaüstü TR API'si  (kojo: lite/i18n/trInit.scala + lite/i18n/tr/*.scala)
-  * ikojo TR API'si     (kojojs-dev: kojo/TurkishTurtle.scala + kojo/tr/*.scala)
-  * ikojo İngilizce yüzeyi (kojojs-dev: kojo/*.scala, kojo/syntax, kojo/doodle)
+  * iKojo TR API'si     (kojojs-dev: kojo/TurkishTurtle.scala + kojo/tr/*.scala)
+  * iKojo İngilizce yüzeyi (kojojs-dev: kojo/*.scala, kojo/syntax, kojo/doodle)
 ve platform engellerini (Swing arayüzü, #yükle, ses, öykü, dosya...) düzenli
 ifadelerle işaretler. Sonuç: betik başına durum + eksik adların sıklık listesi.
 
@@ -17,7 +17,7 @@ YÖNTEMİ hem DÖNÜŞTÜRÜCÜ (`*` ile zincirlenip `->` ile uygulanan) olarak 
 İkojo'da yalnız yöntemi varsa ad taramada "var" görünür ama betik derlenmez.
 Eylül 2026'da tam bu oldu: `döndürMerkezli` yöntem olarak vardı, unit-circle.kojo
 ise onu dönüştürücü olarak kullanıyordu; tarama temiz diyordu. Bu yüzden tarayıcı
-artık ikojo'nun `implicit class` GÖVDESİNDEKİ tanımlarını ayrı tutuyor (onlar
+artık iKojo'nun `implicit class` GÖVDESİNDEKİ tanımlarını ayrı tutuyor (onlar
 ancak `r.ad(...)` diye çağrılabilir) ve betiklerdeki dönüştürücü biçimli
 kullanımlarla karşılaştırıyor -> yeni durum: "biçim".
 
@@ -64,10 +64,10 @@ ANAHTAR = {
 # Ad -> (düzenli ifade, açıklama)
 PLATFORM = collections.OrderedDict([
     ('yükle',        (re.compile(r'#\s*(?:yükle|include)\b'),
-                      'başka dosya içe alır; ikojo tek dosya derler')),
+                      'başka dosya içe alır; iKojo tek dosya derler')),
     ('arayüz',       (re.compile(r'\bay\.'),
                       'Swing arayüz nesneleri (ay.*)')),
-    # Mp3 çalma (howler) ve notaÇal (Web Audio) ikojo'da var; engel yalnız MIDI
+    # Mp3 çalma (howler) ve notaÇal (Web Audio) iKojo'da var; engel yalnız MIDI
     # partisyon çalma (MusicScore/playMusic, jfugue)
     ('ses',          (re.compile(r'\b(?:MusicScore|playMusic|müzikÇal|Müzik\b|Nota\b|Ritim|Enstrüman)'),
                       'MIDI partisyon (MusicScore); tarayıcıda karşılığı yok')),
@@ -137,7 +137,7 @@ def def_govdeleri(s):
     """`def ... = { ... }` gövdelerinin (başlangıç, bitiş) aralıkları.
 
     NEDEN: `tanimlar` bir dosyadaki BÜTÜN val/var/def tanımlarını topluyordu,
-    yerel olanları da. Yani bir yöntemin içindeki `val eski = ...` ikojo'nun
+    yerel olanları da. Yani bir yöntemin içindeki `val eski = ...` iKojo'nun
     "var olan adlar" kümesine giriyor ve bir betiğin gerçekten eksik olan adını
     SAKLIYORDU. Gerçekten oldu (#117 turu): Picture.fade'e `val eski` yazınca
     scala-tutorial.kojo'nun eksik listesinden `eski` düştü -- API'ye hiçbir şey
@@ -202,7 +202,7 @@ def tanimlar(yollar, rx=TANIM):
             if not ad or ad == '_' or ad.startswith('$'):
                 continue
             # Bir YÖNTEM GÖVDESİ içindeki val/var yereldir: betikten çağrılamaz,
-            # yani ikojo'nun yüzeyi değil. def/object/class/trait/type'a
+            # yani iKojo'nun yüzeyi değil. def/object/class/trait/type'a
             # dokunmuyoruz -- onlar bu depoda yerel olmuyor ve fazladan eleme
             # gerçek API adlarını gizleme riskini taşır.
             if YEREL_TANIM.match(s, m.start()) and any(a <= m.start() <= b for a, b in govdeler):
@@ -291,7 +291,7 @@ def donusturucu_kullanimlari(kod):
     sağında `*` / `->` var (zincirleniyor veya bir resme uygulanıyor):
         götür(-30, -200) * döndürMerkezli(-90, 0, 0) -> Resim.yazı(...)
     YANLIŞ-POZİTİF: çarpma (`3 * sin(x)`) de eşleşir. Zararsız, çünkü rapora
-    yalnız ikojo'da SADECE yöntem olarak tanımlı adlar giriyor.
+    yalnız iKojo'da SADECE yöntem olarak tanımlı adlar giriyor.
 
     YANLIŞ-NEGATİF: dönüştürücü bir ADA bağlanırsa iki imza da yok --
     `dez d = döndürMerkezli(45, 0, 0)` satırında ne solda `*` var ne sağda `->`;
@@ -378,7 +378,7 @@ def olc(kojo, ikojo, kok):
                        if t not in ikojo_tr and t not in ikojo_en and t not in ANAHTAR
                        and t not in GENEL and t not in kendi)
         # Adı VAR ama biçimi tutmuyor: betik dönüştürücü olarak kullanıyor,
-        # ikojo'da yalnız Resim yöntemi olarak tanımlı.
+        # iKojo'da yalnız Resim yöntemi olarak tanımlı.
         bicim = sorted(donusturucu_kullanimlari(kod) & yalnız_yöntem & masa_tr - kendi)
         # #yükle/#include satırları yorum içindedir; ham metinde ara
         engeller = [ad for ad, (rx, _) in PLATFORM.items() if rx.search(ham if ad == 'yükle' else kod)]
@@ -424,7 +424,7 @@ def olc(kojo, ikojo, kok):
 
 def yazdir(r, en_sik):
     print(f"betik: {r['betik']}   satır: {r['satır']}   "
-          f"masaüstü TR ad: {r['masaüstü_tr_ad']}   ikojo TR ad: {r['ikojo_tr_ad']}")
+          f"masaüstü TR ad: {r['masaüstü_tr_ad']}   iKojo TR ad: {r['ikojo_tr_ad']}")
     o = r['özet']
     print(f"durum: çalışır {o.get('çalışır', 0)}   eksik-ad {o.get('eksik-ad', 0)}   "
           f"biçim {o.get('biçim', 0)}   platform {o.get('platform', 0)}")
@@ -443,7 +443,7 @@ def yazdir(r, en_sik):
     for t, n, kez in r['eksik'][:en_sik]:
         print(f"  {t:40s} {n:3d}  {kez:4d}")
     if r['biçim']:
-        print("\n== biçim uyuşmazlığı: betik DÖNÜŞTÜRÜCÜ kullanıyor, ikojo'da yalnız YÖNTEM var")
+        print("\n== biçim uyuşmazlığı: betik DÖNÜŞTÜRÜCÜ kullanıyor, iKojo'da yalnız YÖNTEM var")
         print("   (çözüm: tr/resim.scala'ya `def ad(...): Dönüştürücü = kb....` ekleyin)")
         for t, n in r['biçim']:
             print(f"  {t:40s} {n:3d}")
@@ -464,7 +464,7 @@ def tsv_yaz(r, yol, kojo):
     with open(yol, 'w', encoding='utf-8') as f:
         f.write("# ucurum.py tarama sonucu (tanımlayıcı taraması, derleme değil)\n")
         # HANGİ masaüstü sürümünden üretildiği. Bu satır olmadan dosya
-        # atfedilemez hale geliyordu: `eksik` sütunundaki bir değişiklik ikojo'dan
+        # atfedilemez hale geliyordu: `eksik` sütunundaki bir değişiklik iKojo'dan
         # mı yoksa yukarı akıştaki kojo'nun büyümesinden mi geldi, ayırt
         # edilemiyordu -- ve gerçekten karıştı (bkz. #107 incelemesi, 18 satırlık
         # fark). Üretilmiş dosyanın kaynağından ayrılması bu deponun aylardır

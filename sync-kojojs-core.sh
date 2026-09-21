@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copy the KojoJS runtime sources from this repo (the source of truth) into the
+# Copy the iKojo runtime sources from this repo (the source of truth) into the
 # kojojs-core `page` module, which is a GENERATED copy -- never edit it directly.
 #
 # Override the destination with KOJOJS_CORE=/path/to/kojojs-core if the repos

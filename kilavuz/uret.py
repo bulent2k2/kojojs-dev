@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-uret.py -- kilavuz/skala/*.md ve kilavuz/komutlar/*.md kaynaklarından ikojo'nun
+uret.py -- kilavuz/skala/*.md ve kilavuz/komutlar/*.md kaynaklarından iKojo'nun
 çevrim içi kılavuz sayfalarını üretir.
 
 Çıktılar:
@@ -13,22 +13,22 @@ uret.py -- kilavuz/skala/*.md ve kilavuz/komutlar/*.md kaynaklarından ikojo'nun
       içerikteki her "@" -> "@@" (Twirl'de @ özel karakter). Bağlantılar sunucuya
       göreli (/?zrc=...), böylece hangi dağıtımda çalışıyorsa orayı açar.
   kilavuz/eksik-adlar.tsv
-      Kod örneklerinde geçen ama ikojo'da bulunmayan masaüstü adlarının sıklığı.
+      Kod örneklerinde geçen ama iKojo'da bulunmayan masaüstü adlarının sıklığı.
 
 "Editörde aç" bağlantısı: <taban>/?zrc=<gzip + base64url kaynak>. Editör bunu
 zaten çözüyor (kojojs-editor Application.scala decodeSource: base64Url ->
 GZIPInputStream). URL 2048 karakteri aşarsa bağlantı yerine "Kopyala" düğmesi.
 
-Masaüstü rozeti: bir kod örneğindeki ad masaüstü Koco API'sinde var ama ikojo'da
+Masaüstü rozeti: bir kod örneğindeki ad masaüstü Koco API'sinde var ama iKojo'da
 (kojo/TurkishTurtle.scala + kojo/tr/*.scala + İngilizce yüzey) yoksa bloğun
-altına "masaüstü" rozeti ve "ikojo'da yok: ad (→ karşılık)" satırı düşer.
+altına "masaüstü" rozeti ve "iKojo'da yok: ad (→ karşılık)" satırı düşer.
 Masaüstü ad listesi kojo klonundan okunur (--kojo, yoksa bilinen yollar) ve
 kilavuz/masaustu-adlar.txt'ye önbelleklenir; klon yoksa önbellek kullanılır.
 Markdown'daki elle işaretler (README'ye bak): kod bloğunun hemen ardındaki
   <!-- masaüstü -->                 rozeti zorla
   <!-- masaüstü: ad→karşılık, ad2 --> rozet + karşılık bilgisi ekle
-  <!-- ikojo -->                    otomatik bulguyu sustur (yanlış alarm)
-  <!-- ikojo: ad1, ad2 -->          yalnız bu adları sustur
+  <!-- iKojo -->                    otomatik bulguyu sustur (yanlış alarm)
+  <!-- iKojo: ad1, ad2 -->          yalnız bu adları sustur
 
 Harici kütüphane yok; python3 standart kütüphanesi yeter.
 """
@@ -95,7 +95,7 @@ KILAVUZLAR = collections.OrderedDict([
 GEZINTI = [('/yardim', 'Yardım'), ('/yardim/ornekler', 'Örnekler'), ('/yardim/komutlar', 'Komutlar'),
            ('/yardim/sozluk', 'Sözlük'), ('/yardim/skala', 'Skala'), ('/yardim/farklar', 'Farklar')]
 
-# ikojo'da olmayan masaüstü adı -> ikojo karşılığı (bilinenler). Boş dizge: karşılığı yok.
+# iKojo'da olmayan masaüstü adı -> iKojo karşılığı (bilinenler). Boş dizge: karşılığı yok.
 KARSILIK = {
     'tuvalAlanı': 'tuvalSınırları',
     'silipSakla': 'silVeSakla',
@@ -278,7 +278,7 @@ def bloklar(metin):
                 j += 1
             j += 1
             isaret = ''
-            if j < n and re.match(r'\s*<!--\s*(masaüstü|ikojo)', satirlar[j]):
+            if j < n and re.match(r'\s*<!--\s*(masaüstü|iKojo)', satirlar[j]):
                 isaret = satirlar[j].strip()
                 j += 1
             out.append(('kod', dil, '\n'.join(kod), isaret))
@@ -420,11 +420,11 @@ def gosteri_modulu():
 
 
 def isaret_coz(isaret):
-    """<!-- masaüstü: a→b, c --> / <!-- ikojo: a --> -> (zorla, sustur_hepsi, sustur, karşılıklar)"""
+    """<!-- masaüstü: a→b, c --> / <!-- iKojo: a --> -> (zorla, sustur_hepsi, sustur, karşılıklar)"""
     zorla, sustur_hepsi, sustur, karsilik = False, False, set(), {}
     if not isaret:
         return zorla, sustur_hepsi, sustur, karsilik
-    m = re.match(r'<!--\s*(masaüstü|ikojo)\s*:?\s*(.*?)\s*-->', isaret)
+    m = re.match(r'<!--\s*(masaüstü|iKojo)\s*:?\s*(.*?)\s*-->', isaret)
     tur, govde = m.group(1), m.group(2)
     adlar = [a.strip() for a in govde.split(',') if a.strip()] if govde else []
     if tur == 'masaüstü':
@@ -456,7 +456,7 @@ def rozet_html(eksik, karsilik):
         else:
             parcalar.append('<code>%s</code>' % html.escape(ad))
     return ('<span class="rozet" title="Bu örnekteki bazı adlar yalnız masaüstü Koco\'da var">masaüstü</span>'
-            '<span class="eksik">ikojo\'da yok: %s</span>' % ', '.join(parcalar))
+            '<span class="eksik">iKojo\'da yok: %s</span>' % ', '.join(parcalar))
 
 
 def kod_blogu(kod, isaret, denetci, bolum, taban):
@@ -485,7 +485,7 @@ def hucre_html(h, calistir, denetci, bolum, taban, baglam):
         kod = m.group(1)
         eksik = denetci.eksikler(kod, set(), bolum)
         url = '%s/?zrc=%s' % (taban, zrc(kod))
-        rozet = ' <span class="rozet mini" title="ikojo\'da yok: %s">masaüstü</span>' % html.escape(', '.join(eksik)) if eksik else ''
+        rozet = ' <span class="rozet mini" title="iKojo\'da yok: %s">masaüstü</span>' % html.escape(', '.join(eksik)) if eksik else ''
         return '<a class="calistir" href="%s" target="_blank" rel="noopener" title="Editörde aç"><code>%s</code></a>%s' % (
             url, html.escape(kod), rozet)
     return satir_ici(h, baglam)
@@ -781,11 +781,11 @@ def main():
             print('   %2d. %s' % (i, b))
     rapor = os.path.join(BURASI, 'eksik-adlar.tsv')
     with open(rapor, 'w', encoding='utf-8') as f:
-        f.write('# uret.py: kılavuz örneklerinde geçen, ikojo\'da bulunmayan masaüstü adları\n')
-        f.write('ad\törnek\tbölümler\tikojo karşılığı\n')
+        f.write('# uret.py: kılavuz örneklerinde geçen, iKojo\'da bulunmayan masaüstü adları\n')
+        f.write('ad\törnek\tbölümler\tiKojo karşılığı\n')
         for ad, n in denetci.sayac.most_common():
             f.write('%s\t%d\t%s\t%s\n' % (ad, n, ' '.join(sorted(denetci.nerede[ad])), KARSILIK.get(ad, '')))
-    print('ikojo\'da olmayan ad: %d (%d örnekte); rapor: %s' % (
+    print('iKojo\'da olmayan ad: %d (%d örnekte); rapor: %s' % (
         len(denetci.sayac), sum(denetci.sayac.values()), os.path.relpath(rapor)))
     for ad, n in denetci.sayac.most_common(12):
         print('   %-36s %3d' % (ad, n))

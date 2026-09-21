@@ -1,6 +1,6 @@
 // AĞIR DOLGU: kendini kesen şekiller neden yavaşlar?
 //
-// Kendini kesen bir yolun içini boyamak için ikojo şekli üçgenlere ayırıyor
+// Kendini kesen bir yolun içini boyamak için iKojo şekli üçgenlere ayırıyor
 // (NON_ZERO sarım kuralı, libtess kütüphanesi). Masaüstü Kojo'nun Java ile
 // yaptığı şeyin aynısı -- ama bu hesap nokta sayısıyla KARESELE YAKIN
 // büyüyor. Ölçüldü (bkz. kojojs-dev#68):
@@ -61,7 +61,7 @@
 // kesmemeleri. Karşılaştırmayı nokta sayısı üstünden değil kesişme üstünden
 // kurduk, çünkü "kaç noktada yavaşlar" makineye göre değişiyor ama "kesişme
 // pahalıdır" her makinede aynı. İkincisini çizerken çıktı panelinde bir not
-// göreceksin -- dolgu bir karelik bütçeyi aştığında ikojo bunu söylüyor,
+// göreceksin -- dolgu bir karelik bütçeyi aştığında iKojo bunu söylüyor,
 // sessizce yavaşlamıyor.
 
 sil()

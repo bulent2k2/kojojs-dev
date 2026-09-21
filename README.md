@@ -1,7 +1,7 @@
 # KojoJS-dev
-This is the development repository for the core of KojoJS.
+This is the development repository for the core of iKojo.
 
-The main goal for the repo - is to enables faster (than the full KojoJS webapp) turnaround for coding/testing/debugging/troubleshooting.
+The main goal for the repo - is to enables faster (than the full iKojo webapp) turnaround for coding/testing/debugging/troubleshooting.
 
 Prerequisites: 
 * Install `sbt`, https://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Linux.html

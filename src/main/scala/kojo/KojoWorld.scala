@@ -906,7 +906,7 @@ class KojoWorldImpl extends KojoWorld {
   //
   // Bilinen ikinci ayrışma: masaüstünde sil() artalanı varsayılana döndürüyor
   // (clearHelper -> setBackgroundWrapper(backgroundColor), currentBackgroundRect
-  // siliniyor). ikojo'da erasePictures artalana dokunmuyor, yani sil()'den
+  // siliniyor). iKojo'da erasePictures artalana dokunmuyor, yani sil()'den
   // sonra gradyan duruyor. Bu ayrışma bu değişiklikten önce de vardı (eski
   // renderer.backgroundColor da sil()'i atlatıyordu); gradyan artık gerçek
   // olduğu için daha görünür. Ayrı bir iş.

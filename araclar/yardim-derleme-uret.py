@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-yardim-derleme-uret.py -- sözlük panellerindeki örneklerin ikojo'da da
+yardim-derleme-uret.py -- sözlük panellerindeki örneklerin iKojo'da da
 DERLENDİĞİNİ sınayan dosyayı üretir.
 
 Neden gerekli: sozluk/yardim.json masaüstü Koco'dan (help.scala) geliyor ve
 oradaki testlerle doğrulanıyor -- ama masaüstü API'sine karşı. Sözlük ise
-ikojo sitesinde sunuluyor ve her örneğin altında "Örnek sınanıyor" yazıyor.
+iKojo sitesinde sunuluyor ve her örneğin altında "Örnek sınanıyor" yazıyor.
 İki API %100 örtüşmediği sürece bu söz burada da sınanmalı; yoksa sözlük
 sessizce yalan söyler. (Ölçüldü: bu test ilk koşuşunda 3 örneği yakaladı --
 Eşlek.anahtarlar/değerler'in Yinelenebilir sarmalayıcısı ve Yineleyici
@@ -31,9 +31,9 @@ ANAHTAR = [('dez ', 'val '), ('den ', 'var '), ('tanım ', 'def '), ('eğer ', '
 BASLIK = '''package kojo
 
 /**
- * sozluk/yardim.json'daki yöntem örneklerinin ikojo API'sine karşı
+ * sozluk/yardim.json'daki yöntem örneklerinin iKojo API'sine karşı
  * DERLENDİĞİNİ sınar. Sözlük her örneğin altına "Örnek sınanıyor" yazıyor;
- * bu dosya o sözü ikojo tarafında da tutuyor.
+ * bu dosya o sözü iKojo tarafında da tutuyor.
  *
  * Üretilmiştir; kaynak: araclar/yardim-derleme-uret.py
  * Anahtar sözcükler burada İngilizce (bkz. o betiğin başlığı).

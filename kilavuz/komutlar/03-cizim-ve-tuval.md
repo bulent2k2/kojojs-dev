@@ -109,11 +109,11 @@ Masaüstü düzenleyicisinde diğer renkleri görmek istersen boş bir satıra `
 | `tuvaleYaz("merhaba dünya!")` | Yazı komutunun uzun adı. Oradaki örneğe de bak | `yazı(Dizi(1, 2, 3).yazıya)` |
 | `tuvaliKaydır(100, 50)` | Tuvali kaydırır | `üçgen(); tuvaliKaydır(-100, -50)` |
 | `tuvaliDöndür(45)` | Tuvali döndürür | `üçgen(); tuvaliDöndür(-45)` |
-| `yaklaş(3.0)` | Tuvale verilen oranda yaklaşarak çizimleri daha büyük göster. ikojo'da: `yaklaşXY(3, 3, 0, 0)` | `sil(); üçgen(); yaklaş(2, 100, 50)` `yaklaş(0.4)` |
+| `yaklaş(3.0)` | Tuvale verilen oranda yaklaşarak çizimleri daha büyük göster. iKojo'da: `yaklaşXY(3, 3, 0, 0)` | `sil(); üçgen(); yaklaş(2, 100, 50)` `yaklaş(0.4)` |
 | `yaklaş(2.0, 200, 50)` | x=200, y=50 konumunu merkez alarak yaklaş ya da uzaklaş | `yaklaşmayıSil` `yaklaş(1.0, 0, 0)` |
 | `yaklaşmayaİzinVerme()` | Fareyle yaklaşıp uzaklaşmayı kapatır | |
 | `yaklaşmayıSil()` | Yaklaşmayı sıfırlar | |
-| `yazı(Aralık(1, 200, 7).yazıya)` | tuvaleYaz komutunun kısa adı. Durduğu konumun hemen sağına verilen yazıyı yazar. Masaüstünde girdi yazı değilse yazıya çevrilir; ikojo'da `.yazıya` gerekir. | (aşağıdaki yazıyüzü örnekleri) |
+| `yazı(Aralık(1, 200, 7).yazıya)` | tuvaleYaz komutunun kısa adı. Durduğu konumun hemen sağına verilen yazıyı yazar. Masaüstünde girdi yazı değilse yazıya çevrilir; iKojo'da `.yazıya` gerekir. | (aşağıdaki yazıyüzü örnekleri) |
 | `yazıBoyunuKur(24)` | Başlangıçta 18 boyunda yazar. | (aşağıdaki yazı boyu örneği) |
 | `yazıyüzleri` | Sistemdeki yazıyüzlerinin listesi | |
 | `yazıYüzünüKur(yazıyüzü("Times New Roman", 36))` | Kaplumbağanın yazısının görünüşünü değiştirir | |
@@ -229,7 +229,7 @@ dez süre = yuvarla(
 satıryaz(s"Çizim $süre saniye sürdü")
 ```
 
-ikojo'da `buAn` yerine `buSaniye` var (saniye cinsinden; `/ 1000.0` bölmesini kaldır).
+iKojo'da `buAn` yerine `buSaniye` var (saniye cinsinden; `/ 1000.0` bölmesini kaldır).
 
 ## Kaplumbağanın görünüşünü değiştiren komutlar
 

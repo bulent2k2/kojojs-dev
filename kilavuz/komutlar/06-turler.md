@@ -137,7 +137,7 @@ satıryaz(ey)
 | `Üçgen` | `Triangle2D` | io.github.jdiemke.triangulation'dan |
 | `Yöney2B` | `Vector2D` | net.kogics.kojo.util'den |
 | `Resim` | `Picture` | |
-| `BuAn` | `Now` | Now adında bir tür yok, ama BuAn adında bir durum sınıfımız yani türümüz var: `BuAn().yazıya`. ikojo'da `buSaniye` |
+| `BuAn` | `Now` | Now adında bir tür yok, ama BuAn adında bir durum sınıfımız yani türümüz var: `BuAn().yazıya`. iKojo'da `buSaniye` |
 | `Takvim` | `Calendar` | java.util |
 | `Tarih` | `Date` | java.util |
 | `SaatDilimi` | `TimeZone` | java.util |
@@ -152,4 +152,4 @@ Sayılar(0, 1, 2, 3)
     .herbiriİçin(yaz)
 ```
 
-Bu tablolardaki türlerin hangilerinin ikojo'da bulunduğunu görmek için [Koco Sözlüğü](/yardim/sozluk)'ne bak; tarayıcıda Java kütüphaneleri (java.awt, java.util) olmadığı için o türlerin bir kısmı yalnız masaüstünde var.
+Bu tablolardaki türlerin hangilerinin iKojo'da bulunduğunu görmek için [Koco Sözlüğü](/yardim/sozluk)'ne bak; tarayıcıda Java kütüphaneleri (java.awt, java.util) olmadığı için o türlerin bir kısmı yalnız masaüstünde var.

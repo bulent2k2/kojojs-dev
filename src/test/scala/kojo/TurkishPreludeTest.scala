@@ -159,7 +159,7 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
     val Yöney2B(hx, hy) = Yöney2B(7, 8)
     hx should be(7.0); hy should be(8.0)
 
-    // sekme: KojoJS'in gerçek imzalarıyla uyumlu mu
+    // sekme: iKojo'nun gerçek imzalarıyla uyumlu mu
     val top = Resim.daire(10)
     val yeniHız: Yöney2B = sahnedenSek(top, Yöney2B(2, 3))
     val yeniHız2: Yöney2B = resimdenSek(top, Yöney2B(2, 3), sahneKenarı)
@@ -374,7 +374,7 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
    * ÇIKARILMIŞ hâliyle (`dez` -> `val`, `tanım` -> `def`).
    *
    * NEDEN BURADA: örnekleri gerçek derleyiciye gönderen yol
-   * `ornekler/ornekleri-dogrula.sh` ve o ikojo sunucusuna ağ üstünden gidiyor;
+   * `ornekler/ornekleri-dogrula.sh` ve o iKojo sunucusuna ağ üstünden gidiyor;
    * CI ve geliştirme konteyneri oraya çıkamayabiliyor. Anahtar kelimeler
    * yamalı derleyiciyi ister, ama örneğin RİSKLİ yanı onlar değil -- kitaplık
    * adları. Bu sav tam onu tutuyor: `sinüs`/`radyana` gerçekten var mı,
