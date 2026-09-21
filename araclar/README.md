@@ -186,10 +186,10 @@ CI'ın klonu olmadığı için ikinci kip anlık görüntüye bakıyor
 | durum | anlamı | CI zorunlu tutuyor mu |
 |---|---|---|
 | `var` | masaüstünde ve iKojo'da | evet |
-| `yalnız-ikojo` | iKojo'nun kendi seçtiği ad (`koyuMor`, `saydam`…) | evet |
+| `yalnız-iKojo` | iKojo'nun kendi seçtiği ad (`koyuMor`, `saydam`…) | evet |
 | `boşluk` | masaüstünde var, iKojo'da yok | hayır — kapatmak ayrı karar |
 
-`yalnız-ikojo` sonradan eklendi: anlık görüntü başta yalnız masaüstü adlarını
+`yalnız-iKojo` sonradan eklendi: anlık görüntü başta yalnız masaüstü adlarını
 yazıyordu, dolayısıyla iKojo'nun masaüstünden **ayrıldığı** noktalarda seçtiği
 adların hiç gözcüsü yoktu (#60 incelemesi ölçtü). Bugünkü boşluklar işi kırmızı
 yakmaz ama izlenen bir dosyada göz önünde durur.
