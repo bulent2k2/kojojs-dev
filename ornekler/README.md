@@ -77,22 +77,23 @@ libtess **soğuk** koşuyor. Gerçek bir tarayıcıda 250×7 ölçeğinde üç �
 
 | nokta | süre |
 |---|---|
-| 146 | 44 ms |
-| 193 | 25 ms |
-| 236 | 27 ms |
+| 251 | 35 ms |
 
-**Bu üç sayı düzeltme öncesi koddan** (kojojs-dev#130): o sırada not her
-*yayını* ayrı ayrı bildiriyordu, yani her sayı şeklin tek bir yarım yayınının
-süresi. Düzeltmeden sonra not şekil başına **toplamı** yazıyor — aynı örneği
-bugün koşturan kişi bu üçünü değil, daha büyük tek bir sayı görecek. Üçü burada
-duruyor çünkü aşağıdaki iki dersi hâlâ veriyorlar; dağıtımdan sonra yeniden
-ölçülüp değiştirilmeli.
+Tablodakinin dört katından fazla. Sayı tam **251**, yani betiğin kendi
+geometrisi: kalem inince bir başlangıç noktası konuyor, sonra 250 kenar
+ekleniyor. (Düzeltmeden önce bu örnek "146 nokta" gibi betikte karşılığı olmayan
+sayılar yazıyordu — dolgu şekil bitmeden de yayınlanıyor ve not her yayını ayrı
+ayrı bildiriyordu.)
 
-Yani tablodakinin birkaç katı. Nokta sayıları 250'den küçük, çünkü dolgu şekil
-bitmeden de yayınlanıyor; ve sıralama nokta sayısını **izlemiyor** (146 nokta
-44 ms, 236 nokta 27 ms) — bu ölçekte koşudan koşuya değişim baskın. Tabloyu
-**büyük ölçek farkları** için okuyun (250 ile 4000 arasındaki fark gerçek),
-yakın sayıları karşılaştırmak ya da mutlak eşik çıkarmak için değil.
+Soğukla sıcak arasındaki fark da aynı donanımda ölçüldü: bu örnek **tek atışlık**
+olduğu için 35 ms, `15-mesh-olcumu.kojo`'nun döngüsünde aynı şekil **≤16.7 ms**
+(muhtemelen ~5 ms) — yaklaşık yedi kat. Tablonun "iyimser" olmasının sebebi bu.
+
+Tabloyu **büyük ölçek farkları** için okuyun (250 ile 4000 arasındaki fark
+gerçek), yakın sayıları karşılaştırmak ya da mutlak eşik çıkarmak için değil.
+Düzeltme öncesi alınan üç ölçüm de bunu söylüyordu: sıralama nokta sayısını
+**izlemiyordu** (146 nokta 44 ms ama 236 nokta 27 ms), çünkü o sayılar tek tek
+yarım yayınlardı ve bu ölçekte koşudan koşuya değişim baskın.
 
 Kesişmeyen bir yolda aynı nokta sayısı bedavaya yakın: 4000 noktalı bir çemberin
 dolgusu 6 ms'den az. Yani pahalı olan nokta sayısı değil, **kesişmeyle birlikte**

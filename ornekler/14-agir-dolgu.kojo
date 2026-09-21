@@ -13,26 +13,29 @@
 // DİKKAT, BU TABLO İYİMSER: sayılar aynı girdiyle tekrarlanan çağrıların
 // ortancası (JIT ısınmış) ve yazılımsal bir çizici üstünde alındı. Tek
 // atışlık gerçek bir betikte libtess SOĞUK koşuyor. Gerçek bir tarayıcıda
-// 250x7 ölçeğinde üç ölçüm (kojojs-dev#130):
+// 250x7 ölçeğinde ölçüm (kojojs-dev#130, düzeltme sonrası):
 //
-//     146 nokta -> 44 ms      193 nokta -> 25 ms      236 nokta -> 27 ms
+//     251 nokta -> 35 ms
 //
-// BU ÜÇ SAYI DÜZELTME ÖNCESİ KODDAN (#130 incelemesi §3): o sırada not her
-// YAYINI ayrı ayrı bildiriyordu, yani her sayı şeklin TEK BİR yarım
-// yayınının süresi. Düzeltmeden sonra not şekil başına TOPLAMI yazıyor --
-// aynı örneği bugün koşturan kişi bu üçünü değil, daha büyük TEK bir sayı
-// görecek. Üçü burada duruyor çünkü aşağıdaki iki dersi hâlâ veriyorlar;
-// dağıtımdan sonra yeniden ölçülüp değiştirilmeli.
+// Yani tablodakinin dört katından fazla. Sayı tam 251 çünkü kalem inince bir
+// başlangıç noktası konuyor, sonra 250 kenar ekleniyor -- betiğin kendi
+// geometrisi. (Bu örnek eskiden "146 nokta" gibi betikte karşılığı olmayan
+// sayılar yazıyordu: dolgu şekil bitmeden de yayınlanıyor ve not her yayını
+// ayrı ayrı bildiriyordu. Artık not ŞEKİL BAŞINA toplamı veriyor.)
 //
-// Yani tablodakinin birkaç katı. İki şey daha var, ikisi de öğretici:
-//   - Bu nokta sayıları 250'den KÜÇÜK, çünkü dolgu şekil bitmeden de
-//     yayınlanıyor (kaplumbağa komutları kuyrukta işleniyor).
-//   - Sıralama nokta sayısını İZLEMİYOR: 146 nokta 44 ms, 236 nokta 27 ms.
-//     Bu ölçekte koşudan koşuya değişim, nokta sayısının etkisini bastırıyor.
+// SOĞUK / SICAK, ikisi de aynı donanımda ölçüldü:
+//
+//     soğuk (bu örnek, tek atışlık)          35 ms
+//     sıcak (15-mesh-olcumu.kojo döngüsü)    <= 16.7 ms, muhtemelen ~5 ms
+//
+// Yaklaşık yedi kat. Üstteki tablonun "iyimser" olmasının sebebi tam bu.
 //
 // Buradan çıkan kural: tabloyu BÜYÜK ÖLÇEK farkları için oku (250 ile 4000
 // arasındaki fark gerçek), yakın sayıları karşılaştırmak ya da mutlak bir
-// eşik çıkarmak için değil.
+// eşik çıkarmak için değil. Düzeltme öncesinde alınmış üç ölçüm de aynı
+// şeyi söylüyordu ve sıralamayı İZLEMİYORDU (146 nokta 44 ms ama 236 nokta
+// 27 ms): o sayılar tek tek yarım yayınlardı, yani bu ölçekte koşudan
+// koşuya değişim nokta sayısının etkisini bastırıyor.
 //
 // Kesişmeyen bir yolda aynı nokta sayısı bedavaya yakın: 4000 noktalı bir
 // çemberin dolgusu 6 ms'den az. Yani pahalı olan nokta sayısı DEĞİL,
@@ -72,6 +75,16 @@ gül(250, 1, 140, mavi)
 kalemiKaldır(); noktayaGit(170, 0); kalemiİndir()
 gül(250, 7, 140, kırmızı)
 
+// ŞEKLİ TAMAMLA -- bu satır olmadan örnek SESSİZ kalıyordu.
+//
+// Bir dolgu şeklini tamamlayan tek şey kalem kalkık taşınma ya da boya
+// değişimi. İkisi de gelmezse şekil "bitmemiş" sayılıyor, ve bitmemiş bir
+// şekil ancak ERKEN EŞİĞİ (3 x bütçe = 50.1 ms) aşarsa not düşürüyor.
+// Yukarıdaki gül gerçek donanımda 35 ms (ölçüldü, 251 nokta) -- yani
+// eşiğin altında, ve örneğin bütün amacı olan not hiç çıkmıyordu.
+// Ölçülmeden görülmedi, çünkü bu yalnız gerçek tarayıcıda oluyor.
+kalemiKaldır(); noktayaGit(0, -220)
+
 gizle()
 
 // DENEYECEKLERİN:
@@ -87,6 +100,10 @@ gizle()
 //    beklersin ama TEK not görürsün -- ikinci not, iki not arasındaki en az
 //    süreye (2 saniye) takılır. Uyarı bilerek böyle: tekrar eden uyarı,
 //    yanlış uyarı kadar hızlı öğretir ki uyarılar okunmasın.
+//
+//    DİKKAT: bu deney yukarıdaki "şekli tamamla" satırına BAĞLI. O satır
+//    olmasaydı ikinci not zaten düşmezdi -- ama zaman kapısı yüzünden değil,
+//    ikinci gül hiç tamamlanmadığı için. Aynı gözlem, yanlış sebep.
 //
 // 3. boyamaRenginiKur satırını sil. Dolgu hiç hesaplanmıyor, yalnız kalem izi
 //    kalıyor -- şekil hâlâ görünür, çizim anında biter.
