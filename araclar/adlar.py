@@ -153,7 +153,7 @@ def anlıkGörüntüyeGöre():
     İkincisi baştan kapsam dışıydı: anlık görüntü yalnız masaüstü adlarını
     yazıyordu, dolayısıyla iKojo'nun kendi seçtiği adların hiç gözcüsü yoktu --
     yani iKojo'nun masaüstünden AYRILDIĞI noktalar korumasızdı (inceleme ölçtü,
-    #60). Artık üçüncü bir durum var: "yalnız-ikojo".
+    #60). Artık üçüncü bir durum var: "yalnız-iKojo".
 
     Yakalayamadığı, ÜÇ ayrı yön (inceleme üçünü de ölçtü):
 
@@ -185,7 +185,7 @@ def anlıkGörüntüyeGöre():
         var = üyeler(os.path.join(IKOJO, ikYol), kapsayıcı)
         bek = beklenen.get(kapsayıcı, {})
         ortak = bek.get('var', set())
-        özgü = bek.get('yalnız-ikojo', set())
+        özgü = bek.get('yalnız-iKojo', set())
         boşluk = bek.get('boşluk', set())
         eksik = sorted((ortak | özgü) - var)
         if eksik:
@@ -221,7 +221,7 @@ def yazdır(sonuç):
     birleşti, o pencerede tuşlar.backSpace iKojo'da vardı masaüstünde yoktu,
     ve hiçbir denetim kızarmadı.
 
-    Ama körü körüne saymıyor: 'yalnız-ikojo' MEŞRU bir durum (koyuMor, saydam
+    Ama körü körüne saymıyor: 'yalnız-iKojo' MEŞRU bir durum (koyuMor, saydam
     -- iKojo'nun bilerek kendi seçtiği adlar). Anlık görüntüde öyle işaretli
     olanlar muaf; işaretsiz bir fazlalık hata.
     """
@@ -236,12 +236,12 @@ def yazdır(sonuç):
             print('    ' + '  '.join('%-20s' % a for a in eksik[i:i + 6]))
         fazla = sorted(ik - masa)
         if fazla:
-            özgü = beklenen.get(kapsayıcı, {}).get('yalnız-ikojo', set())
+            özgü = beklenen.get(kapsayıcı, {}).get('yalnız-iKojo', set())
             beklenmeyen = sorted(set(fazla) - özgü)
             print('    (iKojo\'da fazla: %s)' % ', '.join(fazla))
             if beklenmeyen:
                 top += len(beklenmeyen)
-                print('    ^ bunlar anlık görüntüde yalnız-ikojo diye işaretli DEĞİL: %s'
+                print('    ^ bunlar anlık görüntüde yalnız-iKojo diye işaretli DEĞİL: %s'
                       % ', '.join(beklenmeyen))
     print('\ntoplam eksik: %d' % top)
     return top
@@ -253,8 +253,8 @@ def tsvYaz(sonuç):
     Üçüncü sütun BUGÜNKÜ gerçeği yazıyor:
       var          -- masaüstünde ve iKojo'da
       boşluk       -- masaüstünde var, iKojo'da yok
-      yalnız-ikojo -- iKojo'nun kendi seçtiği ad (koyuMor, saydam...)
-    CI 'var' ve 'yalnız-ikojo' satırlarını zorunlu tutuyor; 'boşluk' olanlar
+      yalnız-iKojo -- iKojo'nun kendi seçtiği ad (koyuMor, saydam...)
+    CI 'var' ve 'yalnız-iKojo' satırlarını zorunlu tutuyor; 'boşluk' olanlar
     işi kırmızı yakmıyor ama İZLENEN bir dosyada, göz önünde duruyorlar.
     """
     with io.open(ANLIK, 'w', encoding='utf-8') as d:
@@ -263,13 +263,13 @@ def tsvYaz(sonuç):
         d.write('# sütunlar: kapsayıcı, ad, durum\n')
         d.write('#   var          masaüstünde ve iKojo\'da\n')
         d.write('#   boşluk       masaüstünde var, iKojo\'da YOK\n')
-        d.write('#   yalnız-ikojo iKojo\'nun kendi seçtiği ad (masaüstünde yok)\n')
-        d.write('# CI (adlar.py --anlik-goruntu) "var" ve "yalnız-ikojo" satırlarını\n')
+        d.write('#   yalnız-iKojo iKojo\'nun kendi seçtiği ad (masaüstünde yok)\n')
+        d.write('# CI (adlar.py --anlik-goruntu) "var" ve "yalnız-iKojo" satırlarını\n')
         d.write('# zorunlu tutar: iKojo elindeki bir adı kaybederse kırmızı yanar.\n')
         d.write('# "boşluk" olanları kapatmak ayrı bir karar; burada görünür kalsınlar\n')
         d.write('# diye yazılıyorlar.\n')
         for kapsayıcı, ne, masa, ik in sonuç:
-            d.write('#\n# %s (%s): %d ortak, %d boşluk, %d yalnız-ikojo\n'
+            d.write('#\n# %s (%s): %d ortak, %d boşluk, %d yalnız-iKojo\n'
                     % (kapsayıcı, ne, len(masa & ik), len(masa - ik), len(ik - masa)))
             for ad in sorted(masa | ik):
                 if ad in masa and ad in ik:
@@ -277,7 +277,7 @@ def tsvYaz(sonuç):
                 elif ad in masa:
                     durum = 'boşluk'
                 else:
-                    durum = 'yalnız-ikojo'
+                    durum = 'yalnız-iKojo'
                 d.write('%s\t%s\t%s\n' % (kapsayıcı, ad, durum))
     print('anlık görüntü yazıldı: %s' % ANLIK)
 
