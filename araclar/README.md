@@ -224,6 +224,22 @@ API'sine karşı DERLENEREK sınanıyor: bir komut adı ya da imzası değişirs
 Sıra: gösteriyi G'ye ekle -> --scala + sbt Test/compile -> --html ile satırı
 al, sayfaya yapıştır -> ornek-dizini.py ile sözlüğü tazele.
 
+## `ornek-dizin-denetle.py` — `ornekler/` dizini README tablosuyla aynı mı
+
+Örnekler sayfasını üreten `kilavuz/ornekler.py` listeyi **dizinden değil**,
+`ornekler/README.md`'deki tablodan okuyor (`ikojo_ornekleri`). Yani tabloya
+yazılmayan bir örnek sayfada **hiç görünmez** — ve üreteci koşturmak bunu
+göstermez, çünkü üretim tabloyla zaten tutarlı olur.
+
+    araclar/ornek-dizin-denetle.py     # ayrışma varsa 1 döner
+
+CI'daki "örnekler sayfası güncel mi" adımı ÖTEKİ yarıyı tutuyor: tablo
+değişip sayfa tazelenmeyince konuşuyor (#138'de tam bu olmuştu — 14 ve 15
+tabloda vardı, sayfada yoktu). Bu denetim ise tablo ile dizinin ayrışmasını
+görüyor. İkisi birlikte sınıfın tamamını kapsıyor.
+
+Klon istemiyor, saniyenin altında koşuyor — her PR'da koşabiliyor.
+
 ## `ornek-kopya-denetle.py` — örnek gövdelerinin sınamalardaki kopyaları taze mi
 
 Örnekleri **gerçek derleyiciye** gönderen yol `ornekler/ornekleri-dogrula.sh`
