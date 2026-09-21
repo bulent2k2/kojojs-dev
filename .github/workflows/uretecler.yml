@@ -202,13 +202,16 @@ jobs:
         run: python3 araclar/ornek-kopya-denetle.py
 
       # Örnekler sayfası listeyi DİZİNDEN DEĞİL, ornekler/README.md tablosundan
-      # okuyor (ornekler.py: ikojo_ornekleri). Tabloya yazılmayan bir örnek
-      # sayfada hiç görünmez -- ve üreteci koşturmak bunu göstermez, çünkü
-      # üretim tabloyla zaten tutarlı olur. Aşağıdaki "örnekler sayfası güncel
-      # mi" adımı ÖTEKİ yarıyı tutuyor (tablo değişti, sayfa tazelenmedi).
-      # Bu adım klon istemiyor, o yüzden HER PR'da koşuyor: unutulması daha
-      # olası olan "dosyayı ekledim, tabloya yazmadım" burada yakalanır.
-      - name: ornekler/ dizini README tablosuyla aynı mı
+      # okuyor (ornekler.py: ikojo_ornekleri), başlıkları da masaüstü klonundan.
+      # Sayfanın tamamını klonsuz yeniden üretmek bu yüzden mümkün değil -- ama
+      # dört ayrışma klonsuz görülebiliyor, dördü de sessiz:
+      #   dosya var/tabloda yok, tabloda var/dosya yok,
+      #   tabloda var/SAYFADA yok, tabloda var/başlığı yok.
+      # Üçüncüsü #138'in ta kendisi (14 ve 15 aylarca sayfada yoktu) ve bu adım
+      # sayesinde artık BİRLEŞMEDEN ÖNCE görünüyor; aşağıdaki tam yeniden üretim
+      # yalnız master'da koştuğu için o tek başına geç kalıyordu.
+      # Klon istemiyor -> HER PR'da koşuyor.
+      - name: örnekler dizini, tablosu, sayfası ve başlıkları tutuyor mu
         run: python3 araclar/ornek-dizin-denetle.py
 
       # dict.scala'daki bir terimin sözlük sayfasına hiç girmemesi, elle
@@ -268,6 +271,8 @@ jobs:
       # elle koşturulunca görüldü (#138). Üstelik eksikliğin kendisi de sessizdi --
       # sayfa açılıyor, yalnız iki satır yok.
       #
+      # Yukarıdaki klonsuz adım EKSİK satırı görüyor; burası onun göremediklerini
+      # tutuyor: bayat açıklama, değişmiş başlık, silinen örneğin sayfada kalması.
       # Sav deponun kendi deyimiyle aynı: YENİDEN ÜRETİM AĞAÇTAKİNİ DEĞİŞTİRMEMELİ.
       # Yukarıdaki kojo klonu yeniden kullanılıyor; adlar.py anlık görüntüsüyle
       # aynı kalıp, aynı sebeple YALNIZ master'da (masaüstü başka depo: orada bir
