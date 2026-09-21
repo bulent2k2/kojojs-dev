@@ -77,9 +77,11 @@ libtess **soğuk** koşuyor. Gerçek bir tarayıcıda 250×7 ölçeğinde üç �
 
 | nokta | süre |
 |---|---|
-| 251 | 35 ms |
+| 251 | 22 / 32 / 35 ms (üç koşu) |
 
-Tablodakinin dört katından fazla. Sayı tam **251**, yani betiğin kendi
+Tablodakinin üç-dört katı. **Üç sayının yayılmasına dikkat**: 22 ile 35 arası,
+yani %45 — üçü de aynı makinede, aynı şekil, tamamlanmış hâlde. Fark işin
+kendisinden değil koşudan koşuya değişimden geliyor. Sayı tam **251**, yani betiğin kendi
 geometrisi: kalem inince bir başlangıç noktası konuyor, sonra 250 kenar
 ekleniyor. (Düzeltmeden önce bu örnek "146 nokta" gibi betikte karşılığı olmayan
 sayılar yazıyordu — dolgu şekil bitmeden de yayınlanıyor ve not her yayını ayrı

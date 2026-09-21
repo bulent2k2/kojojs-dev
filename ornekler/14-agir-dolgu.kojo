@@ -15,11 +15,16 @@
 // atışlık gerçek bir betikte libtess SOĞUK koşuyor. Gerçek bir tarayıcıda
 // 250x7 ölçeğinde ölçüm (kojojs-dev#130, düzeltme sonrası):
 //
-//     251 nokta -> 35 ms
+//     251 nokta -> 22 / 32 / 35 ms    (üç koşu)
 //
-// Yani tablodakinin dört katından fazla. Sayı tam 251 çünkü kalem inince bir
+// Yani tablodakinin üç-dört katı. Sayı tam 251 çünkü kalem inince bir
 // başlangıç noktası konuyor, sonra 250 kenar ekleniyor -- betiğin kendi
-// geometrisi. (Bu örnek eskiden "146 nokta" gibi betikte karşılığı olmayan
+// geometrisi.
+//
+// ÜÇ SAYININ YAYILMASINA BAK: 22 ile 35 arasında, yani %45. Üçü de aynı
+// makinede, aynı şekil, tamamlanmış hâlde ölçüldü -- yani bu fark işin
+// kendisinden değil, koşudan koşuya değişimden geliyor. Buradan çıkan kural
+// aşağıda; tek bir koşunun sayısına dayanıp "şu kadar hızlandı" demeyin. (Bu örnek eskiden "146 nokta" gibi betikte karşılığı olmayan
 // sayılar yazıyordu: dolgu şekil bitmeden de yayınlanıyor ve not her yayını
 // ayrı ayrı bildiriyordu. Artık not ŞEKİL BAŞINA toplamı veriyor.)
 //
@@ -102,6 +107,21 @@ gizle()
 //
 // 1. İkinci çağrıdaki 250'yi 1000 yap. Nokta dört katına çıkıyor ama süre
 //    çok daha fazla artıyor -- karesele yakın büyüme bu demek.
+//
+//    AMA İKİ SAYIYI BÖLME. Notun iki biçimi var ve 1000'de ÖTEKİ biçimi
+//    görürsün:
+//
+//      250'de    "... hesaplamak 32 ms SÜRDÜ (251 nokta)"
+//      1000'de   "... ŞU ANA DEK 53 ms aldı (ŞİMDİLİK 643 nokta;
+//                  şekil büyüdükçe artacak)"
+//
+//    İkincisi şeklin TOPLAMI değil: şekil daha 643 noktadayken, erken eşiği
+//    (50.1 ms) aştığı anda düşen bir ara toplam. Not şekil başına en çok bir
+//    kez düştüğü için nihai toplam hiç yazılmıyor. Yani 53/32 gibi bir oran
+//    büyümeyi ÇOK EKSİK gösterir -- gerçek 1000 noktalı toplam bunun birkaç
+//    katı (sınama harness'inde 230-240 ms ölçüldü, başka bir makinede).
+//
+//    Öğrenilecek şey burada: "sürdü" ile "şu ana dek" aynı şey değil.
 //
 // 2. (Önce 1'i geri al: ikinci çağrı yine 250 olsun.) İkinci çağrıdaki kat'ı
 //    7 yerine 1 yap. Artık iki gül de kesişmiyor ve not tümüyle kayboluyor.
