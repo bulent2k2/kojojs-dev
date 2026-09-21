@@ -5,7 +5,7 @@ ornek-kopya-denetle.py -- `ornekler/*.kojo` gövdelerinin Scala sınamalarındak
 kopyaları kaynaklarıyla aynı mı.
 
 NEDEN: örnekleri GERÇEK derleyiciye gönderen yol `ornekler/ornekleri-dogrula.sh`
-ve o ikojo sunucusuna ağ üstünden gidiyor -- CI ve geliştirme konteyneri oraya
+ve o iKojo sunucusuna ağ üstünden gidiyor -- CI ve geliştirme konteyneri oraya
 çıkamıyor. Telafi olarak bir örneğin gövdesi, anahtar kelimeleri çıkarılmış
 hâliyle bir sınamaya kopyalanıyor (bugün: `14-agir-dolgu.kojo` -> #68).
 Kopya ELLE tutuluyor: örnek değişip kopya değişmezse sav BAYAT koda karşı

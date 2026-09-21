@@ -164,7 +164,7 @@ hızıKur(orta)
 için(x <- -aralık+10 |-| aralık+100; eğer (x % 10 == 0)) noktayaGit(x, eğri(x))
 ```
 
-`eğri` adında yeni bir işlev tanımlayıverdik. Bunu daha sonra daha iyi anlayacağız. (ikojo'da ızgara ve eksen komutları henüz yok; o satırı silip çalıştır, parabol yine çizilir.)
+`eğri` adında yeni bir işlev tanımlayıverdik. Bunu daha sonra daha iyi anlayacağız. (iKojo'da ızgara ve eksen komutları henüz yok; o satırı silip çalıştır, parabol yine çizilir.)
 
 Şimdilik x ve y eksenlerini ve kare çizgileri silelim. Ve [bir sonraki bölümle](#b06) devam edelim!
 

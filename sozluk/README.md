@@ -37,12 +37,12 @@ Bu içerik ELLE YAZILMIYOR, masaüstü Koco'dan üretiliyor. Kaynak tek:
 `bulent2k2/kojo` deposundaki `lite/i18n/tr/help.scala`. Oradaki örnekler
 KoleksiyonYardımıTest ve YardımÖrnekleriTest ile doğrulanıyor.
 
-Ama o testler MASAÜSTÜ API'sine karşı koşuyor, sözlük ise ikojo'da sunuluyor.
+Ama o testler MASAÜSTÜ API'sine karşı koşuyor, sözlük ise iKojo'da sunuluyor.
 İki API %100 örtüşmediği sürece "Örnek sınanıyor" sözü burada da tutulmalı:
 
     araclar/yardim-derleme-uret.py
 
-`yardim.json`'daki 190 örneği ikojo API'sine karşı derleyen
+`yardim.json`'daki 190 örneği iKojo API'sine karşı derleyen
 `src/test/scala/kojo/YardimOrnekDerlemeDeneme.scala` dosyasını üretiyor.
 İlk koşuşunda 3 örnek yakalandı (Eşlek.anahtarlar/değerler için Yinelenebilir
 sarmalayıcısı ve Yineleyici turunun eksik kalan `bellekli.başı` yöntemi);
@@ -119,12 +119,12 @@ gireceğine küratör karar verir. Ayrıntı: `../araclar/README.md`.
 - `l10n-level2/level2_tr.properties` — arayüz
 - `samples/tr/` — örneklerdeki eşleşmeler
 
-Bu ikojo katmanı (kojojs-dev/src/main/scala/kojo/tr/) için eklenen yeni Türkçe
+Bu iKojo katmanı (kojojs-dev/src/main/scala/kojo/tr/) için eklenen yeni Türkçe
 terimler de sözlüğe işlendi (koyu renkler, Dönüştürücü, renkliYazı, birleştirici
 aliaslar, oyun API'leri, bölünüyorMu/belirt/buSaniye, Yığın koy/al/tane…).
 
 Eylül 2026 turu: standart kütüphane sarmalayıcılarının kapsamı %41-50'den
-masaüstünde %95'e, ikojo'da %94'e çıkarıldı; oradan gelen 201 yeni ad sözlüğe
+masaüstünde %95'e, iKojo'da %94'e çıkarıldı; oradan gelen 201 yeni ad sözlüğe
 işlendi (754 -> 980). Yeni "Koleksiyon Türleri" kategorisi Yığın/Kuyruk/
 ÖncelikSırası/Eşlem/Eşlek/Küme/Aralık/Belki/MiskinDizin'e özgü adları topluyor;
 ortak çekirdek "Diziler ve Yazılar" altında. Adlar `lite/i18n/tr/*.scala`
@@ -158,7 +158,7 @@ Eylül 2026, üçüncü tur (ters yön): araç şimdiye dek yalnız "sözlükte 
 yok" yönünü ölçüyordu. Öteki kova (`sayfada olup sözlükte olmayan`) hiç küratör
 görmemişti ve `renkliYazı` hatası tam oradaydı. Ölçüt simetrik yapıldı (351 -> 275,
 aradaki 76'sı yazım artefaktı: 72 niteleme + 4 imza) ve kalan API adları ayıklandı. Altı ad **yalnız
-ikojo'da** çıktı, notlarına işlendi: `fareBasılınca` (masaüstünde `fareyeBasınca`),
+iKojo'da** çıktı, notlarına işlendi: `fareBasılınca` (masaüstünde `fareyeBasınca`),
 `kur`, `bölünüyorMu`, `belirgin`, `resimleriSil` (masaüstünde `Resim.sil`),
 `Dönüştürücü`. `ay.*` arayüz katmanının tamamı ters yönde: masaüstüne özgü,
 tarayıcıda yok — kategori notuna bir kez yazıldı.
@@ -186,9 +186,9 @@ de var. Çevirmen zaten doğru ayırıyordu (alıcı bağlamına göre `y1.yans�
 
 Canlı (Claude artifact): sözlük ve dokuz dilli dizin `/yardim`'den de bağlı.
 
-## ikojo'da: `/yardim/sozluk`
+## iKojo'da: `/yardim/sozluk`
 
-`koco-sozlugu.html` ikojo'da da sunuluyor: <https://ikojo.fly.dev/yardim/sozluk>.
+`koco-sozlugu.html` iKojo'da da sunuluyor: <https://ikojo.fly.dev/yardim/sozluk>.
 kojojs-editor bu dosyanın bir kopyasını `server/src/main/assets/sozluk/koco-sozlugu.html`
 olarak (statik varlık, `/assets/sozluk/koco-sozlugu.html`) taşır; `yardimSozluk.scala.html`
 şablonu onu yardım sayfalarının gezinti şeridi altında bir iframe içinde açar.

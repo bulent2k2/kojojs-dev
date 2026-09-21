@@ -20,6 +20,6 @@ Netbeans IDE de Scala'yı destekliyor. Hatta Kojo'nun yazarı Lalit Pant, Kojo'y
 
 Bu kılavuzla Scala'nın kütüphanesinin küçük bir altkümesini gördük. Bütün kitaplığı görmek istemez misin? [Buna tıklayıver](https://www.scala-lang.org/api/current/index.html).
 
-ikojo'daki Türkçe komutların tam listesi için [Koco Komutları](/yardim/komutlar) kılavuzuna, adların İngilizce karşılıkları için [Koco Sözlüğü](/yardim/sozluk)'ne, masaüstü ile tarayıcı arasındaki farklar için [Farklar](/yardim/farklar) sayfasına bakabilirsin.
+iKojo'daki Türkçe komutların tam listesi için [Koco Komutları](/yardim/komutlar) kılavuzuna, adların İngilizce karşılıkları için [Koco Sözlüğü](/yardim/sozluk)'ne, masaüstü ile tarayıcı arasındaki farklar için [Farklar](/yardim/farklar) sayfasına bakabilirsin.
 
 Scala kullanırken hep çok keyif alman, güzel anlar, güzel günler yaşaman ve yaşatman dileğiyle!

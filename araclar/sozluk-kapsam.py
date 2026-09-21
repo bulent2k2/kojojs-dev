@@ -14,7 +14,7 @@ başladı. Bu araç aradaki farkı SAYIYLA söylüyor.
 NE DEĞİL: bir kapı değil, bir rapor. Çıkış kodu her zaman 0. Eksik adların
 çoğu sayfaya girmemeli (Görünüş'ün imge yolları, iç tür takma adları); karar
 küratörün, aracın işi listeyi ayıklanabilir biçimde önüne koymak. Sayfayı da
-DEĞİŞTİRMİYOR: koco-sozlugu.html'e dokunmak artifact'i ve ikojo'daki kopyayı
+DEĞİŞTİRMİYOR: koco-sozlugu.html'e dokunmak artifact'i ve iKojo'daki kopyayı
 yeniden yayımlamayı gerektiriyor (README'deki beş adım), o ayrı bir tur.
 
 NEDEN KOPYA YOK: TSV bu depoda DURMUYOR, kojo klonundan okunuyor. Kopyalasak
@@ -262,7 +262,7 @@ def karşılaştır(sayfa, tsv, kurallar, takmaAdlar=None):
                         'kural': sorted(k), 'kaynak': tsvKaynağı[tr][1]})
 
     # Ters yön: sayfada olup üretilmiş sözlükte hiç geçmeyen Türkçe ad. Çoğu
-    # beklenen (arayüz sözcükleri, kavram çevirileri, ikojo'ya özgü adlar);
+    # beklenen (arayüz sözcükleri, kavram çevirileri, iKojo'ya özgü adlar);
     # yine de sayısı kaymanın ikinci ölçüsü.
     # Ters yön de AYNI üç yazım biçiminden geçiyor: sayfa `Resim.daire` yazarken
     # sözlük `daire` diyor, `tuşlar.kaç` derken `kaç`, `Renk(kırmızı, ...)` derken

@@ -1,11 +1,11 @@
 # İki taraftaki adların anlık görüntüsü. Üretim: araclar/adlar.py --tsv
 #
 # sütunlar: kapsayıcı, ad, durum
-#   var          masaüstünde ve ikojo'da
-#   boşluk       masaüstünde var, ikojo'da YOK
-#   yalnız-ikojo ikojo'nun kendi seçtiği ad (masaüstünde yok)
+#   var          masaüstünde ve iKojo'da
+#   boşluk       masaüstünde var, iKojo'da YOK
+#   yalnız-ikojo iKojo'nun kendi seçtiği ad (masaüstünde yok)
 # CI (adlar.py --anlik-goruntu) "var" ve "yalnız-ikojo" satırlarını
-# zorunlu tutar: ikojo elindeki bir adı kaybederse kırmızı yanar.
+# zorunlu tutar: iKojo elindeki bir adı kaybederse kırmızı yanar.
 # "boşluk" olanları kapatmak ayrı bir karar; burada görünür kalsınlar
 # diye yazılıyorlar.
 #

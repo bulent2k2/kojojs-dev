@@ -35,7 +35,7 @@ canlandır { // İçindeki komutlar saniyede yaklaşık 40 kere yinelenir.
 }
 ```
 
-Masaüstünde bu örnek `silipSakla(); ızgarayıGöster(); eksenleriGöster()` ile başlıyordu; ikojo'da `silVeSakla` var, ızgara ve eksen komutları henüz yok.
+Masaüstünde bu örnek `silipSakla(); ızgarayıGöster(); eksenleriGöster()` ile başlıyordu; iKojo'da `silVeSakla` var, ızgara ve eksen komutları henüz yok.
 
 İkinci örneğimiz küçük ve basit bir oyun. Duymuş olabilirsin: en eski bilgisayar oyunlarından duvara karşı pinpon (İngilizce adıyla Pong) oyunu. Tek kişilik bir oyun. Yapmamız gereken topa raketle vurup geri yollamak. Raketi fareyle yönetiyoruz. Top kaçarsa bir puan kaybediyorsun. İyi eğlenceler!
 
@@ -108,7 +108,7 @@ tuvaliEtkinleştir()
 ```
 <!-- masaüstü: tuşaBasınca→onKeyPress, fareKonumu -->
 
-Hayal gücünü kullan, yazılımcığı değiştir (örneğin 45 derece döndürmek, yay ya da çember çizmek için komutlar ekleyebilirsin), tekrar çalıştır. Masaüstü düzenleyicisinde `tuşlar.` yazdıktan sonra (ama tırnak işaretleri olmadan!) kontrol tuşunu basık tutup büyük boşluk tuşuna bas ki başka hangi tuşları kullanabileceğini gör. ikojo'da tuşları `tuşBasılıMı(tuşlar.sol)` gibi bir `canlandır` döngüsü içinde sorgulayabilirsin; [Kojo ile öğren](/kojo-ile-ogren) sayfasındaki klavye oyununa bak.
+Hayal gücünü kullan, yazılımcığı değiştir (örneğin 45 derece döndürmek, yay ya da çember çizmek için komutlar ekleyebilirsin), tekrar çalıştır. Masaüstü düzenleyicisinde `tuşlar.` yazdıktan sonra (ama tırnak işaretleri olmadan!) kontrol tuşunu basık tutup büyük boşluk tuşuna bas ki başka hangi tuşları kullanabileceğini gör. iKojo'da tuşları `tuşBasılıMı(tuşlar.sol)` gibi bir `canlandır` döngüsü içinde sorgulayabilirsin; [Kojo ile öğren](/kojo-ile-ogren) sayfasındaki klavye oyununa bak.
 
 ### Saat
 
@@ -288,7 +288,7 @@ tanım dörtlü = Dizin((0, 0), (1, 0), (-1, 0), (0, 2)) // dokuzcanlı'nın alt
 ```
 <!-- masaüstü: silipSakla→silVeSakla, tuvalAlanı→tuvalSınırları, durdur→canlandırmayıDurdur, Resim.sil→resimleriSil -->
 
-Masaüstünde bu örnek `çıktıyıSil` ile başlıyor; ikojo'da o komut yok, her çalıştırma çıktıyı zaten temizler. Aynı oyunun ikojo için uyarlanmış sürümü [Benzetim savı](/benzetim) sayfasında var.
+Masaüstünde bu örnek `çıktıyıSil` ile başlıyor; iKojo'da o komut yok, her çalıştırma çıktıyı zaten temizler. Aynı oyunun iKojo için uyarlanmış sürümü [Benzetim savı](/benzetim) sayfasında var.
 
 ### Düğüm açma oyunu
 

@@ -1,10 +1,10 @@
 // Açı nedir, radyan ne demek? Devinimli çizimle gözümüzle görerek anlayalım.
 // Tam bir dönüş = 360 derece = 2π radyan.
 //
-// Bu, masaüstündeki samples/tr/angles.kojo'nun ikojo (tarayıcı) sürümü.
+// Bu, masaüstündeki samples/tr/angles.kojo'nun iKojo (tarayıcı) sürümü.
 //
 // NEDEN AYNISI DEĞİL: masaüstü sürüm adımları durakla(1.3) ile ayırıyor.
-// ikojo'da durakla YALNIZ kaplumbağa komut kuyruğuna bekleme ekler; bu
+// iKojo'da durakla YALNIZ kaplumbağa komut kuyruğuna bekleme ekler; bu
 // yazılımcık ise baştan sona RESİM çiziyor (çiz / .sil / .döndür), ve resim
 // çağrıları kuyruğa girmeden hemen çalışır. Yani masaüstü betiği burada
 // derleniyor ama duraklamaların hiçbiri işlemiyor: bütün adımlar tek karede
@@ -104,7 +104,7 @@ tanım piAçısınınKatınıÇiz(katı: Sayı) {
 }
 
 // ---- Düğme ----------------------------------------------------------------
-// ikojo'da hazır bir düğme aracı yok; düğme de bir RESİM, tıklaması
+// iKojo'da hazır bir düğme aracı yok; düğme de bir RESİM, tıklaması
 // fareyeTıklayınca ile bağlanıyor.
 
 dez düğmeEni = 170.0

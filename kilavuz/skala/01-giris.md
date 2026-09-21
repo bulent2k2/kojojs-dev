@@ -8,9 +8,9 @@ Kılavuzda pek çok yazılımcık örneği bulacaksın. Her kod bloğunun altın
 
 - Çok uzun örneklerde bağlantı yerine **Kopyala** düğmesi var. Kodu panoya alır; düzenleyiciye yapıştırıp çalıştır.
 - Bazı tablolarda tek komutluk hücreler (`ileri(100)` gibi) de tıklanabilir; onlar da düzenleyicide açılır.
-- Turuncu **masaüstü** rozeti taşıyan örneklerde, yalnız masaüstü Koco'da bulunan bir komut var. Rozetin yanında hangi komutun eksik olduğu ve varsa ikojo'daki karşılığı yazar. Kod yine gösteriliyor ki masaüstünde deneyebil. Farkların özeti için [Farklar](/yardim/farklar) sayfasına bak.
+- Turuncu **masaüstü** rozeti taşıyan örneklerde, yalnız masaüstü Koco'da bulunan bir komut var. Rozetin yanında hangi komutun eksik olduğu ve varsa iKojo'daki karşılığı yazar. Kod yine gösteriliyor ki masaüstünde deneyebil. Farkların özeti için [Farklar](/yardim/farklar) sayfasına bak.
 
-> Masaüstü Koco'dan iki fark daha var, bilmende fayda olacak. **Bir:** masaüstünde `1 + 2` gibi yalın bir deyiş yazınca sonucu çıktı gözünde görürsün; tarayıcıda görmek için `satıryaz(1 + 2)` yazmak gerekir, o yüzden burada örneklerin çoğu `satıryaz` içinde. **İki:** masaüstünde art arda çalıştırdığın örnekler birbirinin tanımlarını hatırlar; tarayıcıda her çalıştırma temiz başlar. Onun için birbirine dayanan örneklerin tanımlarını her blokta yineledik. Ayrıca ikojo'da `satıryaz(a, b)` ikiliyi `(a,b)` biçiminde tek parça yazar.
+> Masaüstü Koco'dan iki fark daha var, bilmende fayda olacak. **Bir:** masaüstünde `1 + 2` gibi yalın bir deyiş yazınca sonucu çıktı gözünde görürsün; tarayıcıda görmek için `satıryaz(1 + 2)` yazmak gerekir, o yüzden burada örneklerin çoğu `satıryaz` içinde. **İki:** masaüstünde art arda çalıştırdığın örnekler birbirinin tanımlarını hatırlar; tarayıcıda her çalıştırma temiz başlar. Onun için birbirine dayanan örneklerin tanımlarını her blokta yineledik. Ayrıca iKojo'da `satıryaz(a, b)` ikiliyi `(a,b)` biçiminde tek parça yazar.
 
 ## Bölümler
 

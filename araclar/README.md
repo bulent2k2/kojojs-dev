@@ -1,10 +1,10 @@
 # Araçlar
 
-## `ucurum.py` — masaüstü ↔ ikojo uçurum ölçümü
+## `ucurum.py` — masaüstü ↔ iKojo uçurum ölçümü
 
 Masaüstü Koco'nun Türkçe betiklerini (`ornekler/masaustu/`) tarar; her betikteki
 Türkçe API adını masaüstü tanımlarıyla (`bulent2k2/kojo`: `lite/i18n/trInit.scala`,
-`lite/i18n/tr/*.scala`) ve ikojo tanımlarıyla (`src/main/scala/kojo/TurkishTurtle.scala`,
+`lite/i18n/tr/*.scala`) ve iKojo tanımlarıyla (`src/main/scala/kojo/TurkishTurtle.scala`,
 `kojo/tr/*.scala`, İngilizce yüzey `kojo/*.scala`) karşılaştırır. Platform
 engellerini (`#yükle`, Swing `ay.*`, ses, öykü, dosya…) işaretler.
 
@@ -12,16 +12,16 @@ Betik başına dört durum:
 
 | durum | anlam |
 |---|---|
-| `çalışır` | eksik ad yok, biçim uyuşmazlığı yok, platform engeli yok — ikojo'da olduğu gibi derlenmesi beklenir |
-| `eksik-ad` | ikojo'da tanımlı olmayan Türkçe ad(lar) kullanıyor; liste TSV'de |
-| `biçim` | ad VAR ama biçimi tutmuyor: betik dönüştürücü olarak kullanıyor, ikojo'da yalnız Resim yöntemi var |
+| `çalışır` | eksik ad yok, biçim uyuşmazlığı yok, platform engeli yok — iKojo'da olduğu gibi derlenmesi beklenir |
+| `eksik-ad` | iKojo'da tanımlı olmayan Türkçe ad(lar) kullanıyor; liste TSV'de |
+| `biçim` | ad VAR ama biçimi tutmuyor: betik dönüştürücü olarak kullanıyor, iKojo'da yalnız Resim yöntemi var |
 | `platform` | tarayıcıda karşılığı olmayan özellik kullanıyor (engel adı TSV'de) |
 
 `biçim` neden ayrı bir durum: masaüstünde bazı adlar HEM Resim yöntemi HEM
 dönüştürücü (`*` ile zincirlenip `->` ile uygulanan). İkojo'da yalnız yöntemi
 varsa ad taramada "var" görünür ama betik derlenmez. Eylül 2026'da tam bu oldu —
 `döndürMerkezli` yöntem olarak vardı, `unit-circle.kojo` onu dönüştürücü olarak
-kullanıyordu, tarama temiz diyordu. Tarayıcı artık ikojo'nun `implicit class`
+kullanıyordu, tarama temiz diyordu. Tarayıcı artık iKojo'nun `implicit class`
 gövdesindeki tanımlarını ayrı tutuyor (onlar ancak `r.ad(...)` diye çağrılabilir)
 ve betiklerdeki dönüştürücü biçimli kullanımlarla karşılaştırıyor. Ayrım
 eklendiğinde ilk koşuda `döndürMerkezli` (3 betik) ile `soluk` (1 betik) çıktı;
@@ -39,7 +39,7 @@ türü/sayısı) göremez. Gerçek derleme denetimi `ornekler/ornekleri-dogrula.
 İki araç birbirini tamamlar: tarama *neyin* eksik olduğunu söyler, derleme
 *gerçekten geçip geçmediğini*.
 
-Plan ve ölçüm belgesi: Koco–ikojo Köprüsü (Claude artifact,
+Plan ve ölçüm belgesi: Koco–iKojo Köprüsü (Claude artifact,
 <https://claude.ai/code/artifact/04147d3d-1a10-4b18-a586-d2a105a07764>).
 
 ## ornek-dizini.py
@@ -92,7 +92,7 @@ buymuş: 72 niteleme + 4 imza. Ölçüt yine İngilizce tarafın da tutması.
 satırlar bir ara sessizce düşüyordu ve `351 − 275 = 76` iken rapor 72 diyordu
 (inceleme #90 ölçtü). Şimdi `sayfadaFazla + örtükFazla` her zaman sayfanın
 sözlükte bulunmayan adlarının tamamı. Kalan 275'in 225'i beklenen içerik (89 örnek adı, 71 terim çevirisi,
-38 anahtar sözcük, 27 başvuru); geriye ~50 API adı kalıyor ve **ikojo'ya özgü
+38 anahtar sözcük, 27 başvuru); geriye ~50 API adı kalıyor ve **iKojo'ya özgü
 adların ana hücreye sızdığı yer orası** — Eylül 2026'nın ikinci turu `renkliYazı`
 hatasını tam orada buldu, üçüncü turu da altı tane daha (`fareBasılınca`, `kur`,
 `bölünüyorMu`, `belirgin`, `resimleriSil`, `Dönüştürücü`).
@@ -142,7 +142,7 @@ bakışta görsün. `[kural: çevirme]` "bilerek çevrilmiyor" demek.
 bulunamazsa 1). Eksik adların çoğu sayfaya girmemeli — `cizim.scala`'nın
 imge yolları, `turler.scala`'nın iç tür takma adları — karar küratörün. Araç
 sayfayı da DEĞİŞTİRMİYOR: `koco-sozlugu.html`'e dokunmak artifact'i ve
-ikojo'daki kopyayı yeniden yayımlamayı gerektiriyor (`../sozluk/README.md`'deki
+iKojo'daki kopyayı yeniden yayımlamayı gerektiriyor (`../sozluk/README.md`'deki
 beş adım), o ayrı bir tur.
 
 TSV bu depoya **kopyalanmıyor**, kojo klonundan okunuyor: kopyalasak
@@ -154,7 +154,7 @@ Araç TSV'nin yalnız ilk dört sütununu okuyor (`cins tr en kaynak`), böylece
 sözlüğe sütun eklenince kırılmıyor — Eylül 2026'da `sayı` sütunu eklendiğinde
 (kojo#65) böyle oldu.
 
-## `adlar.py` — masaüstü ↔ ikojo ad karşılaştırması
+## `adlar.py` — masaüstü ↔ iKojo ad karşılaştırması
 
 `ucurum.py` masaüstü **betiklerini** tarıyor, yani yalnız bir örneğin
 *kullandığı* adları görüyor. Hiçbir örneğin kullanmadığı bir eksik ona
@@ -177,20 +177,20 @@ bir iddia: "bu iki kapsayıcı aynı yüzey". Yeni çift eklemek ucuz.
 
 | kip | yakaladığı | yakalayamadığı |
 |---|---|---|
-| `--kojo <klon>` (yerel) | masaüstünde olup ikojo'da olmayan her ad | — |
-| `--anlik-goruntu` (CI) | ikojo'nun elindeki bir adı kaybetmesi — ortak olanlar **ve** ikojo'ya özgü olanlar | masaüstünün YENİ ad eklemesi |
+| `--kojo <klon>` (yerel) | masaüstünde olup iKojo'da olmayan her ad | — |
+| `--anlik-goruntu` (CI) | iKojo'nun elindeki bir adı kaybetmesi — ortak olanlar **ve** iKojo'ya özgü olanlar | masaüstünün YENİ ad eklemesi |
 
 CI'ın klonu olmadığı için ikinci kip anlık görüntüye bakıyor
 (`araclar/masaustu-adlar.tsv`). Üçüncü sütun bugünkü gerçeği yazar:
 
 | durum | anlamı | CI zorunlu tutuyor mu |
 |---|---|---|
-| `var` | masaüstünde ve ikojo'da | evet |
-| `yalnız-ikojo` | ikojo'nun kendi seçtiği ad (`koyuMor`, `saydam`…) | evet |
-| `boşluk` | masaüstünde var, ikojo'da yok | hayır — kapatmak ayrı karar |
+| `var` | masaüstünde ve iKojo'da | evet |
+| `yalnız-ikojo` | iKojo'nun kendi seçtiği ad (`koyuMor`, `saydam`…) | evet |
+| `boşluk` | masaüstünde var, iKojo'da yok | hayır — kapatmak ayrı karar |
 
 `yalnız-ikojo` sonradan eklendi: anlık görüntü başta yalnız masaüstü adlarını
-yazıyordu, dolayısıyla ikojo'nun masaüstünden **ayrıldığı** noktalarda seçtiği
+yazıyordu, dolayısıyla iKojo'nun masaüstünden **ayrıldığı** noktalarda seçtiği
 adların hiç gözcüsü yoktu (#60 incelemesi ölçtü). Bugünkü boşluklar işi kırmızı
 yakmaz ama izlenen bir dosyada göz önünde durur.
 
@@ -217,7 +217,7 @@ yardimKomutlar sayfasındaki kısa gösterilerin KAYNAĞI (G tablosu).
     araclar/gosteri-uret.py --scala          # derleme testini üret
     araclar/gosteri-uret.py --html <editor>  # sayfaya yapıştırılacak <tr> satırları
 
-Gösteriler `src/test/scala/kojo/OrnekDerlemeDeneme.scala` üzerinden ikojo
+Gösteriler `src/test/scala/kojo/OrnekDerlemeDeneme.scala` üzerinden iKojo
 API'sine karşı DERLENEREK sınanıyor: bir komut adı ya da imzası değişirse
 `sbt Test/compile` kırılır, sayfaya bozuk örnek girmez.
 
@@ -227,7 +227,7 @@ al, sayfaya yapıştır -> ornek-dizini.py ile sözlüğü tazele.
 ## `ornek-kopya-denetle.py` — örnek gövdelerinin sınamalardaki kopyaları taze mi
 
 Örnekleri **gerçek derleyiciye** gönderen yol `ornekler/ornekleri-dogrula.sh`
-ve o ikojo sunucusuna ağ üstünden gidiyor; CI koşucusu ve geliştirme
+ve o iKojo sunucusuna ağ üstünden gidiyor; CI koşucusu ve geliştirme
 konteyneri oraya çıkamıyor. Telafi olarak bir örneğin gövdesi, Koco anahtar
 kelimeleri çıkarılmış hâliyle bir sınamaya kopyalanıyor — bugün
 `14-agir-dolgu.kojo`'nun `gül` tanımı `TurkishPreludeTest`'te (#68).

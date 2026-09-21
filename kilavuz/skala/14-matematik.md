@@ -70,8 +70,8 @@ Bu işlevler kesirli sayıları tam yani kesirsiz sayıya çevirir. Ama dikkat, 
 | `satıryaz(rastgeleUzun)` | Rastgele tam sayı, Uzun.EnUfağı ile Uzun.Enİrisi arasında. |
 | `satıryaz(rastgeleKesir(3.0))` | 0'dan G1 girdisine kadar rastgele bir kesir. |
 | `satıryaz(rastgeleKesir(2.0, 3.0))` | G1 ve G2 girdileri arasında rastgele bir kesir |
-| `satıryaz(rastgeleÇanEğrisinden)` | Normal dağılım da derler. 0'a yakın sayılar daha çok rastlar, büyüdükçe ve küçüldükçe daha az gelirler. Diğer adları: rastgeleNormalKesir, rastgeleDoğalKesir (ikojo'da bu sonuncusu var). |
-| `satıryaz(rastgeleİkil)` | Rastgele doğru (true) ya da yanlış (false). Bir diğer adı da: rastgeleSeçim (ikojo'da bu ad var). |
+| `satıryaz(rastgeleÇanEğrisinden)` | Normal dağılım da derler. 0'a yakın sayılar daha çok rastlar, büyüdükçe ve küçüldükçe daha az gelirler. Diğer adları: rastgeleNormalKesir, rastgeleDoğalKesir (iKojo'da bu sonuncusu var). |
+| `satıryaz(rastgeleİkil)` | Rastgele doğru (true) ya da yanlış (false). Bir diğer adı da: rastgeleSeçim (iKojo'da bu ad var). |
 | `satıryaz(rastgeleRenk)` | Matematikle ilgisi yok gibi. Ama adı üstünde. Resim çizerken işe yarayabilir. |
 | `satıryaz(rastgeleŞeffafRenk)` | Deneyerek daha iyi anlarsın. |
 | `satıryaz(rastgeleDiziden(Dizi(1, 3, 5)))` | G1 girdisindeki diziden rastgele seçer. |

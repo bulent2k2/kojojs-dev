@@ -32,7 +32,7 @@ dez bkk = BKK(
 Resim.imge(bkk).veBüyüt(0.3).çiz
 ```
 
-ikojo'da bir imgeyi adresinden doğrudan çizebilirsin: `Resim.imge("https://.../330px-Flower_poster_2.jpg")` — [Kojo ile öğren](/kojo-ile-ogren) sayfasındaki resim örneklerine bak.
+iKojo'da bir imgeyi adresinden doğrudan çizebilirsin: `Resim.imge("https://.../330px-Flower_poster_2.jpg")` — [Kojo ile öğren](/kojo-ile-ogren) sayfasındaki resim örneklerine bak.
 
 ## Kuraldışı durumlar ve hatalar
 
@@ -82,7 +82,7 @@ Tür eşi olmayan nesneler de var. Onların yöntemleri çok işimize yarar:
 | Türkçe | İngilizce | Açıklama |
 |---|---|---|
 | `ay` | `UI` | arayüz'ün kısaltması: Swing düğmeleri, yazı girdileri, salındıraçlar. Yalnız masaüstünde; tarayıcıda karşılığı henüz yok. (aşağıdaki ilk örnek) |
-| `tuvalAlanı` | `canvasBounds` | tuval alanı hakkında faydalı bilgiler. ikojo'da adı `tuvalSınırları`. (ikinci örnek) |
+| `tuvalAlanı` | `canvasBounds` | tuval alanı hakkında faydalı bilgiler. iKojo'da adı `tuvalSınırları`. (ikinci örnek) |
 
 ```scala
 silVeSakla
@@ -108,7 +108,7 @@ dez hepsi = yeni Dikdörtgen(solAltKöşe, sağÜstKöşe)
 yaz(hepsi)
 ```
 
-ikojo'da aynı bilgi `tuvalSınırları` ile alınır:
+iKojo'da aynı bilgi `tuvalSınırları` ile alınır:
 
 ```scala
 dez ta = tuvalSınırları

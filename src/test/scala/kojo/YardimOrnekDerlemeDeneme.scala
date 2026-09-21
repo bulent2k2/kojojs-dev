@@ -1,9 +1,9 @@
 package kojo
 
 /**
- * sozluk/yardim.json'daki yöntem örneklerinin ikojo API'sine karşı
+ * sozluk/yardim.json'daki yöntem örneklerinin iKojo API'sine karşı
  * DERLENDİĞİNİ sınar. Sözlük her örneğin altına "Örnek sınanıyor" yazıyor;
- * bu dosya o sözü ikojo tarafında da tutuyor.
+ * bu dosya o sözü iKojo tarafında da tutuyor.
  *
  * Üretilmiştir; kaynak: araclar/yardim-derleme-uret.py
  * Anahtar sözcükler burada İngilizce (bkz. o betiğin başlığı).

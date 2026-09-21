@@ -11,7 +11,7 @@ import org.scalatest.matchers.should.Matchers
  *   KPath.createArc  -> Arc2D.setArc(-r, -r, 2r, 2r, 0, -açı), yine merkez (0,0)
  * Yayın başlangıcı (r, 0), yönü saat yönünün tersi.
  *
- * ikojo'nun kaplumbağa yayı (Turtle.realArc2) merkezi (-r,0)'a koyuyor; aradaki
+ * iKojo'nun kaplumbağa yayı (Turtle.realArc2) merkezi (-r,0)'a koyuyor; aradaki
  * fark `tr/resim.scala`'daki +r ötelemeyle kapatılıyor. Bu sınama o ötelemenin
  * kaybolmasını yakalar -- kaybolursa hiçbir derleyici uyarısı çıkmaz, yalnız
  * bütün yazılımcıklar yayı r kadar solda çizmeye başlar.

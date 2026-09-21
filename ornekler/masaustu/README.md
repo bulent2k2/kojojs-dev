@@ -4,7 +4,7 @@
 kopyası; kojo'daki göreli yollarıyla durur (`src/main/resources/samples/tr/…`,
 `installer/examples/othello/tr/…`). Kaynak commit `KAYNAK.txt`'de.
 
-Amaç: bu betiklerin hepsinin ikojo'da da çalışması. Ne kadarının çalıştığını iki
+Amaç: bu betiklerin hepsinin iKojo'da da çalışması. Ne kadarının çalıştığını iki
 dosya söyler:
 
 - `tarama.tsv` — `araclar/ucurum.py` çıktısı: betik başına `çalışır` / `eksik-ad` /
@@ -26,4 +26,4 @@ araclar/ucurum.py --kojo ~/src/kojo --tsv ornekler/masaustu/tarama.tsv
 Buradaki dosyaları elle düzenlemeyin; düzeltme masaüstü kojo'ya gider, sonra
 `guncelle.sh` ile buraya iner. `#yükle` satırları bu dizine göre çözülür
 (`// #yükle /samples/tr/oyku-tanimlari` → `src/main/resources/samples/tr/oyku-tanimlari.kojo`);
-ikojo bunu henüz desteklemiyor, bu betikler `platform` durumundadır.
+iKojo bunu henüz desteklemiyor, bu betikler `platform` durumundadır.

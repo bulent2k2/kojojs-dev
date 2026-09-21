@@ -141,4 +141,4 @@ tanım deneme() = {
 }
 deneme
 ```
-<!-- ikojo: bağlam, adı -->
+<!-- iKojo: bağlam, adı -->

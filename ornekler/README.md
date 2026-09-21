@@ -36,7 +36,7 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 ## `durakla` masaüstündeki gibi çalışmaz
 
 Masaüstünde `durakla(n)` iş parçacığını uyutur, yani ondan sonraki **her şey**
-bekler. ikojo'da tarayıcıyı bloklamak yok: `durakla` yalnız **kaplumbağa komut
+bekler. iKojo'da tarayıcıyı bloklamak yok: `durakla` yalnız **kaplumbağa komut
 kuyruğuna** bir bekleme ekler. `çiz` / `.sil()` / `.döndür()` gibi **resim**
 çağrıları kuyruğa girmez, hemen çalışır.
 
@@ -108,7 +108,7 @@ Kesişmeyen bir yolda aynı nokta sayısı bedavaya yakın: 4000 noktalı bir ç
 dolgusu 6 ms'den az. Yani pahalı olan nokta sayısı değil, **kesişmeyle birlikte**
 nokta sayısı.
 
-Bir dolgu hesabı bir karelik bütçeyi (~17 ms) aşarsa ikojo çıktı paneline bir
+Bir dolgu hesabı bir karelik bütçeyi (~17 ms) aşarsa iKojo çıktı paneline bir
 not düşer: ne kadar sürdüğünü, kaç nokta olduğunu ve ne yapılabileceğini yazar.
 Davranış değişmiyor — şekil yine çiziliyor; değişen şey, yavaşlığın artık
 **sessiz olmaması**. `14-agir-dolgu.kojo` bunu adım adım gösteriyor.

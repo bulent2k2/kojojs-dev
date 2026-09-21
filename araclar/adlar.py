@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-adlar.py -- masaüstü Koco ile ikojo'nun aynı yüzeydeki Türkçe adlarını
+adlar.py -- masaüstü Koco ile iKojo'nun aynı yüzeydeki Türkçe adlarını
 karşılaştırır.
 
 NEDEN: bugün hiçbir şey ikisini karşılaştırmıyor. ucurum.py masaüstü
@@ -9,12 +9,12 @@ BETİKLERİNİ tarıyor, yani yalnız bir örneğin KULLANDIĞI adları görüyo
 hiçbir örneğin kullanmadığı bir eksik ona görünmez. Eylül 2026'da tam bu oldu:
 Renkler'de 24 ad eksikti (bütün açık aile), aynadaki hiçbir betik onları
 kullanmadığı için tarama temiz görünüyordu ve eksik ancak bir kullanıcı
-yazılımcığı ikojo'da patlayınca ortaya çıktı (#58).
+yazılımcığı iKojo'da patlayınca ortaya çıktı (#58).
 
 NEDEN ELLE EŞLEŞME LİSTESİ: otomatik eşleme denendi ve UYDURMA boşluk üretti,
 ölçüldü:
   - iki depo aynı yüzeye farklı kapsayıcı adı veriyor (masaüstü
-    `implicit class YazıYöntemleri`, ikojo `implicit class YazıMetotları`)
+    `implicit class YazıYöntemleri`, iKojo `implicit class YazıMetotları`)
     -- ad üstünden eşleyince 111 adlık sahte bir boşluk çıkıyordu;
   - `object Matematik extends tr.MatematikYöntemleri` gibi GÖVDESİZ bildirimler
     var, süslü parantez arayan ayrıştırıcı sonraki bloğu yutuyor ve onun
@@ -26,7 +26,7 @@ Kullanım:
   araclar/adlar.py                          # ../kojo klonunu bekler
   araclar/adlar.py --kojo ~/src/kojo
   araclar/adlar.py --tsv                    # anlık görüntüyü tazele (izlenen dosya)
-  araclar/adlar.py --anlik-goruntu          # kojo klonu OLMADAN: ikojo anlık
+  araclar/adlar.py --anlik-goruntu          # kojo klonu OLMADAN: iKojo anlık
                                             # görüntüdeki her adı taşıyor mu
 """
 import argparse
@@ -39,8 +39,8 @@ BURASI = os.path.dirname(os.path.abspath(__file__))
 IKOJO = os.path.dirname(BURASI)
 ANLIK = os.path.join(BURASI, 'masaustu-adlar.tsv')
 
-# (kapsayıcı, masaüstü dosyası, ikojo dosyası, ne olduğu)
-# Masaüstü yolları kojo klonunun köküne, ikojo yolları bu deponun köküne göreli.
+# (kapsayıcı, masaüstü dosyası, iKojo dosyası, ne olduğu)
+# Masaüstü yolları kojo klonunun köküne, iKojo yolları bu deponun köküne göreli.
 EŞLEŞMELER = [
     ('Renkler', 'src/main/scala/net/kogics/kojo/lite/i18n/tr/renk.scala',
      'src/main/scala/kojo/tr/renk.scala', 'renk adları'),
@@ -148,11 +148,11 @@ def anlıkGörüntüyüOku():
 def anlıkGörüntüyeGöre():
     """kojo klonu OLMADAN denetim (CI burayı koşuyor).
 
-    Yakaladığı: ikojo'nun elindeki bir adı KAYBETMESİ (gerileme) -- hem
-    masaüstüyle ortak olanlar hem ikojo'ya ÖZGÜ olanlar (koyuMor, saydam...).
+    Yakaladığı: iKojo'nun elindeki bir adı KAYBETMESİ (gerileme) -- hem
+    masaüstüyle ortak olanlar hem iKojo'ya ÖZGÜ olanlar (koyuMor, saydam...).
     İkincisi baştan kapsam dışıydı: anlık görüntü yalnız masaüstü adlarını
-    yazıyordu, dolayısıyla ikojo'nun kendi seçtiği adların hiç gözcüsü yoktu --
-    yani ikojo'nun masaüstünden AYRILDIĞI noktalar korumasızdı (inceleme ölçtü,
+    yazıyordu, dolayısıyla iKojo'nun kendi seçtiği adların hiç gözcüsü yoktu --
+    yani iKojo'nun masaüstünden AYRILDIĞI noktalar korumasızdı (inceleme ölçtü,
     #60). Artık üçüncü bir durum var: "yalnız-ikojo".
 
     Yakalayamadığı, ÜÇ ayrı yön (inceleme üçünü de ölçtü):
@@ -166,7 +166,7 @@ def anlıkGörüntüyeGöre():
        hiçbir şey tutmuyor.
     3. TSV'nin masaüstü hakkındaki iddiasının YALAN olması -- masaüstünde artık
        olmayan bir adı "var" diye taşıyabilir. Eş bir PR birleşmezse tam olarak
-       bu olur. --kojo bile yakalamıyor: `fazla = ikojo - masaüstü` kümesi
+       bu olur. --kojo bile yakalamıyor: `fazla = iKojo - masaüstü` kümesi
        yazdırılıyor ama çıkış koduna girmiyor.
 
     2 ve 3'ün kökü aynı: görüntüyü üreten ile denetleyen aynı veriye bakıyor.
@@ -190,17 +190,17 @@ def anlıkGörüntüyeGöre():
         eksik = sorted((ortak | özgü) - var)
         if eksik:
             kötü = True
-            print('::error::%s (%s): ikojo\'da olması beklenen %d ad kaybolmuş'
+            print('::error::%s (%s): iKojo\'da olması beklenen %d ad kaybolmuş'
                   % (kapsayıcı, ne, len(eksik)), file=sys.stderr)
             for ad in eksik:
-                nereden = 'masaüstünde de var' if ad in ortak else 'ikojo\'ya özgü'
+                nereden = 'masaüstünde de var' if ad in ortak else 'iKojo\'ya özgü'
                 print('    %-24s (%s)' % (ad, nereden), file=sys.stderr)
         else:
             ek = ', bilinen boşluk %d' % len(boşluk) if boşluk else ''
-            print('%-10s %-14s beklenen %d ad (%d ortak + %d ikojo\'ya özgü) yerinde%s'
+            print('%-10s %-14s beklenen %d ad (%d ortak + %d iKojo\'ya özgü) yerinde%s'
                   % (kapsayıcı, '(%s)' % ne, len(ortak) + len(özgü), len(ortak), len(özgü), ek))
     if kötü:
-        sys.exit('ikojo, masaüstünün anlık görüntüsünün gerisine düştü.\n'
+        sys.exit('iKojo, masaüstünün anlık görüntüsünün gerisine düştü.\n'
                  'Ya kaybolan adları geri getirin, ya da (masaüstü onları BİLEREK\n'
                  'kaldırdıysa) araclar/adlar.py --tsv ile anlık görüntüyü tazeleyin.')
 
@@ -215,18 +215,18 @@ def karşılaştır(kojo):
 
 
 def yazdır(sonuç):
-    """İki yönü de sayar. #78: eskiden 'ikojo'da fazla' yalnız YAZDIRILIYOR,
+    """İki yönü de sayar. #78: eskiden 'iKojo'da fazla' yalnız YAZDIRILIYOR,
     çıkış koduna girmiyordu -- yani araç ayrışmayı görüyor, söylüyor, ama
     yeşil yanıyordu. 2026-09'da bu gerçekten oldu: eş PR'lar 16 dakika arayla
-    birleşti, o pencerede tuşlar.backSpace ikojo'da vardı masaüstünde yoktu,
+    birleşti, o pencerede tuşlar.backSpace iKojo'da vardı masaüstünde yoktu,
     ve hiçbir denetim kızarmadı.
 
     Ama körü körüne saymıyor: 'yalnız-ikojo' MEŞRU bir durum (koyuMor, saydam
-    -- ikojo'nun bilerek kendi seçtiği adlar). Anlık görüntüde öyle işaretli
+    -- iKojo'nun bilerek kendi seçtiği adlar). Anlık görüntüde öyle işaretli
     olanlar muaf; işaretsiz bir fazlalık hata.
     """
     beklenen = anlıkGörüntüyüOku() if os.path.exists(ANLIK) else {}
-    print('%-10s %-14s %8s %8s  %s' % ('kapsayıcı', '', 'masaüstü', 'ikojo', 'ikojo\'da eksik'))
+    print('%-10s %-14s %8s %8s  %s' % ('kapsayıcı', '', 'masaüstü', 'iKojo', 'iKojo\'da eksik'))
     top = 0
     for kapsayıcı, ne, masa, ik in sonuç:
         eksik = sorted(masa - ik)
@@ -238,7 +238,7 @@ def yazdır(sonuç):
         if fazla:
             özgü = beklenen.get(kapsayıcı, {}).get('yalnız-ikojo', set())
             beklenmeyen = sorted(set(fazla) - özgü)
-            print('    (ikojo\'da fazla: %s)' % ', '.join(fazla))
+            print('    (iKojo\'da fazla: %s)' % ', '.join(fazla))
             if beklenmeyen:
                 top += len(beklenmeyen)
                 print('    ^ bunlar anlık görüntüde yalnız-ikojo diye işaretli DEĞİL: %s'
@@ -251,9 +251,9 @@ def tsvYaz(sonuç):
     """Anlık görüntü: iki tarafın adları, bugünkü durumlarıyla.
 
     Üçüncü sütun BUGÜNKÜ gerçeği yazıyor:
-      var          -- masaüstünde ve ikojo'da
-      boşluk       -- masaüstünde var, ikojo'da yok
-      yalnız-ikojo -- ikojo'nun kendi seçtiği ad (koyuMor, saydam...)
+      var          -- masaüstünde ve iKojo'da
+      boşluk       -- masaüstünde var, iKojo'da yok
+      yalnız-ikojo -- iKojo'nun kendi seçtiği ad (koyuMor, saydam...)
     CI 'var' ve 'yalnız-ikojo' satırlarını zorunlu tutuyor; 'boşluk' olanlar
     işi kırmızı yakmıyor ama İZLENEN bir dosyada, göz önünde duruyorlar.
     """
@@ -261,11 +261,11 @@ def tsvYaz(sonuç):
         d.write('# İki taraftaki adların anlık görüntüsü. Üretim: araclar/adlar.py --tsv\n')
         d.write('#\n')
         d.write('# sütunlar: kapsayıcı, ad, durum\n')
-        d.write('#   var          masaüstünde ve ikojo\'da\n')
-        d.write('#   boşluk       masaüstünde var, ikojo\'da YOK\n')
-        d.write('#   yalnız-ikojo ikojo\'nun kendi seçtiği ad (masaüstünde yok)\n')
+        d.write('#   var          masaüstünde ve iKojo\'da\n')
+        d.write('#   boşluk       masaüstünde var, iKojo\'da YOK\n')
+        d.write('#   yalnız-ikojo iKojo\'nun kendi seçtiği ad (masaüstünde yok)\n')
         d.write('# CI (adlar.py --anlik-goruntu) "var" ve "yalnız-ikojo" satırlarını\n')
-        d.write('# zorunlu tutar: ikojo elindeki bir adı kaybederse kırmızı yanar.\n')
+        d.write('# zorunlu tutar: iKojo elindeki bir adı kaybederse kırmızı yanar.\n')
         d.write('# "boşluk" olanları kapatmak ayrı bir karar; burada görünür kalsınlar\n')
         d.write('# diye yazılıyorlar.\n')
         for kapsayıcı, ne, masa, ik in sonuç:

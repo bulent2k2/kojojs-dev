@@ -1,21 +1,21 @@
-# Koco Kılavuzu (ikojo çevrim içi yardım)
+# Koco Kılavuzu (iKojo çevrim içi yardım)
 
 Masaüstü Koco'nun iki Türkçe **öykü** betiği (Story/Page tabanlı; tarayıcıda
-çalışmaz) burada Markdown'a taşındı ve ikojo'nun yardım sayfaları olarak
+çalışmaz) burada Markdown'a taşındı ve iKojo'nun yardım sayfaları olarak
 üretiliyor:
 
-| Kaynak (bulent2k2/kojo) | Burada | ikojo'da |
+| Kaynak (bulent2k2/kojo) | Burada | iKojo'da |
 |---|---|---|
 | `src/main/resources/samples/tr/scala-tutorial.kojo` (19 sayfa) | `skala/NN-baslik.md` | <https://ikojo.fly.dev/yardim/skala> |
 | `src/main/resources/samples/tr/kojo-documentation.kojo` + `#yükle` ile aldığı `oyku-tanimlari.kojo`, `kojo-kilavuz/{ornek-yazilimlar,komutlar-genel,ek-sayfa,turler}.kojo` (8 bölüm) | `komutlar/NN-baslik.md` | <https://ikojo.fly.dev/yardim/komutlar> |
 
 İçerik çevrilmedi (zaten Türkçe); yapı öyküden kılavuza taşındı: öykünün
 "sonraki sayfa / tıkla" yönlendirmeleri sayfa içi bağlantı oldu, "sağ paneldeki
-düzenleyici" gibi masaüstüne özgü ifadeler ikojo'ya uyarlandı. Örnekler ikojo'da
+düzenleyici" gibi masaüstüne özgü ifadeler iKojo'ya uyarlandı. Örnekler iKojo'da
 tek başına çalışsın diye iki uyarlama daha yapıldı (kılavuzun girişinde de
-yazılı): yalın deyişler `satıryaz(...)` içine alındı (ikojo bir deyişin
+yazılı): yalın deyişler `satıryaz(...)` içine alındı (iKojo bir deyişin
 değerini kendiliğinden göstermez), art arda gelen ve birbirine dayanan
-örneklerin tanımları her blokta yinelendi (ikojo her çalıştırmada temiz
+örneklerin tanımları her blokta yinelendi (iKojo her çalıştırmada temiz
 başlar).
 
 ## Üretim
@@ -33,7 +33,7 @@ Harici kütüphane yok; python3 standart kütüphanesi yeter. Çıktılar:
 - `--twirl` verilen dizine `yardimSkala.scala.html`, `yardimKomutlar.scala.html`
   — aynı içerik, Twirl şablonu olarak (`@()` imzası + içerikteki her `@` → `@@`).
   **Bu iki şablonu elle düzenlemeyin**; Markdown'ı düzeltip yeniden üretin.
-- `eksik-adlar.tsv` — örneklerde geçen ama ikojo'da olmayan masaüstü adları.
+- `eksik-adlar.tsv` — örneklerde geçen ama iKojo'da olmayan masaüstü adları.
 - `masaustu-adlar.txt` — masaüstü Koco TR API'sinin ad listesi (kojo klonundan
   otomatik çıkarılır; klon yoksa bu önbellek kullanılır).
 
@@ -44,7 +44,7 @@ karakteri aşarsa bağlantı yerine **Kopyala** düğmesi üretilir.
 ## Örnek listesi sayfası (`ornekler.py`)
 
 `kilavuz/ornekler.py` ayrı bir üreteç: `/yardim/ornekler` sayfasını, yani
-masaüstü Koco'nun Örnekler + Sergi menülerinden ve ikojo'nun kendi
+masaüstü Koco'nun Örnekler + Sergi menülerinden ve iKojo'nun kendi
 örneklerinden derlenen betik listesini üretir. Her satır `/ornek/<yol>`
 bağlantısı ve bir durum rozeti taşır.
 
@@ -61,7 +61,7 @@ Okuduğu kaynaklar:
 |---|---|
 | kojo klonu `lite/AppMenu.scala` | Örnekler ve Sergi menülerinin sırası/grupları |
 | kojo klonu `Bundle_tr.properties` | menü anahtarlarının Türkçe başlıkları |
-| `ornekler/README.md` | ikojo'nun kendi örnekleri (dosya + açıklama) |
+| `ornekler/README.md` | iKojo'nun kendi örnekleri (dosya + açıklama) |
 | `ornekler/masaustu/derleme.tsv` | **varsa yeğlenir**: gerçek derleme sonucu |
 | `ornekler/masaustu/tarama.tsv` | yedek: `araclar/ucurum.py` ad taraması |
 
@@ -101,17 +101,17 @@ Kod bloğunun **kapanış ```` ``` ```` satırının hemen ardındaki** satır:
 ```
 <!-- masaüstü -->                        rozeti zorla
 <!-- masaüstü: tuvalAlanı→tuvalSınırları, durakla -->  rozet + karşılık bilgisi
-<!-- ikojo -->                           otomatik bulguyu sustur (yanlış alarm)
-<!-- ikojo: en, boy -->                  yalnız bu adları sustur
+<!-- iKojo -->                           otomatik bulguyu sustur (yanlış alarm)
+<!-- iKojo: en, boy -->                  yalnız bu adları sustur
 ```
 
 İşaret olmasa da `uret.py` her bloğu tarar: bir ad masaüstü TR API'sinde var,
-ikojo'da (`kojo/TurkishTurtle.scala`, `kojo/tr/*.scala`, İngilizce yüzey) yok ve
+iKojo'da (`kojo/TurkishTurtle.scala`, `kojo/tr/*.scala`, İngilizce yüzey) yok ve
 blokta yerel olarak tanımlanmamışsa bloğun altına turuncu **masaüstü** rozeti ve
-"ikojo'da yok: ad → karşılık" satırı düşer. Bilinen karşılıklar `uret.py`
+"iKojo'da yok: ad → karşılık" satırı düşer. Bilinen karşılıklar `uret.py`
 içindeki `KARSILIK` sözlüğünde (`tuvalAlanı → tuvalSınırları`,
 `silipSakla → silVeSakla`, `yaklaş → yaklaşXY`, `durdur → canlandırmayıDurdur`…).
-Kodun kendisi masaüstündeki gibi bırakılır; okur ikojo'da denerken karşılığı
+Kodun kendisi masaüstündeki gibi bırakılır; okur iKojo'da denerken karşılığı
 kullanır. Farkların özeti: <https://ikojo.fly.dev/yardim/farklar>.
 
 ## "Editörde aç" bağlantıları

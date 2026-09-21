@@ -74,7 +74,7 @@ dez noktaSayısı = 34 + 5
 satıryaz(noktaSayısı)
 ```
 
-Bir ya da daha fazla sayıda işlemin sonucunu çıktı alanına `satıryaz(deyiş)` komutunu kullanarak yazabiliriz. Birden çok deyişi yan yana yazmak istersek `satıryaz(deyiş1, deyiş2, deyişn)` da olur; masaüstü Kojo bunları aralarına boşluk koyarak yazar, ikojo ise `(d1,d2,dn)` biçiminde bir sıralama olarak gösterir. Deyişler arasına virgül koymayı unutmayalım.
+Bir ya da daha fazla sayıda işlemin sonucunu çıktı alanına `satıryaz(deyiş)` komutunu kullanarak yazabiliriz. Birden çok deyişi yan yana yazmak istersek `satıryaz(deyiş1, deyiş2, deyişn)` da olur; masaüstü Kojo bunları aralarına boşluk koyarak yazar, iKojo ise `(d1,d2,dn)` biçiminde bir sıralama olarak gösterir. Deyişler arasına virgül koymayı unutmayalım.
 
 ```scala
 dez noktaSayısı = 34 + 5

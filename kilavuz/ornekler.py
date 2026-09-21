@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-ornekler.py -- ikojo'nun /yardim/ornekler liste sayfasını üretir.
+ornekler.py -- iKojo'nun /yardim/ornekler liste sayfasını üretir.
 
 `/ornek/<yol>` rotası (Devre 3) 122 betiğin hepsini açabiliyor ama gezinilebilir
 bir liste yoktu: adresi bilmeyen betiklere ulaşamıyordu. Bu betik masaüstü
 Koco'nun Örnekler ve Sergi menülerini kaynak alıp aynı gruplamayla bir liste
-sayfası üretir; her satırda betiğin ikojo'da çalışıp çalışmadığını gösteren bir
+sayfası üretir; her satırda betiğin iKojo'da çalışıp çalışmadığını gösteren bir
 rozet ve doğrudan `/ornek/...` bağlantısı olur.
 
 Kaynaklar
   kojo/.../lite/AppMenu.scala          menü yapısı (grup + kalem sırası)
   kojo/.../lite/Bundle_tr.properties   Türkçe başlıklar (S_* anahtarları)
-  ornekler/README.md                   10 ikojo örneğinin açıklamaları
+  ornekler/README.md                   10 iKojo örneğinin açıklamaları
   ornekler/masaustu/derleme.tsv        GERÇEK derleme sonucu (varsa yeğlenir)
   ornekler/masaustu/tarama.tsv         tanımlayıcı taraması (yedek)
 
@@ -184,7 +184,7 @@ def md_ici(metin):
     return s
 
 
-# ikojo örneklerinin başlıkları: dosya adları ASCII slug olduğu için (01-ilk-adimlar)
+# iKojo örneklerinin başlıkları: dosya adları ASCII slug olduğu için (01-ilk-adimlar)
 # Türkçe harfler dosya adından türetilemiyor.
 IKOJO_BASLIK = {
     '01-ilk-adimlar.kojo': 'İlk adımlar',
@@ -203,9 +203,9 @@ IKOJO_BASLIK = {
 }
 
 ROZETLER = {
-    'çalışır': ('calisir', 'çalışır', 'ikojo\'da olduğu gibi çalışması bekleniyor'),
+    'çalışır': ('calisir', 'çalışır', 'iKojo\'da olduğu gibi çalışması bekleniyor'),
     'geçti':   ('calisir', 'çalışır', 'gerçek derlemeden geçti'),
-    'eksik-ad': ('eksik', 'eksik komut', 'ikojo\'da henüz olmayan komutlar kullanıyor'),
+    'eksik-ad': ('eksik', 'eksik komut', 'iKojo\'da henüz olmayan komutlar kullanıyor'),
     'kaldı':    ('eksik', 'eksik komut', 'gerçek derlemede kaldı'),
     'platform': ('masaustu', 'masaüstü', 'tarayıcıda karşılığı olmayan bir özellik kullanıyor'),
     'sunucu':   ('eksik', 'sunucu sınırı', 'betik derleyiciye ulaşamadı (gövde sınırı)'),
@@ -240,7 +240,7 @@ def satır_html(baslik, göreli, durum_haritası, ikojo=False, aciklama=None):
     else:
         yol, anahtar = 'masaustu/' + göreli, göreli
     durum, ek = durum_haritası.get(anahtar, ('', ''))
-    r = '<span class="rozet calisir" title="ikojo için yazıldı">çalışır</span>' if ikojo \
+    r = '<span class="rozet calisir" title="iKojo için yazıldı">çalışır</span>' if ikojo \
         else rozet(durum, ek)
     ac = '<div class="ac">%s</div>' % aciklama if aciklama else ''
     return ('  <li><a href="/ornek/%s"><span class="ad">%s</span>%s</a>'
@@ -383,7 +383,7 @@ def main():
             out.append(satır_html(bas.get(anahtar, os.path.basename(göreli)), göreli, durum_haritası))
         return out
 
-    # 1) ikojo'nun kendi örnekleri
+    # 1) iKojo'nun kendi örnekleri
     satırlar = [satır_html(IKOJO_BASLIK.get(ad, ad), ad, durum_haritası,
                            ikojo=True, aciklama=md_ici(ac))
                 for ad, ac in ikojo_ornekleri()]
@@ -434,7 +434,7 @@ def main():
     parçalar.append(
         '<div class="aciklama">\n'
         '<p>%s<b>çalışır</b> — tarayıcıda çalışması beklenen %d betik. '
-        '%s<b>eksik komut</b> — ikojo\'da henüz olmayan bir komut kullanıyor. '
+        '%s<b>eksik komut</b> — iKojo\'da henüz olmayan bir komut kullanıyor. '
         '%s<b>masaüstü</b> — Swing arayüzü, öykü anlatıcı ya da MIDI müzik gibi '
         'tarayıcıda karşılığı olmayan bir özelliğe dayanıyor.</p>\n'
         '<p>%s Eksik olanlar plan ilerledikçe azalıyor; ayrıntı için '
@@ -452,7 +452,7 @@ def main():
     os.makedirs(os.path.dirname(çıktı), exist_ok=True)
     open(çıktı, 'w', encoding='utf-8').write(metin)
     toplam = len(menüdekiler) + len(kalanlar) + len(ikojo_ornekleri())
-    print('yazıldı: %s  (%d betik; %d menüde, %d öteki, %d ikojo)'
+    print('yazıldı: %s  (%d betik; %d menüde, %d öteki, %d iKojo)'
           % (os.path.relpath(çıktı, KOK), toplam, len(menüdekiler), len(kalanlar),
              len(ikojo_ornekleri())))
     print('durum kaynağı: %s (%s)' % (kaynak_türü, os.path.relpath(kaynak_yolu, KOK)))

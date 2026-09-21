@@ -32,7 +32,7 @@ dez k1 = Kişi("Mustafa Kemal", 143)
 dez k2 = Kişi("Garip Durum", 1)
 ```
 
-`gerekli` ikojo'da yok; yerine Scala'nın kendi `require` komutu aynı işi görür. Masaüstünde bu örnek `çıktıyıSil` ile de başlıyordu; ikojo her çalıştırmada çıktıyı zaten temizler.
+`gerekli` iKojo'da yok; yerine Scala'nın kendi `require` komutu aynı işi görür. Masaüstünde bu örnek `çıktıyıSil` ile de başlıyordu; iKojo her çalıştırmada çıktıyı zaten temizler.
 
 İngilizce karşılıkları da burada:
 

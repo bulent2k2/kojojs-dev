@@ -2,7 +2,7 @@ package kojo
 
 /**
  * Sitedeki ScalaFiddle sarmalayıcısının aynısı (JSExport olmadan).
- * yardimKomutlar sayfasındaki kısa gösterilerin ikojo API'sine karşı
+ * yardimKomutlar sayfasındaki kısa gösterilerin iKojo API'sine karşı
  * DERLENDİĞİNİ sınar -- yani sayfaya bozuk örnek girmiyor.
  *
  * Üretilmiştir; kaynak: araclar/gosteri-uret.py

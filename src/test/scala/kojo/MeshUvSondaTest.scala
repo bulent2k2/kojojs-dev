@@ -223,7 +223,7 @@ class MeshUvSondaTest extends AnyFunSuite with Matchers {
    * Eşit OLMAYAN ölçek bilerek: A'nın dolgu matrisi çizim anında, B'nin
    * UV'leri geometri kurulurken pişiyor, yani eşdeğerliğin dönüşüme duyarlı
    * olması akla yakın bir kırılma yeriydi (#132 incelemesi §1). Dönüştürülmemiş
-   * düğüm göçün göndereceği durum değil -- ikojo'da her resim taşınıyor.
+   * düğüm göçün göndereceği durum değil -- iKojo'da her resim taşınıyor.
    */
   private def dönüştürülmüş(d: js.Dynamic): js.Dynamic = {
     d.position.set(37, -23)

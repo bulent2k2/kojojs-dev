@@ -23,4 +23,4 @@ Bu kılavuz, masaüstü Koco'nun **Yardım → Kojo Belgeleri** öyküsünün ta
 - Daha sonra [Benzetim savı](/benzetim) sayfasındaki yazılımlara da göz at.
 - Kojo'yla bilgisayar programlamayı öğrenmeye İnternet'ten devam edebilirsin: [Kojo Kılavuzu (İngilizce)](https://docs.kogics.net). Google tercümanla kolaylıkla Türkçe'ye çevirebilirsin.
 
-> Turuncu **masaüstü** rozeti taşıyan komutlar yalnız masaüstü Koco'da var; rozetin yanında varsa ikojo'daki karşılığı yazar. Ayrıntı için [Farklar](/yardim/farklar) sayfasına bak. İkinci bir fark: masaüstünde `konum` gibi bilgi veren bir komutun değeri çıktı gözünde kendiliğinden görünür, tarayıcıda görmek için `satıryaz(konum)` yazmak gerekir.
+> Turuncu **masaüstü** rozeti taşıyan komutlar yalnız masaüstü Koco'da var; rozetin yanında varsa iKojo'daki karşılığı yazar. Ayrıntı için [Farklar](/yardim/farklar) sayfasına bak. İkinci bir fark: masaüstünde `konum` gibi bilgi veren bir komutun değeri çıktı gözünde kendiliğinden görünür, tarayıcıda görmek için `satıryaz(konum)` yazmak gerekir.

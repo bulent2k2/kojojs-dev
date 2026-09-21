@@ -4,7 +4,7 @@
 sozluk-baglanti-denetle.py -- sözlük sayfalarındaki bağlantılar iframe'den
 çıkabiliyor mu.
 
-NEDEN: koco-sozlugu.html ikojo'da TEK BAŞINA açılmıyor; /yardim/sozluk
+NEDEN: koco-sozlugu.html iKojo'da TEK BAŞINA açılmıyor; /yardim/sozluk
 sayfası onu bir IFRAME içine koyuyor (kojojs-editor: yardimSozluk.scala.html).
 Çerçeveden çıkmayan bir dış bağlantı iframe'in KENDİSİNİ götürüyor, ve
 çerçevelenmeyi reddeden bir site (claude.ai gibi) oraya düşünce kullanıcı
@@ -19,7 +19,7 @@ sorunu göremiyor. CI'da yakalanacak şey tam bu.
 yalnız `target=` dizgisini arıyordu; `target="_self"` -- ki tanımı gereği
 BULUNULAN çerçeve demek, yani kusurun kendisi -- gözcüden geçiyordu.
 Çerçeveden çıkaran iki değer var: _blank (yeni sekme, yeğlenen) ve _top
-(en üst çerçeve; kusuru önler ama kullanıcıyı ikojo'dan çıkarır).
+(en üst çerçeve; kusuru önler ama kullanıcıyı iKojo'dan çıkarır).
 
 Kullanım:
   araclar/sozluk-baglanti-denetle.py        # kusur varsa 1 döner

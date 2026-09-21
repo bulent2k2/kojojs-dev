@@ -134,7 +134,7 @@ yk2.sol()
 yk2.ileri(300)
 ```
 
-`yaklaş(oran, x, y)` tuvali verilen oran kadar büyültür ya da küçültür ve verilen noktayı tam tuvalin merkezine getirir. ikojo'da aynı işi `yaklaşXY(oran, oran, x, y)` yapar:
+`yaklaş(oran, x, y)` tuvali verilen oran kadar büyültür ya da küçültür ve verilen noktayı tam tuvalin merkezine getirir. iKojo'da aynı işi `yaklaşXY(oran, oran, x, y)` yapar:
 
 ```scala
 sil()
