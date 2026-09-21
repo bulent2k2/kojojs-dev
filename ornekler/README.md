@@ -79,11 +79,14 @@ libtess **soğuk** koşuyor. Gerçek bir tarayıcıda 250×7 ölçeğinde üç �
 |---|---|
 | 251 | 22 / 32 / 35 ms (üç koşu) |
 
-Tablodakinin üç-dört katı. **Üç sayının yayılmasına dikkat**: 22 ile 35 arası,
-yani %45 — üçü de aynı makinede, aynı şekil, tamamlanmış hâlde. Fark işin
-kendisinden değil koşudan koşuya değişimden geliyor. Sayı tam **251**, yani betiğin kendi
-geometrisi: kalem inince bir başlangıç noktası konuyor, sonra 250 kenar
-ekleniyor. (Düzeltmeden önce bu örnek "146 nokta" gibi betikte karşılığı olmayan
+Tablodaki 8 ms'nin **2.8 ile 4.4 katı** arası. **Üç sayının yayılmasına
+dikkat**: en büyüğü en küçüğün **1.6 katı** (35 ve 22). Yüzde vermiyoruz,
+çünkü hangi tabana bölündüğüne göre %37 ile %59 arası değişiyor. Üçü de aynı
+makinede, aynı şekil, tamamlanmış hâlde ölçüldü — fark işin kendisinden değil
+koşudan koşuya değişimden geliyor.
+
+Sayı tam **251**, yani betiğin kendi geometrisi: kalem inince bir başlangıç
+noktası konuyor, sonra 250 kenar ekleniyor. (Düzeltmeden önce bu örnek "146 nokta" gibi betikte karşılığı olmayan
 sayılar yazıyordu — dolgu şekil bitmeden de yayınlanıyor ve not her yayını ayrı
 ayrı bildiriyordu.)
 

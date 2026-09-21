@@ -17,16 +17,20 @@
 //
 //     251 nokta -> 22 / 32 / 35 ms    (üç koşu)
 //
-// Yani tablodakinin üç-dört katı. Sayı tam 251 çünkü kalem inince bir
+// Yani tablodaki 8 ms'nin 2.8 ile 4.4 katı arası. Sayı tam 251 çünkü kalem inince bir
 // başlangıç noktası konuyor, sonra 250 kenar ekleniyor -- betiğin kendi
 // geometrisi.
 //
-// ÜÇ SAYININ YAYILMASINA BAK: 22 ile 35 arasında, yani %45. Üçü de aynı
+// ÜÇ SAYININ YAYILMASINA BAK: en büyüğü en küçüğün 1.6 KATI (35 ve 22;
+// yüzde vermiyoruz, çünkü hangi tabana bölündüğüne göre %37 ile %59 arası
+// değişiyor ve o seçim sayıyı istediğin yere taşır). Üçü de aynı
 // makinede, aynı şekil, tamamlanmış hâlde ölçüldü -- yani bu fark işin
 // kendisinden değil, koşudan koşuya değişimden geliyor. Buradan çıkan kural
-// aşağıda; tek bir koşunun sayısına dayanıp "şu kadar hızlandı" demeyin. (Bu örnek eskiden "146 nokta" gibi betikte karşılığı olmayan
-// sayılar yazıyordu: dolgu şekil bitmeden de yayınlanıyor ve not her yayını
-// ayrı ayrı bildiriyordu. Artık not ŞEKİL BAŞINA toplamı veriyor.)
+// aşağıda; tek bir koşunun sayısına dayanıp "şu kadar hızlandı" demeyin.
+//
+// (Bu örnek eskiden "146 nokta" gibi betikte karşılığı olmayan sayılar
+// yazıyordu: dolgu şekil bitmeden de yayınlanıyor ve not her yayını ayrı
+// ayrı bildiriyordu. Artık not ŞEKİL BAŞINA toplamı veriyor.)
 //
 // SOĞUK / SICAK farkı HENÜZ ÖLÇÜLMEDİ -- burada bir savım vardı, yanlıştı
 // (#133 incelemesi §2). Şöyleydi: "15-mesh-olcumu.kojo'nun döngüsünde hiç
@@ -117,9 +121,26 @@ gizle()
 //
 //    İkincisi şeklin TOPLAMI değil: şekil daha 643 noktadayken, erken eşiği
 //    (50.1 ms) aştığı anda düşen bir ara toplam. Not şekil başına en çok bir
-//    kez düştüğü için nihai toplam hiç yazılmıyor. Yani 53/32 gibi bir oran
-//    büyümeyi ÇOK EKSİK gösterir -- gerçek 1000 noktalı toplam bunun birkaç
-//    katı (sınama harness'inde 230-240 ms ölçüldü, başka bir makinede).
+//    kez düştüğü için nihai toplam HİÇ yazılmıyor -- şekil bitse bile, çünkü
+//    o şekil bir kez konuştu diye imleniyor. Yani 53/32 gibi bir oran
+//    büyümeyi ÇOK EKSİK gösterir.
+//
+//    Gerçek toplam ne kadar? Bu araçla BİLİNEMEZ, yukarıdaki sebeple. Elde
+//    iki ayrı ölçüm var ve BİRBİRİNE BÖLÜNMEZ -- farklı şeyleri sayıyorlar:
+//
+//      ~95 ms   TEK bir üçgenleme, tamamlanmış 1000 noktalı çokgen.
+//               Isıtılmış, yazılımsal çizici (#68; UcgenlemeUyarisi.scala'nın
+//               "1000x7 (~95 ms) konuşuyor" satırı da bu).
+//      230-240  Bir gülün ŞEKİL BAŞINA TOPLAMI: yarım yayınların hepsinin
+//      ms       üst üste toplamı (1000 noktada gül başına ~10 yayın ölçüldü).
+//               Sınama harness'inde, üçgenleme süresini toplayan geçici bir
+//               sayaçla; aynı yazılımsal çizici, başka makine. (#125/#131
+//               tartışması, kojojs-dev.)
+//
+//    İkisi çelişmiyor: sonuncu yayın zaten o ~95 ms'lik tam çokgen, öncekiler
+//    büyüyen önekler, ve üst üste gelince ~2.5 katı çıkıyor. Ama bu cümle
+//    yazılmadan iki sayı yan yana konsaydı, okuyan onları bölmeye davet
+//    edilmiş olurdu -- bu deneyin tam da uyardığı hata.
 //
 //    Öğrenilecek şey burada: "sürdü" ile "şu ana dek" aynı şey değil.
 //
