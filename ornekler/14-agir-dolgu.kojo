@@ -42,6 +42,11 @@
 // boyamayıİşle boş çokgen buluyor. (Tam da bu dosyanın yukarıdaki
 // "şekli tamamla" satırıyla düzelttiği durum, orada hâlâ duruyor.)
 //
+// #134 BU SINIRI DEĞİŞTİRMİYOR: yeni üçüncü yol (kuyruk boşalması) yalnız
+// canlandırma DÖNMÜYORKEN sayılıyor, alet ise gülünü `canlandır` döngüsünde
+// çiziyor. Orada şekil hâlâ tamamlanmıyor, ve sınır hâlâ 50.1 ms. (Kapı
+// bilerek böyle: boşalma canlandırmada kare başına 1.63 kez oluyor.)
+//
 // Doğru üst sınır 16.7 değil 50.1 ms. 35 ms soğuk ile <= 50.1 ms sıcak,
 // HİÇ FARK OLMAMASIYLA da uyumlu. Tablonun "iyimser" olduğu hâlâ makul bir
 // hipotez (#68'in sayıları ısıtılmış ortancalar) ama bu koşudan çıkmıyor.
@@ -99,6 +104,13 @@ gül(250, 7, 140, kırmızı)
 // Yukarıdaki gül gerçek donanımda 35 ms (ölçüldü, 251 nokta) -- yani
 // eşiğin altında, ve örneğin bütün amacı olan not hiç çıkmıyordu.
 // Ölçülmeden görülmedi, çünkü bu yalnız gerçek tarayıcıda oluyor.
+//
+// SATIR ARTIK GEREKSİZ OLMALI: kitaplık tarafındaki boşluk kapatıldı (#134 --
+// komut kuyruğu boşalıp canlandırma da dönmüyorsa betik bitmiştir, şekil
+// büyüyemez, ve biriken süre bildirilir). Ama bunu hâlâ SATIR DURURKEN
+// söyleyemeyiz: satır varken not zaten eski yoldan düşüyor. Ölçen deney
+// aşağıda, 4. sırada. O deney notun geldiğini gösterene dek satır kalıyor --
+// örneğin bütün amacı o not, ve bir kez sessizliğe düşürüldü.
 kalemiKaldır(); noktayaGit(0, -220)
 
 gizle()
@@ -166,7 +178,32 @@ gizle()
 //
 //    DİKKAT: bu deney yukarıdaki "şekli tamamla" satırına da BAĞLI. O satır
 //    olmasaydı ikinci not zaten düşmezdi -- ama zaman kapısı yüzünden değil,
-//    ikinci gül hiç tamamlanmadığı için. Aynı gözlem, yanlış sebep.
+//    ikinci gül hiç tamamlanmadığı için. Aynı gözlem, yanlış sebep. (#134'ten
+//    sonra bu bağımlılık kalkmış OLMALI: satır olmasa da kuyruk boşalınca not
+//    düşer. 4. deney bunu ölçüyor; ölçülene dek satırı yerinde bırak.)
 //
 // 3. boyamaRenginiKur satırını sil. Dolgu hiç hesaplanmıyor, yalnız kalem izi
 //    kalıyor -- şekil hâlâ görünür, çizim anında biter.
+//
+// 4. (Önce 3'ü geri al.) "ŞEKLİ TAMAMLA" başlıklı satırı -- yani
+//    `kalemiKaldır(); noktayaGit(0, -220)` -- SİL. Not yine de düşmeli.
+//
+//    NE ÖLÇÜYOR: bir şeklin "bittiğini" anlamanın üçüncü yolunu (#134).
+//    Eskiden yalnız iki yol vardı (kalem kalkık taşınma, boya değişimi) ve
+//    betiğin SON şekli çoğu zaman ikisini de görmüyordu; o yüzden bu örnek
+//    sessiz kalmış, ve o satır elle eklenmişti. Artık üçüncü yol var: komut
+//    kuyruğu boşalıyor ve canlandırma da dönmüyorsa betik bitmiştir.
+//
+//    NOT BİÇİMİ de değişmeli: "şu ana dek ... aldı (şimdilik N nokta)" değil,
+//    "hesaplamak ... SÜRDÜ (N nokta)" -- çünkü şekil artık büyüyemez.
+//
+//    NEREDE ÇALIŞMAZ, bilerek: bu üçüncü yol ancak betiği UYANDIRABİLECEK
+//    hiçbir şey kalmadığında sayıyor. `canlandır`, `timer`, `tuşaBasınca` ve
+//    resim fare işleyicilerinden biri varsa kuyruk boşalsa da şekle nokta
+//    gelebilir -- orada susuyoruz, çünkü "şu kadar SÜRDÜ (N nokta)" demek
+//    yanlış sayıyı kesin diye söylemek olurdu. O betiklerde eski yol
+//    (erken eşik, 50.1 ms) hâlâ geçerli ve dürüst biçimiyle konuşuyor.
+//    `ornekler/11-acilar-ve-radyan.kojo` böyle bir betik.
+//
+//    Not ÇIKMAZSA satırı geri koy ve söyle: #134 canlıda çalışmıyor demektir,
+//    ve bunu ancak gerçek tarayıcı gösterir -- birim sınamaları yeşil.
