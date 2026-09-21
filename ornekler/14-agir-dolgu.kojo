@@ -96,19 +96,34 @@ gizle()
 
 // DENEYECEKLERİN:
 //
+// HER DENEY DOSYANIN ÖZGÜN HÂLİNDEN BAŞLAR: bir önceki değişikliği GERİ AL,
+// sonra sıradakini yap. Üst üste bindirirsen ne ölçtüğün belirsizleşir --
+// ve 2b üst üste binince büsbütün yanlış şey öğretir (orada yazılı).
+//
 // 1. İkinci çağrıdaki 250'yi 1000 yap. Nokta dört katına çıkıyor ama süre
 //    çok daha fazla artıyor -- karesele yakın büyüme bu demek.
 //
-// 2. İkinci çağrıdaki kat'ı 7 yerine 1 yap. Artık iki gül de kesişmiyor ve
-//    not tümüyle kayboluyor. Pahalı olanın kesişme olduğunu buradan
-//    görebilirsin.
+// 2. (Önce 1'i geri al: ikinci çağrı yine 250 olsun.) İkinci çağrıdaki kat'ı
+//    7 yerine 1 yap. Artık iki gül de kesişmiyor ve not tümüyle kayboluyor.
+//    Pahalı olanın kesişme olduğunu buradan görebilirsin.
 //
-// 2b. Tersini de dene: BİRİNCİ çağrının kat'ını 7 yap. Bu kez iki not birden
-//    beklersin ama TEK not görürsün -- ikinci not, iki not arasındaki en az
-//    süreye (2 saniye) takılır. Uyarı bilerek böyle: tekrar eden uyarı,
-//    yanlış uyarı kadar hızlı öğretir ki uyarılar okunmasın.
+//    1'i geri almazsan not yine kaybolur -- kesişmeyen yol 1000 noktada da
+//    ucuz -- ama o zaman iki şeyi birden değiştirmiş olursun ve "nokta sayısı
+//    aynı, yalnız kesişme değişti" karşılaştırması elinden gider. Bu deneyin
+//    bütün gücü o karşılaştırmada.
 //
-//    DİKKAT: bu deney yukarıdaki "şekli tamamla" satırına BAĞLI. O satır
+// 2b. Tersini de dene: (önce 2'yi GERİ AL -- ikinci çağrının kat'ı yine 7
+//    olmalı) BİRİNCİ çağrının kat'ını 7 yap. Bu kez iki not birden beklersin
+//    ama TEK not görürsün -- ikinci not, iki not arasındaki en az süreye
+//    (2 saniye) takılır. Uyarı bilerek böyle: tekrar eden uyarı, yanlış uyarı
+//    kadar hızlı öğretir ki uyarılar okunmasın.
+//
+//    2'yi geri almazsan deney ÇALIŞMAZ ama bozulduğu belli olmaz: ikinci gül
+//    kat = 1 kalır, yani ucuzdur ve zaten not düşürmez. Yine tek not
+//    görürsün, ama "iki not beklersin" öncülü hiç kurulmamıştır -- yani
+//    zaman kapısını değil, kendi kurulumunu gözlemlemiş olursun.
+//
+//    DİKKAT: bu deney yukarıdaki "şekli tamamla" satırına da BAĞLI. O satır
 //    olmasaydı ikinci not zaten düşmezdi -- ama zaman kapısı yüzünden değil,
 //    ikinci gül hiç tamamlanmadığı için. Aynı gözlem, yanlış sebep.
 //
