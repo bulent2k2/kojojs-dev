@@ -84,12 +84,14 @@ class KuyrukPompasiTest extends AsyncFunSuite with Matchers {
     w.DilimMs = Double.PositiveInfinity
     val t = kaplumbağa(w)
     val t0 = window.performance.now()
+    // Dilim `andThen` ile geri alınıyor -- sav kırmızıya dönerse de (#145
+    // incelemesi): dünya sınamaya özel, ama sonsuz dilimle kalan bir dünya
+    // sonraki savı yanıltabilir.
     gülVeBekle(t, 10000).map { _ =>
-      w.DilimMs = 8.0
       // Kuyruk buraya vardıysa özyineleme yok demektir; süre yalnız bilgi.
       info(s"20 000 komut ${math.round(window.performance.now() - t0)} ms")
       succeed
-    }
+    }.andThen { case _ => w.DilimMs = 8.0 }
   }
 
   /**

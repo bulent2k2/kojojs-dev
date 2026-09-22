@@ -139,12 +139,19 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
    */
   private def kuyrukBoşalanaKadar(w: TestKojoWorld, t: Turtle): Future[Int] = {
     val söz = Promise[Int]()
-    // sync geri çağrımı kuyruk HENÜZ boşalmadan koşuyor (pompa devam ediyor),
-    // o yüzden bir tur daha bekliyoruz: sonraki queueHandler kuyruğu boş
-    // bulup şekilDurdu'yu çağıracak.
+    // sync geri çağrımı kuyruk HENÜZ boşalmadan koşuyor (pompa devam ediyor):
+    // bu yayın "büyüyebilir" sayılır ve susar. Bir tur sonra kuyruk boşalmış
+    // olur; karar KARE SINIRINDA verildiği için (Turtle.şekilDurmuş) bir kare
+    // daha veriyoruz -- ikinci boşaltmada yayın yok, durma denetimi konuşur.
     t.sync { () =>
       w.boyalarıBoşalt()
-      window.setTimeout(() => söz.success(ÜçgenlemeUyarısı.düşenNotSayısı), 50)
+      window.setTimeout(
+        () => {
+          w.boyalarıBoşalt()
+          söz.success(ÜçgenlemeUyarısı.düşenNotSayısı)
+        },
+        50
+      )
     }
     söz.future
   }
@@ -291,7 +298,10 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
    *
    * Bu, #125'te bir kez düzeltilmiş kusurun ta kendisi. Sınama onu boşalmadan
    * SONRA nokta ekleyerek değil -- o mümkün değil -- son yayından sonra nokta
-   * ekleyip yayını bekletmeden kuyruğu boşaltarak kuruyor.
+   * ekleyip yayını bekletmeden kuyruğu boşaltarak kuruyor. Karar artık
+   * boşalmada değil yayında veriliyor (#143'ün ölçümü, `UcgenlemeDilimTest`);
+   * bu sav o tasarımda da aynen geçerli: son yayın kare sınırında, kuyruk
+   * boş, sayı tam.
    */
   test("BEKLEYEN yayın varken not son yayını BEKLİYOR: sayı şeklin tamamı (#134)") {
     val (w, t) = kareÇizenKur()
