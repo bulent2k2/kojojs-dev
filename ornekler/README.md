@@ -108,7 +108,7 @@ tablonun iyimser olduğu artık hipotez değil, soğuk/sıcak en az 1.2, en çok
 tablo: 300 kare 5.0 s, tek not soğuk gülün, 36 ms — ısınmış 400 noktalı gül de
 bütçeye sığıyor, oran orada en az 2.2 kat. 700 noktada da (tek not, soğuk 49 ms):
 en az 2.9 kat. Sıcak gülün bütçeyi aştığı yer 700 ile 1000 arasında — 1000'de
-ölçü aleti 15–17 gül/s okuyor. Bu ölçüm bir süre
+ölçü aleti 7–8 (bu makine) / 15–17 (öteki) gül/s okuyor. Bu ölçüm bir süre
 yapılamadı, çünkü buradaki eski sav — "ölçü aletinin döngüsünde not
 düşmüyor, demek ki sıcak ≤16.7 ms" — yanlıştı (kojojs-dev#133 incelemesi):
 o çıkarım şeklin *tamamlanmış* olmasını gerektiriyor, oysa aletin gülü
@@ -169,7 +169,10 @@ yeniden çizer ve saniyede kaç kare düştüğünü yazar.
 kapandı**: mesh kendi diliminde 5–14 kat ucuz, ama dilim gülün ≤%5–10'u
 (1000 noktada libtess %58), uçtan uca kazanç ≤%8 — bu aletin çözünürlüğünün
 altında. Alet duruyor: bir sonraki kaldıraç olan stencil dolgu (kojojs-dev#147,
-hiç üçgenlemeden) aynı aletle ölçülecek, 1000 noktada canlı taban 15–17 gül/s.
+hiç üçgenlemeden) aynı aletle ölçülecek, 1000 noktada canlı taban 15–17 gül/s —
+o makinede; ikinci bir makinede aynı yayın 7–8 okudu (notlar 105–112 ms,
+ötekinde 58–81). Harness'te #148 öncesi ve sonrası aynı (7.0 / 6.9 gül/s), yani
+gerileme değil makine farkı. Öncesi ve sonrası **aynı makinede** alınmalı.
 Betik o değişiklikleri **yapamaz** — dolgunun nasıl çizildiği kitaplığın
 içinde; betiğin işi yalnız kareyi saymak.
 
