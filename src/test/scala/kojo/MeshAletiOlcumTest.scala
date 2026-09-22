@@ -119,20 +119,31 @@ class MeshAletiOlcumTest extends AsyncFunSuite with Matchers {
     }
     window.requestAnimationFrame(_ => kareSay())
 
+    // Örnekteki sürücüyle aynı: her karede en fazla bir gül, ve yalnız
+    // önceki `konumuOku`ya vardıysa. Eskiden bir sonraki gül sync geri
+    // çağrımının İÇİNDEN başlıyordu; #131'in pompasında bu, gülleri
+    // boyanmadan siliyordu (ölçüldü: 0,0,0,1,0,0,0,1,0,0) -- yani bu sav
+    // kırmızıya döndü ve alet yeniden tasarlandı. Sürücü `animate` ile:
+    // örnekteki `canlandır`ın kendisi.
+    var gülBitti = true
+    var boyandı = true // iki karelik el sıkışma: bitiş karesi boyar, sonraki başlatır
     def tur(): Unit = {
+      gülBitti = false
       t.clear()
       gülÇiz(t, nokta, 7, 140.0)
-      // Örnekteki `konumuOku { _ => ... }` ile aynı dikiş: kuyruk buraya
-      // varınca gül gerçekten bitmiştir.
       t.sync { () =>
+        gülBitti = true
         gül += 1
         if (gül > ısınma) deltalar :+= (w.yayınSayısı - öncekiYayın, kare - öncekiKare)
         öncekiYayın = w.yayınSayısı
         öncekiKare = kare
-        if (gül >= ısınma + sayılan) söz.success(deltalar) else tur()
+        if (gül >= ısınma + sayılan) { w.stopAnimation(); söz.success(deltalar) }
       }
     }
-    tur()
+    // Gül bitiş karesinde değil pompanın devamında bittiyse, aynı karenin
+    // `clear`ı onu boyanmadan silerdi -- tam takımda yük altında ölçüldü. O
+    // yüzden bir kare beklenip sonrakinde başlatılıyor (örnekteki sürücüyle aynı).
+    w.animate { if (gülBitti && !söz.isCompleted) { if (boyandı) { boyandı = false; tur() } else boyandı = true } }
     söz.future
   }
 

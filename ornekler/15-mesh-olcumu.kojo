@@ -23,36 +23,42 @@
 //      #125'teki çelişkili iki ölçümün farkı da buradan geliyor olabilir.
 //   3. TEK SAYI DEĞİL, birkaç saniyelik dizi okunur. Ölçümler koşudan koşuya
 //      %25 oynuyor; tek sayı yanıltır.
-//   4. TAMAMLANMIŞ GÜL sayılır, canlandırma tiki değil. İlk sürüm `canlandır`
-//      tikini sayıyordu ve YANLIŞTI: kaplumbağa komutları kuyruğa giriyor,
-//      `scheduleLater` ilk 100 komutu eşzamanlı koşturup gerisini erteliyor,
-//      yani 250 komutluk bir gül birkaç kareye yayılıyor. Kanıtı gerçek
-//      tarayıcı çıktısında görüldü (#125): not "146 nokta" dedi, oysa betik
-//      250 çiziyor -- yani sayılan tik, biten gül değildi. Şimdi her gülün
-//      ardına `konumuOku` konuyor; o geri çağrım kuyruk oraya varınca, yani
-//      gül GERÇEKTEN bitince çalışıyor.
+//   4. BOYANMIŞ GÜL sayılır: her karede en fazla bir gül başlar ve bir gül
+//      ancak öncekinin kuyruğu bittikten (`konumuOku`) SONRAKİ karede
+//      başlar. Bu kuralın iki tarihi var, ikisi de ölçümle:
 //
-// ALET BOYAMAYLA EŞLEŞİYOR MU (#130 incelemesi §2): sayılan şey biten gül,
-// ama biten bir gül BOYANMAMIŞ olabilir -- `scheduleLater`in `setTimeout(0)`
-// hoplamaları rAF'i beklemiyor, ve bir gülün dolgu düğümü sonraki `sil()` ile
-// kalkıyor. İki rAF arasında tamamlanıp kaldırılan bir gülün üçgenlemesi
-// ödenir ama GPU'ya hiç gitmez -- ve #125'in kazancı en çok render tarafında,
-// yani böyle bir alet mesh'i kendi aleyhine ölçer.
+//      İlk sürüm `canlandır` tikini sayıyordu ve YANLIŞTI: eski komut pompası
+//      100 komutta bir 4 ms'lik `setTimeout` arası veriyor, 250 komutluk bir
+//      gül birkaç kareye yayılıyordu; not "146 nokta" dedi, oysa betik 250
+//      çiziyor -- sayılan tik, biten gül değildi. İkinci sürüm her gülün
+//      ardına `konumuOku` koyup oradan bir sonraki gülü başlatıyordu.
 //
-// Ölçüldü (kojo.MeshAletiOlcumTest, SwiftShader, gül başına BOYAMA dağılımı --
-// ortalama değil, çünkü ortalama boyanmamış gülü saklar):
+//      Sonra pompa değişti (#131): kuyruk artık bir karede 8 ms iş yapıp
+//      kareye teslim ediyor, ve 250 noktalı gül ~0.3 ms'de bitiyor. İkinci
+//      sürümün zinciri o rejimde gülleri BOYANMADAN siliyordu -- ölçüldü,
+//      on gülün sekizi hiç yayınlanmadan bitti; sayılan şey gül/s değil
+//      KUYRUK hızı olurdu, ve #125'in kazancı en çok render tarafında olduğu
+//      için alet mesh'i kendi aleyhine ölçerdi. Şimdi gül `canlandır` karesinde
+//      başlıyor, o karede bitiyor (kuyruk boşken verilen komut eşzamanlı
+//      koşuyor) ve karenin sonunda boyanıyor; bir sonraki gül bir sonraki
+//      karede -- ama İKİ kare sonra, bir kare değil. Çünkü gül karenin
+//      canlandır gövdesinde bitmezse (dilim dolup pompa sonraki kareye
+//      teslim ettiyse) sonraki karede pompanın devamında bitiyor, ve o
+//      karenin canlandır gövdesi hemen ardından `sil()` derse gül BOYANMADAN
+//      gidiyor. Ölçüldü: tam takımda, yük altında, aletin savı böyle kırmızıya
+//      döndü. O yüzden el sıkışma iki karelik: gül biter, bir kare boyanır,
+//      ondan sonraki kare yenisini başlatır. Sayılan gül = boyanan gül,
+//      yapısal olarak. Sınama savı hâlâ "sayılan her gülün en az bir
+//      boyaması var" (kojo.MeshAletiOlcumTest).
 //
-//   nokta =  250 ->  5,4,3,3,3,3,3,2,2,2   en az 2   (üç koşuda da en az 2)
-//   nokta = 1000 ->  9,10,13,11,10         en az 9
-//   nokta =    4 ->  0,0,0,0,0,0,0,0,0,0   en az 0
-//
-// Yani bu aletin iki ölçeğinde (250 ve 1000) endişe ISIRMIYOR: her gül birkaç
-// kareye yayılıyor, EN AZ boyanan gül bile iki kez boyanıyor, sayılan gül ile
-// boyanan gül aynı. Mekanizma yine de gerçek -- 4 noktalı gülde on gülün onu
-// da ilk rAF ateşlenmeden bitiyor ve hiç boyanmıyor. O yüzden aleti çok daha
-// ucuz bir şekle çevirirsen ya da çok hızlı bir makineye taşırsan önce o
-// dağılımı yeniden ölç; sınama savı gül başına EN KÜÇÜK boyama sayısı,
-// kırılırsa haber verir.
+// BU YÜZDEN ÜST SINIR KARE HIZININ YARISI: gül başına en az iki kare, yani
+// ucuz gülde en çok ~30 gül/s. 30 okumak "üçgenleme + çizim bir kareye
+// sığıyor" demek, ötesi bu aletle görülmez; #125'in asıl yeri olan ağır
+// uçta (nokta = 1000, gül başına yüz milisaniyeler) iki karelik el sıkışma
+// gül başına ~16 ms, yani sayının küçük bir payı. Okunan sayı artık
+// üçgenleme + çizim maliyetinin haberi -- tam #125'in dokunduğu yer. Eski
+// pompayla alınan sayılarla (250x7 -> 38-41 gül/s) KARŞILAŞTIRILAMAZ: o
+// sayı %80 oranında pompanın bekleme süresiydi (#131).
 //
 // UYARI: nokta = 1000 yaparsan çıktı panelinde dolgu notu da görürsün
 // (#68/#124). Beklenen -- burada tam da o pahalı durumu ölçüyoruz.
@@ -117,12 +123,17 @@ satıryaz("ölçüm başlıyor: " + nokta + " nokta x " + kat + " kat, " + ısı
 // Bedeli 1-2 saniyelik gecikme (taban tam bir saniye sınırına düşerse 1,
 // düşmezse 2 -- ölçüldü); ölçümün dürüstlüğü ona değer.
 den bitti = yanlış
+den gülBitti = doğru   // bir sonraki gül ancak bu doğruyken
+den boyandı = doğru    // ... ve gülün bittiği kareden sonra bir kare geçince
 
 tanım tur(): Birim = {
+  gülBitti = yanlış
   sil()
   gülÇiz(nokta, kat, yarıçap)
   // Kuyruk buraya varınca gül BİTMİŞTİR: sayımın tek doğru yeri burası.
+  // Buradan yeni gül BAŞLATILMIYOR (kural 4): bayrak kalkar, canlandır alır.
   konumuOku { _ =>
+    gülBitti = doğru
     kare += 1
     eğer (kare > ısınmaKare) {
       dez şuAn = BuAn().saniye
@@ -149,18 +160,37 @@ tanım tur(): Birim = {
       }
       sayaç += 1
     }
-    eğer (!bitti) tur()
+    eğer (bitti) durdur()
   }
 }
 
-tur()
+// Her karede en fazla bir gül, ve iki karelik el sıkışma (kural 4): gülün
+// bittiği ilk karede yalnız `boyandı` kalkar (o kare gülü boyar), bir
+// sonraki kare yenisini başlatır. Önceki bitmediyse kare boş geçer.
+canlandır {
+  eğer (gülBitti && !bitti) {
+    eğer (boyandı) { boyandı = yanlış; tur() }
+    yoksa boyandı = doğru
+  }
+}
 
 // NASIL KULLANILIR
 //
-// 1. Olduğu gibi koştur, çıkan 10 satırı not et (nokta = 250).
-// 2. nokta = 1000 yap, yine koştur ve not et.
+// 1. Olduğu gibi koştur, çıkan 10 satırı not et (nokta = 250). DİKKAT, BU
+//    ADIM DOYUYOR: 250 noktalı gülün dolgusu bir kareye sığıyor ve iki
+//    karelik el sıkışma yüzünden alet kare hızının yarısını okur -- ölçüldü
+//    (harness, SwiftShader): 26.5 gül/s, 54 kare/s. #125 o ölçekte dolguyu
+//    ~3 ms'den ~0.3 ms'ye indirse de ikisi bir kareye sığdığı için alet
+//    öncesi de sonrası da ~27 okur. Yani 250'de "değişmedi" görürsen bu
+//    #125'in değil aletin haberi. Bu adım sağlık denetimi: ~27 okunuyorsa
+//    alet ve makine beklendiği gibi.
+// 2. nokta = 1000 yap, yine koştur ve not et. SİNYAL BURADA: kare hızı işin
+//    kendisi yüzünden düşüyor (ölçüldü, aynı harness: 6.6 gül/s, 13 kare/s),
+//    yani sayı dolgu maliyetini izliyor.
 // 3. #125'in değişikliğinden sonra ikisini de tekrarla.
-// 4. Karşılaştırmayı aralık olarak yaz: "250'de 12-15 -> 18-22 gül/s".
+// 4. Karşılaştırmayı aralık olarak, 1000 üstünden yaz: "1000'de 6-7 -> ?
+//    gül/s". (Eski pompadan kalan "250'de 12-15 -> 18-22" gibi sayılar bu
+//    rejimde İMKÂNSIZ, 250 ~27'de doyuyor; öyle bir örnek yanıltır.)
 //
 // SINIRI: saniye çözünürlüğü. BuAn() saniyeden ince ölçmüyor, o yüzden
 // buradaki sayı gül SÜRESİ değil, saniyedeki GÜL sayısı. Kare süresinin

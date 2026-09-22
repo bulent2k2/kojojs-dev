@@ -217,11 +217,11 @@ gizle()
 //    193 ÖYKÜSÜ, çünkü bu yolun bir tuzağı daha vardı. İlk canlı koşuda
 //    (satırsız, tuşsuz -- yani bu dosyanın bugünkü hâli) not "17 ms sürdü
 //    (193 nokta)" dedi: kesin cümle, ama şeklin yalnız bir öneki. Sebebi
-//    ölçüldü. Komut kuyruğu 100'lük partiler hâlinde koşuyor: 99 komut
-//    eşzamanlı, 100.'de tarayıcıya dönülüyor ve o dönüş ~4.2 ms'ye
-//    kelepçeleniyor -- kelepçe komut başına DEĞİL, parti başına, ve bir
-//    kareye (16.7 ms) dört parti, ~400 komut sığıyor. Yani kuyruk boşaldığı
-//    anda son onlarca kenar henüz YAYINLANMAMIŞ olabiliyor; elimizdeki süre
+//    ölçüldü. Komut kuyruğu bir karede 8 ms'ye kadar iş yapıp kareye teslim
+//    ediyor (#131; bu ölçüm alındığında 100'lük partiler ve 4 ms'lik
+//    setTimeout aralarıyla çalışıyordu, sonuç aynı): bir kareye yüzlerce,
+//    artık binlerce komut sığıyor. Yani kuyruk boşaldığı anda son kenarlar
+//    henüz YAYINLANMAMIŞ olabiliyor; elimizdeki süre
 //    de nokta sayısı da eksik. Düzeltildi: bekleyen yayın varsa not o yayını
 //    bekliyor. Bu dosyayı olduğu gibi koşunca "18 ms sürdü (251 nokta)"
 //    görüyorsan o düzeltme çalışıyor; 251'den küçük bir sayı görürsen yaz.
