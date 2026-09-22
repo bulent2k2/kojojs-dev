@@ -176,10 +176,21 @@ canlandır {
 
 // NASIL KULLANILIR
 //
-// 1. Olduğu gibi koştur, çıkan 10 satırı not et (nokta = 250).
-// 2. nokta = 1000 yap, yine koştur ve not et.
+// 1. Olduğu gibi koştur, çıkan 10 satırı not et (nokta = 250). DİKKAT, BU
+//    ADIM DOYUYOR: 250 noktalı gülün dolgusu bir kareye sığıyor ve iki
+//    karelik el sıkışma yüzünden alet kare hızının yarısını okur -- ölçüldü
+//    (harness, SwiftShader): 26.5 gül/s, 54 kare/s. #125 o ölçekte dolguyu
+//    ~3 ms'den ~0.3 ms'ye indirse de ikisi bir kareye sığdığı için alet
+//    öncesi de sonrası da ~27 okur. Yani 250'de "değişmedi" görürsen bu
+//    #125'in değil aletin haberi. Bu adım sağlık denetimi: ~27 okunuyorsa
+//    alet ve makine beklendiği gibi.
+// 2. nokta = 1000 yap, yine koştur ve not et. SİNYAL BURADA: kare hızı işin
+//    kendisi yüzünden düşüyor (ölçüldü, aynı harness: 6.6 gül/s, 13 kare/s),
+//    yani sayı dolgu maliyetini izliyor.
 // 3. #125'in değişikliğinden sonra ikisini de tekrarla.
-// 4. Karşılaştırmayı aralık olarak yaz: "250'de 12-15 -> 18-22 gül/s".
+// 4. Karşılaştırmayı aralık olarak, 1000 üstünden yaz: "1000'de 6-7 -> ?
+//    gül/s". (Eski pompadan kalan "250'de 12-15 -> 18-22" gibi sayılar bu
+//    rejimde İMKÂNSIZ, 250 ~27'de doyuyor; öyle bir örnek yanıltır.)
 //
 // SINIRI: saniye çözünürlüğü. BuAn() saniyeden ince ölçmüyor, o yüzden
 // buradaki sayı gül SÜRESİ değil, saniyedeki GÜL sayısı. Kare süresinin

@@ -130,6 +130,31 @@ class KuyrukPompasiTest extends AsyncFunSuite with Matchers {
   }
 
   /**
+   * BİR İŞ PATLARSA ötekiler mahsur kalmıyor (#145 incelemesi §1, sondanın
+   * şekli incelemecinin). En dıştaki işin içinden üç iş zamanlanıyor -- o
+   * sırada pompa dönüyor, üçü de yalnız kuyruğa giriyor -- ortadaki
+   * fırlatıyor. Üçüncüsü AYNI koşuda koşmalı, ve hata çağırana ulaşmalı.
+   * Düzeltmeden önce iz [A] ve C bir sonraki scheduleLater'a kadar mahsurdu.
+   */
+  test("PATLAK İŞ: ortadaki fırlatınca üçüncüsü aynı koşuda koşuyor, hata sızıyor (#145 §1)") {
+    val w = dünyaKurYaDaİptal()
+    var iz = ""
+    var sızan: Throwable = null
+    try w.scheduleLater {
+      w.scheduleLater { iz += "A" }
+      w.scheduleLater { iz += "!"; throw new RuntimeException("sonda-patlak") }
+      w.scheduleLater { iz += "C" }
+    }
+    catch { case t: Throwable => sızan = t }
+    withClue(s"iz=$iz sızan=$sızan -- ") {
+      iz shouldBe "A!C" // C aynı eşzamanlı koşuda, bir sonraki zamanlamayı beklemeden
+      sızan should not be null
+      sızan.getMessage shouldBe "sonda-patlak"
+    }
+    Future.successful(succeed)
+  }
+
+  /**
    * ÖLÇÜT 4 (tepkisellik): uzun bir çokHızlı iş boyunca kareler gelmeye
    * devam ediyor. 800 kalemli gül (~400k komut) çizilirken en uzun kare
    * arası bir-iki kare; MessageChannel'lı uyandırıcıda bu 190 ms'ye
@@ -173,7 +198,8 @@ class KuyrukPompasiTest extends AsyncFunSuite with Matchers {
         // yük altında tek bir `Forward` 14 ms sürüp bir koşuyu 8'den 14'e
         // (bir kez de 27'ye) taşıdı -- koşunun ortasına düşen GC durması,
         // pompanın kararı değil. Tek durma geçer; dilimi yok sayan pompa her
-        // koşuda aşar ve ~160 koşuda 2'yi çok aşar.
+        // koşuda aşar ve ~160 koşuda 2'yi çok aşar. Eşik dilim + 8 = 16 ms,
+        // kare bütçesinin altında (#145 incelemesi §4).
         // (2) Kadans: kareler gelmeye devam ediyor. Kare ARALIĞINA mutlak
         // sınır konmuyor: aynı koşularda 102-166 ms'lik boşluklar ölçüldü ve
         // o sırada pompa koşuları 8-14 ms'ydi -- boşluk tarayıcının (on sağ
