@@ -80,6 +80,7 @@ libtess **soğuk** koşuyor. Gerçek bir tarayıcıda 250×7 ölçeğinde üç �
 | 251 | 22 / 32 / 35 ms (üç koşu, elle tamamlama satırıyla) |
 | 251 | 18 ms (tek koşu, satırsız — kojojs-dev#134) |
 | 251 | 21 ms (tek koşu, satırsız, yeni komut pompası — kojojs-dev#131) |
+| 251 | 23 / 31 / 38 ms (üç koşu, `Resim{}` içinde — kojojs-dev#143) |
 
 Tablodaki 8 ms'nin **2.8 ile 4.4 katı** arası. **Üç sayının yayılmasına
 dikkat**: en büyüğü en küçüğün **1.6 katı** (35 ve 22). Yüzde vermiyoruz,
@@ -97,13 +98,18 @@ noktası konuyor, sonra 250 kenar ekleniyor. (Düzeltmeden önce bu örnek "146 
 sayılar yazıyordu — dolgu şekil bitmeden de yayınlanıyor ve not her yayını ayrı
 ayrı bildiriyordu.)
 
-Soğukla sıcak arasındaki fark **henüz ölçülmedi**. Burada bir sav vardı —
-"ölçü aletinin döngüsünde not düşmüyor, demek ki sıcak süre ≤16.7 ms, yani
-~7 kat" — ve yanlıştı (kojojs-dev#133 incelemesi): o çıkarım şeklin
-*tamamlanmış* olmasını gerektiriyor, oysa aletin gülü hiç tamamlanmıyor
-(`sil()` dolgu kurulumundan önce geliyor). Doğru üst sınır 50.1 ms, ve 35 ms
-soğuk ile ≤50.1 ms sıcak **hiç fark olmamasıyla da uyumlu**. Tablonun iyimser
-olduğu hâlâ makul bir hipotez, ama ölçülmüş değil.
+Soğukla sıcak arasındaki fark **ölçüldü** (kojojs-dev#143, gerçek donanım):
+her karede `resimleriSil(); çiz(Resim { gül })` yapan bir `canlandır` döngüsü
+300 kareyi 5.0 saniyede bitiriyor — **60 kare/s**, yani ısınmış gülün dolgusu
+bütçeye (16.7 ms) sığıyor. Koşu başına düşen tek not ilk, soğuk gülün:
+20 / 22 / 27 ms. Tek atışlık koşulardaki 18–38 ms'nin hepsi soğuk sayı; yani
+tablonun iyimser olduğu artık hipotez değil, soğuk/sıcak en az 1.2, en çok
+2.3 kat (sıcak tarafın üst sınırı 16.7, kendisi ölçülmedi). Bu ölçüm bir süre
+yapılamadı, çünkü buradaki eski sav — "ölçü aletinin döngüsünde not
+düşmüyor, demek ki sıcak ≤16.7 ms" — yanlıştı (kojojs-dev#133 incelemesi):
+o çıkarım şeklin *tamamlanmış* olmasını gerektiriyor, oysa aletin gülü
+`canlandır` içinde hiç tamamlanmıyor. `Resim{}` için bu kapı yok (aşağıda),
+ölçüm o yoldan geldi.
 
 Tabloyu **büyük ölçek farkları** için okuyun (250 ile 4000 arasındaki fark
 gerçek), yakın sayıları karşılaştırmak ya da mutlak eşik çıkarmak için değil.
@@ -132,7 +138,15 @@ değişimi, ve — yenisi — **komut kuyruğunun boşalması** (kojojs-dev#134)
 Üçüncüsü ancak betiği uyandırabilecek hiçbir şey kalmadığında sayılıyor:
 `canlandır`, `yineleSayaçla`, `tuşaBasınca` ya da bir resim fare işleyicisi varsa
 kuyruk boşalsa da şekle nokta gelebilir, ve orada not susuyor — yanlış bir
-sayıyı kesin diye söylemektense. Üçüncüsü olmadan betiğin **son** şekli çoğu zaman hiç
+sayıyı kesin diye söylemektense. `Resim{}` içindeki kaplumbağa için bu kapı
+**yok** (kojojs-dev#143): resmin gövdesi bitince şekli de bitmiştir, `çiz`/`sil`
+yeniden çizer ama nokta eklemez; o yüzden `canlandır` içinde kurulan bir
+`Resim{}` bütçeyi aşarsa konuşur. Karar da "kuyruk boşaldı" anında değil kare
+sınırında veriliyor — yeni komut pompasında (kojojs-dev#131) kuyruk düz bir
+döngüde her komuttan sonra boşalıyor, ve boşalma anında karar veren ilk sürüm,
+pompa şeklin ortasında kareye teslim edince yarım şekli kesin sayıyla
+bildiriyordu ("30 ms sürdü (21 nokta)", 251 noktalık gül için; kojojs-dev#148).
+Üçüncüsü olmadan betiğin **son** şekli çoğu zaman hiç
 "bitmiş" sayılmıyor, ve bütçeyi aşmasına rağmen sessiz kalabiliyordu:
 `14-agir-dolgu.kojo` tam bu yüzden bir süre sessizdi ve örneğe elle bir
 "şekli tamamla" satırı eklenmişti. Üçüncü yol canlıda doğrulanınca
@@ -147,9 +161,13 @@ yeniden çizer ve saniyede kaç kare düştüğünü yazar.
 
 Ölçtüğü şey şu: bugün dolgu üçgenlere ayrılıp PIXI'ye **üçgen başına bir
 `drawPolygon`** ile veriliyor (250 noktalı gülde yayın başına 2 998 çağrı).
-#125 bunun yerine tek bir mesh vermeyi tartışıyor. Betik o değişikliği
-**yapamaz** — hangi PIXI nesnesinin kullanıldığı kitaplığın içinde; betiğin işi
-yalnız kareyi saymak.
+#125 bunun yerine tek bir mesh vermeyi tartışıyordu ve **"yapılmayacak" diye
+kapandı**: mesh kendi diliminde 5–14 kat ucuz, ama dilim gülün ≤%5–10'u
+(1000 noktada libtess %58), uçtan uca kazanç ≤%8 — bu aletin çözünürlüğünün
+altında. Alet duruyor: bir sonraki kaldıraç olan stencil dolgu (kojojs-dev#147,
+hiç üçgenlemeden) aynı aletle ölçülecek, 1000 noktada canlı taban 15–17 gül/s.
+Betik o değişiklikleri **yapamaz** — dolgunun nasıl çizildiği kitaplığın
+içinde; betiğin işi yalnız kareyi saymak.
 
 Düzeneğin üç kuralı, #68'de üç kez yanlış ölçülmüş olmasından geliyor:
 
