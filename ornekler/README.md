@@ -79,6 +79,7 @@ libtess **soğuk** koşuyor. Gerçek bir tarayıcıda 250×7 ölçeğinde üç �
 |---|---|
 | 251 | 22 / 32 / 35 ms (üç koşu, elle tamamlama satırıyla) |
 | 251 | 18 ms (tek koşu, satırsız — kojojs-dev#134) |
+| 251 | 21 ms (tek koşu, satırsız, yeni komut pompası — kojojs-dev#131) |
 
 Tablodaki 8 ms'nin **2.8 ile 4.4 katı** arası. **Üç sayının yayılmasına
 dikkat**: en büyüğü en küçüğün **1.6 katı** (35 ve 22). Yüzde vermiyoruz,
@@ -184,10 +185,17 @@ kazancı en çok render tarafında olduğu için alet mesh'i kendi aleyhine öl�
 Sınama savı (`kojo.MeshAletiOlcumTest`) hâlâ "sayılan her gülün en az bir boyaması
 var" ve bu değişiklikte kırmızıya dönüp aleti yeniden tasarlattı.
 
-Üst sınır bu yüzden kare hızı (~60 gül/s): okunan sayı artık üçgenleme + çizim
-maliyetinin haberi — tam #125'in dokunduğu yer. Eski pompayla alınan
-250×7 → 38–41 gül/s ile **karşılaştırılamaz**; o sayının ~%80'i pompanın bekleme
-süresiydi.
+Üst sınır bu yüzden kare hızının yarısı (~30 gül/s, iki karelik el sıkışma):
+okunan sayı artık üçgenleme + çizim maliyetinin haberi — tam #125'in dokunduğu
+yer. Eski pompayla alınan 250×7 → 38–41 gül/s ile **karşılaştırılamaz**; o
+sayının ~%80'i pompanın bekleme süresiydi.
+
+Canlıda ölçüldü (gerçek donanım, kojojs-dev#131): 250'de eski pompada da yeni
+pompada da **30** (tavan — orada hiçbir değişiklik görülmez); 1000'de eski pompa
+**4–5**, yeni pompa **15–17** gül/s. Fark yalnız pompa payının gitmesi değil: gül
+tek karede bitince tek kez üçgenleniyor, eskiden ~10 karede büyüyen önek her
+seferinde yeniden üçgenleniyordu. Aynı betiklerle 100 000 komutluk kalemli iş
+6.9–10.4 s'den 108–165 ms'ye indi.
 
 ## Bu örnekler test ediliyor
 
