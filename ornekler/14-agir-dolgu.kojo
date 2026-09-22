@@ -17,6 +17,7 @@
 //
 //     251 nokta -> 22 / 32 / 35 ms    (üç koşu, elle tamamlama satırıyla)
 //     251 nokta -> 18 ms              (tek koşu, satırsız -- #134, aşağıda)
+//     251 nokta -> 21 ms              (tek koşu, satırsız, yeni pompa -- #131)
 //
 // Yani tablodaki 8 ms'nin 2.8 ile 4.4 katı arası. Sayı tam 251 çünkü kalem inince bir
 // başlangıç noktası konuyor, sonra 250 kenar ekleniyor -- betiğin kendi

@@ -182,11 +182,16 @@ canlandır {
 //    (harness, SwiftShader): 26.5 gül/s, 54 kare/s. #125 o ölçekte dolguyu
 //    ~3 ms'den ~0.3 ms'ye indirse de ikisi bir kareye sığdığı için alet
 //    öncesi de sonrası da ~27 okur. Yani 250'de "değişmedi" görürsen bu
-//    #125'in değil aletin haberi. Bu adım sağlık denetimi: ~27 okunuyorsa
-//    alet ve makine beklendiği gibi.
+//    #125'in değil aletin haberi. Bu adım sağlık denetimi: ~27-30 okunuyorsa
+//    alet ve makine beklendiği gibi. Canlıda ölçüldü (gerçek donanım,
+//    #131): eski pompada da yeni pompada da 30 -- tavanın ta kendisi.
 // 2. nokta = 1000 yap, yine koştur ve not et. SİNYAL BURADA: kare hızı işin
 //    kendisi yüzünden düşüyor (ölçüldü, aynı harness: 6.6 gül/s, 13 kare/s),
-//    yani sayı dolgu maliyetini izliyor.
+//    yani sayı dolgu maliyetini izliyor. Canlıda (gerçek donanım, #131):
+//    eski pompa 4-5, yeni pompa 15-17 gül/s -- fark yalnız pompa payının
+//    gitmesi değil: gül tek karede bitince TEK kez üçgenleniyor, eskiden
+//    ~10 karede büyüyen önek her seferinde yeniden üçgenleniyordu (notlar
+//    145-155 ms'den 80 ms'ye indi). #125'in öncesi bu 15-17.
 // 3. #125'in değişikliğinden sonra ikisini de tekrarla.
 // 4. Karşılaştırmayı aralık olarak, 1000 üstünden yaz: "1000'de 6-7 -> ?
 //    gül/s". (Eski pompadan kalan "250'de 12-15 -> 18-22" gibi sayılar bu
