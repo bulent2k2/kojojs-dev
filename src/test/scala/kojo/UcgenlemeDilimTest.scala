@@ -49,9 +49,11 @@ class UcgenlemeDilimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
     scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
   private val gerçekSaat = ÜçgenlemeUyarısı.saat
+  private val gerçekErkenÇarpan = ÜçgenlemeUyarısı.erkenÇarpan
 
   override def afterAll(): Unit = {
     ÜçgenlemeUyarısı.saat = gerçekSaat
+    ÜçgenlemeUyarısı.erkenÇarpan = gerçekErkenÇarpan
     ÜçgenlemeUyarısı.hepsiniUnut()
     Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
     Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
@@ -82,10 +84,23 @@ class UcgenlemeDilimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
   private def panelMetni: String =
     Option(document.getElementById("output")).map(_.textContent).getOrElse("")
 
-  /** Her üçgenleme 30 ms: bütçe (16.7) üstü, erken eşik (50.1) altı -- yarım yayın bile "konuşabilir". */
+  /**
+   * Her üçgenleme 30 ms: bütçe (16.7) üstü, yani yarım yayın bile "konuşabilir".
+   *
+   * ERKEN YOL KAPALI, çünkü savın ölçtüğü şey o değil (#148 incelemesi §2):
+   * pompanın devamı işi iki kareye yayarsa şekil iki kez üçgenlenir, toplam
+   * 60 ms erken eşiği (50.1) aşar ve erkenÇarpan DÜRÜST notunu ("şimdilik
+   * 169 nokta; şekil büyüdükçe artacak") basar -- o not doğru, ama
+   * `bildirildi`yi koyup kesin notu susturur ve sav "sürdü" bulamaz. Kaç
+   * kareye yayıldığı yüke bağlı: incelemede iki koşuda bir kırmızı. Eşiği
+   * sonsuza çekmek savı yayın sayısından bağımsız kılıyor; mutasyon
+   * (`şekilDurmuş`ten `boştaMı`yı sök) yine "(21 nokta)" ile kırmızı --
+   * ayırt edicilik erken yola değil `durdu` yoluna dayanıyor.
+   */
   private def saatiKur(): Unit = {
     var tik = 0.0
     ÜçgenlemeUyarısı.saat = () => { tik += 30.0; tik }
+    ÜçgenlemeUyarısı.erkenÇarpan = Double.PositiveInfinity
   }
 
   private def bekle(ms: Int): Future[Unit] = {
@@ -151,6 +166,6 @@ class UcgenlemeDilimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
           panelMetni should include(s"(${nokta + 1} nokta)")
         }
       }
-    }
+    }.andThen { case _ => ÜçgenlemeUyarısı.erkenÇarpan = gerçekErkenÇarpan }
   }
 }
