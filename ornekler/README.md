@@ -104,7 +104,9 @@ her karede `resimleriSil(); çiz(Resim { gül })` yapan bir `canlandır` döngü
 bütçeye (16.7 ms) sığıyor. Koşu başına düşen tek not ilk, soğuk gülün:
 20 / 22 / 27 ms. Tek atışlık koşulardaki 18–38 ms'nin hepsi soğuk sayı; yani
 tablonun iyimser olduğu artık hipotez değil, soğuk/sıcak en az 1.2, en çok
-2.3 kat (sıcak tarafın üst sınırı 16.7, kendisi ölçülmedi). Bu ölçüm bir süre
+2.3 kat (sıcak tarafın üst sınırı 16.7, kendisi ölçülmedi). 400 noktada aynı
+tablo: 300 kare 5.0 s, tek not soğuk gülün, 36 ms — ısınmış 400 noktalı gül de
+bütçeye sığıyor, oran orada en az 2.2 kat. Bu ölçüm bir süre
 yapılamadı, çünkü buradaki eski sav — "ölçü aletinin döngüsünde not
 düşmüyor, demek ki sıcak ≤16.7 ms" — yanlıştı (kojojs-dev#133 incelemesi):
 o çıkarım şeklin *tamamlanmış* olmasını gerektiriyor, oysa aletin gülü

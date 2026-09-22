@@ -49,7 +49,10 @@
 // 20 / 22 / 27 ms (üç koşu). Tek atışlık koşulardaki 18-38 ms'nin hepsi
 // soğuk sayı. Yani tablonun "iyimser" olması artık hipotez değil: soğuk
 // 20-38, sıcak <= 16.7 -- en az 1.2, en çok 2.3 kat. (Üst sınır ölçülmedi;
-// 60 kare/s yalnız "bütçeye sığıyor" diyor, kaç ms olduğunu değil.)
+// 60 kare/s yalnız "bütçeye sığıyor" diyor, kaç ms olduğunu değil.) 400
+// noktada da aynı tablo: 300 kare 5.0 s, yine tek not ve soğuk gülün, 36 ms
+// -- yani ısınmış 400 noktalı gül de bütçeye sığıyor, soğuk/sıcak orada en
+// az 2.2 kat. Sıcak tarafın nerede bütçeyi aştığı hâlâ ölçülmedi.
 //
 // Bu ölçüm bir süre yapılamadı, çünkü buradaki eski sav yanlıştı (#133
 // incelemesi §2): "15-mesh-olcumu.kojo'nun döngüsünde not düşmüyor, demek
