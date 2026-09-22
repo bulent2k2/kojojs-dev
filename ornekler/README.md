@@ -106,7 +106,9 @@ bütçeye (16.7 ms) sığıyor. Koşu başına düşen tek not ilk, soğuk gül�
 tablonun iyimser olduğu artık hipotez değil, soğuk/sıcak en az 1.2, en çok
 2.3 kat (sıcak tarafın üst sınırı 16.7, kendisi ölçülmedi). 400 noktada aynı
 tablo: 300 kare 5.0 s, tek not soğuk gülün, 36 ms — ısınmış 400 noktalı gül de
-bütçeye sığıyor, oran orada en az 2.2 kat. Bu ölçüm bir süre
+bütçeye sığıyor, oran orada en az 2.2 kat. 700 noktada da (tek not, soğuk 49 ms):
+en az 2.9 kat. Sıcak gülün bütçeyi aştığı yer 700 ile 1000 arasında — 1000'de
+ölçü aleti 15–17 gül/s okuyor. Bu ölçüm bir süre
 yapılamadı, çünkü buradaki eski sav — "ölçü aletinin döngüsünde not
 düşmüyor, demek ki sıcak ≤16.7 ms" — yanlıştı (kojojs-dev#133 incelemesi):
 o çıkarım şeklin *tamamlanmış* olmasını gerektiriyor, oysa aletin gülü

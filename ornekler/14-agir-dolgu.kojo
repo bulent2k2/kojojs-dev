@@ -52,7 +52,10 @@
 // 60 kare/s yalnız "bütçeye sığıyor" diyor, kaç ms olduğunu değil.) 400
 // noktada da aynı tablo: 300 kare 5.0 s, yine tek not ve soğuk gülün, 36 ms
 // -- yani ısınmış 400 noktalı gül de bütçeye sığıyor, soğuk/sıcak orada en
-// az 2.2 kat. Sıcak tarafın nerede bütçeyi aştığı hâlâ ölçülmedi.
+// az 2.2 kat. 700 noktada da: 300 kare 5.0 s, tek not, soğuk 49 ms -- en az
+// 2.9 kat. Sıcak tarafın nerede bütçeyi aştığı hâlâ ölçülmedi; 700'de
+// aşmıyor, 1000'de ölçü aleti 15-17 gül/s okuyor (iki karelik el sıkışma
+// dâhil), yani orada aşıyor. Sınır 700 ile 1000 arasında bir yerde.
 //
 // Bu ölçüm bir süre yapılamadı, çünkü buradaki eski sav yanlıştı (#133
 // incelemesi §2): "15-mesh-olcumu.kojo'nun döngüsünde not düşmüyor, demek
