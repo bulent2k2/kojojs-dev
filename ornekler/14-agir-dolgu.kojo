@@ -199,8 +199,11 @@ gizle()
 //
 //    SAYI 251 OLMALI, ve buna ayrıca bak. İlk canlı koşuda "17 ms sürdü
 //    (193 nokta)" çıkmıştı: kesin cümle, ama şeklin yalnız bir öneki. Sebebi
-//    ölçüldü -- kuyruk kare sınırından hızlı boşalıyor (komut hoplaması
-//    ~4.2 ms, kare 16.7 ms), yani boşalma anında son onlarca kenar henüz
+//    ölçüldü -- kuyruk iki kare arasında yüzlerce komut işleyebiliyor. Komut
+//    kuyruğu 100'lük partiler hâlinde koşuyor: 99 komut eşzamanlı, 100.'de
+//    tarayıcıya dönülüyor ve o dönüş ~4.2 ms'ye kelepçeleniyor. Yani kelepçe
+//    komut başına DEĞİL, parti başına; bir kareye (16.7 ms) dört parti,
+//    yani ~400 komut sığıyor. Sonuç: boşalma anında son onlarca kenar henüz
 //    YAYINLANMAMIŞ oluyor ve elimizdeki süre de nokta sayısı da eksik.
 //    Düzeltildi: bekleyen yayın varsa not o yayını bekliyor. 251'den küçük
 //    bir sayı görürsen düzeltme çalışmıyor demektir, yaz.
