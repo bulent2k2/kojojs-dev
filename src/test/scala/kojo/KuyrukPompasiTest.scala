@@ -212,11 +212,24 @@ class KuyrukPompasiTest extends AsyncFunSuite with Matchers {
         // komut kendi koşusu. Kusur değil, eşzamanlılığın sonucu; bütçe
         // koşular arası biriktiği için dilim yine tutuyor (en uzun 2.8 ms).
         w.koşuSayısı should be > 20
-        w.aşanKoşuSayısı should be <= 2
+        // Aşma sayısı MUTLAK değil, kare sayısıyla ölçekli (#150 incelemesi
+        // §4): incelemede yüklü bir makinede 379k koşuda 3 aşma ölçüldü ve
+        // mutlak 2 kırmızıydı. Paydayı KOŞU sayısı yapmak yanlış olurdu --
+        // koşuların hemen hepsi tek komutluk (eşzamanlı ilk iş), aşma ancak
+        // kareye teslimden sonraki devam koşularında olabilir ve onların
+        // sayısı KARE sayısıyla gidiyor. Dilimi yok sayan pompa her devam
+        // koşusunda aşar: aşma ~kare, %10'un çok üstünde -> yine kırmızı.
+        // Taban 2: az kareli kısa koşuda eski mutlak eşik olduğu gibi.
+        w.aşanKoşuSayısı should be <= math.max(2, kare / 10)
         (kare * 1000.0 / toplam) should be > 20.0
         // Ve iş gerçekten hızlı: eski pompa 100 komut / 4.2 ms = 24 komut/ms
-        // verirdi; 400k komut 17 s sürerdi. Ölçülen ~1600 komut/ms; sınır 8x.
-        (800 * 502 / toplam) should be > 200.0
+        // verirdi; 400k komut 17 s sürerdi. Ölçülen ~1600 komut/ms burada;
+        // GitHub'ın koşucusu 186 ölçtü (#150'nin CI'ı, yalnız belge değişen
+        // bir başta, aşan koşu 0, kare arası 41 ms -- pompa sözünü tutmuş,
+        // makine yavaşmış). Eşik makineye bağlı bir sayı, o yüzden eski
+        // pompaya 4x pay bırakacak kadar düşük: 100. Mutasyon (eski pompa)
+        // 24 ile yine kırmızı.
+        (800 * 502 / toplam) should be > 100.0
       }
     }
   }

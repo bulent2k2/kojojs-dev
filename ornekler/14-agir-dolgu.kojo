@@ -18,6 +18,7 @@
 //     251 nokta -> 22 / 32 / 35 ms    (üç koşu, elle tamamlama satırıyla)
 //     251 nokta -> 18 ms              (tek koşu, satırsız -- #134, aşağıda)
 //     251 nokta -> 21 ms              (tek koşu, satırsız, yeni pompa -- #131)
+//     251 nokta -> 23 / 31 / 38 ms    (üç koşu, Resim{} içinde -- #143)
 //
 // Yani tablodaki 8 ms'nin 2.8 ile 4.4 katı arası. Sayı tam 251 çünkü kalem inince bir
 // başlangıç noktası konuyor, sonra 250 kenar ekleniyor -- betiğin kendi
@@ -41,25 +42,40 @@
 // yazıyordu: dolgu şekil bitmeden de yayınlanıyor ve not her yayını ayrı
 // ayrı bildiriyordu. Artık not ŞEKİL BAŞINA toplamı veriyor.)
 //
-// SOĞUK / SICAK farkı HENÜZ ÖLÇÜLMEDİ -- burada bir savım vardı, yanlıştı
-// (#133 incelemesi §2). Şöyleydi: "15-mesh-olcumu.kojo'nun döngüsünde hiç
-// not düşmüyor, demek ki sıcak süre <= 16.7 ms; yani soğuk/sıcak ~7 kat."
+// SOĞUK / SICAK farkı ÖLÇÜLDÜ (#143, canlı, gerçek donanım): her karede
+// `resimleriSil(); çiz(Resim { gül })` yapan bir `canlandır` döngüsü 300
+// kareyi 5.0 saniyede bitiriyor -- 60 kare/s, yani ısınmış gülün dolgusu
+// 16.7 ms'lik bütçeye SIĞIYOR. Aynı koşuda düşen tek not ilk, soğuk gülün:
+// 20 / 22 / 27 ms (üç koşu). Tek atışlık koşulardaki 18-38 ms'nin hepsi
+// soğuk sayı. Yani tablonun "iyimser" olması artık hipotez değil: soğuk
+// 20-38, sıcak <= 16.7 -- oran EN AZ 1.2 (en hızlı soğuk koşu için), en
+// yavaş soğuk koşu için en az 2.3. Bu bir ALT sınır; üst sınırı bu veri
+// vermiyor, çünkü sıcak tarafın 16.7'nin ne kadar altında olduğu
+// ölçülmedi (60 kare/s yalnız "bütçeye sığıyor" diyor). #68'in ısıtılmış
+// ~8 ms'i sıcak sayılsa oran 2.5-4.8 olur; geri alınan "~7 kat" bile bu
+// veriyle dışlanmıyor. (Bu cümle ilk hâlinde "en çok 2.3" diyordu -- alt
+// sınırı tavan gibi sunuyordu, #150 incelemesi §2.) 400
+// noktada da aynı tablo: 300 kare 5.0 s, yine tek not ve soğuk gülün, 36 ms
+// -- yani ısınmış 400 noktalı gül de bütçeye sığıyor, soğuk/sıcak orada en
+// az 2.2 kat. 700 noktada da: 300 kare 5.0 s, tek not, soğuk 49 ms -- en az
+// 2.9 kat. Sıcak tarafın nerede bütçeyi aştığı hâlâ ölçülmedi; 700'de
+// aşmıyor, 1000'de ölçü aleti aynı makinede 7-8 gül/s okuyor (iki karelik
+// el sıkışma dâhil; daha hızlı bir makinede 15-17), yani orada aşıyor. Sınır
+// 700 ile 1000 arasında bir yerde.
 //
-// Çıkarım geçersiz, çünkü o çıkarım şeklin TAMAMLANMIŞ olmasını gerektiriyor
-// -- tamamlanmamış şekil ancak 50.1 ms'yi aşarsa konuşuyor. Ve aletin gülü
-// hiç tamamlanmıyor: `sil()` boyamaRenginiKur'dan ÖNCE geliyor, yani
-// boyamayıİşle boş çokgen buluyor. (Bu dosya aynı durumu bir süre elle bir
-// "şekli tamamla" satırıyla örtmüştü; #134 onu kitaplıkta kapattı -- ama
-// yalnız canlandırma DIŞINDA, hemen aşağıda.)
+// Bu ölçüm bir süre yapılamadı, çünkü buradaki eski sav yanlıştı (#133
+// incelemesi §2): "15-mesh-olcumu.kojo'nun döngüsünde not düşmüyor, demek
+// ki sıcak <= 16.7 ms" çıkarımı şeklin TAMAMLANMIŞ olmasını gerektiriyordu,
+// aletin gülü ise `canlandır` içinde hiç tamamlanmıyor ve kaplumbağanın
+// kendisi için kuyruk boşalması canlandırma dönerken sayılmıyor (kapı
+// bilerek böyle: boşalma canlandırmada kare başına 1.63 kez oluyor, ve bir
+// sonraki kare şekle nokta ekleyebilir). Sınır orada hâlâ 50.1 ms.
 //
-// #134 BU SINIRI DEĞİŞTİRMİYOR: yeni üçüncü yol (kuyruk boşalması) yalnız
-// canlandırma DÖNMÜYORKEN sayılıyor, alet ise gülünü `canlandır` döngüsünde
-// çiziyor. Orada şekil hâlâ tamamlanmıyor, ve sınır hâlâ 50.1 ms. (Kapı
-// bilerek böyle: boşalma canlandırmada kare başına 1.63 kez oluyor.)
-//
-// Doğru üst sınır 16.7 değil 50.1 ms. 35 ms soğuk ile <= 50.1 ms sıcak,
-// HİÇ FARK OLMAMASIYLA da uyumlu. Tablonun "iyimser" olduğu hâlâ makul bir
-// hipotez (#68'in sayıları ısıtılmış ortancalar) ama bu koşudan çıkmıyor.
+// `Resim{}` İÇİN KAPI YOK (#143): resmin gövdesi bitince şekli de bitmiştir
+// -- `çiz`/`sil` yeniden çizer, nokta eklemez. O yüzden canlandırma içinde
+// kurulan bir Resim{} bütçeyi aşarsa konuşur; yukarıdaki soğuk/sıcak
+// ölçümü tam bu yoldan geldi. Kaplumbağa ile resim arasındaki bu fark
+// bilinçli: birinde belirsizlik var, ötekinde yok.
 //
 // Buradan çıkan kural: tabloyu BÜYÜK ÖLÇEK farkları için oku (250 ile 4000
 // arasındaki fark gerçek), yakın sayıları karşılaştırmak ya da mutlak bir

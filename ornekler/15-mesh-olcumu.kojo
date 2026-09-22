@@ -1,4 +1,4 @@
-// DOLGU ÇİZİM MALİYETİ: sabit bir ölçüm düzeneği (kojojs-dev#125)
+// DOLGU ÇİZİM MALİYETİ: sabit bir ölçüm düzeneği (kojojs-dev#125 -> #147)
 //
 // Bu dosya bir ÖRNEK değil, bir ÖLÇÜ ALETİ. Öğretmek için değil, bir
 // değişikliğin ÖNCESİ ve SONRASI aynı şeyle ölçülsün diye var.
@@ -6,12 +6,20 @@
 // ÖLÇTÜĞÜ ŞEY: kesişen bir şekli HER KAREDE yeniden çizen bir döngünün
 // saniyede kaç kare verdiği. Bugün iKojo bu dolguyu üçgenlere ayırıp PIXI'ye
 // ÜÇGEN BAŞINA BİR drawPolygon ile veriyor: aşağıdaki 250 noktalı gülde
-// yayın başına 2 998 çağrı, 1000 noktalıda 11 998. #125 bunun yerine tek bir
-// mesh vermeyi tartışıyor; ölçülmüş kazanç 8-14 kat ama mutlak olarak küçük.
+// yayın başına 2 998 çağrı, 1000 noktalıda 11 998.
 //
-// BU BETİK O DEĞİŞİKLİĞİ YAPAMAZ -- hangi PIXI nesnesinin kullanıldığı
-// kitaplığın içinde. Betiğin işi kareyi SAYMAK: #125 uygulanmadan önce bir
-// kez, uygulandıktan sonra bir kez koşturulur, iki çıktı karşılaştırılır.
+// #125 (tek mesh) BU ALET İÇİN YAZILDI VE "YAPILMAYACAK" DİYE KAPANDI: mesh
+// kendi diliminde 5-14 kat ucuz, ama dilim gülün <= %5-10'u (1000 noktada
+// libtess %58) ve uçtan uca kazanç <= %8 -- bu aletin çözünürlüğünün altında.
+// Aşağıdaki #125 göndermeleri o ölçümlerin tarihi; alet duruyor, çünkü bir
+// sonraki kaldıraç (#147: stencil tamponuyla dolgu, hiç üçgenlemeden) aynı
+// şeyle ölçülecek. Öncesi 1000 noktada 15-17 gül/s -- AMA MAKİNEYE GÖRE:
+// ikinci bir makinede aynı yayın 7-8 okudu (notlar 105-112 ms, ötekinde
+// 58-81). Sayı taşınmaz; öncesi ve sonrası AYNI makinede alınmalı (2. adım).
+//
+// BU BETİK O DEĞİŞİKLİKLERİ YAPAMAZ -- dolgunun nasıl çizildiği kitaplığın
+// içinde. Betiğin işi kareyi SAYMAK: değişiklik uygulanmadan önce bir kez,
+// uygulandıktan sonra bir kez koşturulur, iki çıktı karşılaştırılır.
 //
 // #68'DE ÜÇ KEZ YANLIŞ ÖLÇÜLDÜ. Buradaki üç kural o üç hatanın karşılığı:
 //
@@ -191,8 +199,11 @@ canlandır {
 //    eski pompa 4-5, yeni pompa 15-17 gül/s -- fark yalnız pompa payının
 //    gitmesi değil: gül tek karede bitince TEK kez üçgenleniyor, eskiden
 //    ~10 karede büyüyen önek her seferinde yeniden üçgenleniyordu (notlar
-//    145-155 ms'den 80 ms'ye indi). #125'in öncesi bu 15-17.
-// 3. #125'in değişikliğinden sonra ikisini de tekrarla.
+//    145-155 ms'den 80 ms'ye indi). Öncesi bu 15-17 -- o makinede. Aynı
+//    yayın ikinci bir makinede 7-8 okudu (notlar 105-112 ms; ölçüldü,
+//    #148 öncesi/sonrası harness'te aynı, yani gerileme değil makine).
+//    Karşılaştırmayı hep aynı makinede yap.
+// 3. Ölçülen değişiklikten (bugün #147) sonra ikisini de tekrarla.
 // 4. Karşılaştırmayı aralık olarak, 1000 üstünden yaz: "1000'de 6-7 -> ?
 //    gül/s". (Eski pompadan kalan "250'de 12-15 -> 18-22" gibi sayılar bu
 //    rejimde İMKÂNSIZ, 250 ~27'de doyuyor; öyle bir örnek yanıltır.)
