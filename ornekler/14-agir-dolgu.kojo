@@ -48,8 +48,13 @@
 // 16.7 ms'lik bütçeye SIĞIYOR. Aynı koşuda düşen tek not ilk, soğuk gülün:
 // 20 / 22 / 27 ms (üç koşu). Tek atışlık koşulardaki 18-38 ms'nin hepsi
 // soğuk sayı. Yani tablonun "iyimser" olması artık hipotez değil: soğuk
-// 20-38, sıcak <= 16.7 -- en az 1.2, en çok 2.3 kat. (Üst sınır ölçülmedi;
-// 60 kare/s yalnız "bütçeye sığıyor" diyor, kaç ms olduğunu değil.) 400
+// 20-38, sıcak <= 16.7 -- oran EN AZ 1.2 (en hızlı soğuk koşu için), en
+// yavaş soğuk koşu için en az 2.3. Bu bir ALT sınır; üst sınırı bu veri
+// vermiyor, çünkü sıcak tarafın 16.7'nin ne kadar altında olduğu
+// ölçülmedi (60 kare/s yalnız "bütçeye sığıyor" diyor). #68'in ısıtılmış
+// ~8 ms'i sıcak sayılsa oran 2.5-4.8 olur; geri alınan "~7 kat" bile bu
+// veriyle dışlanmıyor. (Bu cümle ilk hâlinde "en çok 2.3" diyordu -- alt
+// sınırı tavan gibi sunuyordu, #150 incelemesi §2.) 400
 // noktada da aynı tablo: 300 kare 5.0 s, yine tek not ve soğuk gülün, 36 ms
 // -- yani ısınmış 400 noktalı gül de bütçeye sığıyor, soğuk/sıcak orada en
 // az 2.2 kat. 700 noktada da: 300 kare 5.0 s, tek not, soğuk 49 ms -- en az

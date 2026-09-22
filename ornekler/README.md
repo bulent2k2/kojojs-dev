@@ -103,8 +103,10 @@ her karede `resimleriSil(); çiz(Resim { gül })` yapan bir `canlandır` döngü
 300 kareyi 5.0 saniyede bitiriyor — **60 kare/s**, yani ısınmış gülün dolgusu
 bütçeye (16.7 ms) sığıyor. Koşu başına düşen tek not ilk, soğuk gülün:
 20 / 22 / 27 ms. Tek atışlık koşulardaki 18–38 ms'nin hepsi soğuk sayı; yani
-tablonun iyimser olduğu artık hipotez değil, soğuk/sıcak en az 1.2, en çok
-2.3 kat (sıcak tarafın üst sınırı 16.7, kendisi ölçülmedi). 400 noktada aynı
+tablonun iyimser olduğu artık hipotez değil: soğuk/sıcak **en az** 1.2 (en hızlı
+soğuk koşu), en yavaş soğuk koşu için en az 2.3 — alt sınır; üst sınır bu
+veriden çıkmıyor, sıcak tarafın 16.7'nin ne kadar altında olduğu ölçülmedi
+(#68'in ısıtılmış ~8 ms'i sıcak sayılsa 2.5–4.8 kat olurdu). 400 noktada aynı
 tablo: 300 kare 5.0 s, tek not soğuk gülün, 36 ms — ısınmış 400 noktalı gül de
 bütçeye sığıyor, oran orada en az 2.2 kat. 700 noktada da (tek not, soğuk 49 ms):
 en az 2.9 kat. Sıcak gülün bütçeyi aştığı yer 700 ile 1000 arasında — 1000'de
