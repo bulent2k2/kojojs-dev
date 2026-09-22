@@ -15,7 +15,8 @@
 // atışlık gerçek bir betikte libtess SOĞUK koşuyor. Gerçek bir tarayıcıda
 // 250x7 ölçeğinde ölçüm (kojojs-dev#130, düzeltme sonrası):
 //
-//     251 nokta -> 22 / 32 / 35 ms    (üç koşu)
+//     251 nokta -> 22 / 32 / 35 ms    (üç koşu, elle tamamlama satırıyla)
+//     251 nokta -> 22 ms              (tek koşu, satırsız -- #134, aşağıda)
 //
 // Yani tablodaki 8 ms'nin 2.8 ile 4.4 katı arası. Sayı tam 251 çünkü kalem inince bir
 // başlangıç noktası konuyor, sonra 250 kenar ekleniyor -- betiğin kendi
@@ -28,6 +29,12 @@
 // kendisinden değil, koşudan koşuya değişimden geliyor. Buradan çıkan kural
 // aşağıda; tek bir koşunun sayısına dayanıp "şu kadar hızlandı" demeyin.
 //
+// (O üçü örneğin eski hâlinde, gülden sonra elle eklenmiş bir "şekli
+// tamamla" satırıyla alındı. O satır tam çokgeni bir kez daha üçgenlettiği
+// için toplama fazladan bir üçgenleme katıyordu; satırsız sayı bu yüzden
+// biraz küçük çıkabilir. 22 ms bantın içinde ama TEK koşu -- yayılmayı
+// yeniden ölçmeden iki hâli karşılaştırma.)
+//
 // (Bu örnek eskiden "146 nokta" gibi betikte karşılığı olmayan sayılar
 // yazıyordu: dolgu şekil bitmeden de yayınlanıyor ve not her yayını ayrı
 // ayrı bildiriyordu. Artık not ŞEKİL BAŞINA toplamı veriyor.)
@@ -39,8 +46,9 @@
 // Çıkarım geçersiz, çünkü o çıkarım şeklin TAMAMLANMIŞ olmasını gerektiriyor
 // -- tamamlanmamış şekil ancak 50.1 ms'yi aşarsa konuşuyor. Ve aletin gülü
 // hiç tamamlanmıyor: `sil()` boyamaRenginiKur'dan ÖNCE geliyor, yani
-// boyamayıİşle boş çokgen buluyor. (Tam da bu dosyanın yukarıdaki
-// "şekli tamamla" satırıyla düzelttiği durum, orada hâlâ duruyor.)
+// boyamayıİşle boş çokgen buluyor. (Bu dosya aynı durumu bir süre elle bir
+// "şekli tamamla" satırıyla örtmüştü; #134 onu kitaplıkta kapattı -- ama
+// yalnız canlandırma DIŞINDA, hemen aşağıda.)
 //
 // #134 BU SINIRI DEĞİŞTİRMİYOR: yeni üçüncü yol (kuyruk boşalması) yalnız
 // canlandırma DÖNMÜYORKEN sayılıyor, alet ise gülünü `canlandır` döngüsünde
@@ -96,22 +104,19 @@ gül(250, 1, 140, mavi)
 kalemiKaldır(); noktayaGit(170, 0); kalemiİndir()
 gül(250, 7, 140, kırmızı)
 
-// ŞEKLİ TAMAMLA -- bu satır olmadan örnek SESSİZ kalıyordu.
+// Burada eskiden elle bir "şekli tamamla" satırı vardı: `kalemiKaldır();
+// noktayaGit(0, -220)`. Onsuz örnek SESSİZ kalıyordu (#133) -- bir dolgu
+// şeklini "bitmiş" sayan yalnız iki yol vardı (kalem kalkık taşınma, boya
+// değişimi), betiğin SON şekli ikisini de görmüyordu, ve bitmemiş bir şekil
+// ancak ERKEN EŞİĞİ (3 x bütçe = 50.1 ms) aşarsa konuşuyordu. Yukarıdaki
+// gül 22-35 ms, yani eşiğin altında: örneğin bütün amacı olan not hiç
+// çıkmıyordu. Ölçülmeden görülmedi -- bu yalnız gerçek tarayıcıda oluyor.
 //
-// Bir dolgu şeklini tamamlayan tek şey kalem kalkık taşınma ya da boya
-// değişimi. İkisi de gelmezse şekil "bitmemiş" sayılıyor, ve bitmemiş bir
-// şekil ancak ERKEN EŞİĞİ (3 x bütçe = 50.1 ms) aşarsa not düşürüyor.
-// Yukarıdaki gül gerçek donanımda 35 ms (ölçüldü, 251 nokta) -- yani
-// eşiğin altında, ve örneğin bütün amacı olan not hiç çıkmıyordu.
-// Ölçülmeden görülmedi, çünkü bu yalnız gerçek tarayıcıda oluyor.
-//
-// SATIR ARTIK GEREKSİZ OLMALI: kitaplık tarafındaki boşluk kapatıldı (#134 --
-// komut kuyruğu boşalıp canlandırma da dönmüyorsa betik bitmiştir, şekil
-// büyüyemez, ve biriken süre bildirilir). Ama bunu hâlâ SATIR DURURKEN
-// söyleyemeyiz: satır varken not zaten eski yoldan düşüyor. Ölçen deney
-// aşağıda, 4. sırada. O deney notun geldiğini gösterene dek satır kalıyor --
-// örneğin bütün amacı o not, ve bir kez sessizliğe düşürüldü.
-kalemiKaldır(); noktayaGit(0, -220)
+// Boşluk kitaplık tarafında kapatıldı (#134): komut kuyruğu boşalmış ve
+// betiği uyandırabilecek hiçbir şey kalmamışsa şekil bitmiştir, biriken
+// süre bildirilir. Satır önce canlıda gereksizliği gösterilene dek yerinde
+// tutuldu, sonra kaldırıldı: satırsız koşu "22 ms sürdü (251 nokta)" verdi.
+// (İlk denemede "17 ms sürdü (193 nokta)" çıkmıştı -- o öykü 4. deneyde.)
 
 gizle()
 
@@ -176,46 +181,46 @@ gizle()
 //    görürsün, ama "iki not beklersin" öncülü hiç kurulmamıştır -- yani
 //    zaman kapısını değil, kendi kurulumunu gözlemlemiş olursun.
 //
-//    DİKKAT: bu deney yukarıdaki "şekli tamamla" satırına da BAĞLI. O satır
-//    olmasaydı ikinci not zaten düşmezdi -- ama zaman kapısı yüzünden değil,
-//    ikinci gül hiç tamamlanmadığı için. Aynı gözlem, yanlış sebep. (#134'ten
-//    sonra bu bağımlılık kalkmış OLMALI: satır olmasa da kuyruk boşalınca not
-//    düşer. 4. deney bunu ölçüyor; ölçülene dek satırı yerinde bırak.)
+//    İkinci gülün notu üçüncü yoldan geliyor -- kuyruk boşalması (#134).
+//    Bu deney eskiden gülden sonraki elle eklenmiş "şekli tamamla" satırına
+//    bağlıydı: o satır olmasaydı ikinci not zaten düşmezdi, zaman kapısı
+//    yüzünden değil, ikinci gül hiç tamamlanmadığı için -- aynı gözlem,
+//    yanlış sebep. O bağımlılık kalktı; satır da.
 //
 // 3. boyamaRenginiKur satırını sil. Dolgu hiç hesaplanmıyor, yalnız kalem izi
 //    kalıyor -- şekil hâlâ görünür, çizim anında biter.
 //
-// 4. (Önce 3'ü geri al.) "ŞEKLİ TAMAMLA" başlıklı satırı -- yani
-//    `kalemiKaldır(); noktayaGit(0, -220)` -- SİL. Not yine de düşmeli.
+// 4. (Önce 3'ü geri al.) İkinci gülü bir TUŞA bağla: `gül(250, 7, 140, kırmızı)`
+//    satırının yerine şu ikisini koy,
 //
-//    NE ÖLÇÜYOR: bir şeklin "bittiğini" anlamanın üçüncü yolunu (#134).
-//    Eskiden yalnız iki yol vardı (kalem kalkık taşınma, boya değişimi) ve
-//    betiğin SON şekli çoğu zaman ikisini de görmüyordu; o yüzden bu örnek
-//    sessiz kalmış, ve o satır elle eklenmişti. Artık üçüncü yol var: komut
-//    kuyruğu boşalıyor ve canlandırma da dönmüyorsa betik bitmiştir.
+//      boyamaRenginiKur(kırmızı)
+//      tuşaBasınca { t => yinele(40) { ileri(140); sağ(7 * 360.0 / 250) } }
 //
-//    NOT BİÇİMİ de değişmeli: "şu ana dek ... aldı (şimdilik N nokta)" değil,
-//    "hesaplamak ... SÜRDÜ (N nokta)" -- çünkü şekil artık büyüyemez.
+//    çalıştır, boşluk tuşuna art arda bas. (Kenar 140 olunca gül tuvali
+//    taşar; önemi yok, ölçülen şey dolgu hesabı.) İlk basışlarda not YOK.
+//    7-8. basışta tek not, ve biçimi "şu ana dek ... aldı (şimdilik N nokta;
+//    şekil büyüdükçe artacak)" -- "SÜRDÜ" değil. Ölçüldü: 7. basış, 57 ms,
+//    "şimdilik 251 nokta". 251 burada tesadüf, eşiğin aşıldığı andaki ara
+//    sayı (6 basış 241 nokta eder); aynı deney fareyle 8. tıkta 59 ms / 291.
 //
-//    SAYI 251 OLMALI, ve buna ayrıca bak. İlk canlı koşuda "17 ms sürdü
-//    (193 nokta)" çıkmıştı: kesin cümle, ama şeklin yalnız bir öneki. Sebebi
-//    ölçüldü -- kuyruk iki kare arasında yüzlerce komut işleyebiliyor. Komut
-//    kuyruğu 100'lük partiler hâlinde koşuyor: 99 komut eşzamanlı, 100.'de
-//    tarayıcıya dönülüyor ve o dönüş ~4.2 ms'ye kelepçeleniyor. Yani kelepçe
-//    komut başına DEĞİL, parti başına; bir kareye (16.7 ms) dört parti,
-//    yani ~400 komut sığıyor. Sonuç: boşalma anında son onlarca kenar henüz
-//    YAYINLANMAMIŞ oluyor ve elimizdeki süre de nokta sayısı da eksik.
-//    Düzeltildi: bekleyen yayın varsa not o yayını bekliyor. 251'den küçük
-//    bir sayı görürsen düzeltme çalışmıyor demektir, yaz.
+//    NE ÖLÇÜYOR: üçüncü yolun NEREDE ÇALIŞMADIĞINI. "Kuyruk boşaldı" ile
+//    "betik bitti" aynı şey değil: tuşlar arasında kuyruk boşalıyor ama bir
+//    sonraki tuş şekle nokta ekleyecek. Orada "şu kadar SÜRDÜ (N nokta)"
+//    demek yanlış sayıyı kesin diye söylemek olurdu. O yüzden üçüncü yol
+//    ancak betiği uyandırabilecek hiçbir şey kalmadığında sayıyor:
+//    `canlandır`, `yineleSayaçla`, `tuşaBasınca` ya da bir resim fare
+//    işleyicisi varsa susuyor, ve eski yol (erken eşik, 50.1 ms) dürüst
+//    biçimiyle konuşuyor. `ornekler/11-acilar-ve-radyan.kojo` böyle bir
+//    betik.
 //
-//    NEREDE ÇALIŞMAZ, bilerek: bu üçüncü yol ancak betiği UYANDIRABİLECEK
-//    hiçbir şey kalmadığında sayıyor. `canlandır`, `yineleSayaçla`,
-//    `tuşaBasınca` ve
-//    resim fare işleyicilerinden biri varsa kuyruk boşalsa da şekle nokta
-//    gelebilir -- orada susuyoruz, çünkü "şu kadar SÜRDÜ (N nokta)" demek
-//    yanlış sayıyı kesin diye söylemek olurdu. O betiklerde eski yol
-//    (erken eşik, 50.1 ms) hâlâ geçerli ve dürüst biçimiyle konuşuyor.
-//    `ornekler/11-acilar-ve-radyan.kojo` böyle bir betik.
-//
-//    Not ÇIKMAZSA satırı geri koy ve söyle: #134 canlıda çalışmıyor demektir,
-//    ve bunu ancak gerçek tarayıcı gösterir -- birim sınamaları yeşil.
+//    193 ÖYKÜSÜ, çünkü bu yolun bir tuzağı daha vardı. İlk canlı koşuda
+//    (satırsız, tuşsuz -- yani bu dosyanın bugünkü hâli) not "17 ms sürdü
+//    (193 nokta)" dedi: kesin cümle, ama şeklin yalnız bir öneki. Sebebi
+//    ölçüldü. Komut kuyruğu 100'lük partiler hâlinde koşuyor: 99 komut
+//    eşzamanlı, 100.'de tarayıcıya dönülüyor ve o dönüş ~4.2 ms'ye
+//    kelepçeleniyor -- kelepçe komut başına DEĞİL, parti başına, ve bir
+//    kareye (16.7 ms) dört parti, ~400 komut sığıyor. Yani kuyruk boşaldığı
+//    anda son onlarca kenar henüz YAYINLANMAMIŞ olabiliyor; elimizdeki süre
+//    de nokta sayısı da eksik. Düzeltildi: bekleyen yayın varsa not o yayını
+//    bekliyor. Bu dosyayı olduğu gibi koşunca "22 ms sürdü (251 nokta)"
+//    görüyorsan o düzeltme çalışıyor; 251'den küçük bir sayı görürsen yaz.

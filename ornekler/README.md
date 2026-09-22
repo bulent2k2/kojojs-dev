@@ -77,13 +77,17 @@ libtess **soğuk** koşuyor. Gerçek bir tarayıcıda 250×7 ölçeğinde üç �
 
 | nokta | süre |
 |---|---|
-| 251 | 22 / 32 / 35 ms (üç koşu) |
+| 251 | 22 / 32 / 35 ms (üç koşu, elle tamamlama satırıyla) |
+| 251 | 22 ms (tek koşu, satırsız — kojojs-dev#134) |
 
 Tablodaki 8 ms'nin **2.8 ile 4.4 katı** arası. **Üç sayının yayılmasına
 dikkat**: en büyüğü en küçüğün **1.6 katı** (35 ve 22). Yüzde vermiyoruz,
 çünkü hangi tabana bölündüğüne göre %37 ile %59 arası değişiyor. Üçü de aynı
 makinede, aynı şekil, tamamlanmış hâlde ölçüldü — fark işin kendisinden değil
-koşudan koşuya değişimden geliyor.
+koşudan koşuya değişimden geliyor. (O üçü örneğin eski hâlinde, elle eklenmiş
+bir "şekli tamamla" satırıyla alındı; satır tam çokgeni bir kez daha
+üçgenlettiği için toplama fazladan bir üçgenleme katıyordu. Satırsız 22 ms
+bandın içinde ama tek koşu — iki hâli yayılmayı yeniden ölçmeden karşılaştırma.)
 
 Sayı tam **251**, yani betiğin kendi geometrisi: kalem inince bir başlangıç
 noktası konuyor, sonra 250 kenar ekleniyor. (Düzeltmeden önce bu örnek "146 nokta" gibi betikte karşılığı olmayan
@@ -128,8 +132,9 @@ kuyruk boşalsa da şekle nokta gelebilir, ve orada not susuyor — yanlış bir
 sayıyı kesin diye söylemektense. Üçüncüsü olmadan betiğin **son** şekli çoğu zaman hiç
 "bitmiş" sayılmıyor, ve bütçeyi aşmasına rağmen sessiz kalabiliyordu:
 `14-agir-dolgu.kojo` tam bu yüzden bir süre sessizdi ve örneğe elle bir
-"şekli tamamla" satırı eklenmişti. O satırın artık gerekmediğini ölçen deney
-örneğin sonunda duruyor (4. deney).
+"şekli tamamla" satırı eklenmişti. Üçüncü yol canlıda doğrulanınca
+(`22 ms sürdü (251 nokta)`) satır kaldırıldı; üçüncü yolun nerede
+*çalışmadığını* gösteren deney örneğin sonunda duruyor (4. deney).
 
 ## `15-mesh-olcumu.kojo` bir ölçü aleti
 
