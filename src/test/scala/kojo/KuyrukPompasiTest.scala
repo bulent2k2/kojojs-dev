@@ -215,8 +215,13 @@ class KuyrukPompasiTest extends AsyncFunSuite with Matchers {
         w.aşanKoşuSayısı should be <= 2
         (kare * 1000.0 / toplam) should be > 20.0
         // Ve iş gerçekten hızlı: eski pompa 100 komut / 4.2 ms = 24 komut/ms
-        // verirdi; 400k komut 17 s sürerdi. Ölçülen ~1600 komut/ms; sınır 8x.
-        (800 * 502 / toplam) should be > 200.0
+        // verirdi; 400k komut 17 s sürerdi. Ölçülen ~1600 komut/ms burada;
+        // GitHub'ın koşucusu 186 ölçtü (#150'nin CI'ı, yalnız belge değişen
+        // bir başta, aşan koşu 0, kare arası 41 ms -- pompa sözünü tutmuş,
+        // makine yavaşmış). Eşik makineye bağlı bir sayı, o yüzden eski
+        // pompaya 4x pay bırakacak kadar düşük: 100. Mutasyon (eski pompa)
+        // 24 ile yine kırmızı.
+        (800 * 502 / toplam) should be > 100.0
       }
     }
   }
