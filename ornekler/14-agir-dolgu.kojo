@@ -197,6 +197,14 @@ gizle()
 //    NOT BİÇİMİ de değişmeli: "şu ana dek ... aldı (şimdilik N nokta)" değil,
 //    "hesaplamak ... SÜRDÜ (N nokta)" -- çünkü şekil artık büyüyemez.
 //
+//    SAYI 251 OLMALI, ve buna ayrıca bak. İlk canlı koşuda "17 ms sürdü
+//    (193 nokta)" çıkmıştı: kesin cümle, ama şeklin yalnız bir öneki. Sebebi
+//    ölçüldü -- kuyruk kare sınırından hızlı boşalıyor (komut hoplaması
+//    ~4.2 ms, kare 16.7 ms), yani boşalma anında son onlarca kenar henüz
+//    YAYINLANMAMIŞ oluyor ve elimizdeki süre de nokta sayısı da eksik.
+//    Düzeltildi: bekleyen yayın varsa not o yayını bekliyor. 251'den küçük
+//    bir sayı görürsen düzeltme çalışmıyor demektir, yaz.
+//
 //    NEREDE ÇALIŞMAZ, bilerek: bu üçüncü yol ancak betiği UYANDIRABİLECEK
 //    hiçbir şey kalmadığında sayıyor. `canlandır`, `yineleSayaçla`,
 //    `tuşaBasınca` ve
