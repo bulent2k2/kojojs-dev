@@ -171,16 +171,23 @@ Sınırı: `BuAn()` saniyeden ince ölçmüyor, yani çıkan sayı kare *süresi
 saniyedeki kare *sayısı*. Kare süresinin dağılımı için tarayıcının
 profilleyicisi gerekir.
 
-Sayılan gül ile **boyanan** gül aynı mı? Bitmiş bir gül boyanmamış olabilir:
-komut kuyruğunun `setTimeout(0)` hoplamaları rAF'i beklemiyor, ve bir gülün
-dolgu düğümü sonraki `sil()` ile kalkıyor. Render'ı eksik sayan bir alet, #125'i
-tam da kazancının en büyük olduğu yerde kendi aleyhine ölçerdi. Ölçüldü
-(`kojo.MeshAletiOlcumTest`, gül başına boyama sayısı — ortalama değil, çünkü
-ortalama boyanmamış gülü saklar): 250 noktada en düşük gül bile **2** kez, 1000
-noktada **9** kez boyanıyor; yani aletin ölçeğinde endişe ısırmıyor. Mekanizma
-yine de gerçek — 4 noktalık bir gülde on gülün onu da ilk rAF ateşlenmeden
-bitiyor ve **sıfır** kez boyanıyor. Aleti çok daha ucuz bir şekle çevirirsen o
-dağılımı yeniden ölç (kojojs-dev#130 incelemesi §2).
+Sayılan gül ile **boyanan** gül aynı mı? Yapısal olarak evet: her karede en
+fazla bir gül başlıyor (`canlandır`), bir gül ancak öncekinin kuyruğu bitince
+(`konumuOku`) ve bir sonraki karede başlıyor, ve karenin sonunda boyanıyor.
+Bu tasarım kojojs-dev#131'in sonucu. Eski komut pompası 100 komutta bir 4 ms'lik
+`setTimeout` arası veriyordu ve bir gül birkaç kareye yayılıyordu; yeni pompa bir
+karede 8 ms iş yapıp kareye teslim ediyor ve 250 noktalı gül ~0.3 ms'de bitiyor.
+Aletin önceki sürümü (bir sonraki gülü `konumuOku` içinden başlatan zincir) o
+rejimde gülleri **boyanmadan** siliyordu — ölçüldü, on gülün sekizi hiç
+yayınlanmadan bitti — ve okunan sayı gül/s değil kuyruk hızı olurdu; #125'in
+kazancı en çok render tarafında olduğu için alet mesh'i kendi aleyhine ölçerdi.
+Sınama savı (`kojo.MeshAletiOlcumTest`) hâlâ "sayılan her gülün en az bir boyaması
+var" ve bu değişiklikte kırmızıya dönüp aleti yeniden tasarlattı.
+
+Üst sınır bu yüzden kare hızı (~60 gül/s): okunan sayı artık üçgenleme + çizim
+maliyetinin haberi — tam #125'in dokunduğu yer. Eski pompayla alınan
+250×7 → 38–41 gül/s ile **karşılaştırılamaz**; o sayının ~%80'i pompanın bekleme
+süresiydi.
 
 ## Bu örnekler test ediliyor
 
