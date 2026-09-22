@@ -279,6 +279,50 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
     }
   }
 
+  /**
+   * CANLI ÖLÇÜMDEN GELEN KUSUR (#134, 4. deney, yeni yayın). Örnek 251 noktalı
+   * bir gül çiziyor ama not "17 ms sürdü (193 NOKTA)" dedi -- betikte olmayan
+   * bir sayı, üstelik KESİN cümleyle. Elle tamamlama satırı duruyorken aynı
+   * koşu "25 ms sürdü (251 nokta)" veriyordu.
+   *
+   * SEBEBİ: boşalma anı SON YAYINDAN sonra. Şekil büyümeye devam etmiş ama
+   * o noktalar henüz yayınlanmamış (çizer `bekleyenBoyacılar`da), yani
+   * `sonNoktaSayısı` ve `toplamMs` şeklin yalnız bir ÖNEKİNİ anlatıyor.
+   *
+   * Bu, #125'te bir kez düzeltilmiş kusurun ta kendisi. Sınama onu boşalmadan
+   * SONRA nokta ekleyerek değil -- o mümkün değil -- son yayından sonra nokta
+   * ekleyip yayını bekletmeden kuyruğu boşaltarak kuruyor.
+   */
+  test("BEKLEYEN yayın varken not son yayını BEKLİYOR: sayı şeklin tamamı (#134)") {
+    val (w, t) = kareÇizenKur()
+    val söz = Promise[Unit]()
+    t.sync { () =>
+      w.boyalarıBoşalt() // 5 noktada yayın
+      var i = 0
+      while (i < 4) { t.forward(60); t.right(90); i += 1 } // şekil büyüyor, yayın YOK
+      window.setTimeout(
+        () => {
+          // Kuyruk bu arada boşaldı. Şimdi gerçek render'ın yerine son yayın.
+          w.boyalarıBoşalt()
+          window.setTimeout(() => söz.success(()), 20)
+        },
+        200
+      )
+    }
+    söz.future.map { _ =>
+      withClue(s"panel: '$panelMetni' -- ") {
+        ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 1
+        panelMetni should include("(9 nokta)") // 5 değil: bekleyen yayın da sayıldı
+        // Durmuş şekil KESİN biçimde konuşuyor, ama doğru sayıyla. Bu satır
+        // aynı zamanda SIRAYI çiviliyor: son yayında toplam 60 ms, yani erken
+        // eşiğin üstünde -- "durdu" önce bakılmazsa erkenÇarpan araya girip
+        // "şimdilik" biçimini basardı.
+        panelMetni should include("sürdü")
+        panelMetni should not include "şimdilik"
+      }
+    }
+  }
+
   test("TAMAMLANAN şekil konuşuyor: kalem kalkık taşınma yetiyor (#133)") {
     koştur(tamamla = true).map { n =>
       withClue(s"panel: '$panelMetni' -- ") {

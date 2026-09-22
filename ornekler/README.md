@@ -123,7 +123,7 @@ açıkça söyler: *"şimdilik N nokta; şekil büyüdükçe artacak"*.
 Bir şeklin **bittiğini** üç şey söyleyebiliyor: kalem kalkık taşınma, boya
 değişimi, ve — yenisi — **komut kuyruğunun boşalması** (kojojs-dev#134).
 Üçüncüsü ancak betiği uyandırabilecek hiçbir şey kalmadığında sayılıyor:
-`canlandır`, `timer`, `tuşaBasınca` ya da bir resim fare işleyicisi varsa
+`canlandır`, `yineleSayaçla`, `tuşaBasınca` ya da bir resim fare işleyicisi varsa
 kuyruk boşalsa da şekle nokta gelebilir, ve orada not susuyor — yanlış bir
 sayıyı kesin diye söylemektense. Üçüncüsü olmadan betiğin **son** şekli çoğu zaman hiç
 "bitmiş" sayılmıyor, ve bütçeyi aşmasına rağmen sessiz kalabiliyordu:

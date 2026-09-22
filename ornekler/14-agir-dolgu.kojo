@@ -197,8 +197,20 @@ gizle()
 //    NOT BİÇİMİ de değişmeli: "şu ana dek ... aldı (şimdilik N nokta)" değil,
 //    "hesaplamak ... SÜRDÜ (N nokta)" -- çünkü şekil artık büyüyemez.
 //
+//    SAYI 251 OLMALI, ve buna ayrıca bak. İlk canlı koşuda "17 ms sürdü
+//    (193 nokta)" çıkmıştı: kesin cümle, ama şeklin yalnız bir öneki. Sebebi
+//    ölçüldü -- kuyruk iki kare arasında yüzlerce komut işleyebiliyor. Komut
+//    kuyruğu 100'lük partiler hâlinde koşuyor: 99 komut eşzamanlı, 100.'de
+//    tarayıcıya dönülüyor ve o dönüş ~4.2 ms'ye kelepçeleniyor. Yani kelepçe
+//    komut başına DEĞİL, parti başına; bir kareye (16.7 ms) dört parti,
+//    yani ~400 komut sığıyor. Sonuç: boşalma anında son onlarca kenar henüz
+//    YAYINLANMAMIŞ oluyor ve elimizdeki süre de nokta sayısı da eksik.
+//    Düzeltildi: bekleyen yayın varsa not o yayını bekliyor. 251'den küçük
+//    bir sayı görürsen düzeltme çalışmıyor demektir, yaz.
+//
 //    NEREDE ÇALIŞMAZ, bilerek: bu üçüncü yol ancak betiği UYANDIRABİLECEK
-//    hiçbir şey kalmadığında sayıyor. `canlandır`, `timer`, `tuşaBasınca` ve
+//    hiçbir şey kalmadığında sayıyor. `canlandır`, `yineleSayaçla`,
+//    `tuşaBasınca` ve
 //    resim fare işleyicilerinden biri varsa kuyruk boşalsa da şekle nokta
 //    gelebilir -- orada susuyoruz, çünkü "şu kadar SÜRDÜ (N nokta)" demek
 //    yanlış sayıyı kesin diye söylemek olurdu. O betiklerde eski yol
