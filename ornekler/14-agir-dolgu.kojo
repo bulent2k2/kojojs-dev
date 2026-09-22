@@ -16,7 +16,7 @@
 // 250x7 ölçeğinde ölçüm (kojojs-dev#130, düzeltme sonrası):
 //
 //     251 nokta -> 22 / 32 / 35 ms    (üç koşu, elle tamamlama satırıyla)
-//     251 nokta -> 22 ms              (tek koşu, satırsız -- #134, aşağıda)
+//     251 nokta -> 18 ms              (tek koşu, satırsız -- #134, aşağıda)
 //
 // Yani tablodaki 8 ms'nin 2.8 ile 4.4 katı arası. Sayı tam 251 çünkü kalem inince bir
 // başlangıç noktası konuyor, sonra 250 kenar ekleniyor -- betiğin kendi
@@ -31,9 +31,10 @@
 //
 // (O üçü örneğin eski hâlinde, gülden sonra elle eklenmiş bir "şekli
 // tamamla" satırıyla alındı. O satır tam çokgeni bir kez daha üçgenlettiği
-// için toplama fazladan bir üçgenleme katıyordu; satırsız sayı bu yüzden
-// biraz küçük çıkabilir. 22 ms bantın içinde ama TEK koşu -- yayılmayı
-// yeniden ölçmeden iki hâli karşılaştırma.)
+// için toplama fazladan bir üçgenleme katıyordu; satırsız sayının küçük
+// çıkması beklenir. 18 ms gerçekten bandın ALTINDA -- ama TEK koşu, ve
+// koşudan koşuya yayılma 1.6 kat. Farkı bir üçgenlemeye yazmadan önce
+// satırsız hâlin de yayılmasını ölç.)
 //
 // (Bu örnek eskiden "146 nokta" gibi betikte karşılığı olmayan sayılar
 // yazıyordu: dolgu şekil bitmeden de yayınlanıyor ve not her yayını ayrı
@@ -115,7 +116,7 @@ gül(250, 7, 140, kırmızı)
 // Boşluk kitaplık tarafında kapatıldı (#134): komut kuyruğu boşalmış ve
 // betiği uyandırabilecek hiçbir şey kalmamışsa şekil bitmiştir, biriken
 // süre bildirilir. Satır önce canlıda gereksizliği gösterilene dek yerinde
-// tutuldu, sonra kaldırıldı: satırsız koşu "22 ms sürdü (251 nokta)" verdi.
+// tutuldu, sonra kaldırıldı: satırsız koşu "18 ms sürdü (251 nokta)" verdi.
 // (İlk denemede "17 ms sürdü (193 nokta)" çıkmıştı -- o öykü 4. deneyde.)
 
 gizle()
@@ -222,5 +223,5 @@ gizle()
 //    kareye (16.7 ms) dört parti, ~400 komut sığıyor. Yani kuyruk boşaldığı
 //    anda son onlarca kenar henüz YAYINLANMAMIŞ olabiliyor; elimizdeki süre
 //    de nokta sayısı da eksik. Düzeltildi: bekleyen yayın varsa not o yayını
-//    bekliyor. Bu dosyayı olduğu gibi koşunca "22 ms sürdü (251 nokta)"
+//    bekliyor. Bu dosyayı olduğu gibi koşunca "18 ms sürdü (251 nokta)"
 //    görüyorsan o düzeltme çalışıyor; 251'den küçük bir sayı görürsen yaz.
