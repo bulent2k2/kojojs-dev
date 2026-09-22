@@ -195,7 +195,36 @@ pompada da **30** (tavan — orada hiçbir değişiklik görülmez); 1000'de esk
 **4–5**, yeni pompa **15–17** gül/s. Fark yalnız pompa payının gitmesi değil: gül
 tek karede bitince tek kez üçgenleniyor, eskiden ~10 karede büyüyen önek her
 seferinde yeniden üçgenleniyordu. Aynı betiklerle 100 000 komutluk kalemli iş
-6.9–10.4 s'den 108–165 ms'ye indi.
+6.9–10.4 s'den 108–165 ms'ye indi (`sil()`li varyant, yalnız pompayı ölçen:
+4.56 s → 93–169 ms). O iki betik, olduğu gibi:
+
+```
+sil()
+hızıKur(çokHızlı)
+gizle()
+kalemKalınlığınıKur(1)
+dez t0 = buAn
+yinele(200) {
+  yinele(250) { ileri(24.6); sağ(10.08) }
+}
+konumuOku { _ => satıryaz("100 000 komut: " + (buAn - t0) + " ms") }
+```
+
+```
+sil()
+hızıKur(çokHızlı)
+gizle()
+kalemKalınlığınıKur(1)
+dez t0 = buAn
+yinele(200) {
+  sil()
+  yinele(250) { ileri(24.6); sağ(10.08) }
+}
+konumuOku { _ => satıryaz("100 000 komut, sil'li: " + (buAn - t0) + " ms") }
+```
+
+İkisinin sonrasında aynı çıkması öğretici: iz 50 bin parçaya büyüyor ama bedeli
+büyüklüğü değil kaç kez çizildiği — eski pompada ~500 kare, yenisinde ~8.
 
 ## Bu örnekler test ediliyor
 
