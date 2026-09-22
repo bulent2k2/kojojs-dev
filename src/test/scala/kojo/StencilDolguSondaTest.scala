@@ -71,15 +71,21 @@ import pixiscalajs.PIXI
  * küçülür (libtess orada ~5x hızlı, #143'ün canlı sayıları) ama sınıfı
  * değişmez.
  *
- * PİŞİRME (#96): RenderTexture'ın varsayılan çerçeve tamponunda stencil YOK
- * ve sonuç sessiz bir kusur: stencil sınaması hep geçer, kaplama dörtgeni
- * SINIR KUTUSUNUN TAMAMINI boyar (%32 fark). `framebuffer.enableStencil()`
- * ile fark %0.02. Üretimde pişirme dokusuna bu bir satır ŞART.
+ * ARA TAMPONLAR. PİŞİRME (#96): RenderTexture'ın varsayılan çerçeve
+ * tamponunda stencil YOK, ve sonuç sessiz bir kusur: stencil sınaması hep
+ * geçer, kaplama dörtgeni SINIR KUTUSUNUN TAMAMINI boyar (%32 fark). Çare
+ * düğümün içinde tek satır: `renderer.framebuffer.forceStencil()` --
+ * PIXI'nin maske sistemi de bunu yapıyor; onunla %0.02, pişirme koduna
+ * dokunmadan. SÜZGEÇ (Soluk): ara tampon ölçümde stencil'li geldi, orada
+ * sorun yok; ama süzgeç ara tamponu düğümün SINIRLARINDAN boyutluyor ve
+ * çocuksuz Container'ın sınırı boş -- `_calculateBounds` verilmeden süzgeç
+ * altında hiçbir şey çizilmedi. Üretim düğümü sınır vermek zorunda.
  *
  * Bu bir SONDA: üretim kodu (`Turtle`) hâlâ libtess çiziyor; sav "teknik
  * işliyor" diyor. Kapsamadıkları: PIXI'nin kendi maskeleriyle (stencil
- * yığını) bir arada çalışma, parti (batch) kırılmasının çok şekilli
- * sahnedeki bedeli, gerçek GPU, 8 bitlik sarım taşması (|sarım| = 256).
+ * yığını) bir arada çalışma -- iKojo maske kullanmıyor --, parti (batch)
+ * kırılmasının çok şekilli sahnedeki bedeli, gerçek GPU, 8 bitlik sarım
+ * taşması (|sarım| = 256).
  */
 class StencilDolguSondaTest extends AnyFunSuite with Matchers {
 
@@ -153,7 +159,7 @@ class StencilDolguSondaTest extends AnyFunSuite with Matchers {
    *                NON_ZERO'dan farklı sonuç vermeli; vermiyorsa karşılaştırma
    *                sarım kuralını ölçmüyor demektir.
    */
-  private def stencilDüğüm(düz: Array[Double], boya: Boya, evenOdd: Boolean = false): js.Dynamic = {
+  private def stencilDüğüm(düz: Array[Double], boya: Boya, evenOdd: Boolean = false, zorla: Boolean = true): js.Dynamic = {
     val n = düz.length / 2
     // Yelpaze: (p0, p_i, p_{i+1}), i = 1 .. n-2 -> 3(n-2) köşe.
     val yelpaze = new Float32Array(3 * 2 * (n - 2))
@@ -206,6 +212,13 @@ class StencilDolguSondaTest extends AnyFunSuite with Matchers {
     }
 
     val d = js.Dynamic.newInstance(P.Container)()
+    // SINIRLAR: çocuksuz Container'ın sınırı boş, ve süzgeç ara tamponunun
+    // boyutu sınırlardan geliyor -- sınır boşsa süzgeç hiçbir şey çizmiyor
+    // (ölçüldü: süzgeç altında boyalı 0). Üretimde de gerekli: isabet
+    // eleme, pişirme ve süzgeç hepsi getBounds'a bakıyor.
+    val bx0 = x0; val by0 = y0; val bx1 = x1; val by1 = y1
+    val sınırla: js.Function0[Unit] = () => { d._bounds.addFrame(d.transform, bx0, by0, bx1, by1); () }
+    d._calculateBounds = sınırla
     val çiz: js.Function1[js.Dynamic, Unit] = (renderer: js.Dynamic) => {
       renderer.batch.flush()
       val gl = renderer.gl
@@ -215,6 +228,13 @@ class StencilDolguSondaTest extends AnyFunSuite with Matchers {
       yelpazeShader.uniforms.translationMatrix = dünya
       renderer.shader.bind(yelpazeShader)
       renderer.geometry.bind(yelpazeGeo, yelpazeShader)
+      // O anki çerçeve tamponunda stencil eki yoksa TAK: RenderTexture'lar
+      // (pişirme) ve süzgeç ara tamponları stencil'siz doğuyor, ve stencil
+      // eki olmayan tamponda stencil sınaması HEP GEÇER -- kaplama sınır
+      // kutusunun tamamını boyar. PIXI'nin kendi maske sistemi de aynı
+      // çağrıyı yapıyor (StencilSystem.push). Ana tuvalde (current == null)
+      // hiçbir şey yapmıyor; orası zaten stencil'li.
+      if (zorla) renderer.framebuffer.forceStencil()
       gl.enable(gl.STENCIL_TEST)
       gl.stencilMask(0xff)
       gl.colorMask(false, false, false, false)
@@ -357,34 +377,72 @@ class StencilDolguSondaTest extends AnyFunSuite with Matchers {
    * çerçeve tamponunda stencil var mı? YOK, varsayılanda -- ve sonuç "boş"
    * değil, daha kötüsü: stencil eki olmayan tamponda stencil sınaması hep
    * geçer, kaplama dörtgeni sınır kutusunun TAMAMINI boyar (ölçüldü: 58 564
-   * piksel, yüzde 32 fark). Yani üretimde pişirme dokusuna
-   * `framebuffer.enableStencil()` ŞART; onunla fark yüzde 0.02.
+   * piksel, yüzde 32 fark). Çare düğümün kendi içinde: `forceStencil()` o
+   * anki tampona eki takıyor (PIXI'nin maske sistemi de böyle yapıyor); onunla
+   * fark yüzde 0.02, pişirme koduna dokunmadan.
    */
-  test("RenderTexture: stencil tamponu enableStencil ile geliyor; onsuz KUTU dolar (test hep geçer)") {
+  test("RenderTexture: forceStencil ile stencil'siz tamponda da aynı; onsuz KUTU dolar") {
     val w = dünyaKurYaDaİptal()
     val r = dyn(w.renderer)
     val düz = gülDüz(60, 7, 120.0)
-    def rtÇizOku(düğüm: js.Dynamic, stencilAç: Boolean): Uint8Array = {
+    def rtÇizOku(düğüm: js.Dynamic): Uint8Array = {
       val rt = P.RenderTexture.create(js.Dynamic.literal(width = 300, height = 300))
-      if (stencilAç) rt.baseTexture.framebuffer.enableStencil()
       val kap = js.Dynamic.newInstance(P.Container)()
       düğüm.position.set(150, 150)
       kap.addChild(düğüm)
       r.render(kap, rt, true)
       r.extract.pixels(rt).asInstanceOf[Uint8Array]
     }
-    val a = rtÇizOku(grafikDüğüm(düz, DüzBoya(kojo.doodle.Color.blue)), stencilAç = false)
-    val bAçık = rtÇizOku(stencilDüğüm(düz, DüzBoya(kojo.doodle.Color.blue)), stencilAç = true)
-    val bKapalı = rtÇizOku(stencilDüğüm(düz, DüzBoya(kojo.doodle.Color.blue)), stencilAç = false)
-    val (fAçık, _, dolu) = karşılaştır(a, bAçık, 8)
-    val (fKapalı, _, _) = karşılaştır(a, bKapalı, 8)
-    var bKapalıDolu = 0; var i = 3; while (i < bKapalı.length) { if (bKapalı(i) != 0) bKapalıDolu += 1; i += 4 }
-    val oAçık = 100.0 * fAçık / math.max(1, dolu); val oKapalı = 100.0 * fKapalı / math.max(1, dolu)
-    info(s"RenderTexture: stencil AÇIK fark yüzde ${(oAçık * 100).round / 100.0}; KAPALI fark yüzde ${(oKapalı * 100).round / 100.0}, kapalıda boyalı piksel $bKapalıDolu")
-    withClue(s"açık $fAçık / kapalı $fKapalı farklı, boyalı $dolu, kapalıda boyalı $bKapalıDolu -- ") {
+    val boya = DüzBoya(kojo.doodle.Color.blue)
+    val a = rtÇizOku(grafikDüğüm(düz, boya))
+    val b = rtÇizOku(stencilDüğüm(düz, boya))
+    val bZorlamasız = rtÇizOku(stencilDüğüm(düz, boya, zorla = false))
+    val (fB, _, dolu) = karşılaştır(a, b, 8)
+    val (fZ, _, _) = karşılaştır(a, bZorlamasız, 8)
+    val oB = 100.0 * fB / math.max(1, dolu); val oZ = 100.0 * fZ / math.max(1, dolu)
+    info(s"RenderTexture: forceStencil ile fark yüzde ${(oB * 100).round / 100.0}; onsuz yüzde ${(oZ * 100).round / 100.0}")
+    withClue(s"forceStencil'li $fB / onsuz $fZ farklı, boyalı $dolu -- ") {
       dolu should be > 1000
-      oAçık should be < 2.0
-      oKapalı should be > 10.0 // stencil'siz tampon: kutu dolar -- enableStencil şart
+      oB should be < 2.0
+      oZ should be > 10.0 // stencil'siz tampon: kutu dolar -- forceStencil şart
+    }
+  }
+
+  /**
+   * SÜZGEÇ YOLU (Soluk, #147'nin "ölçülmemiş riski"): süzgeçli bir kap
+   * çocuklarını önce bir ARA tampona çiziyor. Beklenti o tamponun da
+   * stencil'siz olmasıydı; ÖLÇÜM ÖYLE DEMEDİ: süzgecin ara dokusu stencil'li
+   * geliyor, forceStencil'siz de fark eşik altı. forceStencil orada zararsız
+   * (eki varsa hiçbir şey yapmıyor). Asıl bulgu başka çıktı: çocuksuz
+   * Container'ın SINIRI BOŞ ve süzgeç ara tamponunu sınırlardan boyutluyor
+   * -- `_calculateBounds` olmadan süzgeç altında HİÇBİR ŞEY çizilmedi
+   * (boyalı 0). Üretim düğümünün sınır vermesi şart; isabet eleme ve
+   * pişirme de aynı sınırlara bakıyor.
+   */
+  test("SÜZGEÇ altında (ara tampon): sınır verilince aynı; ara tampon zaten stencil'li") {
+    val w = dünyaKurYaDaİptal()
+    val düz = gülDüz(60, 7, 120.0)
+    val boya = DüzBoya(kojo.doodle.Color.blue)
+    def süzgeçli(düğüm: js.Dynamic): js.Dynamic = {
+      val kap = js.Dynamic.newInstance(P.Container)()
+      kap.addChild(düğüm)
+      kap.filters = js.Array(js.Dynamic.newInstance(P.filters.AlphaFilter)(1.0))
+      kap
+    }
+    val a = sahneyeKoyVeOku(w, süzgeçli(grafikDüğüm(düz, boya)))
+    val b = sahneyeKoyVeOku(w, süzgeçli(stencilDüğüm(düz, boya)))
+    val bZ = sahneyeKoyVeOku(w, süzgeçli(stencilDüğüm(düz, boya, zorla = false)))
+    val (fB, _, dolu) = karşılaştır(a, b, 8)
+    val (fZ, _, _) = karşılaştır(a, bZ, 8)
+    val oB = 100.0 * fB / math.max(1, dolu); val oZ = 100.0 * fZ / math.max(1, dolu)
+    def boyalı(t: Uint8Array): Int = { var n = 0; var i = 3; while (i < t.length) { if (t(i) != 0) n += 1; i += 4 }; n }
+    val en = dyn(w.renderer).view.width.asInstanceOf[Int]; val boy = dyn(w.renderer).view.height.asInstanceOf[Int]
+    val m = 4 * ((boy / 2) * en + en / 2)
+    info(s"süzgeç: forceStencil ile fark yüzde ${(oB * 100).round / 100.0}; onsuz yüzde ${(oZ * 100).round / 100.0} | boyalı A ${boyalı(a)} B ${boyalı(b)} Bz ${boyalı(bZ)} | merkez A ${a(m)},${a(m+1)},${a(m+2)},${a(m+3)} B ${b(m)},${b(m+1)},${b(m+2)},${b(m+3)}")
+    withClue(s"forceStencil'li $fB / onsuz $fZ farklı, boyalı $dolu -- ") {
+      dolu should be > 1000
+      oB should be < 2.0
+      oZ should be < 2.0 // ölçüldü: süzgecin ara tamponu stencil'li geliyor
     }
   }
 
