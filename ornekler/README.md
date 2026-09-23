@@ -336,10 +336,14 @@ bir 50 001 noktalı, kendini kesen çokgen. Yazdığı sayı komut pompasının 
 artı dolgunun bedeli. Kalemli sürümü yukarıda (`boyamaRenginiKur` satırı
 olmadan aynı döngü).
 
-Libtess'i **zorlamıyor**: 200 tur aynı gülü üst üste çiziyor ve çakışık kenar
-libtess'te yeni kesişme değil — 50 001 nokta eski yolda bile yüzlerce
-milisaniye (MacBook, kojojs-dev#147 §7: **719 ms**, not "76 ms (7 993 nokta)").
-Stencil'deki karşılığı yayın sonrası ölçülecek; dosyanın başındaki tabloya
-yazılır. Eski yol yukarıdaki libtess seçeneğiyle açılıyor; açıkken panelin
-ilk satırı "Eski dolgu yolu (libtess) elle açık …" olur, hangi yolu ölçtüğün
-oradan belli.
+**Eski yolda (libtess) 100 000'de koşturulmaz**: sekme kilitleniyor (MacBook,
+kojojs-dev#147 §7). 200 tur aynı gülü üst üste çiziyor ama kenarlar çakışık
+değil — her `ileri(24.6)` kayan noktada biraz kayıyor, 200 kopya neredeyse
+paralel, libtess'in kesişme sayısı kopya sayısının karesiyle büyüyor; üstüne
+büyüyen şekil her karede baştan üçgenleniyor. Eski yol için betikteki
+`(tur, nokta)` `(20, 250)` yapılır (10 000 komut). Stencil'de 100 000 komut
+**719 ms** (MacBook; ilk sürüm bu sayıyı yanlışlıkla libtess'e yazmıştı — o
+koşudaki not #154'ten önce stencil yolunun da düşürdüğü yanlış nottu).
+Yeni yayının sayıları dosyanın başındaki tabloya yazılır. Eski yol yukarıdaki
+libtess seçeneğiyle açılıyor; açıkken panelin ilk satırı "Eski dolgu yolu
+(libtess) elle açık …" olur, hangi yolu ölçtüğün oradan belli.

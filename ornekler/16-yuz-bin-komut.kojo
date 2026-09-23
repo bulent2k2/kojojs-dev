@@ -10,17 +10,24 @@
 // MacBook'ta 108-165 ms (kojojs-dev#131). Buradaki sürüm o döngüye dolgu
 // ekliyor: 50 001 noktalı, kendini kesen TEK çokgen.
 //
-// NE ÖLÇMÜYOR: eski dolgu yolunun (libtess) en kötü hâlini. 200 tur aynı
-// 250 x 7 gülü ÜST ÜSTE çiziyor; çakışık kenar libtess'te yeni kesişme
-// değil, o yüzden 50 001 nokta eski yolda bile dakikalar değil yüzlerce
-// milisaniye alıyor (MacBook, kojojs-dev#147 §7: 719 ms, notu "76 ms
-// (7 993 nokta)"). Kesişme sayısını artırmak istiyorsan tur başına yarıçapı
-// değiştir -- o zaman gül başka bir betik olur, bu dosya değil.
+// ESKİ YOLDA (libtess) BU BETİĞİ 100 000'DE KOŞTURMA: tarayıcı sekmesi
+// kilitleniyor (MacBook, kojojs-dev#147 §7). 200 tur aynı gülü üst üste
+// çiziyor ama kenarlar ÇAKIŞIK DEĞİL -- her `ileri(24.6)` kayan noktada
+// biraz kayıyor, 200 kopya birbirine neredeyse paralel, ve libtess'in
+// kesişme sayısı kopya sayısının karesiyle patlıyor; üstüne büyüyen şekil
+// her karede baştan üçgenleniyor. Eski yolu ölçmek istiyorsan aşağıdaki
+// (tur, nokta)'yı (20, 250) yap: 10 000 komut.
+//
+// (Bu dosyanın ilk sürümü "eski yol 719 ms, not 76 ms (7 993 nokta)" diyordu.
+// O koşu aslında STENCİL'di: not, #154'ten önce stencil yolunun da düşürdüğü
+// yanlış nottu, libtess'in değil. Düzeltildi.)
 //
 // ÖLÇÜLDÜ (MacBook, kojojs-dev#147 §7):
 //
-//     eski yol (libtess seçeneği açık)   719 ms, not düşüyor
-//     stencil (bugünkü varsayılan)       (yayın sonrası; buraya yazılacak)
+//     stencil (bugünkü varsayılan), 100 000 komut    719 ms (yayın öncesi;
+//                                                     yeni yayında yeniden)
+//     eski yol (libtess seçeneği), 100 000 komut     sekme kilitleniyor
+//     eski yol (libtess seçeneği),  10 000 komut     (buraya yazılacak)
 //
 // LİBTESS SEÇENEĞİ eski yolu elle açar. Tarayıcı konsolunda
 // `localStorage.kojoDolgu = "libtess"` yaz, sayfayı yenile; bitince
@@ -45,8 +52,10 @@ tanım üstÜsteGül(tur: Sayı, nokta: Sayı): Birim = {
   }
 }
 
+// tur x nokta x 2 komut: (200, 250) = 100 000. Eski yol için (20, 250).
+dez (tur, nokta) = (200, 250)
 dez t0 = buAn
-üstÜsteGül(200, 250)
-// konumuOku kuyruğun sonuna giriyor: geri çağrım, önündeki 100 000 komut
+üstÜsteGül(tur, nokta)
+// konumuOku kuyruğun sonuna giriyor: geri çağrım, önündeki komutların hepsi
 // işlenince tetikleniyor -- bitiş damgası bu.
-konumuOku { _ => satıryaz("100 000 komut, dolgulu: " + (buAn - t0) + " ms") }
+konumuOku { _ => satıryaz(s"${2 * tur * nokta} komut, dolgulu: " + (buAn - t0) + " ms") }
