@@ -121,4 +121,47 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
       }
     }
   }
+
+  /**
+   * STENCİL YOLUNDA NOT YOK (#147 §7 canlı bulgusu): 40 000 noktalı gül
+   * stencil'de saniyede 3-4 kez çizilirken not düşüyordu -- tampon kurulumu
+   * büyüyen şeklin her yayınında baştan yapılıyor, toplamı 190 ms'ye çıkıyor
+   * ve süre ÜçgenlemeUyarısı'na gidiyordu. Not üçgenlemenin bedeli için var;
+   * metni ("karesele yakın büyüyor") stencil'de yanlış. Sav: aynı sahte saat
+   * (her okuma +30 ms) altında stencil yolu SUSAR, libtess yolu (anahtar
+   * kapalı) KONUŞUR -- yani sessizlik saatin bozukluğundan değil, yolun
+   * süreyi hiç yazmamasından geliyor.
+   */
+  test("STENCİL yolunda not düşmüyor; aynı saatle libtess yolu düşürüyor (#147 §7)") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    if (!w.stencilDolgu) cancel("bağlamda stencil tamponu yok")
+    ÜçgenlemeUyarısı.hepsiniUnut()
+    panelKur()
+    saatiKur()
+
+    def gül(): Unit = {
+      val t = new Turtle(0, 0)
+      t.setAnimationDelay(0)
+      t.invisible()
+      t.setFillColor(kojo.doodle.Color.blue)
+      var i = 0
+      while (i < 100) { t.forward(9); t.right(25.2); i += 1 } // 101 nokta > Eşik, kendini kesiyor
+    }
+    w.stencilDolgu = true
+    gül()
+    notuBekle(1500).flatMap { stencilNot =>
+      val stencilPanel = panelMetni
+      ÜçgenlemeUyarısı.hepsiniUnut()
+      w.stencilDolgu = false
+      gül()
+      notuBekle(3000).map { libtessNot =>
+        w.stencilDolgu = true
+        withClue(s"stencil: $stencilNot not, panel '$stencilPanel'; libtess: $libtessNot not, panel '$panelMetni' -- ") {
+          stencilNot shouldBe 0
+          stencilPanel shouldBe ""
+          libtessNot shouldBe 1 // denetim: aynı saat, aynı şekil, öteki yol konuşuyor
+        }
+      }
+    }
+  }
 }

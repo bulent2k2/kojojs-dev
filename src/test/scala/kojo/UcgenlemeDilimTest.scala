@@ -70,7 +70,12 @@ class UcgenlemeDilimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
       tuval.id = "canvas-holder"
       kap.appendChild(tuval)
       document.body.appendChild(kap)
-      new KojoWorldImpl()
+      val w = new KojoWorldImpl()
+      // Bu dosya ÜÇGENLEME notunun makinesini sınıyor; o makine libtess
+      // yolunda yaşıyor (#147: stencil yolu süre yazmıyor, not düşürmüyor).
+      // Anahtar açıkça kapalı ki 251 noktalı gül stencil'e gitmesin.
+      w.stencilDolgu = false
+      w
     }
     catch { case t: Throwable => cancel(s"çizici kurulamadı (WebGL yok?): $t") }
 

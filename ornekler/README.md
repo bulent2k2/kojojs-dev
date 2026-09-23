@@ -155,9 +155,12 @@ nokta sayısı.
 Bir dolgu hesabı bir karelik bütçeyi (~17 ms) aşarsa iKojo çıktı paneline bir
 not düşer: ne kadar sürdüğünü, kaç nokta olduğunu ve ne yapılabileceğini yazar.
 Davranış değişmiyor — şekil yine çiziliyor; değişen şey, yavaşlığın artık
-**sessiz olmaması**. (Stencil yolunda süre bütçeyi hiç aşmıyor, not oradan
-düşmüyor; makine yine çağrılıyor, muhasebe iki yolda aynı.)
-`14-agir-dolgu.kojo`nun 2. deneyi (`?dolgu=libtess`) bunu gösteriyor.
+**sessiz olmaması**. (Stencil yolu bu makineye hiç süre yazmıyor: not
+üçgenlemenin bedeli içindi, üçgenleme yoksa not da yok. İlk sürüm tampon
+kurulum süresini de yazıyordu ve 40 000 noktalı gülde, büyüyen şeklin her
+karede baştan kurulmasının toplamıyla, yanlış metinli bir not düşürdü —
+canlıda görüldü, kojojs-dev#147.) `14-agir-dolgu.kojo`nun 2. deneyi
+(`?dolgu=libtess`) notu gösteriyor.
 
 Not **şekil başına en çok bir kez** düşer ve o şeklin **toplam** dolgu süresini
 söyler. Bunun sebebi ölçülmüş: bir şekil bitmeden birkaç kez yayınlanıyor
