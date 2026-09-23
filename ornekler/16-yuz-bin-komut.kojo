@@ -31,6 +31,10 @@
 //         süre kilitli kalıyor -- tamamlanmış şeklin son üçgenlemeleri
 //         konumuOku'nun ARDINDAN geliyor, sayıya girmiyor.
 //
+//     Stencil'in küçük koşularındaki 4 katlık yayılma paylaşılan makinenin
+//     (ölçüm sırasında başka iş koşuyordu), dolgu yolunun değil; en küçük
+//     değer yola en yakını.
+//
 // (Bu dosyanın ilk sürümü "eski yol 719 ms, not 76 ms (7 993 nokta)" diyordu.
 // O koşu aslında STENCİL'di: not, #154'ten önce stencil yolunun da düşürdüğü
 // yanlış nottu, libtess'in değil.)

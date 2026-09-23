@@ -357,8 +357,10 @@ olmadan aynı döngü).
 üçgenlemeleri `konumuOku`'nun ardından geliyor, sayıya girmiyor.
 
 Stencil sütunundaki yayılmaya dikkat (dört koşuda 4 kat): küçük işte sayı
-koşudan koşuya oynuyor, tek koşuya dayanılmaz — 15'in kuralı. Aynı komut
-sayısında iki yolun oranı yine de mertebe: 10 000'de 140–570 kat.
+koşudan koşuya oynuyor — bu koşularda makine başka iş de yapıyordu, yani
+uç değerler (413, 138 ms) paylaşılan makinenin, dolgu yolunun değil; en
+küçük değer yola en yakın olanı. Tek koşuya dayanılmaz, 15'in kuralı. Aynı
+komut sayısında iki yolun oranı yine de mertebe: 10 000'de 140–570 kat.
 
 **Eski yolda (libtess) 100 000'de koşturulmaz.** 200 tur aynı gülü üst üste
 çiziyor ama kenarlar çakışık değil — her `ileri(24.6)` kayan noktada biraz
