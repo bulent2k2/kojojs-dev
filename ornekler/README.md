@@ -349,8 +349,12 @@ olmadan aynı döngü).
 | (tur, nokta) | komut | eski yol (libtess) | stencil |
 |---|---|---|---|
 | (200, 250) | 100 000 | **sekme kilitleniyor** | **497–546 ms** (üç koşu) |
+| (20, 250) | 10 000 | 17 569 ms, sonrasında sekme bir süre daha kilitli\* | — |
 | (200, 25) | 10 000 | 59 090 ms | — |
 | (20, 25) | 1 000 | 194 ms | — |
+
+\* Yazılan süre kuyruğun boşalmasına kadar; tamamlanmış şeklin son
+üçgenlemeleri `konumuOku`'nun ardından geliyor, sayıya girmiyor.
 
 **Eski yolda (libtess) 100 000'de koşturulmaz.** 200 tur aynı gülü üst üste
 çiziyor ama kenarlar çakışık değil — her `ileri(24.6)` kayan noktada biraz

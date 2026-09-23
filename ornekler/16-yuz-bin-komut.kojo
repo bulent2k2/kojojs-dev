@@ -23,8 +23,13 @@
 //
 //     (tur, nokta)   komut     eski yol (libtess seçeneği)   stencil (varsayılan)
 //     (200, 250)     100 000   sekme kilitleniyor            497 / 544 / 546 ms
+//     (20, 250)       10 000   17 569 ms (*)                 --
 //     (200, 25)       10 000   59 090 ms                     --
 //     (20, 25)         1 000   194 ms                        --
+//
+//     (*) Yazılan süre kuyruğun boşalmasına kadar; sekme ondan sonra da bir
+//         süre kilitli kalıyor -- tamamlanmış şeklin son üçgenlemeleri
+//         konumuOku'nun ARDINDAN geliyor, sayıya girmiyor.
 //
 // (Bu dosyanın ilk sürümü "eski yol 719 ms, not 76 ms (7 993 nokta)" diyordu.
 // O koşu aslında STENCİL'di: not, #154'ten önce stencil yolunun da düşürdüğü
