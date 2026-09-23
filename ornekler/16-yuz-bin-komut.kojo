@@ -14,20 +14,21 @@
 // kilitleniyor (MacBook, kojojs-dev#147 §7). 200 tur aynı gülü üst üste
 // çiziyor ama kenarlar ÇAKIŞIK DEĞİL -- her `ileri(24.6)` kayan noktada
 // biraz kayıyor, 200 kopya birbirine neredeyse paralel, ve libtess'in
-// kesişme sayısı kopya sayısının karesiyle patlıyor; üstüne büyüyen şekil
-// her karede baştan üçgenleniyor. Eski yolu ölçmek istiyorsan aşağıdaki
-// (tur, nokta)'yı (20, 250) yap: 10 000 komut.
-//
-// (Bu dosyanın ilk sürümü "eski yol 719 ms, not 76 ms (7 993 nokta)" diyordu.
-// O koşu aslında STENCİL'di: not, #154'ten önce stencil yolunun da düşürdüğü
-// yanlış nottu, libtess'in değil. Düzeltildi.)
+// kesişme sayısı kopya sayısının karesiyle patlıyor (10 000 komutluk
+// 200 x 25 bile 59 saniye; 4001 noktalı TEK gül 3-4 saniye); üstüne büyüyen
+// şekil her karede baştan üçgenleniyor. Eski yolu ölçmek istiyorsan
+// aşağıdaki (tur, nokta)'yı küçült.
 //
 // ÖLÇÜLDÜ (MacBook, kojojs-dev#147 §7):
 //
-//     stencil (bugünkü varsayılan), 100 000 komut    719 ms (yayın öncesi;
-//                                                     yeni yayında yeniden)
-//     eski yol (libtess seçeneği), 100 000 komut     sekme kilitleniyor
-//     eski yol (libtess seçeneği),  10 000 komut     (buraya yazılacak)
+//     (tur, nokta)   komut     eski yol (libtess seçeneği)   stencil (varsayılan)
+//     (200, 250)     100 000   sekme kilitleniyor            497 / 544 / 546 ms
+//     (200, 25)       10 000   59 090 ms                     --
+//     (20, 25)         1 000   194 ms                        --
+//
+// (Bu dosyanın ilk sürümü "eski yol 719 ms, not 76 ms (7 993 nokta)" diyordu.
+// O koşu aslında STENCİL'di: not, #154'ten önce stencil yolunun da düşürdüğü
+// yanlış nottu, libtess'in değil.)
 //
 // LİBTESS SEÇENEĞİ eski yolu elle açar. Tarayıcı konsolunda
 // `localStorage.kojoDolgu = "libtess"` yaz, sayfayı yenile; bitince
@@ -52,7 +53,7 @@ tanım üstÜsteGül(tur: Sayı, nokta: Sayı): Birim = {
   }
 }
 
-// tur x nokta x 2 komut: (200, 250) = 100 000. Eski yol için (20, 250).
+// tur x nokta x 2 komut: (200, 250) = 100 000. Eski yol için küçült (yukarıdaki tablo).
 dez (tur, nokta) = (200, 250)
 dez t0 = buAn
 üstÜsteGül(tur, nokta)
