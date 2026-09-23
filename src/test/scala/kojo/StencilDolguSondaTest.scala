@@ -66,10 +66,20 @@ import pixiscalajs.PIXI
  *    250     19-34 ms                   0.1-0.3 ms       ~100-160x
  *   1000    127-132 ms                  0.3-0.6 ms       ~280-430x
  * }}}
- * B'nin bedeli nokta sayısıyla doğrusal ve GPU'da; A'nın bedeli libtess'in
- * kesişme sayısıyla karesele yakın büyüyen CPU işi. Oran gerçek donanımda
- * küçülür (libtess orada ~5x hızlı, #143'ün canlı sayıları) ama sınıfı
- * değişmez.
+ * Oran bir sayı değil bir MERTEBE: iki ölçümde 75-430 arası okundu (#152
+ * incelemesi kendi koşusunda 75 / 233), aralığın kendisi 5 kat oynuyor.
+ * Sağlam okunuşu "iki mertebe". B'nin bedeli nokta sayısıyla doğrusal ve
+ * GPU'da; A'nın bedeli libtess'in kesişme sayısıyla karesele yakın büyüyen
+ * CPU işi. Oran gerçek donanımda küçülür (libtess orada ~5x hızlı, #143'ün
+ * canlı sayıları) ama sınıfı değişmez.
+ *
+ * SARIM ARİTMETİĞİ (#152 incelemesi §2): tablodaki güller, L ve boya
+ * varyantları sarım kuralını değil boyaları ve dönüşümleri tutuyor -- arkayüz
+ * DECR yerine INCR yapılsa (ters sarım iptal etmese) onların hepsi yine yeşil
+ * kalır, çünkü yelpaze birleşimi NON_ZERO bölgesiyle çakışıyor; yalnız yıldız
+ * ayrışıyordu, o da geometrisi yüzünden. Kanonik sınama ayrıca var: ters
+ * yönlerde iki kez sarılan bölge NON_ZERO'da delik, iptalsiz aritmetikte
+ * dolu (`iptalsiz` denetimi).
  *
  * ARA TAMPONLAR. PİŞİRME (#96): RenderTexture'ın varsayılan çerçeve
  * tamponunda stencil YOK, ve sonuç sessiz bir kusur: stencil sınaması hep
@@ -158,8 +168,14 @@ class StencilDolguSondaTest extends AnyFunSuite with Matchers {
    * @param evenOdd DENETİM: INVERT ile çift-tek kuralı. Kendini kesen şekilde
    *                NON_ZERO'dan farklı sonuç vermeli; vermiyorsa karşılaştırma
    *                sarım kuralını ölçmüyor demektir.
+   * @param iptalsiz DENETİM (#152 incelemesi §2): arkayüz de INCR_WRAP, yani
+   *                 ters yönlü sarım İPTAL ETMİYOR -- stencil sarım sayısı
+   *                 değil kesişim sayısı olur. Güllerde ve L'de fark
+   *                 çıkmıyor (yelpaze birleşimi NON_ZERO bölgesiyle
+   *                 çakışıyor); ayıran şekil ters sarımlı bölge.
    */
-  private def stencilDüğüm(düz: Array[Double], boya: Boya, evenOdd: Boolean = false, zorla: Boolean = true): js.Dynamic = {
+  private def stencilDüğüm(düz: Array[Double], boya: Boya, evenOdd: Boolean = false, zorla: Boolean = true,
+                           iptalsiz: Boolean = false): js.Dynamic = {
     val n = düz.length / 2
     // Yelpaze: (p0, p_i, p_{i+1}), i = 1 .. n-2 -> 3(n-2) köşe.
     val yelpaze = new Float32Array(3 * 2 * (n - 2))
@@ -240,6 +256,7 @@ class StencilDolguSondaTest extends AnyFunSuite with Matchers {
       gl.colorMask(false, false, false, false)
       gl.stencilFunc(gl.ALWAYS, 0, 0xff)
       if (evenOdd) gl.stencilOp(gl.KEEP, gl.KEEP, gl.INVERT)
+      else if (iptalsiz) gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR_WRAP)
       else {
         gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.INCR_WRAP)
         gl.stencilOpSeparate(gl.BACK, gl.KEEP, gl.KEEP, gl.DECR_WRAP)
@@ -369,6 +386,45 @@ class StencilDolguSondaTest extends AnyFunSuite with Matchers {
       // NON_ZERO'nun 0.06'sının 100 katından fazla: karşılaştırma sarım
       // kuralını gerçekten ayırt ediyor.
       oran should be > 3.0
+    }
+  }
+
+  /**
+   * SARIM ARİTMETİĞİNİN KANONİK SINAMASI (#152 incelemesi §2): aynı bölge
+   * ters yönlerde iki kez sarılıyor -- dış kare CCW, içinde köprüyle
+   * bağlanmış bir kare CW. Tek kontur; kaplumbağa da böyle bir yol çizebilir
+   * (dışa çık, ters yönde ilmek at, geri dön). NON_ZERO'da iç bölgenin
+   * sarımı +1 - 1 = 0, yani DELİK; iptal etmeyen aritmetik (iptalsiz: iki
+   * yüz de INCR) orayı 2 sayar ve DOLDURUR. Güller ve L bu ayrımı
+   * göstermiyordu: onlarda yelpaze üçgenlerinin birleşimi NON_ZERO
+   * bölgesiyle çakışıyor. Bu sav sarım kuralını tesadüfen değil tasarımla
+   * tutuyor; libtess referansı da delikli olmalı, yoksa sav iki yanlışı
+   * karşılaştırır.
+   */
+  test("TERS SARIM: dış CCW + iç CW ilmek -> NON_ZERO'da delik; iptalsiz aritmetik doldurur") {
+    val w = dünyaKurYaDaİptal()
+    // dış kare CCW, köprü (-100,-100)->(-50,-50), iç kare CW, köprüden geri.
+    val düz = Array[Double](
+      -100, -100, 100, -100, 100, 100, -100, 100, -100, -100,
+      -50, -50, -50, 50, 50, 50, 50, -50, -50, -50,
+      -100, -100)
+    val boya = DüzBoya(kojo.doodle.Color.red)
+    val a = sahneyeKoyVeOku(w, grafikDüğüm(düz, boya))
+    val b = sahneyeKoyVeOku(w, stencilDüğüm(düz, boya))
+    val c = sahneyeKoyVeOku(w, stencilDüğüm(düz, boya, iptalsiz = true))
+    val en = dyn(w.renderer).view.width.asInstanceOf[Int]; val boy = dyn(w.renderer).view.height.asInstanceOf[Int]
+    val merkez = 4 * ((boy / 2) * en + en / 2)
+    val (fB, _, dolu) = karşılaştır(a, b, 8)
+    val (fC, _, _) = karşılaştır(a, c, 8)
+    val oB = 100.0 * fB / math.max(1, dolu); val oC = 100.0 * fC / math.max(1, dolu)
+    info(s"ters sarım: merkez alfa libtess ${a(merkez + 3)}, stencil ${b(merkez + 3)}, iptalsiz ${c(merkez + 3)}; fark yüzde ${(oB * 100).round / 100.0}, iptalsiz yüzde ${(oC * 100).round / 100.0}")
+    withClue(s"merkez alfa: libtess ${a(merkez + 3)}, stencil ${b(merkez + 3)}, iptalsiz ${c(merkez + 3)}; fark $fB / iptalsiz $fC, boyalı $dolu -- ") {
+      dolu should be > 1000
+      a(merkez + 3).toInt shouldBe 0 // referans: NON_ZERO delik bırakıyor
+      b(merkez + 3).toInt shouldBe 0 // stencil de
+      c(merkez + 3).toInt should be > 0 // iptal etmeyen aritmetik dolduruyor
+      oB should be < 2.0
+      oC should be > 10.0 // sav bozulmuş sarım aritmetiğini görüyor
     }
   }
 
