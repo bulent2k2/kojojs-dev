@@ -24,6 +24,7 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 | `13-xox-yenilmez.kojo` | **minimax** ve **alfa-beta budaması** — yenilmeyen bir oyun stratejisi nasıl programlanır |
 | `14-agir-dolgu.kojo` | Kendini kesen şekillerin dolgusu neden yavaş**tı** ve artık neden değil — **gerileme gösterimi**: iki gül, panel sessiz kalmalı; eski yolun ölçülmüş maliyet eğrisi ve notu konsol anahtarıyla (`localStorage.kojoDolgu`, bkz. aşağıdaki not) |
 | `15-mesh-olcumu.kojo` | **Örnek değil, ölçü aleti**: kesişen bir şekli her karede yeniden çizen döngünün saniyede kaç kare verdiğini sayar (bkz. aşağıdaki not) |
+| `16-yuz-bin-komut.kojo` | **Ölçü aleti**: 100 000 kaplumbağa komutunu tek bir dolgulu şekil olarak çizer ve süresini yazar — komut pompasının hızı, dolguyla (bkz. aşağıdaki not) |
 
 ## Nasıl çalıştırılır
 
@@ -266,7 +267,8 @@ pompada da **30** (tavan — orada hiçbir değişiklik görülmez); 1000'de esk
 tek karede bitince tek kez üçgenleniyor, eskiden ~10 karede büyüyen önek her
 seferinde yeniden üçgenleniyordu. Aynı betiklerle 100 000 komutluk kalemli iş
 6.9–10.4 s'den 108–165 ms'ye indi (`sil()`li varyant, yalnız pompayı ölçen:
-4.56 s → 93–169 ms). O iki betik, olduğu gibi:
+4.56 s → 93–169 ms). O iki betik, olduğu gibi (dolgulu sürümü ayrı bir alet:
+`16-yuz-bin-komut.kojo`, aşağıda):
 
 ```
 sil()
@@ -318,3 +320,18 @@ Dosya ya da dizin verilebilir; `-b` olmadan her kaldı çıkış kodu 1'dir (bur
 `bulent2k2/kojo` reposundaki 112 Türkçe betiğin değiştirilmemiş kopyası ve
 uçurum ölçümü (`tarama.tsv`). Ayrıntı: `masaustu/README.md`, ölçüm aracı
 `../araclar/ucurum.py`.
+
+## `16-yuz-bin-komut.kojo` da bir ölçü aleti
+
+Aynı 100 000 komut (200 tur × 250 × [ileri + sağ]), bu kez **dolguyla**: tek
+bir 50 001 noktalı, kendini kesen çokgen. Yazdığı sayı komut pompasının hızı
+artı dolgunun bedeli. Kalemli sürümü yukarıda (`boyamaRenginiKur` satırı
+olmadan aynı döngü).
+
+Libtess'i **zorlamıyor**: 200 tur aynı gülü üst üste çiziyor ve çakışık kenar
+libtess'te yeni kesişme değil — 50 001 nokta eski yolda bile yüzlerce
+milisaniye (MacBook, kojojs-dev#147 §7: **719 ms**, not "76 ms (7 993 nokta)").
+Stencil'deki karşılığı yayın sonrası ölçülecek; dosyanın başındaki tabloya
+yazılır. Eski yolu elle açmak yukarıdaki konsol anahtarıyla; eski yol açıkken
+panelin ilk satırı "Eski dolgu yolu (libtess) elle açık …" olur, hangi yolu
+ölçtüğün oradan belli.

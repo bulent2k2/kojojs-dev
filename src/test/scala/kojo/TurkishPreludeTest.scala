@@ -487,4 +487,42 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
 
     succeed
   }
+
+  /**
+   * `ornekler/16-yuz-bin-komut.kojo`'nun gövdesi, Koco anahtar kelimeleri
+   * çıkarılmış hâliyle; gözcüsü `araclar/ornek-kopya-denetle.py`
+   * (`üstÜsteGül`). O dosya da bir ÖLÇÜ ALETİ (#147 §7): 100 000 komutu tek
+   * bir dolgulu şekil olarak çizip süresini yazıyor. Burada tur ve nokta
+   * küçültüldü: sav derlemeyi ve adları sınıyor, pompayı ölçmüyor.
+   */
+  test("16-yuz-bin-komut.kojo'nun kitaplık adları prelude ile derleniyor (#147)") {
+    import kojo.{TurkishTurtle, Turtle, Picture}
+    import kojo.doodle.Color._
+    import kojo.Speed._
+    import kojo.RepeatCommands._
+    import kojo.syntax.Builtins
+    implicit val kojoWorld = new TestKojoWorld()
+    val builtins = new Builtins()
+    import builtins._
+    import turtle._
+    import trTurtle._
+
+    sil()
+    hızıKur(çokHızlı)
+    gizle()
+    kalemKalınlığınıKur(0)
+    boyamaRenginiKur(mavi)
+
+    def üstÜsteGül(tur: Sayı, nokta: Sayı): Birim = {
+      yinele(tur) {
+        yinele(nokta) { ileri(24.6); sağ(10.08) }
+      }
+    }
+
+    val t0 = buAn
+    üstÜsteGül(2, 25)
+    konumuOku { _ => satıryaz("100 000 komut, dolgulu: " + (buAn - t0) + " ms") }
+
+    succeed
+  }
 }
