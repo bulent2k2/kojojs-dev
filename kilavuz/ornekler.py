@@ -202,6 +202,7 @@ IKOJO_BASLIK = {
     '13-xox-yenilmez.kojo': 'XOX — yenilmez',
     '14-agir-dolgu.kojo': 'Ağır dolgu',
     '15-mesh-olcumu.kojo': 'Dolgu çizim maliyeti',
+    '16-yuz-bin-komut.kojo': 'Yüz bin komut',
 }
 
 ROZETLER = {
