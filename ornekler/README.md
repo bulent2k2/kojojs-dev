@@ -350,11 +350,15 @@ olmadan aynı döngü).
 |---|---|---|---|
 | (200, 250) | 100 000 | **sekme kilitleniyor** | **497–546 ms** (üç koşu) |
 | (20, 250) | 10 000 | 17 569 ms, sonrasında sekme bir süre daha kilitli\* | 77 ms |
-| (200, 25) | 10 000 | 59 090 ms | — |
-| (20, 25) | 1 000 | 194 ms | — |
+| (200, 25) | 10 000 | 59 090 ms | 103–413 ms (dört koşu) |
+| (20, 25) | 1 000 | 194 ms | 29–138 ms (dört koşu) |
 
 \* Yazılan süre kuyruğun boşalmasına kadar; tamamlanmış şeklin son
 üçgenlemeleri `konumuOku`'nun ardından geliyor, sayıya girmiyor.
+
+Stencil sütunundaki yayılmaya dikkat (dört koşuda 4 kat): küçük işte sayı
+koşudan koşuya oynuyor, tek koşuya dayanılmaz — 15'in kuralı. Aynı komut
+sayısında iki yolun oranı yine de mertebe: 10 000'de 140–570 kat.
 
 **Eski yolda (libtess) 100 000'de koşturulmaz.** 200 tur aynı gülü üst üste
 çiziyor ama kenarlar çakışık değil — her `ileri(24.6)` kayan noktada biraz
