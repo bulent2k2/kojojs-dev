@@ -22,7 +22,7 @@
 // ÖLÇÜLDÜ (MacBook, kojojs-dev#147 §7):
 //
 //     (tur, nokta)   komut     eski yol (libtess seçeneği)   stencil (varsayılan)
-//     (200, 250)     100 000   sekme kilitleniyor            497 / 544 / 546 ms
+//     (200, 250)     100 000   sekme kilitleniyor            497-1145 ms (yedi koşu)
 //     (20, 250)       10 000   17 569 ms (*)                 77 ms
 //     (200, 25)       10 000   59 090 ms                     103-413 ms (dört koşu)
 //     (20, 25)         1 000   194 ms                        29-138 ms (dört koşu)
