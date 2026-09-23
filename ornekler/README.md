@@ -163,7 +163,11 @@ Davranış değişmiyor — şekil yine çiziliyor; değişen şey, yavaşlığ�
 kurulum süresini de yazıyordu ve 40 000 noktalı gülde, büyüyen şeklin her
 karede baştan kurulmasının toplamıyla, yanlış metinli bir not düşürdü —
 canlıda görüldü, kojojs-dev#147.) `14-agir-dolgu.kojo`nun 2. deneyi
-(`localStorage.kojoDolgu`) notu gösteriyor.
+(`localStorage.kojoDolgu`) notu gösteriyor. Sonuç açıkça yazılsın: PIXI 5 +
+stencil'li bir tarayıcıda, yani bugünün varsayılan yolunda, bu makineye süre
+yazan tek yer 64 ve altı noktalı şekiller — orada libtess 1 ms'nin altında,
+not pratikte hiç düşmez. Aşağıdaki not makinesi ve kuralları bugün yalnız
+PIXI 4, stencil'siz bağlam ve elle geri dönüş için var.
 
 Not **şekil başına en çok bir kez** düşer ve o şeklin **toplam** dolgu süresini
 söyler. Bunun sebebi ölçülmüş: bir şekil bitmeden birkaç kez yayınlanıyor
