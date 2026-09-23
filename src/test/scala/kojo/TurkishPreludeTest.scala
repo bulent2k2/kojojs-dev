@@ -520,8 +520,9 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
     }
 
     val t0 = buAn
-    üstÜsteGül(2, 25)
-    konumuOku { _ => satıryaz("100 000 komut, dolgulu: " + (buAn - t0) + " ms") }
+    val (t, n) = (2, 25)
+    üstÜsteGül(t, n)
+    konumuOku { _ => satıryaz(s"tur=$t x nokta=$n -> ${t * n * 2} komut, dolgulu: " + (buAn - t0) + " ms") }
 
     succeed
   }

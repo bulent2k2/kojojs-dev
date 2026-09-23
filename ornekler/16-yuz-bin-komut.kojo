@@ -62,10 +62,11 @@ tanım üstÜsteGül(tur: Sayı, nokta: Sayı): Birim = {
   }
 }
 
-// tur x nokta x 2 komut: (200, 250) = 100 000. Eski yol için küçült (yukarıdaki tablo).
-dez (tur, nokta) = (200, 250)
+// t tur x n nokta x 2 komut: (200, 250) = 100 000. Eski yol için küçült
+// (yukarıdaki tablo).
 dez t0 = buAn
-üstÜsteGül(tur, nokta)
+dez (t, n) = (200, 250)
+üstÜsteGül(t, n)
 // konumuOku kuyruğun sonuna giriyor: geri çağrım, önündeki komutların hepsi
 // işlenince tetikleniyor -- bitiş damgası bu.
-konumuOku { _ => satıryaz(s"${2 * tur * nokta} komut, dolgulu: " + (buAn - t0) + " ms") }
+konumuOku { _ => satıryaz(s"tur=$t x nokta=$n -> ${t * n * 2} komut, dolgulu: " + (buAn - t0) + " ms") }
