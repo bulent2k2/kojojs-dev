@@ -23,6 +23,8 @@ import scala.concurrent.{Future, Promise}
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Uint8Array
 
+import pixiscalajs.PIXI
+
 /**
  * #147'nin ÜRETİM SAVLARI (ölçüt 3): `Turtle` Eşik'i aşan dolguları artık
  * `StencilDolgu` düğümüne yazıyor; libtess + Graphics yolu yedek olarak
@@ -40,6 +42,9 @@ import scala.scalajs.js.typedarray.Uint8Array
  *  - `Boya.dokuma`: doku dosyadan sonradan gelince düğüm dokuya geçiyor (#40).
  *  - `sil()` sonrası artık yok: aynı yere başka şekil, eski dolgu pikselleri boş.
  *  - EŞİK: 64 ve altı libtess'te kalıyor (parti kırılması ölçümü, StencilDolgu belgesi).
+ *  - BİLİNEN SINIR, 8 bitlik sarım (#153 incelemesi): 255 ve 257 kat temiz,
+ *    256 kat koca bölge boş -- ayırıcı imza; sınır bilerek çivili, "düzeltildi"
+ *    diye değil "böyle" diye. Düğüm doğrudan (pompasız), libtess referansına karşı.
  *
  * GL BIRAKMA burada değil: `KaynakSizintisiTest`in 180 köşeli şekilleri artık
  * kendiliğinden stencil yolundan geçiyor, tavan savları (managedGeometries /
@@ -425,5 +430,53 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
         }
       }
     }
+  }
+
+  /**
+   * 8 BİTLİK SARIM SINIRI (#153 incelemesi §2): stencil tamponu 8 bit,
+   * INCR_WRAP 256'da sıfıra döner -- sarımı tam 256 olan bölge NON_ZERO'da
+   * dolu olması gerekirken BOŞ kalır. Ayırıcı imza: komşuları (255, 257)
+   * temiz, yalnız 256 ayrışıyor; yani fark kenar yumuşatma ya da libtess
+   * değil, taşmanın kendisi. Bu sav sınırı "böyle" diye çiviliyor: biri
+   * sınırı kaldırırsa (ör. 16 bitlik yol) 256 savı kırmızı yanar ve belge
+   * güncellenir. Düğüm doğrudan kuruluyor (pompa yok, hız için); libtess
+   * referansı sondadaki gibi üçgen başına drawPolygon.
+   */
+  test("BİLİNEN SINIR: sarım 256'da taşıyor (255 ve 257 temiz, 256 boş bölge)") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val boya = DüzBoya(kojo.doodle.Color.blue)
+    def gülDüz(nokta: Int, kat: Int, r: Double): Array[Double] = {
+      val a = new Array[Double](nokta * 2); var i = 0
+      while (i < nokta) { val açı = i * kat * 2 * math.Pi / nokta; a(2 * i) = r * math.cos(açı); a(2 * i + 1) = r * math.sin(açı); i += 1 }
+      a
+    }
+    def libtess(düz: Array[Double]): js.Dynamic = {
+      val ü = Üçgenleyici.nonzero(düz); val gr = new PIXI.Graphics()
+      PixiUyum.boyamayaBaşla(gr, boya)(() => ())
+      var i = 0
+      while (i + 5 < ü.length) { gr.drawPolygon(js.Array(ü(i), ü(i + 1), ü(i + 2), ü(i + 3), ü(i + 4), ü(i + 5))); i += 6 }
+      gr.endFill(); dyn(gr)
+    }
+    def stencil(düz: Array[Double]): js.Dynamic = { val s = new StencilDolgu(); s.kur(düz, boya)(() => ()); dyn(s) }
+    def oku(düğüm: js.Dynamic): Uint8Array = {
+      w.stage.children.toList.foreach(c => w.stage.removeChild(c))
+      dyn(w.stage).addChild(düğüm)
+      val t = sahneyiOku(w)
+      w.stage.removeChild(düğüm.asInstanceOf[pixiscalajs.PIXI.DisplayObject]); t
+    }
+    val sonuç = for (kat <- List(255, 256, 257)) yield {
+      val düz = gülDüz(1000, kat, 130)
+      val (fark, dolu) = karşılaştır(oku(libtess(düz)), oku(stencil(düz)))
+      (kat, 100.0 * fark / math.max(1, dolu), dolu)
+    }
+    sonuç.foreach { case (kat, oran, dolu) => info(f"gül 1000 x $kat: boyalı $dolu, farklı yüzde $oran%.2f") }
+    val oranlar = sonuç.map { case (kat, oran, _) => kat -> oran }.toMap
+    withClue(s"$sonuç -- ") {
+      sonuç.foreach { case (_, _, dolu) => dolu should be > 1000 }
+      oranlar(255) should be < 2.0
+      oranlar(257) should be < 2.0
+      oranlar(256) should be > 10.0 // taşma: sınır BÖYLE; kalkarsa bu satır ve belge değişir
+    }
+    Future.successful(succeed)
   }
 }
