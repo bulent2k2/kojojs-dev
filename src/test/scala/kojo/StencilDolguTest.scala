@@ -498,19 +498,36 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
    * güvenilmez (yönlendirici düşürüyor, canlıda görüldü), bu kanal onun
    * yerine; sav dünyanın kuruluş anındaki okumayı çiviliyor.
    */
-  test("localStorage.kojoDolgu = libtess: dünya libtess yoluyla kuruluyor; silinince stencil") {
+  test("localStorage.kojoDolgu = libtess: dünya libtess yoluyla kuruluyor ve panele yazıyor; silinince stencil, sessiz") {
     val depo = window.localStorage
+    def panelKur(): HTMLElement = {
+      Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
+      val d = document.createElement("div").asInstanceOf[HTMLElement]
+      d.id = "output"; document.body.appendChild(d); d
+    }
+    // Panel ve depo KÜRESEL: ikisi de finally'de temizleniyor ki sonraki
+    // savlar (#154 incelemesi §5) ne anahtarı ne satırı miras alsın.
     try {
       depo.setItem("kojoDolgu", "libtess")
+      val kapalıPanel = panelKur()
       val kapalı = dünyaKurYaDaİptalHam()
+      val kapalıMetin = kapalıPanel.textContent
       depo.removeItem("kojoDolgu")
+      val açıkPanel = panelKur()
       val açık = dünyaKurYaDaİptalHam()
-      withClue(s"kojoDolgu=libtess ile ${kapalı.stencilDolgu}, silinince ${açık.stencilDolgu} -- ") {
+      val açıkMetin = açıkPanel.textContent
+      withClue(s"kojoDolgu=libtess ile ${kapalı.stencilDolgu}, panel '$kapalıMetin'; silinince ${açık.stencilDolgu}, panel '$açıkMetin' -- ") {
         kapalı.stencilDolgu shouldBe false
+        kapalıMetin should include("elle açık")
+        kapalıMetin should include("delete localStorage.kojoDolgu")
         açık.stencilDolgu shouldBe true
+        açıkMetin shouldBe ""
       }
       Future.successful(succeed)
     }
-    finally depo.removeItem("kojoDolgu")
+    finally {
+      depo.removeItem("kojoDolgu")
+      Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
+    }
   }
 }
