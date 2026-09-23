@@ -36,10 +36,11 @@
 // görünmüyor -- 60 noktalı kesişen gül de sessiz, çünkü ucuz.
 //
 // ESKİ YOL NE ZAMAN ÇALIŞIR: PIXI 4 (eski tarayıcı), stencil tamponu
-// vermeyen bir WebGL bağlamı, ya da elle istenirse (tarayıcı konsolunda
-// `localStorage.kojoDolgu = "libtess"` -- 2. deney). O yolda üçgenleme ve not aynen
-// duruyor; not makinesinin kuralları (şekil başına bir kez, "sürdü" ile
-// "şu ana dek" farkı, kuyruk boşalması) o yolun belgesinde: ornekler/README.
+// vermeyen bir WebGL bağlamı, ya da LİBTESS SEÇENEĞİ elle açılırsa (tarayıcı
+// konsolunda `localStorage.kojoDolgu = "libtess"` -- 2. deney). O yolda
+// üçgenleme ve not aynen duruyor; not makinesinin kuralları (şekil başına
+// bir kez, "sürdü" ile "şu ana dek" farkı, kuyruk boşalması) o yolun
+// belgesinde: ornekler/README.
 
 sil()
 artalanıKur(beyaz)
@@ -77,17 +78,18 @@ gizle()
 //    karede çizilmeli ve panel sessiz kalmalı. Görmen gereken tek fark
 //    gülün sıklaşması.
 //
-// 2. Tarayıcının geliştirici konsolunu aç (macOS: Cmd+Option+J, Windows:
-//    Ctrl+Shift+J), şunu yaz ve sayfayı yenile:
+// 2. LİBTESS SEÇENEĞİ: tarayıcının geliştirici konsolunu aç (macOS:
+//    Cmd+Option+J, Windows: Ctrl+Shift+J), şunu yaz ve sayfayı yenile:
 //
 //      localStorage.kojoDolgu = "libtess"
 //
-//    Kitaplık ESKİ yola döner: kırmızı gül üçgenlenir ve panelde
+//    Kitaplık ESKİ yola döner: panelin ilk satırı "Eski dolgu yolu (libtess)
+//    elle açık ..." olur, kırmızı gül üçgenlenir ve panelde
 //    "... hesaplamak N ms SÜRDÜ (251 nokta)" notu çıkar. 1000 noktada
 //    "ŞU ANA DEK N ms aldı (şimdilik M nokta; şekil büyüdükçe artacak)"
 //    biçimini görürsün -- o yolun kurallarını README anlatıyor. Bu deney
-//    eski bedelin ne olduğunu kendi makinende görmek için. Bitince GERİ AL,
-//    yoksa ayar sayfa yenilense de kalır:
+//    eski bedelin ne olduğunu kendi makinende görmek için. Bitince seçeneği
+//    GERİ AL ve yenile, yoksa sayfa yenilense de açık kalır:
 //
 //      delete localStorage.kojoDolgu
 //

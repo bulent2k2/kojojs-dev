@@ -19,14 +19,14 @@
 //
 // ÖLÇÜLDÜ (MacBook, kojojs-dev#147 §7):
 //
-//     eski yol (libtess, elle açık)   719 ms, not düşüyor
-//     stencil (bugünkü varsayılan)    (yayın sonrası; buraya yazılacak)
+//     eski yol (libtess seçeneği açık)   719 ms, not düşüyor
+//     stencil (bugünkü varsayılan)       (yayın sonrası; buraya yazılacak)
 //
-// Eski yolu elle açmak: tarayıcı konsolunda `localStorage.kojoDolgu =
-// "libtess"`, sayfayı yenile; bitince `delete localStorage.kojoDolgu`
-// (ornekler/14-agir-dolgu.kojo, 2. deney). Eski yol açıkken panelin ilk
-// satırı "Eski dolgu yolu (libtess) elle açık ..." olur -- hangi yolu
-// ölçtüğünü oradan bil.
+// LİBTESS SEÇENEĞİ eski yolu elle açar. Tarayıcı konsolunda
+// `localStorage.kojoDolgu = "libtess"` yaz, sayfayı yenile; bitince
+// `delete localStorage.kojoDolgu`, yine yenile (ornekler/14-agir-dolgu.kojo,
+// 2. deney). Seçenek açıkken panelin ilk satırı "Eski dolgu yolu (libtess)
+// elle açık ..." olur -- hangi yolu ölçtüğünü oradan bil.
 //
 // KURALLAR 15'inkiyle aynı: tek kaplumbağa, tek sayı değil birkaç koşu (bu
 // ölçüm koşudan koşuya oynuyor), ve öncesi/sonrası AYNI makinede.

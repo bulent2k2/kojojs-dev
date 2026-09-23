@@ -22,7 +22,7 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 | `11-acilar-ve-radyan.kojo` | Radyan nedir — adım adım devinimli anlatım. Masaüstündeki `samples/tr/angles.kojo`'nun tarayıcı sürümü: geçişler `durakla` yerine bir **düğmeye** bağlı (bkz. aşağıdaki not) |
 | `12-uc-cisim.kojo` | Yerçekimi benzetimi — Newton mekaniğiyle üç gökcisminin birbirini çekmesi |
 | `13-xox-yenilmez.kojo` | **minimax** ve **alfa-beta budaması** — yenilmeyen bir oyun stratejisi nasıl programlanır |
-| `14-agir-dolgu.kojo` | Kendini kesen şekillerin dolgusu neden yavaş**tı** ve artık neden değil — **gerileme gösterimi**: iki gül, panel sessiz kalmalı; eski yolun ölçülmüş maliyet eğrisi ve notu konsol anahtarıyla (`localStorage.kojoDolgu`, bkz. aşağıdaki not) |
+| `14-agir-dolgu.kojo` | Kendini kesen şekillerin dolgusu neden yavaş**tı** ve artık neden değil — **gerileme gösterimi**: iki gül, panel sessiz kalmalı; eski yolun ölçülmüş maliyet eğrisi ve notu libtess seçeneğiyle (konsolda `localStorage.kojoDolgu = "libtess"`, bkz. aşağıdaki not) |
 | `15-mesh-olcumu.kojo` | **Örnek değil, ölçü aleti**: kesişen bir şekli her karede yeniden çizen döngünün saniyede kaç kare verdiğini sayar (bkz. aşağıdaki not) |
 | `16-yuz-bin-komut.kojo` | **Ölçü aleti**: 100 000 kaplumbağa komutunu tek bir dolgulu şekil olarak çizer ve süresini yazar — komut pompasının hızı, dolguyla (bkz. aşağıdaki not) |
 
@@ -77,14 +77,22 @@ başına iki çizim çağrısı; 2000 küçük kareyle ölçüldü, stencil orad
 kitaplıkta (`StencilDolgu.Eşik`).
 
 **Eski yol duruyor** ve üç durumda çalışıyor: 64 ve altı nokta, PIXI 4 / stencil
-tamponu vermeyen bir bağlam, ve elle istenince: tarayıcı konsolunda
-`localStorage.kojoDolgu = "libtess"` (geri almak için `delete
-localStorage.kojoDolgu`; tuval editörün aynı-kökenli çerçevesinde koştuğu
-için depo ortak). Adrese `?dolgu=libtess` eklemek de okunuyor ama editörde
-güvenilmez: yönlendirici sorguyu kök sayfaya çevirirken düşürüyor (canlıda
-görüldü, kojojs-dev#147). Aşağıdaki her şey — maliyet eğrisi, soğuk/sıcak, not
-makinesi — **o yolu** anlatıyor; sayılar tarihsel değil, anahtarla bugün de
-alınabilir.
+tamponu vermeyen bir bağlam, ve **libtess seçeneği** elle açılınca. Seçenek
+tarayıcı konsolundan kuruluyor, sayfa yenilenince etkili oluyor ve yenilemede
+kalıcı:
+
+```
+localStorage.kojoDolgu = "libtess"     // eski yolu aç, sonra sayfayı yenile
+delete localStorage.kojoDolgu          // geri al, sonra sayfayı yenile
+```
+
+Seçenek açıkken her koşumun başında panele *"Eski dolgu yolu (libtess) elle
+açık …"* satırı düşüyor; hangi yolu ölçtüğün oradan belli. (Tuval editörün
+aynı-kökenli çerçevesinde koştuğu için depo ortak. Adrese `?dolgu=libtess`
+eklemek de okunuyor ama editörde güvenilmez: yönlendirici sorguyu kök sayfaya
+çevirirken düşürüyor — canlıda görüldü, kojojs-dev#147.) Aşağıdaki her şey —
+maliyet eğrisi, soğuk/sıcak, not makinesi — **o yolu** anlatıyor; sayılar
+tarihsel değil, libtess seçeneğiyle bugün de alınabilir.
 
 ### Eski yol: libtess
 
@@ -198,7 +206,7 @@ bildiriyordu ("30 ms sürdü (21 nokta)", 251 noktalık gül için; kojojs-dev#1
 *çalışmadığını* gösteren tuş deneyi (kuyruk tuşlar arasında boşalıyor ama
 bir sonraki tuş nokta ekleyecek; not orada erken eşikle, "şu ana dek"
 biçiminde konuşuyordu: 7. basış, 57 ms, "şimdilik 251 nokta") örneğin 4.
-deneyi olarak duruyor — stencil yolunda sessiz, konsol anahtarıyla eski
+deneyi olarak duruyor — stencil yolunda sessiz, libtess seçeneğiyle eski
 davranış.
 
 ## `15-mesh-olcumu.kojo` bir ölçü aleti
@@ -332,6 +340,6 @@ Libtess'i **zorlamıyor**: 200 tur aynı gülü üst üste çiziyor ve çakış�
 libtess'te yeni kesişme değil — 50 001 nokta eski yolda bile yüzlerce
 milisaniye (MacBook, kojojs-dev#147 §7: **719 ms**, not "76 ms (7 993 nokta)").
 Stencil'deki karşılığı yayın sonrası ölçülecek; dosyanın başındaki tabloya
-yazılır. Eski yolu elle açmak yukarıdaki konsol anahtarıyla; eski yol açıkken
-panelin ilk satırı "Eski dolgu yolu (libtess) elle açık …" olur, hangi yolu
-ölçtüğün oradan belli.
+yazılır. Eski yol yukarıdaki libtess seçeneğiyle açılıyor; açıkken panelin
+ilk satırı "Eski dolgu yolu (libtess) elle açık …" olur, hangi yolu ölçtüğün
+oradan belli.
