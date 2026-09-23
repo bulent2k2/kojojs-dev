@@ -145,7 +145,9 @@ class KatmanSirasiTest extends AsyncFunSuite with Matchers with RepeatCommands {
       // (kalem biçemleri (2,true) olarak kalıyordu). Kuyruğa bir tur bırakıp
       // öyle bakıyoruz.
       Future(()).map { _ =>
-        val dolguBiçemleri = t().dolguParçaları.toSeq.flatMap(çizgiBiçemleri)
+        // Küçük kareler Graphics'te kalıyor (#147: eşik altı); stencil düğümünde
+        // çizgi biçemi diye bir şey yok, o yüzden yalnız Graphics parçaları.
+        val dolguBiçemleri = t().dolguParçaları.toSeq.collect { case g: PIXI.Graphics => g }.flatMap(çizgiBiçemleri)
         val kalemBiçemleri = t().kalemParçaları.toSeq.flatMap(çizgiBiçemleri)
         withClue(s"dolgu: $dolguBiçemleri / kalem: $kalemBiçemleri -- ") {
           // Sav ancak dönüştürücü GERÇEKTEN çalıştıysa bir şey söyler:

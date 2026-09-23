@@ -111,15 +111,22 @@ class KaynakSizintisiTest extends AsyncFunSuite with Matchers {
   /** Bir resimdeki dolgu dokularının imlerini döndürür: GRADYAN / başka / dokusuz. */
   private def dolguDokuları(p: TurtlePicture)(implicit w: KojoWorldImpl): Seq[String] = {
     w.boyalarıBoşalt()
+    def sınıf(t: js.Dynamic): String =
+      if (js.isUndefined(t) || t == null) "dokusuz"
+      else if (t.baseTexture.selectDynamic(Boya.GradyanDokusuİmi)
+                 .asInstanceOf[js.UndefOr[Boolean]].contains(true)) "GRADYAN"
+      else "başka"
     p.tnode.asInstanceOf[js.Dynamic].children.asInstanceOf[js.Array[js.Dynamic]].toSeq.flatMap { g =>
-      if (js.typeOf(g.finishPoly) != "function") Nil
+      if (g.kojoStencilDolgu.asInstanceOf[js.UndefOr[Boolean]].contains(true))
+        // #147: 64 noktadan büyük dolgular Graphics değil StencilDolgu; boyası düğümde.
+        g.asInstanceOf[StencilDolgu].şimdikiBoya match {
+          case DokuBoya(doku, _, _) => Seq(sınıf(doku.asInstanceOf[js.Dynamic]))
+          case _                    => Seq("dokusuz")
+        }
+      else if (js.typeOf(g.finishPoly) != "function") Nil
       else
         g.geometry.graphicsData.asInstanceOf[js.Array[js.Dynamic]].toSeq.map { gd =>
-          val t = gd.fillStyle.texture
-          if (js.isUndefined(t) || t == null) "dokusuz"
-          else if (t.baseTexture.selectDynamic(Boya.GradyanDokusuİmi)
-                     .asInstanceOf[js.UndefOr[Boolean]].contains(true)) "GRADYAN"
-          else "başka"
+          sınıf(gd.fillStyle.texture)
         }
     }
   }
