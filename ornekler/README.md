@@ -22,7 +22,7 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 | `11-acilar-ve-radyan.kojo` | Radyan nedir — adım adım devinimli anlatım. Masaüstündeki `samples/tr/angles.kojo`'nun tarayıcı sürümü: geçişler `durakla` yerine bir **düğmeye** bağlı (bkz. aşağıdaki not) |
 | `12-uc-cisim.kojo` | Yerçekimi benzetimi — Newton mekaniğiyle üç gökcisminin birbirini çekmesi |
 | `13-xox-yenilmez.kojo` | **minimax** ve **alfa-beta budaması** — yenilmeyen bir oyun stratejisi nasıl programlanır |
-| `14-agir-dolgu.kojo` | Kendini kesen şekillerin dolgusu neden yavaşlar — ölçülmüş maliyet eğrisi, ve dolgu bir karelik bütçeyi aşınca çıkan not (bkz. aşağıdaki not) |
+| `14-agir-dolgu.kojo` | Kendini kesen şekillerin dolgusu neden yavaş**tı** ve artık neden değil — **gerileme gösterimi**: iki gül, panel sessiz kalmalı; eski yolun ölçülmüş maliyet eğrisi ve notu `?dolgu=libtess` ile (bkz. aşağıdaki not) |
 | `15-mesh-olcumu.kojo` | **Örnek değil, ölçü aleti**: kesişen bir şekli her karede yeniden çizen döngünün saniyede kaç kare verdiğini sayar (bkz. aşağıdaki not) |
 
 ## Nasıl çalıştırılır
@@ -58,6 +58,31 @@ programlarda `çokHızlı` kullanmak gerekir. Ara değerler: `yavaş`, `orta`,
 `hızlı`.
 
 ## Ağır dolgu hakkında
+
+**Bugün (kojojs-dev#147):** 64 noktadan büyük dolgular **hiç üçgenlenmiyor**.
+Şekil ekran kartına bir yelpaze olarak veriliyor, sarım sayısı stencil
+tamponunda sayılıyor, sıfır olmayan pikseller boyanıyor (OpenGL'in klasik
+NON_ZERO dolgusu). Bedel nokta sayısıyla doğrusal ve ekran kartında: 250×7
+gülde 0.1–0.4 ms, 1000×7'de 0.3–0.8 ms — eski yolun 100–400'de biri
+(kojojs-dev#152, SwiftShader; gerçek donanımda oran küçülür, sınıfı değişmez).
+Sonuç piksel piksel aynı: silüet kenarında %0.06, ters sarımlı delikler dâhil.
+Bu yolda üçgenleme yok, dolayısıyla aşağıda anlatılan **not da yok**;
+`14-agir-dolgu.kojo` artık bir gerileme gösterimi — çalıştırınca panel sessiz
+kalmalı.
+
+**64 neden:** küçük dolgular PIXI'nin tek partisinde gidiyor, stencil ise şekil
+başına iki çizim çağrısı; 2000 küçük kareyle ölçüldü, stencil orada kaybediyor
+(20 ms'ye 0.8 ms). 64 ve altında libtess'in en kötü bedeli 4 ms. Sınır
+kitaplıkta (`StencilDolgu.Eşik`).
+
+**Eski yol duruyor** ve üç durumda çalışıyor: 64 ve altı nokta, PIXI 4 / stencil
+tamponu vermeyen bir bağlam, ve sayfa adresinde `?dolgu=libtess` (elle geri
+dönüş; tuval editörün aynı-kökenli çerçevesinde koştuğu için üst pencerenin
+adresi okunuyor). Aşağıdaki her şey — maliyet eğrisi, soğuk/sıcak, not
+makinesi — **o yolu** anlatıyor; sayılar tarihsel değil, `?dolgu=libtess` ile
+bugün de alınabilir.
+
+### Eski yol: libtess
 
 Kendini kesen bir yolun içini boyamak için şekil üçgenlere ayrılıyor (NON_ZERO
 sarım kuralı — masaüstü Kojo'nun Java ile yaptığının aynısı). Bu hesap nokta
@@ -130,7 +155,9 @@ nokta sayısı.
 Bir dolgu hesabı bir karelik bütçeyi (~17 ms) aşarsa iKojo çıktı paneline bir
 not düşer: ne kadar sürdüğünü, kaç nokta olduğunu ve ne yapılabileceğini yazar.
 Davranış değişmiyor — şekil yine çiziliyor; değişen şey, yavaşlığın artık
-**sessiz olmaması**. `14-agir-dolgu.kojo` bunu adım adım gösteriyor.
+**sessiz olmaması**. (Stencil yolunda süre bütçeyi hiç aşmıyor, not oradan
+düşmüyor; makine yine çağrılıyor, muhasebe iki yolda aynı.)
+`14-agir-dolgu.kojo`nun 2. deneyi (`?dolgu=libtess`) bunu gösteriyor.
 
 Not **şekil başına en çok bir kez** düşer ve o şeklin **toplam** dolgu süresini
 söyler. Bunun sebebi ölçülmüş: bir şekil bitmeden birkaç kez yayınlanıyor
@@ -156,8 +183,12 @@ bildiriyordu ("30 ms sürdü (21 nokta)", 251 noktalık gül için; kojojs-dev#1
 "bitmiş" sayılmıyor, ve bütçeyi aşmasına rağmen sessiz kalabiliyordu:
 `14-agir-dolgu.kojo` tam bu yüzden bir süre sessizdi ve örneğe elle bir
 "şekli tamamla" satırı eklenmişti. Üçüncü yol canlıda doğrulanınca
-(`18 ms sürdü (251 nokta)`) satır kaldırıldı; üçüncü yolun nerede
-*çalışmadığını* gösteren deney örneğin sonunda duruyor (4. deney).
+(`18 ms sürdü (251 nokta)`) satır kaldırıldı. Üçüncü yolun nerede
+*çalışmadığını* gösteren tuş deneyi (kuyruk tuşlar arasında boşalıyor ama
+bir sonraki tuş nokta ekleyecek; not orada erken eşikle, "şu ana dek"
+biçiminde konuşuyordu: 7. basış, 57 ms, "şimdilik 251 nokta") örneğin 4.
+deneyi olarak duruyor — stencil yolunda sessiz, `?dolgu=libtess` ile eski
+davranış.
 
 ## `15-mesh-olcumu.kojo` bir ölçü aleti
 
@@ -165,16 +196,18 @@ bildiriyordu ("30 ms sürdü (21 nokta)", 251 noktalık gül için; kojojs-dev#1
 aynı şeyle ölçülsün** diye var (kojojs-dev#125). Kesişen bir şekli her karede
 yeniden çizer ve saniyede kaç kare düştüğünü yazar.
 
-Ölçtüğü şey şu: bugün dolgu üçgenlere ayrılıp PIXI'ye **üçgen başına bir
-`drawPolygon`** ile veriliyor (250 noktalı gülde yayın başına 2 998 çağrı).
-#125 bunun yerine tek bir mesh vermeyi tartışıyordu ve **"yapılmayacak" diye
-kapandı**: mesh kendi diliminde 5–14 kat ucuz, ama dilim gülün ≤%5–10'u
-(1000 noktada libtess %58), uçtan uca kazanç ≤%8 — bu aletin çözünürlüğünün
-altında. Alet duruyor: bir sonraki kaldıraç olan stencil dolgu (kojojs-dev#147,
-hiç üçgenlemeden) aynı aletle ölçülecek, 1000 noktada canlı taban 15–17 gül/s —
-o makinede; ikinci bir makinede aynı yayın 7–8 okudu (notlar 105–112 ms,
-ötekinde 58–81). Harness'te #148 öncesi ve sonrası aynı (7.0 / 6.9 gül/s), yani
-gerileme değil makine farkı. Öncesi ve sonrası **aynı makinede** alınmalı.
+Ölçtüğü şey şu: libtess yolunda dolgu üçgenlere ayrılıp PIXI'ye **üçgen
+başına bir `drawPolygon`** ile veriliyordu (250 noktalı gülde yayın başına
+2 998 çağrı). #125 bunun yerine tek bir mesh vermeyi tartışıyordu ve
+**"yapılmayacak" diye kapandı**: mesh kendi diliminde 5–14 kat ucuz, ama dilim
+gülün ≤%5–10'u (1000 noktada libtess %58), uçtan uca kazanç ≤%8 — bu aletin
+çözünürlüğünün altında. Sonraki kaldıraç stencil dolgu oldu (kojojs-dev#147,
+hiç üçgenlemeden; yukarıda). Öncesi bu aletle alındı: 1000 noktada 15–17 gül/s
+bir makinede, 7–8 ötekinde (notlar 58–81 / 105–112 ms); harness'te #148 öncesi
+ve sonrası aynı (7.0 / 6.9), yani gerileme değil makine farkı. **Sonrası aynı
+makinede alınacak** — ve 1000'de değil: stencil'de 1000 noktalı gül 1 ms'nin
+altında, alet orada el sıkışma tavanına (~30 gül/s) dayanır ve sinyal görünmez;
+ölçüm **4000 × 7** ile (libtess'te ~1.8 s/gül, yani 1 gül/s'nin altı).
 Betik o değişiklikleri **yapamaz** — dolgunun nasıl çizildiği kitaplığın
 içinde; betiğin işi yalnız kareyi saymak.
 

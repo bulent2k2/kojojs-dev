@@ -48,10 +48,16 @@ class DolguBozulmadiTest extends AsyncFunSuite with Matchers {
     while (i < 4) { t.forward(100); t.right(90); i += 1 }
   }
 
+  /**
+   * Dolgu parçası: Graphics'te graphicsData (üçgen başına bir parça),
+   * StencilDolgu'da (#147: 64 noktayı aşan şekil artık oraya gidiyor) çokgenin
+   * nokta sayısı -- ikisi de "dolgu kuruldu mu"nun ölçüsü, sıfırsa dolgu yok.
+   */
   private def dolguParça(p: TurtlePicture)(implicit w: KojoWorldImpl): Int = {
     w.boyalarıBoşalt()
     p.tnode.asInstanceOf[js.Dynamic].children.asInstanceOf[js.Array[js.Dynamic]].toSeq.map { g =>
-      if (js.typeOf(g.finishPoly) != "function") 0
+      if (g.kojoStencilDolgu.asInstanceOf[js.UndefOr[Boolean]].contains(true)) g.asInstanceOf[StencilDolgu].noktaSayısı
+      else if (js.typeOf(g.finishPoly) != "function") 0
       else { g.finishPoly(); g.geometry.graphicsData.asInstanceOf[js.Array[js.Dynamic]].length }
     }.sum
   }
