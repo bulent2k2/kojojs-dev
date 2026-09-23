@@ -22,7 +22,7 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 | `11-acilar-ve-radyan.kojo` | Radyan nedir — adım adım devinimli anlatım. Masaüstündeki `samples/tr/angles.kojo`'nun tarayıcı sürümü: geçişler `durakla` yerine bir **düğmeye** bağlı (bkz. aşağıdaki not) |
 | `12-uc-cisim.kojo` | Yerçekimi benzetimi — Newton mekaniğiyle üç gökcisminin birbirini çekmesi |
 | `13-xox-yenilmez.kojo` | **minimax** ve **alfa-beta budaması** — yenilmeyen bir oyun stratejisi nasıl programlanır |
-| `14-agir-dolgu.kojo` | Kendini kesen şekillerin dolgusu neden yavaş**tı** ve artık neden değil — **gerileme gösterimi**: iki gül, panel sessiz kalmalı; eski yolun ölçülmüş maliyet eğrisi ve notu `?dolgu=libtess` ile (bkz. aşağıdaki not) |
+| `14-agir-dolgu.kojo` | Kendini kesen şekillerin dolgusu neden yavaş**tı** ve artık neden değil — **gerileme gösterimi**: iki gül, panel sessiz kalmalı; eski yolun ölçülmüş maliyet eğrisi ve notu konsol anahtarıyla (`localStorage.kojoDolgu`, bkz. aşağıdaki not) |
 | `15-mesh-olcumu.kojo` | **Örnek değil, ölçü aleti**: kesişen bir şekli her karede yeniden çizen döngünün saniyede kaç kare verdiğini sayar (bkz. aşağıdaki not) |
 
 ## Nasıl çalıştırılır
@@ -76,11 +76,14 @@ başına iki çizim çağrısı; 2000 küçük kareyle ölçüldü, stencil orad
 kitaplıkta (`StencilDolgu.Eşik`).
 
 **Eski yol duruyor** ve üç durumda çalışıyor: 64 ve altı nokta, PIXI 4 / stencil
-tamponu vermeyen bir bağlam, ve sayfa adresinde `?dolgu=libtess` (elle geri
-dönüş; tuval editörün aynı-kökenli çerçevesinde koştuğu için üst pencerenin
-adresi okunuyor). Aşağıdaki her şey — maliyet eğrisi, soğuk/sıcak, not
-makinesi — **o yolu** anlatıyor; sayılar tarihsel değil, `?dolgu=libtess` ile
-bugün de alınabilir.
+tamponu vermeyen bir bağlam, ve elle istenince: tarayıcı konsolunda
+`localStorage.kojoDolgu = "libtess"` (geri almak için `delete
+localStorage.kojoDolgu`; tuval editörün aynı-kökenli çerçevesinde koştuğu
+için depo ortak). Adrese `?dolgu=libtess` eklemek de okunuyor ama editörde
+güvenilmez: yönlendirici sorguyu kök sayfaya çevirirken düşürüyor (canlıda
+görüldü, kojojs-dev#147). Aşağıdaki her şey — maliyet eğrisi, soğuk/sıcak, not
+makinesi — **o yolu** anlatıyor; sayılar tarihsel değil, anahtarla bugün de
+alınabilir.
 
 ### Eski yol: libtess
 
@@ -160,7 +163,7 @@ Davranış değişmiyor — şekil yine çiziliyor; değişen şey, yavaşlığ�
 kurulum süresini de yazıyordu ve 40 000 noktalı gülde, büyüyen şeklin her
 karede baştan kurulmasının toplamıyla, yanlış metinli bir not düşürdü —
 canlıda görüldü, kojojs-dev#147.) `14-agir-dolgu.kojo`nun 2. deneyi
-(`?dolgu=libtess`) notu gösteriyor.
+(`localStorage.kojoDolgu`) notu gösteriyor.
 
 Not **şekil başına en çok bir kez** düşer ve o şeklin **toplam** dolgu süresini
 söyler. Bunun sebebi ölçülmüş: bir şekil bitmeden birkaç kez yayınlanıyor
@@ -190,7 +193,7 @@ bildiriyordu ("30 ms sürdü (21 nokta)", 251 noktalık gül için; kojojs-dev#1
 *çalışmadığını* gösteren tuş deneyi (kuyruk tuşlar arasında boşalıyor ama
 bir sonraki tuş nokta ekleyecek; not orada erken eşikle, "şu ana dek"
 biçiminde konuşuyordu: 7. basış, 57 ms, "şimdilik 251 nokta") örneğin 4.
-deneyi olarak duruyor — stencil yolunda sessiz, `?dolgu=libtess` ile eski
+deneyi olarak duruyor — stencil yolunda sessiz, konsol anahtarıyla eski
 davranış.
 
 ## `15-mesh-olcumu.kojo` bir ölçü aleti
