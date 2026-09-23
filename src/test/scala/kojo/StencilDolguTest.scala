@@ -80,6 +80,18 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
     }
     catch { case t: Throwable => cancel(s"çizici kurulamadı (WebGL yok?): $t") }
 
+  /** Anahtara bakmadan kurar (anahtarın kendisini sınamak için). */
+  private def dünyaKurYaDaİptalHam(): KojoWorldImpl =
+    try {
+      Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
+      val kap = document.createElement("div").asInstanceOf[HTMLElement]
+      kap.id = "fiddle-container"; kap.style.width = "400px"; kap.style.height = "300px"
+      val tuval = document.createElement("div").asInstanceOf[HTMLElement]
+      tuval.id = "canvas-holder"; kap.appendChild(tuval); document.body.appendChild(kap)
+      new KojoWorldImpl()
+    }
+    catch { case t: Throwable => cancel(s"çizici kurulamadı (WebGL yok?): $t") }
+
   private def kareler(n: Int): Future[Unit] = {
     val söz = Promise[Unit]()
     var i = 0
@@ -478,5 +490,44 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
       oranlar(256) should be > 10.0 // taşma: sınır BÖYLE; kalkarsa bu satır ve belge değişir
     }
     Future.successful(succeed)
+  }
+
+  /**
+   * ELLE GERİ DÖNÜŞ KANALI: `localStorage.kojoDolgu = "libtess"` dünyayı
+   * libtess yoluna kurar; silinince stencil'e döner. Adres sorgusu editörde
+   * güvenilmez (yönlendirici düşürüyor, canlıda görüldü), bu kanal onun
+   * yerine; sav dünyanın kuruluş anındaki okumayı çiviliyor.
+   */
+  test("localStorage.kojoDolgu = libtess: dünya libtess yoluyla kuruluyor ve panele yazıyor; silinince stencil, sessiz") {
+    val depo = window.localStorage
+    def panelKur(): HTMLElement = {
+      Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
+      val d = document.createElement("div").asInstanceOf[HTMLElement]
+      d.id = "output"; document.body.appendChild(d); d
+    }
+    // Panel ve depo KÜRESEL: ikisi de finally'de temizleniyor ki sonraki
+    // savlar (#154 incelemesi §5) ne anahtarı ne satırı miras alsın.
+    try {
+      depo.setItem("kojoDolgu", "libtess")
+      val kapalıPanel = panelKur()
+      val kapalı = dünyaKurYaDaİptalHam()
+      val kapalıMetin = kapalıPanel.textContent
+      depo.removeItem("kojoDolgu")
+      val açıkPanel = panelKur()
+      val açık = dünyaKurYaDaİptalHam()
+      val açıkMetin = açıkPanel.textContent
+      withClue(s"kojoDolgu=libtess ile ${kapalı.stencilDolgu}, panel '$kapalıMetin'; silinince ${açık.stencilDolgu}, panel '$açıkMetin' -- ") {
+        kapalı.stencilDolgu shouldBe false
+        kapalıMetin should include("elle açık")
+        kapalıMetin should include("delete localStorage.kojoDolgu")
+        açık.stencilDolgu shouldBe true
+        açıkMetin shouldBe ""
+      }
+      Future.successful(succeed)
+    }
+    finally {
+      depo.removeItem("kojoDolgu")
+      Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
+    }
   }
 }

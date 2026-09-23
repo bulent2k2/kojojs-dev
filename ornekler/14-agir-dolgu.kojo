@@ -36,8 +36,8 @@
 // görünmüyor -- 60 noktalı kesişen gül de sessiz, çünkü ucuz.
 //
 // ESKİ YOL NE ZAMAN ÇALIŞIR: PIXI 4 (eski tarayıcı), stencil tamponu
-// vermeyen bir WebGL bağlamı, ya da sayfa adresine `?dolgu=libtess`
-// eklenirse (elle geri dönüş -- 2. deney). O yolda üçgenleme ve not aynen
+// vermeyen bir WebGL bağlamı, ya da elle istenirse (tarayıcı konsolunda
+// `localStorage.kojoDolgu = "libtess"` -- 2. deney). O yolda üçgenleme ve not aynen
 // duruyor; not makinesinin kuralları (şekil başına bir kez, "sürdü" ile
 // "şu ana dek" farkı, kuyruk boşalması) o yolun belgesinde: ornekler/README.
 
@@ -77,13 +77,22 @@ gizle()
 //    karede çizilmeli ve panel sessiz kalmalı. Görmen gereken tek fark
 //    gülün sıklaşması.
 //
-// 2. Sayfayı https://ikojo.fly.dev/?dolgu=libtess adresinden aç (betiği
-//    yeniden yapıştır). Kitaplık ESKİ yola döner: kırmızı gül üçgenlenir ve
-//    panelde "... hesaplamak N ms SÜRDÜ (251 nokta)" notu çıkar. 1000 noktada
+// 2. Tarayıcının geliştirici konsolunu aç (macOS: Cmd+Option+J, Windows:
+//    Ctrl+Shift+J), şunu yaz ve sayfayı yenile:
+//
+//      localStorage.kojoDolgu = "libtess"
+//
+//    Kitaplık ESKİ yola döner: kırmızı gül üçgenlenir ve panelde
+//    "... hesaplamak N ms SÜRDÜ (251 nokta)" notu çıkar. 1000 noktada
 //    "ŞU ANA DEK N ms aldı (şimdilik M nokta; şekil büyüdükçe artacak)"
 //    biçimini görürsün -- o yolun kurallarını README anlatıyor. Bu deney
-//    eski bedelin ne olduğunu kendi makinende görmek için; bitince
-//    parametreyi kaldır.
+//    eski bedelin ne olduğunu kendi makinende görmek için. Bitince GERİ AL,
+//    yoksa ayar sayfa yenilense de kalır:
+//
+//      delete localStorage.kojoDolgu
+//
+//    (Adrese `?dolgu=libtess` eklemek editörde güvenilmez: yönlendirici
+//    sorguyu düşürüyor. Yalın tuval sayfasında çalışır.)
 //
 // 3. boyamaRenginiKur satırını sil. Dolgu hiç kurulmuyor, yalnız kalem izi
 //    kalıyor -- şekil hâlâ görünür.
