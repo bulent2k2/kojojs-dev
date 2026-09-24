@@ -30,6 +30,11 @@
 //      5 000    10 000   17 569 ms (*) / 59 090 ms     77 ms / 103-413 ms (beş koşu)
 //        500     1 000   194 ms                        29-138 ms (dört koşu)
 //
+//     Stencil sütunu BAŞTAN kurulumla (büyüyen şekil her yayında bütün
+//     önekle). Kurulum artımlı olunca (kojojs-dev#155, dev 49c680b) aynı
+//     MacBook'ta 100 000 komut: 234 / 266 / 274 ms (üç koşu) -- yaklaşık
+//     yarısı. 14 yine sessiz.
+//
 //     (*) Yazılan süre kuyruğun boşalmasına kadar; sekme ondan sonra da bir
 //         süre kilitli kalıyor -- tamamlanmış şeklin son üçgenlemeleri
 //         konumuOku'nun ARDINDAN geliyor, sayıya girmiyor.

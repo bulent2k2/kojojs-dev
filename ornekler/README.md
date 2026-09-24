@@ -228,10 +228,10 @@ görünmez: stencil'de 1000 noktalı gül 1 ms'nin altında, alet orada el sık�
 tavanına (~30 gül/s) dayanır. **Sonrası 4000 × 7 ile, aynı MacBook'ta ölçüldü**
 (kojojs-dev#147 §7; eski yol libtess seçeneğiyle, aşağıda):
 
-| alet | eski yol (libtess) | stencil |
-|---|---|---|
-| 4000 × 7 | **1 gül/s**, gül başına 2.8–4.3 s (not) | **22–31 gül/s**, not yok |
-| 40 000 × 7 | (koşturulmadı) | 3–4 gül/s, not yok |
+| alet | eski yol (libtess) | stencil, baştan kurulum | stencil, artımlı (kojojs-dev#155) |
+|---|---|---|---|
+| 4000 × 7 | **1 gül/s**, gül başına 2.8–4.3 s (not) | **22–31 gül/s**, not yok | 19–30 gül/s, not yok |
+| 40 000 × 7 | (koşturulmadı) | 3–4 gül/s, not yok | **5–8 gül/s**, not yok |
 
 4000'de oran en az 22 (stencil tarafı tavana yakın, yani alt sınır); gül başına
 süreyle 60–130 kat (2.8–4.3 s'ye karşı 32–45 ms). 40 000'deki 3–4 gül/s'de
@@ -239,10 +239,13 @@ kalan bedel pompa değil tampon kurulumuydu: büyüyen şekil her yayında büt�
 önekle baştan kuruluyordu (kojojs-dev#155). Kurulum artık **artımlı** — yayın
 yalnız yeni noktaları ekliyor, çokgen tamponu da düz ve kapasiteli; ölçüldü
 (konteyner): 40 000 noktalı gülde nokta-yüklemesi 167 000 → 40 000, altı
-yayının çokgen kopyası 29 → 2 ms. Canlı 40 000 × 7 bu değişiklikten sonra
-yeniden ölçülmedi; ölçülünce tablo güncellenmeli (pompa tavanı ~4 gül/s,
-kazanç kare süresinin dağılımında görünür). Betik o değişiklikleri **yapamaz**
-— dolgunun nasıl çizildiği kitaplığın içinde; betiğin işi yalnız kareyi saymak.
+yayının çokgen kopyası 29 → 2 ms. **Canlıda (aynı MacBook, dev `49c680b` /
+core `f8473d9`): 40 000 × 7'de 3–4 → 5–8 gül/s**, on saniyelik tek koşuda
+5–8; 4000 × 7 değişmedi (19–30, alet orada tavanda). #155'in "kazanç gül/s'de
+görünmez, pompa tavanı ~4 gül/s" öngörüsü yanlıştı: tavan daha yukarıdaymış,
+kurulum payı düşünce 40 000'de gül/s neredeyse ikiye katlandı. Betik o
+değişiklikleri **yapamaz** — dolgunun nasıl çizildiği kitaplığın içinde;
+betiğin işi yalnız kareyi saymak.
 
 Düzeneğin üç kuralı, #68'de üç kez yanlış ölçülmüş olmasından geliyor:
 
@@ -352,13 +355,14 @@ pompasının hızı artı dolgunun bedeli. Kalemli sürümü yukarıda
 belirliyor: kenar ve dönüş sabit (250'lik gülün sabitleri), her 250 adım bir
 tur.
 
-Ölçüldü (MacBook, kojojs-dev#147 §7; komut = 2 × adım):
+Ölçüldü (MacBook, kojojs-dev#147 §7; komut = 2 × adım; son sütun artımlı
+kurulumla, kojojs-dev#155, dev `49c680b`):
 
-| adım | komut | eski yol (libtess) | stencil |
-|---|---|---|---|
-| 50 000 | 100 000 | **sekme kilitleniyor** | **≥ 497 ms** (yedi koşu: 497–1145) |
-| 5 000 | 10 000 | 17 569 ms\* / 59 090 ms (iki koşu) | 77 ms / 103–413 ms (beş koşu) |
-| 500 | 1 000 | 194 ms | 29–138 ms (dört koşu) |
+| adım | komut | eski yol (libtess) | stencil, baştan kurulum | stencil, artımlı |
+|---|---|---|---|---|
+| 50 000 | 100 000 | **sekme kilitleniyor** | **≥ 497 ms** (yedi koşu: 497–1145) | **234–274 ms** (üç koşu) |
+| 5 000 | 10 000 | 17 569 ms\* / 59 090 ms (iki koşu) | 77 ms / 103–413 ms (beş koşu) | — |
+| 500 | 1 000 | 194 ms | 29–138 ms (dört koşu) | — |
 
 \* Yazılan süre kuyruğun boşalmasına kadar; tamamlanmış şeklin son
 üçgenlemeleri `konumuOku`'nun ardından geliyor, sayıya girmiyor.
