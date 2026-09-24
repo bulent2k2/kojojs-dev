@@ -60,3 +60,14 @@ val capabilities = {
   o
 }
 Test / jsEnv := new SeleniumJSEnv(capabilities, SeleniumJSEnv.Config().withKeepAlive(false))
+
+// Takımlar SIRALI (#149 "takımlar arası", #155 incelemesinde yakalandı): sbt
+// varsayılanı takımları paralel koşturuyor ve Scala.js'te bu, async savların
+// AYNI olay döngüsünde iç içe geçmesi demek. ÜçgenlemeUyarısı'nın saati ve
+// sayacı küresel: bir takım sahte saati takarken (okuma başına +30 ms) öteki
+// takımın pompadan geçen gülü Eşik altı evresinde libtess'e girip not
+// düşürüyordu -- "30 ms sürdü (21 nokta)", üç tam koşuda iki kez, tek başına
+// koşan takımlarda hiç. Sıralı koşu ortak durumu bir takıma ayırıyor;
+// dünyaya bağlı rapor durumu (#149) gelene dek bu, yazı turayı kapatan
+// tek satır. Bedeli duvar süresi (async beklemeler artık örtüşmüyor).
+Test / parallelExecution := false
