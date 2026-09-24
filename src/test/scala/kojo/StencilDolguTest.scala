@@ -516,27 +516,33 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
    * (hoşgörü 0: aynı üçgenler, aynı stencil sayımı; fark olsaydı artımlı
    * yelpaze yanlış üçgen yazmış demekti).
    */
-  test("ARTIMLI KUR (#155): öneklerle büyüyen gül -- nokta-yüklemesi n, yeniden ayırma O(log n), pikseller baştan kurulanla birebir") {
+  test("ARTIMLI KUR (#155): öneklerle büyüyen gül -- nokta-yüklemesi n, yeniden ayırma O(log n), pikseller baştan kurulanla birebir (7 katlı ve dışbükey)") {
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
     val boya = DüzBoya(kojo.doodle.Color.blue)
     val n = 4000
-    val tam = gülDüzü(n, 7, 130)
-    val artımlı = new StencilDolgu()
-    var k = 65; var yayın = 0
-    while (k < n) { artımlı.kur(tam.take(2 * k), boya)(() => ()); k += 65; yayın += 1 }
-    artımlı.kur(tam, boya)(() => ()); yayın += 1
-    val baştan = new StencilDolgu(); baştan.kur(tam, boya)(() => ())
-    val (fark, dolu) = karşılaştır(düğümüOku(w, artımlı), düğümüOku(w, baştan), hoşgörü = 0)
-    info(s"$yayın yayın, yüklenen nokta ${artımlı.yüklenenNokta} (eski yol Σ önek ≈ ${yayın * n / 2}), yeniden ayırma ${artımlı.yenidenAyırma}, boyalı $dolu, farklı $fark")
-    withClue(s"yüklenen ${artımlı.yüklenenNokta}, yeniden ayırma ${artımlı.yenidenAyırma}, boyalı $dolu, farklı $fark -- ") {
-      artımlı.noktaSayısı shouldBe n
-      artımlı.yüklenenNokta shouldBe n
-      artımlı.yenidenAyırma should be <= 8
-      baştan.yenidenAyırma shouldBe 1
-      dolu should be > 1000
-      fark shouldBe 0
+    // kat = 7: örneklerin gülü; kat = 1: DIŞBÜKEY 4000-gen (sarım 1) -- eksik bir
+    // yelpaze üçgeni 7 katlıda sarımı ±1 oynatıp "≠ 0"ı nadiren değiştirir (tek
+    // piksel), dışbükeyde doğrudan delik açar (#162 incelemesi §2).
+    for (kat <- List(1, 7)) { // önce dışbükey: mutasyonda güçlü sinyal (delik), sonra örneklerin gülü
+      val tam = gülDüzü(n, kat, 130)
+      val artımlı = new StencilDolgu()
+      var k = 65; var yayın = 0
+      while (k < n) { artımlı.kur(tam.take(2 * k), boya)(() => ()); k += 65; yayın += 1 }
+      artımlı.kur(tam, boya)(() => ()); yayın += 1
+      val baştan = new StencilDolgu(); baştan.kur(tam, boya)(() => ())
+      val (fark, dolu) = karşılaştır(düğümüOku(w, artımlı), düğümüOku(w, baştan), hoşgörü = 0)
+      info(s"kat $kat: $yayın yayın, yüklenen nokta ${artımlı.yüklenenNokta} (eski yol Σ önek ≈ ${yayın * n / 2}), yeniden ayırma ${artımlı.yenidenAyırma}, boyalı $dolu, farklı $fark")
+      withClue(s"kat $kat: yüklenen ${artımlı.yüklenenNokta}, yeniden ayırma ${artımlı.yenidenAyırma}, boyalı $dolu, farklı $fark -- ") {
+        artımlı.noktaSayısı shouldBe n
+        artımlı.yüklenenNokta shouldBe n
+        artımlı.yenidenAyırma should be <= 8
+        artımlı.yenidenAyırma should be >= 2 // artımlı dal gerçekten koştu (kapasite büyüdü)
+        baştan.yenidenAyırma shouldBe 1
+        dolu should be > 1000
+        fark shouldBe 0
+      }
+      artımlı.bırak(); baştan.bırak()
     }
-    artımlı.bırak(); baştan.bırak()
     Future.successful(succeed)
   }
 
@@ -690,42 +696,61 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
     }
   }
 
+  /** Koşul sağlanana dek kare bekle (en çok `enÇok`); sağlanınca kaç kare geçtiğini ver. */
+  private def kareyeKadar(enÇok: Int)(koşul: () => Boolean): Future[Int] = {
+    val söz = Promise[Int]()
+    var i = 0
+    def adım(): Unit = { i += 1; if (koşul() || i >= enÇok) söz.success(i) else window.requestAnimationFrame(_ => adım()) }
+    window.requestAnimationFrame(_ => adım())
+    söz.future
+  }
+
   /**
    * Gerçek yol: pompa büyüyen gülü kare kare yayınlıyor ve `boyayıYayınla`
-   * artık stencil düğümünü yayın öncesi temizlemiyor. Tek düğüm, n
-   * nokta-yüklemesi (yayın sayısı kaç olursa olsun), ve pikseller aynı
-   * çokgenden baştan kurulan düğümle birebir. Yayın sayısı makineye bağlı
-   * (dilim 8 ms), o yüzden yalnız bilgi olarak yazılıyor.
+   * artık stencil düğümünü yayın öncesi temizlemiyor. DİLİM ÇİVİLİ (1 ms):
+   * varsayılan dilimde gül tek yayında bitiyor ve artımlı dal hiç koşmuyordu
+   * (#162 incelemesi §2 ölçtü: yeniden ayırma 1 = ilk yayın zaten n nokta).
+   * Şimdi çok yayın; `yenidenAyırma >= 2` artımlı dalın koştuğunun kanıtı.
+   * Tek düğüm, n nokta-yüklemesi, ve pikseller aynı çokgenden baştan kurulan
+   * düğümle birebir -- 7 katlı gül VE dışbükey n-gen (eksik üçgen = delik).
+   * Bekleyiş koşula bağlı (kare sayısı makineye göre değişir).
    */
-  test("ARTIMLI KUR pompa üzerinden: kare kare büyüyen gül tek düğümde n nokta-yüklemesiyle, pikseller baştan kurulanla birebir") {
+  test("ARTIMLI KUR pompa üzerinden (dilim 1 ms): kare kare büyüyen gül tek düğümde n nokta-yüklemesiyle, pikseller baştan kurulanla birebir (7 katlı ve dışbükey)") {
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    w.DilimMs = 1.0
     val boya = DüzBoya(kojo.doodle.Color.blue)
     val n = 2000
-    val ps = resim(boya)(gül(_, n, 7, 130)); ps.draw()
-    kareler(40).map { _ =>
-      val sd = stencilDüğümler(ps)
-      withClue(s"stencil düğümü ${sd.size} -- ") { sd.size shouldBe 1 }
-      val d = sd.head
-      // Aynı aritmetik: gül() moveTo(r cos a, r sin a) ile i = 1..n, ilk köşe (r, 0).
-      val beklenen = gülDüzü(n, 7, 130)
-      val baştan = new StencilDolgu(); baştan.kur(beklenen, boya)(() => ())
-      val a = sahneyiOku(w)
-      // Resim sahnede kalsın (erase ona bakıyor); okurken gizle.
-      dyn(ps.tnode).visible = false
-      dyn(w.stage).addChild(dyn(baştan))
-      val b = sahneyiOku(w)
-      w.stage.removeChild(baştan); dyn(ps.tnode).visible = true
-      baştan.bırak()
-      val (fark, dolu) = karşılaştır(a, b, hoşgörü = 0)
-      info(s"pompa: nokta ${d.noktaSayısı}, yüklenen ${d.yüklenenNokta}, yeniden ayırma ${d.yenidenAyırma}, boyalı $dolu, farklı $fark")
-      ps.erase()
-      withClue(s"nokta ${d.noktaSayısı}, yüklenen ${d.yüklenenNokta}, boyalı $dolu, farklı $fark -- ") {
-        d.noktaSayısı shouldBe n + 1
-        d.yüklenenNokta shouldBe n + 1
-        dolu should be > 1000
-        fark shouldBe 0
+    def biri(kat: Int): Future[org.scalatest.Assertion] = {
+      val ps = resim(boya)(gül(_, n, kat, 130)); ps.draw()
+      kareyeKadar(1200)(() => stencilDüğümler(ps).exists(_.noktaSayısı == n + 1)).flatMap { kare =>
+        kareler(2).map { _ =>
+          val sd = stencilDüğümler(ps)
+          withClue(s"kat $kat: stencil düğümü ${sd.size} ($kare karede) -- ") { sd.size shouldBe 1 }
+          val d = sd.head
+          // Aynı aritmetik: gül() moveTo(r cos a, r sin a) ile i = 1..n, ilk köşe (r, 0).
+          val beklenen = gülDüzü(n, kat, 130)
+          val baştan = new StencilDolgu(); baştan.kur(beklenen, boya)(() => ())
+          val a = sahneyiOku(w)
+          // Resim sahnede kalsın (erase ona bakıyor); okurken gizle.
+          dyn(ps.tnode).visible = false
+          dyn(w.stage).addChild(dyn(baştan))
+          val b = sahneyiOku(w)
+          w.stage.removeChild(baştan); dyn(ps.tnode).visible = true
+          baştan.bırak()
+          val (fark, dolu) = karşılaştır(a, b, hoşgörü = 0)
+          info(s"kat $kat: $kare karede bitti; nokta ${d.noktaSayısı}, yüklenen ${d.yüklenenNokta}, yeniden ayırma ${d.yenidenAyırma}, boyalı $dolu, farklı $fark")
+          ps.erase()
+          withClue(s"kat $kat: $kare kare, nokta ${d.noktaSayısı}, yüklenen ${d.yüklenenNokta}, yeniden ayırma ${d.yenidenAyırma}, boyalı $dolu, farklı $fark -- ") {
+            d.noktaSayısı shouldBe n + 1
+            d.yüklenenNokta shouldBe n + 1
+            d.yenidenAyırma should be >= 2 // çok yayın: artımlı dal koştu
+            dolu should be > 1000
+            fark shouldBe 0
+          }
+        }
       }
     }
+    biri(7).flatMap(_ => biri(1))
   }
 
   /**
