@@ -73,4 +73,7 @@ dez adım = 50000
 üstÜsteGül(adım)
 // konumuOku kuyruğun sonuna giriyor: geri çağrım, önündeki komutların hepsi
 // işlenince tetikleniyor -- bitiş damgası bu.
-konumuOku { _ => satıryaz(s"adım=$adım (${adım / 250} tur) -> ${2 * adım} komut, dolgulu: " + (buAn - t0) + " ms") }
+konumuOku { _ =>
+  satıryaz(s"adım=$adım (${adım / 250} tur) -> ${2 * adım} komut, dolgulu: " +
+    (buAn - t0) + " ms")
+}
