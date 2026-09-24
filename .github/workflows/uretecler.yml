@@ -150,10 +150,22 @@ jobs:
 
       # Gezinti şeridi ÜÇ yerde kopyalı (uret.py, ornekler.py, kojojs-editor) ve
       # hiçbiri ötekini görmüyor; ayrışırsa çubuk sayfadan sayfaya farklı
-      # sıralanır ve derleme/sınama/dağıtım sessizce geçer. Koşucuda editör
-      # klonu yok, o yüzden bu adım bu depodaki İKİ kaynağı denetler.
+      # sıralanır ve derleme/sınama/dağıtım sessizce geçer.
+      #
+      # Editör klonu BURADA DA çekiliyor (#151): ilk sürüm klonsuz koşuyor ve
+      # denetleyici klonu bulamayınca 0 ile çıkıyordu -- korumak için yazıldığı
+      # üçüncü kopya hiç denetlenmiyor, adım yapısal olarak hep yeşildi. Aşağıdaki
+      # kojo klonunun aksine PR'larda da çekiliyor: editörde sıra değişince
+      # buradaki PR'ların kızarması İSTENEN şey, şerit üç depoda aynı olmalı ve
+      # ayrışma nerede olursa olsun görünmeli. Depo herkese açık, belirteç
+      # gerekmiyor. Denetleyici artık klonsuz kırmızı yanıyor (--editorsuz ile
+      # bilinçli atlanır), yani bu checkout kalkarsa adım sessizce yeşile dönmez.
+      - uses: actions/checkout@v7
+        with:
+          repository: bulent2k2/kojojs-editor
+          path: kojojs-editor
       - name: yardım gezinti şeridi her yerde aynı sırada mı
-        run: python3 araclar/gezinti-denetle.py
+        run: python3 araclar/gezinti-denetle.py --editor kojojs-editor
 
       - name: sözlükteki gömülü YARDIM bloğu yardim.json ile aynı mı
         run: python3 araclar/sozluk-denetle.py
