@@ -22,9 +22,9 @@ EDİTÖR YOKSA KIRMIZI (#151): ilk sürüm editör klonunu bulamayınca uyarı b
 0 ile çıkıyordu; CI'da klon olmadığı için üçüncü kopya hiç denetlenmiyor ve
 adım yapısal olarak hep yeşildi -- "yeşil ama bakmadım". Artık editör
 bulunamazsa 2 ile çıkar; yalnız bu depoyu denetlemek BİLİNÇLİ bir seçim olmalı
-(--editorsuz). Bir de klonun hangi commit'te olduğu yazılır: yerel klon bayat
-olabiliyor (kojojs-editor#43 öncesi bir klon yanlış alarm vermişti), yanlış
-alarmı gerçek ayrışmadan ayırmanın yolu bu satır.
+(--editorsuz). Bir de klonun hangi commit'te ve KAÇ GÜNLÜK olduğu yazılır:
+yerel klon bayat olabiliyor (kojojs-editor#43 öncesi bir klon yanlış alarm
+vermişti), kırmızının sebebini o satırdan oku (bkz. klon_durumu).
 """
 import argparse
 import os
@@ -53,18 +53,27 @@ def beklenen():
 
 
 def klon_durumu(kok):
-    """Editör klonunun HEAD'i ve origin/master'ın kaç commit gerisinde olduğu
-    (git yoksa ya da klon değilse None). Ağ yok: yalnız yerelde bilineni söyler,
-    yani "gerisinde" son fetch'e göredir."""
+    """Editör klonunun HEAD'i, TARİHİ ve (biliniyorsa) origin/master'ın kaç
+    commit gerisinde olduğu; git yoksa ya da klon değilse None.
+
+    Ağ yok. "Gerisinde" sayısı son fetch'e göre: fetch edilmemiş bir klonda
+    origin/master imi de bayattır, sayı 0 çıkar ve klon güncel görünür -- tam
+    #151'in yanlış alarmının şekli (#161 incelemesi ölçtü: 8 gün önce alınmış,
+    10 commit geride bir klon fetch'ten önce uyarısızdı). Bu yüzden asıl
+    ayırıcı HEAD'in tarihi: fetch'e bağlı değil, "8 days ago" tek başına
+    kırmızının sebebini söylüyor. Sayı varsa yanına ek."""
     def git(*args):
-        r = subprocess.run(['git', '-C', kok] + list(args), capture_output=True, text=True)
+        try:
+            r = subprocess.run(['git', '-C', kok] + list(args), capture_output=True, text=True)
+        except OSError:  # git yok
+            return None
         return r.stdout.strip() if r.returncode == 0 else None
-    bas = git('rev-parse', '--short', 'HEAD')
+    bas = git('log', '-1', '--format=%h %cs (%cr)')
     if bas is None:
         return None
     dal = git('rev-parse', '--abbrev-ref', 'HEAD') or '?'
     geri = git('rev-list', '--count', 'HEAD..origin/master')
-    durum = '%s (%s)' % (bas, dal)
+    durum = '%s, %s' % (bas, dal)
     if geri is None:
         durum += ', origin/master bilinmiyor'
     elif geri != '0':

@@ -160,6 +160,14 @@ jobs:
       # ayrışma nerede olursa olsun görünmeli. Depo herkese açık, belirteç
       # gerekmiyor. Denetleyici artık klonsuz kırmızı yanıyor (--editorsuz ile
       # bilinçli atlanır), yani bu checkout kalkarsa adım sessizce yeşile dönmez.
+      #
+      # BEDELİ (#161 incelemesi §4): iş artık ikinci bir depoya, onun ADINA ve
+      # ağa bağlı, ve o deponun varsayılan dalının BAŞINI alıyor (ref sabit
+      # değil -- sabit olsaydı denetim bugünü göremezdi). Yani yeşil bir PR
+      # burada hiçbir şey değişmeden kırmızıya dönebilir, eski bir PR'ın CI'sı
+      # yeniden koşunca sonuç değişebilir; erişim kesilir ya da depo yeniden
+      # adlandırılırsa adım kırmızı yanar ama iletiyi checkout verir, aracın
+      # yol gösteren metni değil. Hepsi bilerek seçildi.
       - uses: actions/checkout@v7
         with:
           repository: bulent2k2/kojojs-editor
