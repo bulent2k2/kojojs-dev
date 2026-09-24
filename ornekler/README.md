@@ -234,9 +234,15 @@ tavanına (~30 gül/s) dayanır. **Sonrası 4000 × 7 ile, aynı MacBook'ta öl�
 | 40 000 × 7 | (koşturulmadı) | 3–4 gül/s, not yok |
 
 4000'de oran en az 22 (stencil tarafı tavana yakın, yani alt sınır); gül başına
-süreyle 60–130 kat (2.8–4.3 s'ye karşı 32–45 ms). 40 000'de kalan bedel pompa
-değil tampon kurulumu (kojojs-dev#155). Betik o değişiklikleri **yapamaz** —
-dolgunun nasıl çizildiği kitaplığın içinde; betiğin işi yalnız kareyi saymak.
+süreyle 60–130 kat (2.8–4.3 s'ye karşı 32–45 ms). 40 000'deki 3–4 gül/s'de
+kalan bedel pompa değil tampon kurulumuydu: büyüyen şekil her yayında bütün
+önekle baştan kuruluyordu (kojojs-dev#155). Kurulum artık **artımlı** — yayın
+yalnız yeni noktaları ekliyor, çokgen tamponu da düz ve kapasiteli; ölçüldü
+(konteyner): 40 000 noktalı gülde nokta-yüklemesi 167 000 → 40 000, altı
+yayının çokgen kopyası 29 → 2 ms. Canlı 40 000 × 7 bu değişiklikten sonra
+yeniden ölçülmedi; ölçülünce tablo güncellenmeli (pompa tavanı ~4 gül/s,
+kazanç kare süresinin dağılımında görünür). Betik o değişiklikleri **yapamaz**
+— dolgunun nasıl çizildiği kitaplığın içinde; betiğin işi yalnız kareyi saymak.
 
 Düzeneğin üç kuralı, #68'de üç kez yanlış ölçülmüş olmasından geliyor:
 
