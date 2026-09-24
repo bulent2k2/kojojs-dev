@@ -144,6 +144,22 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
     ÜçgenlemeUyarısı.hepsiniUnut()
     panelKur()
     saatiKur()
+    // DİLİMİ ÇİVİLE -- savın yüke karşı sağlamlaştırılması, gevşetilmesi değil.
+    //
+    // Sav, 101 noktalı şeklin İLK yayınının Eşik'in ÜSTÜNDE olmasına bel
+    // bağlıyor: stencil yolunun sustuğunu ancak şekil stencil'e girmişse
+    // ölçebiliriz. Varsayılan dilimde (8 ms) şekil tek karede bitiyor. Yüklü
+    // makinede pompa şeklin ORTASINDA kareye teslim ediyor, Eşik ALTINDA bir
+    // yayın oluyor, o yayın libtess yolundan geçiyor ve sahte saat (okuma
+    // başına +30 ms) tek yayında bütçeyi aşıyor -- stencil evresinde not
+    // düşüyor ve sav kırmızı yanıyor. Ürün kusuru değil: gerçek saatle Eşik
+    // altı libtess bu kapta ortalama 0.4-1.0 ms.
+    //
+    // ÖLÇÜLDÜ (bu dalda, düzeltmeden önce): dilim 0.05 ms'ye çekilince sav
+    // kesin biçimde kırmızı yanıyor ("şu ana dek 60 ms aldı (şimdilik 7
+    // nokta)"), 100000 ms ile yeşil. Kırılganlık gerçek: CI'da bir kez
+    // kendiliğinden yandı.
+    w.DilimMs = 100000.0 // şekil TEK dilimde bitsin, Eşik altı yayın olmasın
 
     def gül(): Unit = {
       val t = new Turtle(0, 0)
