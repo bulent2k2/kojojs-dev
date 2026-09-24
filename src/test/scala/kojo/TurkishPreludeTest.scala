@@ -513,15 +513,17 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
     kalemKalınlığınıKur(0)
     boyamaRenginiKur(mavi)
 
-    def üstÜsteGül(tur: Sayı, nokta: Sayı): Birim = {
-      yinele(tur) {
-        yinele(nokta) { ileri(24.6); sağ(10.08) }
-      }
+    def üstÜsteGül(adım: Sayı): Birim = {
+      yinele(adım) { ileri(24.6); sağ(10.08) }
     }
 
     val t0 = buAn
-    üstÜsteGül(2, 25)
-    konumuOku { _ => satıryaz("100 000 komut, dolgulu: " + (buAn - t0) + " ms") }
+    val adım = 500
+    üstÜsteGül(adım)
+    konumuOku { _ =>
+      satıryaz(s"adım=$adım (${adım / 250} tur) -> ${2 * adım} komut, dolgulu: " +
+        (buAn - t0) + " ms")
+    }
 
     succeed
   }

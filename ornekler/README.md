@@ -223,12 +223,20 @@ gülün ≤%5–10'u (1000 noktada libtess %58), uçtan uca kazanç ≤%8 — bu
 çözünürlüğünün altında. Sonraki kaldıraç stencil dolgu oldu (kojojs-dev#147,
 hiç üçgenlemeden; yukarıda). Öncesi bu aletle alındı: 1000 noktada 15–17 gül/s
 bir makinede, 7–8 ötekinde (notlar 58–81 / 105–112 ms); harness'te #148 öncesi
-ve sonrası aynı (7.0 / 6.9), yani gerileme değil makine farkı. **Sonrası aynı
-makinede alınacak** — ve 1000'de değil: stencil'de 1000 noktalı gül 1 ms'nin
-altında, alet orada el sıkışma tavanına (~30 gül/s) dayanır ve sinyal görünmez;
-ölçüm **4000 × 7** ile (libtess'te ~1.8 s/gül, yani 1 gül/s'nin altı).
-Betik o değişiklikleri **yapamaz** — dolgunun nasıl çizildiği kitaplığın
-içinde; betiğin işi yalnız kareyi saymak.
+ve sonrası aynı (7.0 / 6.9), yani gerileme değil makine farkı. 1000'de sonrası
+görünmez: stencil'de 1000 noktalı gül 1 ms'nin altında, alet orada el sıkışma
+tavanına (~30 gül/s) dayanır. **Sonrası 4000 × 7 ile, aynı MacBook'ta ölçüldü**
+(kojojs-dev#147 §7; eski yol libtess seçeneğiyle, aşağıda):
+
+| alet | eski yol (libtess) | stencil |
+|---|---|---|
+| 4000 × 7 | **1 gül/s**, gül başına 2.8–4.3 s (not) | **22–31 gül/s**, not yok |
+| 40 000 × 7 | (koşturulmadı) | 3–4 gül/s, not yok |
+
+4000'de oran en az 22 (stencil tarafı tavana yakın, yani alt sınır); gül başına
+süreyle 60–130 kat (2.8–4.3 s'ye karşı 32–45 ms). 40 000'de kalan bedel pompa
+değil tampon kurulumu (kojojs-dev#155). Betik o değişiklikleri **yapamaz** —
+dolgunun nasıl çizildiği kitaplığın içinde; betiğin işi yalnız kareyi saymak.
 
 Düzeneğin üç kuralı, #68'de üç kez yanlış ölçülmüş olmasından geliyor:
 
@@ -331,15 +339,38 @@ uçurum ölçümü (`tarama.tsv`). Ayrıntı: `masaustu/README.md`, ölçüm ara
 
 ## `16-yuz-bin-komut.kojo` da bir ölçü aleti
 
-Aynı 100 000 komut (200 tur × 250 × [ileri + sağ]), bu kez **dolguyla**: tek
-bir 50 001 noktalı, kendini kesen çokgen. Yazdığı sayı komut pompasının hızı
-artı dolgunun bedeli. Kalemli sürümü yukarıda (`boyamaRenginiKur` satırı
-olmadan aynı döngü).
+Aynı 100 000 komut (50 000 adım × [ileri + sağ], yani 200 tur), bu kez
+**dolguyla**: tek bir 50 001 noktalı, kendini kesen çokgen. Yazdığı sayı komut
+pompasının hızı artı dolgunun bedeli. Kalemli sürümü yukarıda
+(`boyamaRenginiKur` satırı olmadan aynı döngü). Şekli yalnız adım sayısı
+belirliyor: kenar ve dönüş sabit (250'lik gülün sabitleri), her 250 adım bir
+tur.
 
-Libtess'i **zorlamıyor**: 200 tur aynı gülü üst üste çiziyor ve çakışık kenar
-libtess'te yeni kesişme değil — 50 001 nokta eski yolda bile yüzlerce
-milisaniye (MacBook, kojojs-dev#147 §7: **719 ms**, not "76 ms (7 993 nokta)").
-Stencil'deki karşılığı yayın sonrası ölçülecek; dosyanın başındaki tabloya
-yazılır. Eski yol yukarıdaki libtess seçeneğiyle açılıyor; açıkken panelin
-ilk satırı "Eski dolgu yolu (libtess) elle açık …" olur, hangi yolu ölçtüğün
-oradan belli.
+Ölçüldü (MacBook, kojojs-dev#147 §7; komut = 2 × adım):
+
+| adım | komut | eski yol (libtess) | stencil |
+|---|---|---|---|
+| 50 000 | 100 000 | **sekme kilitleniyor** | **≥ 497 ms** (yedi koşu: 497–1145) |
+| 5 000 | 10 000 | 17 569 ms\* / 59 090 ms (iki koşu) | 77 ms / 103–413 ms (beş koşu) |
+| 500 | 1 000 | 194 ms | 29–138 ms (dört koşu) |
+
+\* Yazılan süre kuyruğun boşalmasına kadar; tamamlanmış şeklin son
+üçgenlemeleri `konumuOku`'nun ardından geliyor, sayıya girmiyor.
+
+10 000'deki iki libtess sayısı **aynı işin iki koşusu** (3.4 kat); iki sütunda
+da yayılma paylaşılan makinenin — ölçüm sırasında başka iş koşuyordu — dolgu
+yolunun değil; en küçük değer yola en yakın olanı, tek koşuya dayanılmaz
+(15'in kuralı). Oran yine de mertebe: 10 000'de 140–570 kat.
+
+**Eski yolda (libtess) 100 000'de koşturulmaz.** 200 tur aynı gülü üst üste
+çiziyor ve kopyalar neredeyse **çakışık**: tur k'nin köşesi tur 0'ınkinden en
+çok 6e-7 birim uzakta (140 yarıçapta göreli 4e-9; kojojs-dev#157 incelemesi
+ölçtü). libtess'i pahalıya getiren de bu — çakışıklığın son basamaklarda
+bozulması, dejenereye en yakın kesişimler: aynı nokta sayısında bu yol tek
+güle göre 2.4–9.7 kat pahalı, üssü kareselin üstünde (2.2–2.4; tek gül
+1.7–1.9), 50 001 noktada tek üçgenleme dakikalar; üstüne büyüyen şekil her
+karede baştan üçgenleniyor. Eski yol için `adım` küçültülür. (İlk sürüm "eski
+yol 719 ms" diyordu; o koşu stencil'di, notu #154'ten önce stencil yolunun da
+düşürdüğü yanlış nottu.) Eski yol yukarıdaki libtess seçeneğiyle açılıyor;
+açıkken panelin ilk satırı "Eski dolgu yolu (libtess) elle açık …" olur, hangi
+yolu ölçtüğün oradan belli.
