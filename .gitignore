@@ -19,3 +19,8 @@ __pycache__/
 # Çalışma ağacında durursa "üretilenler ağaçtakiyle aynı mı" adımı
 # kırmızı yanar -- o adım izlenmeyen dosyaları BİLEREK görüyor.
 kojo-kaynak/
+
+# CI'nın gezinti şeridi denetimi için yan yana klonladığı kojojs-editor
+# (araclar/gezinti-denetle.py --editor kojojs-editor; #151). kojo-kaynak/ ile
+# aynı sebep: izlenmezse "üretilenler ağaçtakiyle aynı mı" adımı kırmızı yanar.
+kojojs-editor/
