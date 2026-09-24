@@ -16,6 +16,7 @@ package kojo
 
 import org.scalajs.dom.{document, window}
 import org.scalajs.dom.raw.HTMLElement
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AsyncFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -52,11 +53,25 @@ import scala.scalajs.js
  * warn'a bakan bir kanca iletiyi KAÇIRIR -- #158 turunda iki kişi arka arkaya
  * bu tuzağa düştü. İkisi de dinleniyor.
  */
-class PaylasilanYukleyiciTest extends AsyncFunSuite with Matchers {
+class PaylasilanYukleyiciTest extends AsyncFunSuite with Matchers with BeforeAndAfterAll {
   implicit override def executionContext: scala.concurrent.ExecutionContextExecutor =
     scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  /** Kancayı kurar, gövdeyi koşturur, kancayı SÖKER; "PixiJS Deprecation" geçen kayıtları döndürür. */
+  // Kurduğumuz dünyayı ve çiziciyi geride bırakmayalım (komşu sınamaların
+  // kuralı; #91'in sızıntı kültürü).
+  override def afterAll(): Unit =
+    Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
+
+  /**
+   * Kancayı kurar, gövdeyi koşturur, kancayı SÖKER; "PixiJS Deprecation"
+   * geçen kayıtları döndürür.
+   *
+   * KAPSAM SINIRI: kanca gövde biter bitmez sökülüyor, yani yalnız EŞZAMANLI
+   * okumaları görüyor. Bugün doğru: uyarı, `AssetLoader` nesnesinin ilk
+   * dokunuşunda (`private val loader = ...`) eşzamanlı olarak doğuyor.
+   * Yükleyiciyi SONRADAN (geri çağrıda, zamanlayıcıda) okuyan bir gerileme
+   * bu kancanın dışında kalır ve sav onu göremez.
+   */
   private def kayıtlarıTopla[T](gövde: () => T): (T, List[String]) = {
     val konsol = js.Dynamic.global.console
     val kayıt = scala.collection.mutable.ListBuffer.empty[String]
@@ -68,10 +83,10 @@ class PaylasilanYukleyiciTest extends AsyncFunSuite with Matchers {
       eski.asInstanceOf[js.Dynamic].applyDynamic("apply")(konsol, args)
     }
     // js.Function1[js.Array, _] doğrudan varargs'a oturmuyor; ...rest ile sarıyoruz.
-    val sar = js.eval("(function (f, ilk) { return function () { return f(Array.prototype.slice.call(arguments)); }; })")
-      .asInstanceOf[js.Function2[js.Function, js.Any, js.Dynamic]]
-    konsol.groupCollapsed = sar(kanca(eskiGroup), null)
-    konsol.warn = sar(kanca(eskiWarn), null)
+    val sar = js.eval("(function (f) { return function () { return f(Array.prototype.slice.call(arguments)); }; })")
+      .asInstanceOf[js.Function1[js.Function, js.Dynamic]]
+    konsol.groupCollapsed = sar(kanca(eskiGroup))
+    konsol.warn = sar(kanca(eskiWarn))
     try {
       val t = gövde()
       (t, kayıt.toList)
