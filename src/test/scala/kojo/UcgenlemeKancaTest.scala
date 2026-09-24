@@ -59,10 +59,9 @@ class UcgenlemeKancaTest extends AsyncFunSuite with Matchers {
 
   test("kanca bağlı: kaplumbağa dolgusu çizilince not düşüyor") {
     panelKur()
-    ÜçgenlemeUyarısı.hepsiniUnut()
-    val gerçekSaat = ÜçgenlemeUyarısı.saat
+    // Sahte saat bu takımın dünyasında (#149); geri verilecek küresel saat yok.
     var tik = 0.0
-    ÜçgenlemeUyarısı.saat = () => { tik += 100.0; tik }
+    kojoWorld.üçgenlemeRaporu.saat = () => { tik += 100.0; tik }
 
     var kaplumbağa: Turtle = null
     val p = PictureT { t =>
@@ -76,9 +75,7 @@ class UcgenlemeKancaTest extends AsyncFunSuite with Matchers {
     for (_ <- p.ready) yield {
       kojoWorld.boyalarıBoşalt()
       val not = panelMetni
-      // Saati hemen geri ver: küresel durum, sonraki takımlara sızmasın.
-      ÜçgenlemeUyarısı.saat = gerçekSaat
-      ÜçgenlemeUyarısı.hepsiniUnut()
+      kojoWorld.kapat() // takımın tek sınaması; dünyası burada biter
       withClue(s"panel: '$not' -- ") {
         not should include("nokta")
         not should include("ms")

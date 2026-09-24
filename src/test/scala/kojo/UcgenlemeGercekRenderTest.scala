@@ -49,17 +49,23 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
   implicit override def executionContext: scala.concurrent.ExecutionContextExecutor =
     scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  private val gerçekSaat = ÜçgenlemeUyarısı.saat
+  /**
+   * Rapor durumu dünya başına (#149): sahte saat her sınamanın KENDİ
+   * dünyasında kalıyor, geri verilecek küresel saat yok. Önceki dünya yenisi
+   * kurulmadan kapatılıyor, sonuncusu takım sonunda -- geç kalan işleri
+   * (pompa, rAF) sonraki sınamanın sırasında koşmasın.
+   */
+  private var sonDünya: Option[KojoWorld] = None
 
   override def afterAll(): Unit = {
-    ÜçgenlemeUyarısı.saat = gerçekSaat
-    ÜçgenlemeUyarısı.hepsiniUnut()
+    sonDünya.foreach(_.kapat())
     Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
     Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
   }
 
   private def dünyaKurYaDaİptal(): KojoWorldImpl =
     try {
+      sonDünya.foreach(_.kapat())
       Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
       val kap = document.createElement("div").asInstanceOf[HTMLElement]
       kap.id = "fiddle-container"
@@ -69,7 +75,9 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
       tuval.id = "canvas-holder"
       kap.appendChild(tuval)
       document.body.appendChild(kap)
-      new KojoWorldImpl()
+      val w = new KojoWorldImpl()
+      sonDünya = Some(w)
+      w
     }
     catch { case t: Throwable => cancel(s"çizici kurulamadı (WebGL yok?): $t") }
 
@@ -90,17 +98,17 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
     Option(document.getElementById("output")).map(_.textContent).getOrElse("")
 
   /** Her üçgenleme 30 ms: bütçe (16.7) üstü, erken eşik (50.1) altı. */
-  private def saatiKur(): Unit = {
+  private def saatiKur()(implicit w: KojoWorld): Unit = {
     var tik = 0.0
-    ÜçgenlemeUyarısı.saat = () => { tik += 30.0; tik }
+    w.üçgenlemeRaporu.saat = () => { tik += 30.0; tik }
   }
 
   /** Not düşene dek bekle; `sınırMs` dolarsa olduğu gibi dön. */
-  private def notuBekle(sınırMs: Int): Future[Int] = {
+  private def notuBekle(sınırMs: Int)(implicit w: KojoWorld): Future[Int] = {
     val söz = Promise[Int]()
     var kalan = sınırMs
     def bak(): Unit =
-      if (ÜçgenlemeUyarısı.düşenNotSayısı > 0 || kalan <= 0) söz.success(ÜçgenlemeUyarısı.düşenNotSayısı)
+      if (w.üçgenlemeRaporu.düşenNotSayısı > 0 || kalan <= 0) söz.success(w.üçgenlemeRaporu.düşenNotSayısı)
       else { kalan -= 50; window.setTimeout(() => bak(), 50) }
     bak()
     söz.future
@@ -108,7 +116,6 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
 
   test("GERÇEK rAF: boşalmada bekletilen not sahiden geliyor, ve sayı tam (#142 §1)") {
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
-    ÜçgenlemeUyarısı.hepsiniUnut()
     panelKur()
     saatiKur()
 
@@ -141,7 +148,6 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
   test("STENCİL yolunda not düşmüyor; aynı saatle libtess yolu düşürüyor (#147 §7)") {
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
     if (!w.stencilDolgu) cancel("bağlamda stencil tamponu yok")
-    ÜçgenlemeUyarısı.hepsiniUnut()
     panelKur()
     saatiKur()
     // DİLİMİ ÇİVİLE -- savın yüke karşı sağlamlaştırılması, gevşetilmesi değil.
@@ -173,7 +179,7 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
     gül()
     notuBekle(1500).flatMap { stencilNot =>
       val stencilPanel = panelMetni
-      ÜçgenlemeUyarısı.hepsiniUnut()
+      w.üçgenlemeRaporu.hepsiniUnut() // aynı dünyada ikinci evre
       w.stencilDolgu = false
       gül()
       notuBekle(3000).map { libtessNot =>
@@ -203,11 +209,12 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
     if (!w.stencilDolgu) cancel("bağlamda stencil tamponu yok")
     val gerçekDilim = w.DilimMs
-    bekle(300).flatMap { _ =>
-      ÜçgenlemeUyarısı.hepsiniUnut()
+    // Eskiden burada 300 ms bekleniyor ve küresel sayaç sıfırlanıyordu (önceki
+    // sınamaların artığı); rapor dünya başına olunca ikisi de gereksiz (#149).
+    Future.successful(()).flatMap { _ =>
       panelKur()
       var tik = 0.0
-      ÜçgenlemeUyarısı.saat = () => { tik += 1.5; tik }
+      w.üçgenlemeRaporu.saat = () => { tik += 1.5; tik }
       w.yayınSayısı = 0
       val t = new Turtle(0, 0)
       t.setAnimationDelay(0)
@@ -225,7 +232,7 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
         withClue(s"yayın: ${w.yayınSayısı}, kuyruk: ${t.commandQs.head.size}, panel: '$panelMetni' -- ") {
           t.commandQs.head.size shouldBe 0
           w.yayınSayısı should be > 3L // düzenek: şekil birkaç yayında büyüdü
-          ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 0
+          w.üçgenlemeRaporu.düşenNotSayısı shouldBe 0
           panelMetni shouldBe ""
         }
       }
