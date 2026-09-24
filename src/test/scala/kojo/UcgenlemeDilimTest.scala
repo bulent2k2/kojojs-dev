@@ -48,19 +48,23 @@ class UcgenlemeDilimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
   implicit override def executionContext: scala.concurrent.ExecutionContextExecutor =
     scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  private val gerçekSaat = ÜçgenlemeUyarısı.saat
-  private val gerçekErkenÇarpan = ÜçgenlemeUyarısı.erkenÇarpan
+  /**
+   * Rapor durumu dünya başına (#149): sahte saat ve kapalı erken yol bu
+   * takımın KENDİ dünyasında kalıyor; geri verilecek küresel bir şey yok.
+   * Dünya takım sonunda kapatılıyor ki geç kalan işi sonraki takımın
+   * sırasında koşmasın.
+   */
+  private var sonDünya: Option[KojoWorld] = None
 
   override def afterAll(): Unit = {
-    ÜçgenlemeUyarısı.saat = gerçekSaat
-    ÜçgenlemeUyarısı.erkenÇarpan = gerçekErkenÇarpan
-    ÜçgenlemeUyarısı.hepsiniUnut()
+    sonDünya.foreach(_.kapat())
     Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
     Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
   }
 
   private def dünyaKurYaDaİptal(): KojoWorldImpl =
     try {
+      sonDünya.foreach(_.kapat())
       Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
       val kap = document.createElement("div").asInstanceOf[HTMLElement]
       kap.id = "fiddle-container"
@@ -75,6 +79,7 @@ class UcgenlemeDilimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
       // yolunda yaşıyor (#147: stencil yolu süre yazmıyor, not düşürmüyor).
       // Anahtar açıkça kapalı ki 251 noktalı gül stencil'e gitmesin.
       w.stencilDolgu = false
+      sonDünya = Some(w)
       w
     }
     catch { case t: Throwable => cancel(s"çizici kurulamadı (WebGL yok?): $t") }
@@ -102,11 +107,15 @@ class UcgenlemeDilimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
    * (`şekilDurmuş`ten `boştaMı`yı sök) yine "(21 nokta)" ile kırmızı --
    * ayırt edicilik erken yola değil `durdu` yoluna dayanıyor.
    */
-  private def saatiKur(): Unit = {
+  private def saatiKur()(implicit w: KojoWorld): Unit = {
     var tik = 0.0
-    ÜçgenlemeUyarısı.saat = () => { tik += 30.0; tik }
-    ÜçgenlemeUyarısı.erkenÇarpan = Double.PositiveInfinity
+    w.üçgenlemeRaporu.saat = () => { tik += 30.0; tik }
+    w.üçgenlemeRaporu.erkenÇarpan = Double.PositiveInfinity
   }
+
+  /** Kaplumbağanın kuruluş komutları bitsin (giysi, ilk koşu): koşula bağlı, en çok `sınırMs`. */
+  private def kuyrukBoşalsın(t: Turtle, sınırMs: Int = 2000): Future[Unit] =
+    if (t.commandQs.head.size == 0 || sınırMs <= 0) bekle(0) else bekle(20).flatMap(_ => kuyrukBoşalsın(t, sınırMs - 20))
 
   private def bekle(ms: Int): Future[Unit] = {
     val söz = Promise[Unit]()
@@ -130,20 +139,21 @@ class UcgenlemeDilimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
     // komutlar kuyrukta bekler. Kare gelince önce çizim (yarım şeklin
     // yayını), sonra pompanın devamı. Döngü bitince dilim geri: kalan şekil
     // bir-iki karede biter.
-    // Kurulumun kareleri geçsin (giysi yüklemesi, ilk koşu) -- ve önceki
-    // takımların artıkları da: `ÜçgenlemeUyarısı` küresel (saat, not sayacı,
-    // zaman kapısı), geç yüklenen bir giysiyle sonradan koşan başka bir
-    // dünyanın kaplumbağası sahte saatle not düşürüp bu savı kirletiyordu
-    // (bir kez ölçüldü, KuyrukPompasiTest'in hemen ardından). Sahte saat
-    // bekleyişten SONRA kuruluyor; gerçek saatle artık yayınlar susar.
+    // Kurulumun kareleri geçsin (giysi yüklemesi, ilk koşu): KENDİ
+    // kaplumbağamızın kuyruğu boşalana dek, koşula bağlı. Eskiden burada kör
+    // bir 300 ms vardı ve asıl sebebi önceki takımların artıklarıydı:
+    // `ÜçgenlemeUyarısı` küreseldi (saat, not sayacı, zaman kapısı), geç
+    // yüklenen bir giysiyle sonradan koşan başka bir dünyanın kaplumbağası
+    // sahte saatle not düşürüp bu savı kirletiyordu (#148). Rapor dünya
+    // başına olunca (#149) o sebep yok; başka dünyanın işi bu dünyanın
+    // sayacına ve saatine ulaşamıyor. Sahte saat yine bekleyişten SONRA.
     // Sonra iki evre: ilk 20 kenar bugünkü dilimle -- her komut eşzamanlı biter ve
     // kuyruk her birinden sonra BOŞALIR; ardından dilim sıfır -- pompa ilk
     // komutta kareye teslim eder, kalan kenarlar kuyrukta bekler. Zamanlamaya
     // bağlı değil: teslim dilimle değil sabitle zorlanıyor. Kare gelince önce
     // çizim (21 noktalı yarım şeklin yayını), sonra pompanın devamı; döngü
     // bitince dilim geri, kalan şekil bir-iki karede biter.
-    bekle(300).flatMap { _ =>
-      ÜçgenlemeUyarısı.hepsiniUnut()
+    kuyrukBoşalsın(t).flatMap { _ =>
       panelKur()
       saatiKur()
       w.yayınSayısı = 0
@@ -166,11 +176,11 @@ class UcgenlemeDilimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
           kuyruktaKalan should be > 0 // ikinci evre kuyrukta
           t.commandQs.head.size shouldBe 0
           w.yayınSayısı should be > 1L
-          ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 1
+          w.üçgenlemeRaporu.düşenNotSayısı shouldBe 1
           panelMetni should include("sürdü")
           panelMetni should include(s"(${nokta + 1} nokta)")
         }
       }
-    }.andThen { case _ => ÜçgenlemeUyarısı.erkenÇarpan = gerçekErkenÇarpan }
+    }
   }
 }

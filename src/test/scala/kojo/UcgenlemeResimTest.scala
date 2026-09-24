@@ -49,11 +49,15 @@ class UcgenlemeResimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
   implicit override def executionContext: scala.concurrent.ExecutionContextExecutor =
     scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  private val gerçekSaat = ÜçgenlemeUyarısı.saat
+  /**
+   * Rapor durumu dünya başına (#149): sahte saat her sınamanın KENDİ
+   * dünyasında kalıyor; geri verilecek küresel saat yok. Önceki dünya
+   * yenisi kurulmadan, sonuncusu takım sonunda kapatılıyor.
+   */
+  private var sonDünya: Option[KojoWorld] = None
 
   override def afterAll(): Unit = {
-    ÜçgenlemeUyarısı.saat = gerçekSaat
-    ÜçgenlemeUyarısı.hepsiniUnut()
+    sonDünya.foreach(_.kapat())
     Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
   }
 
@@ -67,13 +71,13 @@ class UcgenlemeResimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
   private def panelMetni: String =
     Option(document.getElementById("output")).map(_.textContent).getOrElse("")
 
-  private def saatiKur(): Unit = {
+  private def saatiKur()(implicit w: KojoWorld): Unit = {
     var tik = 0.0
-    ÜçgenlemeUyarısı.saat = () => { tik += 30.0; tik }
+    w.üçgenlemeRaporu.saat = () => { tik += 30.0; tik }
   }
 
   private def dünyaKurYaDaİptal(): TestKojoWorld =
-    try new TestKojoWorld()
+    try { sonDünya.foreach(_.kapat()); val w = new TestKojoWorld(); sonDünya = Some(w); w }
     catch { case t: Throwable => cancel(s"dünya kurulamadı: $t") }
 
   /** Dolgulu bir kare çizen Resim{}. Gövde `make()` içinde kuyruğa giriyor. */
@@ -94,7 +98,7 @@ class UcgenlemeResimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
       window.setTimeout(
         () => {
           w.boyalarıBoşalt()
-          söz.success(ÜçgenlemeUyarısı.düşenNotSayısı)
+          söz.success(w.üçgenlemeRaporu.düşenNotSayısı)
         },
         50
       )
@@ -104,7 +108,6 @@ class UcgenlemeResimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
 
   test("Resim{} + çiz: betiğin son şekli resimde de konuşuyor, sayı tam (#143)") {
     implicit val w: TestKojoWorld = dünyaKurYaDaİptal()
-    ÜçgenlemeUyarısı.hepsiniUnut()
     panelKur()
     saatiKur()
     val r = kareResmi()
@@ -120,7 +123,6 @@ class UcgenlemeResimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
 
   test("Resim{} çizilmeden de konuşuyor: bedel çiz'den bağımsız ödendi (#143, 2. hipotez)") {
     implicit val w: TestKojoWorld = dünyaKurYaDaİptal()
-    ÜçgenlemeUyarısı.hepsiniUnut()
     panelKur()
     saatiKur()
     val r = kareResmi()
@@ -139,7 +141,6 @@ class UcgenlemeResimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
    */
   test("CANLANDIRMADA kurulan Resim{} yine konuşuyor: gövdesi bitti, kare nokta eklemez (#143, 1. hipotez)") {
     implicit val w: TestKojoWorld = dünyaKurYaDaİptal()
-    ÜçgenlemeUyarısı.hepsiniUnut()
     panelKur()
     saatiKur()
     w.canlandırmaDönüyorMu = true

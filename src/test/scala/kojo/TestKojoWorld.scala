@@ -37,11 +37,16 @@ class TestKojoWorld extends KojoWorld {
   def noteMutation(node: DisplayObject): Unit = {
   }
   def scheduleLater(fn: => Unit): Unit = {
-    window.setTimeout(() => fn, 0)
+    window.setTimeout(() => if (!kapandı) fn, 0)
   }
   def runLater(ms: Double)(fn: => Unit): Unit = {
-    window.setTimeout(() => fn, ms)
+    window.setTimeout(() => if (!kapandı) fn, ms)
   }
+
+  // #149: kapanmış saplama dünyanın geç kalan komutları koşmasın (rapor zaten
+  // temel sınıfta susuyor; bu, kaplumbağanın kuyruğunu da durduruyor).
+  private var kapandı = false
+  override private[kojo] def kapat(): Unit = { super.kapat(); kapandı = true }
   def render(): Unit = {
   }
 

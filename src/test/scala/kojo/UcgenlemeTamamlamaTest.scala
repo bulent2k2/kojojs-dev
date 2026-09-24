@@ -38,19 +38,23 @@ import scala.concurrent.{Future, Promise}
  * bantta, ve #133'ün gerilemesi tam burada yaşıyordu.
  *
  * SAHTE SAAT çünkü sınanan şey sürenin büyüklüğü değil, tamamlamanın olup
- * olmaması. Saat KÜRESEL, o yüzden `afterAll` geri veriyor -- geri
- * vermemenin bedeli ölçülmüştü (#124 incelemesi §1: sızan sahte saat sonraki
- * takımlarda uyarıyı tümüyle susturuyor).
+ * olmaması. Saat eskiden KÜRESELDİ ve `afterAll` onu geri veriyordu (#124
+ * incelemesi §1: sızan sahte saat sonraki takımlarda uyarıyı tümüyle
+ * susturuyordu); artık dünya başına (#149), sızacak yer yok.
  */
 class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndAfterAll {
   implicit override def executionContext: scala.concurrent.ExecutionContextExecutor =
     scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  private val gerçekSaat = ÜçgenlemeUyarısı.saat
+  /**
+   * Rapor durumu dünya başına (#149): sahte saat her sınamanın KENDİ
+   * dünyasında kalıyor; geri verilecek küresel saat yok. Önceki dünya
+   * yenisi kurulmadan, sonuncusu takım sonunda kapatılıyor.
+   */
+  private var sonDünya: Option[KojoWorld] = None
 
   override def afterAll(): Unit = {
-    ÜçgenlemeUyarısı.saat = gerçekSaat
-    ÜçgenlemeUyarısı.hepsiniUnut()
+    sonDünya.foreach(_.kapat())
     Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
   }
 
@@ -74,13 +78,13 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
    * birikim tur tur büyüyor ve erken eşiği aşarsa `üçgenlemeBitti`nin KENDİSİ
    * konuşur; o zaman ölçülen şey artık boşalma kapısı olmaz.
    */
-  private def saatiKur(artış: Double = 30.0): Unit = {
+  private def saatiKur(artış: Double = 30.0)(implicit w: KojoWorld): Unit = {
     var tik = 0.0
-    ÜçgenlemeUyarısı.saat = () => { tik += artış; tik }
+    w.üçgenlemeRaporu.saat = () => { tik += artış; tik }
   }
 
   private def dünyaKurYaDaİptal(): TestKojoWorld =
-    try new TestKojoWorld()
+    try { sonDünya.foreach(_.kapat()); val w = new TestKojoWorld(); sonDünya = Some(w); w }
     catch { case t: Throwable => cancel(s"dünya kurulamadı: $t") }
 
   /**
@@ -89,7 +93,6 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
    */
   private def koştur(tamamla: Boolean): Future[Int] = {
     implicit val w: TestKojoWorld = dünyaKurYaDaİptal()
-    ÜçgenlemeUyarısı.hepsiniUnut()
     panelKur()
     saatiKur()
 
@@ -104,12 +107,12 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
     t.sync { () =>
       // Şekil çizildi ama HENÜZ tamamlanmadı: yarım yayın.
       w.boyalarıBoşalt()
-      if (!tamamla) söz.success(ÜçgenlemeUyarısı.düşenNotSayısı)
+      if (!tamamla) söz.success(w.üçgenlemeRaporu.düşenNotSayısı)
       else {
         // 14-agir-dolgu.kojo'daki düzeltmenin aynısı: kalem kalkık taşınma.
         t.penUp()
         t.setPosition(0, -220)
-        t.sync { () => söz.success(ÜçgenlemeUyarısı.düşenNotSayısı) }
+        t.sync { () => söz.success(w.üçgenlemeRaporu.düşenNotSayısı) }
       }
     }
     söz.future
@@ -148,7 +151,7 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
       window.setTimeout(
         () => {
           w.boyalarıBoşalt()
-          söz.success(ÜçgenlemeUyarısı.düşenNotSayısı)
+          söz.success(w.üçgenlemeRaporu.düşenNotSayısı)
         },
         50
       )
@@ -159,7 +162,6 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
   /** Dolgulu bir kare çizen, hazır bir dünya + kaplumbağa. */
   private def kareÇizenKur(saatArtışı: Double = 30.0): (TestKojoWorld, Turtle) = {
     implicit val w: TestKojoWorld = dünyaKurYaDaİptal()
-    ÜçgenlemeUyarısı.hepsiniUnut()
     panelKur()
     saatiKur(saatArtışı)
     val t = new Turtle(0, 0)
@@ -264,7 +266,7 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
     w.girdiİşleyicisiKaydedildi()
     turlar(w, t, 2).map { _ =>
       withClue(s"panel: '$panelMetni' -- ") {
-        ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 1
+        w.üçgenlemeRaporu.düşenNotSayısı shouldBe 1
         panelMetni should include("şimdilik")
         panelMetni should include("büyüdükçe artacak")
       }
@@ -280,7 +282,7 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
     val öncekiDüğüm = t.dolguParçaları.size
     turlar(w, t, 4).map { _ =>
       withClue(s"panel: '$panelMetni' -- ") {
-        ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 0
+        w.üçgenlemeRaporu.düşenNotSayısı shouldBe 0
         t.dolguParçaları.size shouldBe öncekiDüğüm
       }
     }
@@ -321,7 +323,7 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
     }
     söz.future.map { _ =>
       withClue(s"panel: '$panelMetni' -- ") {
-        ÜçgenlemeUyarısı.düşenNotSayısı shouldBe 1
+        w.üçgenlemeRaporu.düşenNotSayısı shouldBe 1
         panelMetni should include("(9 nokta)") // 5 değil: bekleyen yayın da sayıldı
         // Durmuş şekil KESİN biçimde konuşuyor, ama doğru sayıyla. Bu satır
         // aynı zamanda SIRAYI çiviliyor: son yayında toplam 60 ms, yani erken
