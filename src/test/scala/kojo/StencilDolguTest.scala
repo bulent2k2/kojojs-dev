@@ -492,6 +492,132 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
     Future.successful(succeed)
   }
 
+  // ---- artımlı kurulum (#155) ----
+
+  private def gülDüzü(nokta: Int, kat: Int, r: Double): Array[Double] = {
+    val a = new Array[Double](nokta * 2); var i = 0
+    while (i < nokta) { val açı = i * kat * 2 * math.Pi / nokta; a(2 * i) = r * math.cos(açı); a(2 * i + 1) = r * math.sin(açı); i += 1 }
+    a
+  }
+
+  /** Çıplak düğümü tek başına sahneye koyup pikselleri oku. */
+  private def düğümüOku(w: KojoWorldImpl, düğüm: StencilDolgu): Uint8Array = {
+    w.stage.children.toList.foreach(c => w.stage.removeChild(c))
+    dyn(w.stage).addChild(dyn(düğüm))
+    val t = sahneyiOku(w)
+    w.stage.removeChild(düğüm)
+    t
+  }
+
+  /**
+   * #155'in ana savı: büyüyen şekil öneklerle kurulunca yelpazeye yazılan
+   * nokta sayısı n (Σ önek uzunluğu değil), kapasite ikiye katlandığı için
+   * yeniden ayırma O(log n), ve sonuç baştan kurulanla PİKSEL PİKSEL aynı
+   * (hoşgörü 0: aynı üçgenler, aynı stencil sayımı; fark olsaydı artımlı
+   * yelpaze yanlış üçgen yazmış demekti).
+   */
+  test("ARTIMLI KUR (#155): öneklerle büyüyen gül -- nokta-yüklemesi n, yeniden ayırma O(log n), pikseller baştan kurulanla birebir") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val boya = DüzBoya(kojo.doodle.Color.blue)
+    val n = 4000
+    val tam = gülDüzü(n, 7, 130)
+    val artımlı = new StencilDolgu()
+    var k = 65; var yayın = 0
+    while (k < n) { artımlı.kur(tam.take(2 * k), boya)(() => ()); k += 65; yayın += 1 }
+    artımlı.kur(tam, boya)(() => ()); yayın += 1
+    val baştan = new StencilDolgu(); baştan.kur(tam, boya)(() => ())
+    val (fark, dolu) = karşılaştır(düğümüOku(w, artımlı), düğümüOku(w, baştan), hoşgörü = 0)
+    info(s"$yayın yayın, yüklenen nokta ${artımlı.yüklenenNokta} (eski yol Σ önek ≈ ${yayın * n / 2}), yeniden ayırma ${artımlı.yenidenAyırma}, boyalı $dolu, farklı $fark")
+    withClue(s"yüklenen ${artımlı.yüklenenNokta}, yeniden ayırma ${artımlı.yenidenAyırma}, boyalı $dolu, farklı $fark -- ") {
+      artımlı.noktaSayısı shouldBe n
+      artımlı.yüklenenNokta shouldBe n
+      artımlı.yenidenAyırma should be <= 8
+      baştan.yenidenAyırma shouldBe 1
+      dolu should be > 1000
+      fark shouldBe 0
+    }
+    artımlı.bırak(); baştan.bırak()
+    Future.successful(succeed)
+  }
+
+  /**
+   * Uzantı kararının üç "hayır"ı: `temizle`, başka bir ilk nokta, kısalan
+   * dizi. Üçünde de baştan kurulmalı -- eski kuyruk yeni şekle sızmamalı --
+   * ve sonuç taze bir düğümle birebir olmalı.
+   */
+  test("ARTIMLI KUR sıfırlanıyor: temizle / başka ilk nokta / kısalan dizi -> baştan, eski kuyruk sızmıyor") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val boya = DüzBoya(kojo.doodle.Color.red)
+    val gül = gülDüzü(1000, 7, 130)
+    val kare = Array(60.0, 60.0, 120.0, 60.0, 120.0, 120.0, 60.0, 120.0, 60.0, 60.0) // ilk nokta gülünkinden farklı
+    def taze(düz: Array[Double]): StencilDolgu = { val t = new StencilDolgu(); t.kur(düz, boya)(() => ()); t }
+    def birebir(ad: String, d: StencilDolgu, düz: Array[Double]): Unit = {
+      val t = taze(düz)
+      val (fark, dolu) = karşılaştır(düğümüOku(w, d), düğümüOku(w, t), hoşgörü = 0)
+      t.bırak()
+      withClue(s"$ad: boyalı $dolu, farklı $fark -- ") { dolu should be > 100; fark shouldBe 0 }
+    }
+    val d = new StencilDolgu()
+    d.kur(gül, boya)(() => ())
+    // 1) temizle, sonra kare
+    d.temizle(); d.kur(kare, boya)(() => ())
+    withClue("temizle sonrası -- ") { d.yüklenenNokta shouldBe 1000 + 5; d.içindeMi(-100, 0) shouldBe false; d.içindeMi(90, 90) shouldBe true }
+    birebir("temizle + kare", d, kare)
+    // 2) temizlemeden, ilk noktası farklı gül (p0 kare köşesi değil)
+    d.kur(gül, boya)(() => ())
+    withClue("başka ilk nokta -- ") { d.yüklenenNokta shouldBe 1000 + 5 + 1000 }
+    birebir("kare -> gül", d, gül)
+    // 3) aynı ilk nokta ama KISALAN dizi (önekin öneki)
+    val kısa = gül.take(2 * 500)
+    d.kur(kısa, boya)(() => ())
+    withClue("kısalan dizi -- ") { d.yüklenenNokta shouldBe 2005 + 500; d.noktaSayısı shouldBe 500 }
+    birebir("gül -> yarısı", d, kısa)
+    // 4) ve yeniden uzantı: 500 -> 1000, yalnız 500 daha
+    d.kur(gül, boya)(() => ())
+    withClue("yeniden uzantı -- ") { d.yüklenenNokta shouldBe 2505 + 500 }
+    birebir("yarısı -> gül", d, gül)
+    d.bırak()
+    Future.successful(succeed)
+  }
+
+  /**
+   * Gerçek yol: pompa büyüyen gülü kare kare yayınlıyor ve `boyayıYayınla`
+   * artık stencil düğümünü yayın öncesi temizlemiyor. Tek düğüm, n
+   * nokta-yüklemesi (yayın sayısı kaç olursa olsun), ve pikseller aynı
+   * çokgenden baştan kurulan düğümle birebir. Yayın sayısı makineye bağlı
+   * (dilim 8 ms), o yüzden yalnız bilgi olarak yazılıyor.
+   */
+  test("ARTIMLI KUR pompa üzerinden: kare kare büyüyen gül tek düğümde n nokta-yüklemesiyle, pikseller baştan kurulanla birebir") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val boya = DüzBoya(kojo.doodle.Color.blue)
+    val n = 2000
+    val ps = resim(boya)(gül(_, n, 7, 130)); ps.draw()
+    kareler(40).map { _ =>
+      val sd = stencilDüğümler(ps)
+      withClue(s"stencil düğümü ${sd.size} -- ") { sd.size shouldBe 1 }
+      val d = sd.head
+      // Aynı aritmetik: gül() moveTo(r cos a, r sin a) ile i = 1..n, ilk köşe (r, 0).
+      val beklenen = gülDüzü(n, 7, 130)
+      val baştan = new StencilDolgu(); baştan.kur(beklenen, boya)(() => ())
+      val a = sahneyiOku(w)
+      // Resim sahnede kalsın (erase ona bakıyor); okurken gizle.
+      dyn(ps.tnode).visible = false
+      dyn(w.stage).addChild(dyn(baştan))
+      val b = sahneyiOku(w)
+      w.stage.removeChild(baştan); dyn(ps.tnode).visible = true
+      baştan.bırak()
+      val (fark, dolu) = karşılaştır(a, b, hoşgörü = 0)
+      info(s"pompa: nokta ${d.noktaSayısı}, yüklenen ${d.yüklenenNokta}, yeniden ayırma ${d.yenidenAyırma}, boyalı $dolu, farklı $fark")
+      ps.erase()
+      withClue(s"nokta ${d.noktaSayısı}, yüklenen ${d.yüklenenNokta}, boyalı $dolu, farklı $fark -- ") {
+        d.noktaSayısı shouldBe n + 1
+        d.yüklenenNokta shouldBe n + 1
+        dolu should be > 1000
+        fark shouldBe 0
+      }
+    }
+  }
+
   /**
    * ELLE GERİ DÖNÜŞ KANALI: `localStorage.kojoDolgu = "libtess"` dünyayı
    * libtess yoluna kurar; silinince stencil'e döner. Adres sorgusu editörde
