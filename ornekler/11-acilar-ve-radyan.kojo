@@ -194,6 +194,7 @@ adım = 1
 anlat("Bu bir yarıçap. Devam etmek için Sonraki'ye tıkla.")
 
 düğme.fareyeTıklayınca { (x, y) => sonrakiAdım() }
+// Tuşlar tuvale ancak o odaklanınca ulaşıyor: önce tuvale (ya da düğmeye) bir kez tıkla.
 tuşaBasınca { t =>
     eğer (t == tuşlar.boşluk || t == tuşlar.sağ) sonrakiAdım()
 }
