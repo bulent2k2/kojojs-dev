@@ -781,6 +781,7 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
         kapalı.stencilDolgu shouldBe false
         kapalıMetin should include("elle açık")
         kapalıMetin should include("delete localStorage.kojoDolgu")
+        kapalıMetin should include("sonra sayfayı yenileyin")
         açık.stencilDolgu shouldBe true
         açıkMetin shouldBe ""
       }
@@ -790,5 +791,17 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
       depo.removeItem("kojoDolgu")
       Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
     }
+  }
+
+  test("libtess panel satırı kanala göre doğru kaldırma talimatını veriyor (kojojs-editor#45)") {
+    val depo = KojoWorld.libtessPanelMetni("depo")
+    val sorgu = KojoWorld.libtessPanelMetni("sorgu")
+    depo should include("localStorage.kojoDolgu")
+    depo should include("sonra sayfayı yenileyin")
+    depo should not include ("adres")
+    // Adres kanalı: editörde depoyu silmek, yalın sayfada adresi düzeltmek.
+    sorgu should include("adreste dolgu=libtess")
+    sorgu should include("delete localStorage.kojoDolgu")
+    sorgu should include("adresten dolgu=libtess'i çıkarın")
   }
 }
