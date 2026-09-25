@@ -805,6 +805,8 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
     val panel = document.createElement("div").asInstanceOf[HTMLElement]
     panel.id = "output"; document.body.appendChild(panel)
     try {
+      // Depo kanalı önce bakılıyor; boş olduğu sıraya bırakılmasın.
+      window.localStorage.removeItem("kojoDolgu")
       window.history.replaceState(null, "", window.location.pathname + "?dolgu=libtess")
       val w = dünyaKurYaDaİptalHam()
       val metin = panel.textContent
