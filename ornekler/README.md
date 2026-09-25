@@ -241,7 +241,9 @@ yalnız yeni noktaları ekliyor, çokgen tamponu da düz ve kapasiteli; ölçül
 (konteyner): 40 000 noktalı gülde nokta-yüklemesi 167 000 → 40 000, altı
 yayının çokgen kopyası 29 → 2 ms. **Canlıda (aynı MacBook, dev `49c680b` /
 core `f8473d9`): 40 000 × 7'de 3–4 → 5–8 gül/s**, on saniyelik tek koşuda
-5–8; 4000 × 7 değişmedi (19–30, alet orada tavanda). #155'in "kazanç gül/s'de
+5–8; 4000 × 7 değişmedi (19–30, alet orada tavanda). Dolgu notunun durumu
+dünya başına taşındıktan sonra (kojojs-dev#149; dev `e94b504` / core
+`6222077`, aynı MacBook) yine aynı: 4000 × 7'de 22–27, 40 000 × 7'de 5–8 gül/s. #155'in "kazanç gül/s'de
 görünmez, pompa tavanı ~4 gül/s" öngörüsü yanlıştı: tavan daha yukarıdaymış,
 kurulum payı düşünce 40 000'de gül/s neredeyse ikiye katlandı. Betik o
 değişiklikleri **yapamaz** — dolgunun nasıl çizildiği kitaplığın içinde;
@@ -363,6 +365,12 @@ kurulumla, kojojs-dev#155, dev `49c680b`):
 | 50 000 | 100 000 | **sekme kilitleniyor** | **≥ 497 ms** (yedi koşu: 497–1145) | **234–274 ms** (üç koşu) |
 | 5 000 | 10 000 | 17 569 ms\* / 59 090 ms (iki koşu) | 77 ms / 103–413 ms (beş koşu) | — |
 | 500 | 1 000 | 194 ms | 29–138 ms (dört koşu) | — |
+
+Dolgu notunun durumu dünya başına taşındıktan sonra (kojojs-dev#149; dev
+`e94b504`, aynı MacBook) 50 000 adımda altı koşu, iki oturum: 393 / 260 /
+313 ve 259 / 253 / 270 ms. İkinci oturum önceki aralığın (234–274) içinde;
+birincinin yayılması makinenin, yolun değil (15'in kuralı). #149 pompaya
+yalnız bir `kapandı` bakışı ekledi.
 
 \* Yazılan süre kuyruğun boşalmasına kadar; tamamlanmış şeklin son
 üçgenlemeleri `konumuOku`'nun ardından geliyor, sayıya girmiyor.
