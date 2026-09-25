@@ -83,6 +83,9 @@ gizle()
 //
 //      localStorage.kojoDolgu = "libtess"
 //
+//    (Konsolun bağlam seçicisinde "top" seçili olsun: tuval opak kökenli bir
+//    çerçevede koşuyor, çerçevenin içinden localStorage'a erişilemiyor.)
+//
 //    Kitaplık ESKİ yola döner: panelin ilk satırı "Eski dolgu yolu (libtess)
 //    elle açık ..." olur, kırmızı gül üçgenlenir ve panelde
 //    "... hesaplamak N ms SÜRDÜ (251 nokta)" notu çıkar. 1000 noktada
