@@ -367,9 +367,10 @@ kurulumla, kojojs-dev#155, dev `49c680b`):
 | 500 | 1 000 | 194 ms | 29–138 ms (dört koşu) | — |
 
 Dolgu notunun durumu dünya başına taşındıktan sonra (kojojs-dev#149; dev
-`e94b504`, aynı MacBook) 50 000 adımda üç koşu 393 / 260 / 313 ms: alt uç
-önceki aralıkta, yayılma geniş -- tek oturum, 15'in kuralı geçerli. #149
-pompaya yalnız bir `kapandı` bakışı ekledi.
+`e94b504`, aynı MacBook) 50 000 adımda altı koşu, iki oturum: 393 / 260 /
+313 ve 259 / 253 / 270 ms. İkinci oturum önceki aralığın (234–274) içinde;
+birincinin yayılması makinenin, yolun değil (15'in kuralı). #149 pompaya
+yalnız bir `kapandı` bakışı ekledi.
 
 \* Yazılan süre kuyruğun boşalmasına kadar; tamamlanmış şeklin son
 üçgenlemeleri `konumuOku`'nun ardından geliyor, sayıya girmiyor.
