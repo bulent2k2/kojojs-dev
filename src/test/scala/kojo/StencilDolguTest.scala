@@ -782,6 +782,7 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
         kapalıMetin should include("elle açık")
         kapalıMetin should include("delete localStorage.kojoDolgu")
         kapalıMetin should include("sonra sayfayı yenileyin")
+        kapalıMetin should not include ("adres") // depo kanalının metni (#170 incelemesi: kanal SEÇİMİ)
         açık.stencilDolgu shouldBe true
         açıkMetin shouldBe ""
       }
@@ -789,6 +790,33 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
     }
     finally {
       depo.removeItem("kojoDolgu")
+      Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
+    }
+  }
+
+  /**
+   * Adres kanalı uçtan uca: editör seçeneği sonuç çerçevesinin adresine
+   * `dolgu=libtess` olarak ekliyor (kojojs-editor#45). Sınama sayfasının
+   * adresi history.replaceState ile geçici olarak değiştiriliyor.
+   */
+  test("adreste dolgu=libtess: dünya libtess yoluyla kuruluyor ve panel adres kanalını söylüyor (kojojs-editor#45)") {
+    val eski = window.location.href
+    Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
+    val panel = document.createElement("div").asInstanceOf[HTMLElement]
+    panel.id = "output"; document.body.appendChild(panel)
+    try {
+      window.history.replaceState(null, "", window.location.pathname + "?dolgu=libtess")
+      val w = dünyaKurYaDaİptalHam()
+      val metin = panel.textContent
+      withClue(s"adres '${window.location.href}', panel '$metin' -- ") {
+        w.stencilDolgu shouldBe false
+        metin should include("adreste dolgu=libtess")
+        metin should include("adresten dolgu=libtess'i çıkarın")
+      }
+      Future.successful(succeed)
+    }
+    finally {
+      window.history.replaceState(null, "", eski)
       Option(document.getElementById("output")).foreach(e => e.parentNode.removeChild(e))
     }
   }
