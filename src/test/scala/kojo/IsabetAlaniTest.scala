@@ -176,4 +176,61 @@ class IsabetAlaniTest extends AsyncFunSuite with Matchers {
       isabetAlıyorMu(w, alt) shouldBe false // üstteki kapıyor
     }
   }
+
+  /** Sınır kutusunun ortası ve kutunun 10 birim solu: içi isabet, dışı değil. */
+  private def ortadaVeDışta(w: KojoWorldImpl, p: Picture): (Boolean, Boolean) = {
+    val b = p.tnode.getLocalBounds()
+    (isabetAlıyorMu(w, p, b.x + b.width / 2, b.y + b.height / 2), isabetAlıyorMu(w, p, b.x - 10, b.y + b.height / 2))
+  }
+
+  // İmge ve yazı resmi Graphics değil SPRITE taşıyor. isabetAlanınıKur'un
+  // yoklaması yalnız Graphics geometrisine bakıyordu; sprite'ta geometri yok,
+  // yani fareyeTıklayınca bağlanmış bir imge ya da yazı hiç isabet almıyor ve
+  // işleyici hiç koşmuyordu (canlıda Resim.imge + fareyeTıklayınca, 2026-09).
+  /** 40x30 kırmızı imge; ağa bağımlı olmasın diye data-URL. */
+  private def imge()(implicit w: KojoWorldImpl): ImagePic = {
+    val tuval = document.createElement("canvas").asInstanceOf[org.scalajs.dom.html.Canvas]
+    tuval.width = 40; tuval.height = 30
+    val c = tuval.getContext("2d").asInstanceOf[org.scalajs.dom.CanvasRenderingContext2D]
+    c.fillStyle = "red"; c.fillRect(0, 0, 40, 30)
+    new ImagePic(tuval.toDataURL("image/png"), None)
+  }
+
+  test("İMGE resmi (sprite) tıklanabiliyor") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val p = imge()
+    p.draw(); p.onMouseClick((_, _) => ())
+    p.ready.flatMap(_ => kareler(4)).map { _ =>
+      val b = p.tnode.getLocalBounds()
+      withClue(s"imge yüklenmeli (sınır ${b.width}x${b.height}) -- ") { b.width shouldBe 40.0 }
+      ortadaVeDışta(w, p) shouldBe ((true, false))
+    }
+  }
+
+  // Yukarıdaki "dışarı" noktası sınır kutusunun dışında: isabet alanının ucuz
+  // kutu elemesi onu zaten kesiyor, sprite yoklamasına hiç varılmıyor. Bu sav
+  // kutunun İÇİNDE ama iki sprite'ın ARASINDA bir noktaya bakıyor; sprite
+  // dalı "kutudaysa isabet" dese kırmızı olur (#171 incelemesi §3).
+  test("iki imgeli grupta imgelerin ARASI isabet almıyor") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val a = imge()
+    val b = imge()
+    b.offset(100, 0) // a: x 0..40, b: x 100..140; ikisi de y 0..30
+    val g = new GPics(List(a, b))
+    g.draw(); g.onMouseClick((_, _) => ())
+    a.ready.flatMap(_ => b.ready).flatMap(_ => kareler(4)).map { _ =>
+      val k = g.tnode.getLocalBounds()
+      withClue(s"iki imge yüklenmeli (grup sınırı ${k.width}) -- ") { k.width shouldBe 140.0 }
+      isabetAlıyorMu(w, g, 20, 15) shouldBe true
+      isabetAlıyorMu(w, g, 120, 15) shouldBe true
+      isabetAlıyorMu(w, g, 70, 15) shouldBe false
+    }
+  }
+
+  test("YAZI resmi (sprite) tıklanabiliyor") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val p = new TextPic("Merhaba", 30, kojo.doodle.Color.black)
+    p.draw(); p.onMouseClick((_, _) => ())
+    kareler(4).map(_ => ortadaVeDışta(w, p) shouldBe ((true, false)))
+  }
 }
