@@ -176,4 +176,36 @@ class IsabetAlaniTest extends AsyncFunSuite with Matchers {
       isabetAlıyorMu(w, alt) shouldBe false // üstteki kapıyor
     }
   }
+
+  /** Sınır kutusunun ortası ve kutunun 10 birim solu: içi isabet, dışı değil. */
+  private def ortadaVeDışta(w: KojoWorldImpl, p: Picture): (Boolean, Boolean) = {
+    val b = p.tnode.getLocalBounds()
+    (isabetAlıyorMu(w, p, b.x + b.width / 2, b.y + b.height / 2), isabetAlıyorMu(w, p, b.x - 10, b.y + b.height / 2))
+  }
+
+  // İmge ve yazı resmi Graphics değil SPRITE taşıyor. isabetAlanınıKur'un
+  // yoklaması yalnız Graphics geometrisine bakıyordu; sprite'ta geometri yok,
+  // yani fareyeTıklayınca bağlanmış bir imge ya da yazı hiç isabet almıyor ve
+  // işleyici hiç koşmuyordu (canlıda Resim.imge + fareyeTıklayınca, 2026-09).
+  test("İMGE resmi (sprite) tıklanabiliyor") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val tuval = document.createElement("canvas").asInstanceOf[org.scalajs.dom.html.Canvas]
+    tuval.width = 40; tuval.height = 30
+    val c = tuval.getContext("2d").asInstanceOf[org.scalajs.dom.CanvasRenderingContext2D]
+    c.fillStyle = "red"; c.fillRect(0, 0, 40, 30)
+    val p = new ImagePic(tuval.toDataURL("image/png"), None)
+    p.draw(); p.onMouseClick((_, _) => ())
+    p.ready.flatMap(_ => kareler(4)).map { _ =>
+      val b = p.tnode.getLocalBounds()
+      withClue(s"imge yüklenmeli (sınır ${b.width}x${b.height}) -- ") { b.width shouldBe 40.0 }
+      ortadaVeDışta(w, p) shouldBe ((true, false))
+    }
+  }
+
+  test("YAZI resmi (sprite) tıklanabiliyor") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val p = new TextPic("Merhaba", 30, kojo.doodle.Color.black)
+    p.draw(); p.onMouseClick((_, _) => ())
+    kareler(4).map(_ => ortadaVeDışta(w, p) shouldBe ((true, false)))
+  }
 }
