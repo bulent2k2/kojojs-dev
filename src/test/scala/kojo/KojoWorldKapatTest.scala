@@ -45,9 +45,12 @@ import scala.scalajs.js
  * düşürülüyor, çiziciye dokunan çağrılar patlamıyor, ikinci `kapat()`
  * zararsız. 40 dünya kurup kapatmak açık kalan bir dünyanın bağlamını
  * düşürmüyor (düzeltmeden önce düşürüyordu: tarayıcı en eskiyi atıyor).
+ * Kapanmış dünyada sonradan takılan tuş işleyicisi koşmuyor, fare sorguları
+ * patlamıyor; pişmiş doku `kapat`'ta bırakılıyor.
  * Mutasyon: dinleyici sökümü, `kocoResetView` silme, bağlam düşürme,
- * `kapat`'ın `kapandı` kapısı, `size` ve artalan kapıları -- her biri bir
- * savı kırıyor.
+ * `kapat`'ın `kapandı` kapısı, `size` ve artalan kapıları, `penceredeDinle`
+ * kapısı, `mouseXY` ve `isAMouseButtonPressed` kapıları, `kapat`'taki
+ * `resetBake` -- her biri bir savı kırıyor.
  *
  * WebGL yoksa İPTAL (SolukTest ile aynı gerekçe).
  */
@@ -203,6 +206,12 @@ class KojoWorldKapatTest extends AsyncFunSuite with Matchers with BeforeAndAfter
     window.dispatchEvent(tuşOlayı("keydown"))
     window.dispatchEvent(tuşOlayı("keyup"))
     window.dispatchEvent(tuşOlayı("keydown")) // pressedKeys'e yazılırsa görünsün
+    // Kapandıktan sonra takılan işleyici de koşmamalı (sökecek kimse yok).
+    var sonradanTakılan = 0
+    w.onKeyPress(_ => sonradanTakılan += 1)
+    w.onKeyRelease(_ => sonradanTakılan += 1)
+    window.dispatchEvent(tuşOlayı("keydown"))
+    window.dispatchEvent(tuşOlayı("keyup"))
     val ölçek = w.stage.scale.x
     window.dispatchEvent(
       js.Dynamic.newInstance(js.Dynamic.global.WheelEvent)("wheel", js.Dynamic.literal(deltaY = 100))
@@ -213,6 +222,7 @@ class KojoWorldKapatTest extends AsyncFunSuite with Matchers with BeforeAndAfter
       withClue("düzenek: açık dünyada pressedKeys dolmalı -- ") { açıktaBasılı shouldBe true }
       withClue("düzenek: açık dünya kocoResetView'ı kurmalı -- ") { açıktaSıfırla shouldBe true }
       withClue("kullanıcının tuş işleyicileri -- ") { (basılan, bırakılan) shouldBe ((1, 1)) }
+      withClue("kapandıktan sonra takılan işleyiciler -- ") { sonradanTakılan shouldBe 0 }
       withClue("iç keydown dinleyicisi (pressedKeys) -- ") { w.pressedKeys.contains(k) shouldBe false }
       withClue("tekerlek dinleyicisi (yakınlaştırma) -- ") { w.stage.scale.x shouldBe ölçek }
       withClue("kocoResetView kapanmış dünyayı tutuyor -- ") {
@@ -232,7 +242,10 @@ class KojoWorldKapatTest extends AsyncFunSuite with Matchers with BeforeAndAfter
     w.size(200, 100)
     w.setBackground(kojo.doodle.Color.red)
     w.erasePictures()
+    val fare = w.mouseXY
+    val basılı = w.isAMouseButtonPressed
     bekle(50).map { _ =>
+      withClue("kapanmış dünyada fare sorguları -- ") { ((fare.x, fare.y), basılı) shouldBe (((0.0, 0.0), false)) }
       document.body.contains(tuval) shouldBe false
       gl.isContextLost().asInstanceOf[Boolean] shouldBe true
     }
@@ -253,6 +266,43 @@ class KojoWorldKapatTest extends AsyncFunSuite with Matchers with BeforeAndAfter
       val kayıp = gl.isContextLost().asInstanceOf[Boolean]
       açık.kapat()
       kayıp shouldBe false
+    }
+  }
+
+  test("#166: pişmiş dokusu olan dünya kapanınca pişmişler geri konuyor, sonra silmek patlamıyor") {
+    // kapat() pişmiş dokunun framebuffer'ını çizici ölmeden bırakıyor
+    // (resetBake); gözlenebilir izi pişmiş çocukların sahneye dönmesi.
+    // resetBake sökülünce dokuyu çizici öldükten sonra silmek de patlamadı
+    // (ölçüldü), yani sıra savunma; sav yalnız çağrıyı çiviliyor. Pişirme
+    // yalnız canlandır döngüsünde ve kalabalık sahnede oluyor (PisirmeTest
+    // ile aynı düzenek).
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val resimSayısı = BakePolicy.bakeChildThreshold + 50
+    def küçükResim(): TurtlePicture = TurtlePicture { t =>
+      t.setAnimationDelay(0)
+      var i = 0
+      while (i < 12) { t.forward(6); t.right(30); i += 1 }
+    }
+    var kare = 0
+    var enAz = Int.MaxValue
+    w.animate {
+      kare += 1
+      if (kare == 2) { var n = 0; while (n < resimSayısı) { küçükResim().draw(); n += 1 } }
+      if (kare > 20) enAz = math.min(enAz, w.stage.children.length)
+    }
+    bekle(2000).flatMap { _ =>
+      w.kapat()
+      val kapanınca = w.stage.children.length
+      w.erasePictures()
+      w.size(200, 100)
+      bekle(100).map { _ =>
+        withClue(s"düzenek: resimler pişmiş olmalı (enAz=$enAz, resim=$resimSayısı) -- ") {
+          enAz should be < (resimSayısı / 2)
+        }
+        withClue("kapat() pişmişleri sahneye geri koymalı (resetBake) -- ") {
+          kapanınca should be >= resimSayısı
+        }
+      }
     }
   }
 }
