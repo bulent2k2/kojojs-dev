@@ -14,12 +14,13 @@
  */
 package kojo
 
-import org.scalajs.dom.document
-import org.scalajs.dom.raw.HTMLElement
-import org.scalatest.funsuite.AnyFunSuite
+import org.scalajs.dom.{document, window}
+import org.scalajs.dom.raw.{HTMLElement, MessageEvent}
+import org.scalatest.funsuite.AsyncFunSuite
 import org.scalatest.matchers.should.Matchers
 
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.{Future, Promise}
 
 /**
  * Tuş dinleyen program, editörden çerçeveye odak istiyor mu (#168)?
@@ -33,7 +34,8 @@ import scala.collection.mutable.ArrayBuffer
  * karede çağrılabiliyor), tuş kullanmayan program HİÇ yollamıyor (odağı kod
  * düzenleyiciden çalmamalı).
  */
-class KlavyeOdagiTest extends AnyFunSuite with Matchers {
+class KlavyeOdagiTest extends AsyncFunSuite with Matchers {
+  implicit override def executionContext = scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
   private def dünyaKurYaDaİptal(): KojoWorldImpl =
     try {
@@ -63,12 +65,12 @@ class KlavyeOdagiTest extends AnyFunSuite with Matchers {
     finally KojoWorld.üstPencereyeYaz = eski
   }
 
-  test("tuşaBasınca (onKeyPress) odak istiyor, dünya başına bir kez") {
-    iletiler { w =>
-      w.onKeyPress(_ => ())
-      w.onKeyRelease(_ => ())
-      (1 to 100).foreach(_ => w.isKeyPressed(37))
-    } shouldBe Seq(KojoWorld.KlavyeOdağıİletisi)
+  test("editörle sözleşme: ileti dizgisi \"klavyeOdagi\" (editör aynı dizgiyi elle bekliyor)") {
+    KojoWorld.KlavyeOdağıİletisi shouldBe "klavyeOdagi"
+  }
+
+  test("yalnız tuşaBasınca (onKeyPress) kullanan program odak istiyor") {
+    iletiler { w => w.onKeyPress(_ => ()) } shouldBe Seq(KojoWorld.KlavyeOdağıİletisi)
   }
 
   test("yalnız tuşBasılıMı (isKeyPressed) kullanan program da odak istiyor") {
@@ -77,6 +79,35 @@ class KlavyeOdagiTest extends AnyFunSuite with Matchers {
 
   test("yalnız tuşuBırakınca (onKeyRelease) kullanan program da odak istiyor") {
     iletiler { w => w.onKeyRelease(_ => ()) } shouldBe Seq(KojoWorld.KlavyeOdağıİletisi)
+  }
+
+  test("tuvaliEtkinleştir (activateCanvas) de odak istiyor") {
+    iletiler { w => new kojo.syntax.Builtins()(w).activateCanvas() } shouldBe Seq(KojoWorld.KlavyeOdağıİletisi)
+  }
+
+  test("bütün tuş yolları birlikte ve her karede isKeyPressed: yine tek ileti") {
+    iletiler { w =>
+      w.onKeyPress(_ => ())
+      w.onKeyRelease(_ => ())
+      (1 to 100).foreach(_ => w.isKeyPressed(37))
+      new kojo.syntax.Builtins()(w).activateCanvas()
+    } shouldBe Seq(KojoWorld.KlavyeOdağıİletisi)
+  }
+
+  test("varsayılan kanca: çerçevede değilken (üst düzey sayfa) ileti yollamıyor") {
+    // Öteki savlar kancayı değiştiriyor; bu, VARSAYILAN gövdeyi koşuyor. Sınama
+    // sayfası üst düzeyde (window.parent === window): ileti gitseydi bu
+    // pencerenin kendisine düşerdi.
+    val gelenler = ArrayBuffer.empty[Any]
+    val dinleyici: scala.scalajs.js.Function1[MessageEvent, Unit] = e => gelenler += e.data
+    window.addEventListener("message", dinleyici)
+    KojoWorld.üstPencereyeYaz("klavyeOdagi-varsayilan-sinama")
+    val söz = Promise[Unit]()
+    window.setTimeout(() => söz.success(()), 100)
+    söz.future.map { _ =>
+      window.removeEventListener("message", dinleyici)
+      gelenler.filter(_ == "klavyeOdagi-varsayilan-sinama") shouldBe empty
+    }
   }
 
   test("tuş kullanmayan program odak istemiyor (fare, çizim, canlandırma)") {
