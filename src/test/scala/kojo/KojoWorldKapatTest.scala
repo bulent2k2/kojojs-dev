@@ -21,6 +21,7 @@ import org.scalatest.funsuite.AsyncFunSuite
 import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.{Future, Promise}
+import scala.scalajs.js
 
 /**
  * `kapat()`tan ÖNCE zamanlanmış rAF geri çağrıları kullanıcının fn'ini
@@ -38,6 +39,19 @@ import scala.concurrent.{Future, Promise}
  * `bekleyenİşler.clear()` birlikte sökülünce pompa savları kırmızı;
  * `timer`ın kapısı sökülünce `timer` savı kırmızı.
  *
+ * #166: kapanmış dünyanın pencere dinleyicileri (kullanıcının tuş
+ * işleyicileri, `pressedKeys`, tekerlek) koşmuyor ve `kocoResetView` onu
+ * tutmuyor. Çizici bırakılıyor: tuval sayfadan sökülüyor, WebGL bağlamı
+ * düşürülüyor, çiziciye dokunan çağrılar patlamıyor, ikinci `kapat()`
+ * zararsız. 40 dünya kurup kapatmak açık kalan bir dünyanın bağlamını
+ * düşürmüyor (düzeltmeden önce düşürüyordu: tarayıcı en eskiyi atıyor).
+ * Kapanmış dünyada sonradan takılan tuş işleyicisi koşmuyor, fare sorguları
+ * patlamıyor; pişmiş doku `kapat`'ta bırakılıyor.
+ * Mutasyon: dinleyici sökümü, `kocoResetView` silme, bağlam düşürme,
+ * `kapat`'ın `kapandı` kapısı, `size` ve artalan kapıları, `penceredeDinle`
+ * kapısı, `mouseXY` ve `isAMouseButtonPressed` kapıları, `kapat`'taki
+ * `resetBake` -- her biri bir savı kırıyor.
+ *
  * WebGL yoksa İPTAL (SolukTest ile aynı gerekçe).
  */
 class KojoWorldKapatTest extends AsyncFunSuite with Matchers with BeforeAndAfterAll {
@@ -51,10 +65,12 @@ class KojoWorldKapatTest extends AsyncFunSuite with Matchers with BeforeAndAfter
     Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
   }
 
-  private def dünyaKurYaDaİptal(): KojoWorldImpl =
+  private def dünyaKurYaDaİptal(): KojoWorldImpl = {
+    // Önceki dünyayı kapatmak try'ın DIŞINDA: kapat()'ın hatası "WebGL yok"
+    // diye iptale dönüşmesin, kırmızı görünsün (#166, ikinci kapat()).
+    sonDünya.foreach(_.kapat())
+    Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
     try {
-      sonDünya.foreach(_.kapat())
-      Option(document.getElementById("fiddle-container")).foreach(e => e.parentNode.removeChild(e))
       val kap = document.createElement("div").asInstanceOf[HTMLElement]
       kap.id = "fiddle-container"
       kap.style.width = "400px"
@@ -68,6 +84,7 @@ class KojoWorldKapatTest extends AsyncFunSuite with Matchers with BeforeAndAfter
       w
     }
     catch { case t: Throwable => cancel(s"çizici kurulamadı (WebGL yok?): $t") }
+  }
 
   private def bekle(ms: Int): Future[Unit] = {
     val söz = Promise[Unit]()
@@ -163,6 +180,128 @@ class KojoWorldKapatTest extends AsyncFunSuite with Matchers with BeforeAndAfter
       bekle(150).map { _ =>
         withClue("düzenek: açık dünyada timer koşmalı -- ") { açıkta should be > 0 }
         kapalıda shouldBe 0
+      }
+    }
+  }
+
+  private def tuşOlayı(tür: String): org.scalajs.dom.KeyboardEvent =
+    js.Dynamic
+      .newInstance(js.Dynamic.global.KeyboardEvent)(tür, js.Dynamic.literal(keyCode = 65, bubbles = true))
+      .asInstanceOf[org.scalajs.dom.KeyboardEvent]
+
+  test("#166: kapanmış dünyanın pencere dinleyicileri koşmuyor") {
+    val w = dünyaKurYaDaİptal()
+    var basılan = 0
+    var bırakılan = 0
+    w.onKeyPress(_ => basılan += 1)
+    w.onKeyRelease(_ => bırakılan += 1)
+    val aşağı = tuşOlayı("keydown")
+    val k = aşağı.keyCode
+    window.dispatchEvent(aşağı)
+    val açıktaBasılı = w.pressedKeys.contains(k)
+    window.dispatchEvent(tuşOlayı("keyup"))
+    val açıktaSayılar = (basılan, bırakılan)
+    val açıktaSıfırla = !js.isUndefined(window.asInstanceOf[js.Dynamic].kocoResetView)
+    w.kapat()
+    window.dispatchEvent(tuşOlayı("keydown"))
+    window.dispatchEvent(tuşOlayı("keyup"))
+    window.dispatchEvent(tuşOlayı("keydown")) // pressedKeys'e yazılırsa görünsün
+    // Kapandıktan sonra takılan işleyici de koşmamalı (sökecek kimse yok).
+    var sonradanTakılan = 0
+    w.onKeyPress(_ => sonradanTakılan += 1)
+    w.onKeyRelease(_ => sonradanTakılan += 1)
+    window.dispatchEvent(tuşOlayı("keydown"))
+    window.dispatchEvent(tuşOlayı("keyup"))
+    val ölçek = w.stage.scale.x
+    window.dispatchEvent(
+      js.Dynamic.newInstance(js.Dynamic.global.WheelEvent)("wheel", js.Dynamic.literal(deltaY = 100))
+        .asInstanceOf[org.scalajs.dom.Event]
+    )
+    bekle(50).map { _ =>
+      withClue("düzenek: açık dünyada tuş işleyicileri koşmalı -- ") { açıktaSayılar shouldBe ((1, 1)) }
+      withClue("düzenek: açık dünyada pressedKeys dolmalı -- ") { açıktaBasılı shouldBe true }
+      withClue("düzenek: açık dünya kocoResetView'ı kurmalı -- ") { açıktaSıfırla shouldBe true }
+      withClue("kullanıcının tuş işleyicileri -- ") { (basılan, bırakılan) shouldBe ((1, 1)) }
+      withClue("kapandıktan sonra takılan işleyiciler -- ") { sonradanTakılan shouldBe 0 }
+      withClue("iç keydown dinleyicisi (pressedKeys) -- ") { w.pressedKeys.contains(k) shouldBe false }
+      withClue("tekerlek dinleyicisi (yakınlaştırma) -- ") { w.stage.scale.x shouldBe ölçek }
+      withClue("kocoResetView kapanmış dünyayı tutuyor -- ") {
+        js.isUndefined(window.asInstanceOf[js.Dynamic].kocoResetView) shouldBe true
+      }
+    }
+  }
+
+  test("#166: kapat() çiziciyi bırakıyor, tuvali sayfadan söküyor") {
+    val w = dünyaKurYaDaİptal()
+    val tuval = w.renderer.view
+    val gl = w.renderer.asInstanceOf[js.Dynamic].gl
+    withClue("düzenek: tuval sayfada olmalı -- ") { document.body.contains(tuval) shouldBe true }
+    w.kapat()
+    w.kapat() // idempotent: ikinci destroy patlamamalı
+    // Kapanmış dünyaya gelen çağrılar çiziciye dokunmamalı (view/plugins artık yok).
+    w.size(200, 100)
+    w.setBackground(kojo.doodle.Color.red)
+    w.erasePictures()
+    val fare = w.mouseXY
+    val basılı = w.isAMouseButtonPressed
+    bekle(50).map { _ =>
+      withClue("kapanmış dünyada fare sorguları -- ") { ((fare.x, fare.y), basılı) shouldBe (((0.0, 0.0), false)) }
+      document.body.contains(tuval) shouldBe false
+      gl.isContextLost().asInstanceOf[Boolean] shouldBe true
+    }
+  }
+
+  test("#166: 40 dünya kurup kapatmak açık bir dünyanın WebGL bağlamını düşürmüyor") {
+    // Tarayıcı etkin bağlam sayısını sınırlıyor (Chromium ~16) ve aşılınca EN
+    // ESKİYİ düşürüyor. Açık kalan dünya burada en eski; kapanan dünyalar
+    // bağlamlarını bırakmazsa onunki kaybolur.
+    val açık = dünyaKurYaDaİptal()
+    sonDünya = None // fikstür onu kapatmasın
+    val gl = açık.renderer.asInstanceOf[js.Dynamic].gl
+    var i = 0
+    while (i < 40) { dünyaKurYaDaİptal(); i += 1 }
+    sonDünya.foreach(_.kapat())
+    sonDünya = None
+    bekle(100).map { _ =>
+      val kayıp = gl.isContextLost().asInstanceOf[Boolean]
+      açık.kapat()
+      kayıp shouldBe false
+    }
+  }
+
+  test("#166: pişmiş dokusu olan dünya kapanınca pişmişler geri konuyor, sonra silmek patlamıyor") {
+    // kapat() pişmiş dokunun framebuffer'ını çizici ölmeden bırakıyor
+    // (resetBake); gözlenebilir izi pişmiş çocukların sahneye dönmesi.
+    // resetBake sökülünce dokuyu çizici öldükten sonra silmek de patlamadı
+    // (ölçüldü), yani sıra savunma; sav yalnız çağrıyı çiviliyor. Pişirme
+    // yalnız canlandır döngüsünde ve kalabalık sahnede oluyor (PisirmeTest
+    // ile aynı düzenek).
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    val resimSayısı = BakePolicy.bakeChildThreshold + 50
+    def küçükResim(): TurtlePicture = TurtlePicture { t =>
+      t.setAnimationDelay(0)
+      var i = 0
+      while (i < 12) { t.forward(6); t.right(30); i += 1 }
+    }
+    var kare = 0
+    var enAz = Int.MaxValue
+    w.animate {
+      kare += 1
+      if (kare == 2) { var n = 0; while (n < resimSayısı) { küçükResim().draw(); n += 1 } }
+      if (kare > 20) enAz = math.min(enAz, w.stage.children.length)
+    }
+    bekle(2000).flatMap { _ =>
+      w.kapat()
+      val kapanınca = w.stage.children.length
+      w.erasePictures()
+      w.size(200, 100)
+      bekle(100).map { _ =>
+        withClue(s"düzenek: resimler pişmiş olmalı (enAz=$enAz, resim=$resimSayısı) -- ") {
+          enAz should be < (resimSayısı / 2)
+        }
+        withClue("kapat() pişmişleri sahneye geri koymalı (resetBake) -- ") {
+          kapanınca should be >= resimSayısı
+        }
       }
     }
   }
