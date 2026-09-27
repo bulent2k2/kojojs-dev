@@ -651,7 +651,10 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
    * düğüme sabit kuşak verip Turtle'daki `temizle`leri sökmek bu savı kırıyor
    * (ölçüldü: B farklı 30 676). Karar koordinata bakmadığı için kapanış
    * noktasının 1e-13 sapması artık kurtarmıyor; eski sezgide aynı mutasyon
-   * yeşil kalıyordu. Yalnız `temizle`leri sökmek yeşil: doğruluk kuşakta.
+   * yeşil kalıyordu. Tek başına sökmek iki yönde de yeşil: yalnız
+   * `temizle`ler sökülünce kuşak kurtarıyor, yalnız `boyaKuruldu`/`taşındı`
+   * artışları sökülünce `temizle`ler kurtarıyor (#178 incelemesi ölçtü);
+   * sayacın artışını tek başına BoyamaYoluTest çiviliyor.
    */
   test("SIFIRLAMA yolun kararı: aynı başlangıç, aynı köşe sayısı, farklı orta -- boya değişimi ve kalem kalkık taşınma stencil düğümünü temizliyor") {
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
