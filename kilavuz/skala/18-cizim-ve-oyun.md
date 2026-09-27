@@ -81,7 +81,7 @@ Temel kavramlar ve komutlarla artık tanıştın. Bir kaç tane daha top eklemey
 
 Pek çok oyun klavyeden komut bekler. Minecraft oynadın mı hiç? Hem fare hem de klavye komutları oyunu iyice eğlenceli kılar. Bak bu küçük oyun sağ/sol/yukarı ve aşağı ok olan tuşlarla kaplumbağacığa yön veriyor.
 
-Her zamanki gibi aşağıdaki yazılımcığı çalıştır. Sonra da tuvale tıkla ki klavyeye bastığın zaman farketsin kaplumbağa ve söz dinlesin, senin komutlarını yerine getirsin.
+Her zamanki gibi aşağıdaki yazılımcığı çalıştır. Yazılımcık tuşları dinlediği için odak kendiliğinden tuvale geçer; kaplumbağa klavyeye bastığında fark eder ve söz dinler, senin komutlarını yerine getirir. Tuşlar yine de gelmezse tuvale bir kez tıkla.
 
 ```scala
 sil()

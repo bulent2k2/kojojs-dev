@@ -87,6 +87,7 @@ class TestKojoWorld extends KojoWorld {
   private[kojo] var zamanlayıcıVarMı = false
   private var girdiİşleyicisiVar = false
   private[kojo] def girdiİşleyicisiKaydedildi(): Unit = girdiİşleyicisiVar = true
+  private[kojo] def klavyeOdağıİste(): Unit = ()
   private[kojo] def komutGelebilir: Boolean =
     canlandırmaDönüyorMu || zamanlayıcıVarMı || girdiİşleyicisiVar
 

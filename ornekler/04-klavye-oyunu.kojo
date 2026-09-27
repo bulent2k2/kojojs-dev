@@ -1,7 +1,7 @@
 // Klavyeyle bir resmi gezdirmek
 // Ok tuşlarını kullan. tuşBasılıMı her karede tuşun durumuna bakar.
-// ÖNCE TUVALE BİR KEZ TIKLA: tuşlar tuvale ancak o odaklanınca ulaşıyor;
-// çalıştırınca odak hâlâ kod düzenleyicisinde.
+// Program tuş dinleyince editör odağı kendiliğinden tuvale veriyor. Tuşlar
+// yine de gelmezse (ör. gömülü sayfada) tuvale bir kez tıkla.
 
 artalanıKur(siyah)
 yakınlaştırmayıKapat()
