@@ -413,4 +413,79 @@ class KaynakSizintisiTest extends AsyncFunSuite with Matchers {
       }
       .sum
   }
+
+  // --- Yazı (sorun #169) -----------------------------------------------------
+  // Her karede yeni bir yazı resmi: saat örneğinin kalıbı. PIXI.Text'in kendi
+  // tuvali ve dokusu var; silinince dokusu da bırakılmalı. Ölçüldü (121 kare):
+  // bırakmadan doku sayacı 1 -> 120 doğrusal (kaplumbağa yazısında 117).
+
+  private def yazıDöngüsü(yeniYazı: (KojoWorldImpl, Int) => Unit): Future[org.scalatest.Assertion] = {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    if (dokuSayısı(w).isEmpty) Future.successful(cancel("WebGL çizici yok; doku sayacı okunamıyor"))
+    else {
+      val ölçümler = scala.collection.mutable.ArrayBuffer.empty[Int]
+      val kareSayısı = 121
+      kareler(kareSayısı) { i =>
+        if (i > 1) ölçümler += dokuSayısı(w).get
+        w.erasePictures()
+        yeniYazı(w, i)
+      }.map { _ =>
+        val (ilkYarı, sonYarı) = ölçümler.splitAt(ölçümler.size / 2)
+        withClue(s"doku sayacı: en büyük ${ölçümler.max}, ilk yarı ${ilkYarı.max} / son yarı ${sonYarı.max} -- ") {
+          ölçümler should have size (kareSayısı - 1)
+          ölçümler.max should be <= 12
+          withClue("son yarı ilk yarıdan büyük olmamalı (büyüme yok) -- ") {
+            sonYarı.max should be <= ilkYarı.max
+          }
+        }
+      }
+    }
+  }
+
+  test("her karede yeni yazı resmi: doku sayacının tavanı var (#169)") {
+    yazıDöngüsü { (w, i) => new TextPic(s"12:34:$i", 20, Color.black)(w).draw() }
+  }
+
+  test("her karede kaplumbağa yazısı: doku sayacının tavanı var (#169)") {
+    yazıDöngüsü { (w, i) =>
+      TurtlePicture { t => t.setAnimationDelay(0); t.write(s"12:34:$i") }(w).draw()
+    }
+  }
+
+  test("silinen yazı resmi yeniden çizilince dokusu geri yükleniyor (#169)") {
+    implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
+    if (dokuSayısı(w).isEmpty) Future.successful(cancel("WebGL çizici yok; doku sayacı okunamıyor"))
+    else {
+      // dispose, destroy değil: `Resim.sil(); çiz(aynıYazı)` çalışmalı. #95'teki
+      // gibi ayırt edici alan `resource` (destroy onu koparıyor).
+      val p = new TextPic("Merhaba", 20, Color.black)
+      val taban = p.textNode.asInstanceOf[js.Dynamic].texture.baseTexture
+      var çizili, silinmiş, yeniden = -1
+      var kaynak = false
+      kareler(30) { i =>
+        if (i == 2) p.draw()
+        if (i == 8) { çizili = dokuSayısı(w).get; w.erasePictures() }
+        if (i == 12) silinmiş = dokuSayısı(w).get
+        if (i == 14) p.draw()
+        if (i == 24) { yeniden = dokuSayısı(w).get
+                       kaynak = !js.isUndefined(taban.resource) && taban.resource != null }
+      }.map { _ =>
+        withClue(s"doku sayacı: çizili $çizili, silinince $silinmiş, yeniden çizilince $yeniden; kaynak=$kaynak -- ") {
+          silinmiş shouldBe (çizili - 1)
+          yeniden shouldBe çizili
+          kaynak shouldBe true
+          p.tnode.parent should not be null
+        }
+      }
+    }
+  }
+
+  test("PIXI'nin yazı ölçüm tuvali willReadFrequently ile kuruluyor (#169)") {
+    dünyaKurYaDaİptal()
+    val bağlam = js.Dynamic.global.PIXI.TextMetrics._context
+    val nitelikler = bağlam.getContextAttributes()
+    // Chrome'un "Multiple readback operations using getImageData" uyarısı bu
+    // seçenek yokken basılıyordu (TextMetrics.measureFont).
+    Future.successful(nitelikler.willReadFrequently.asInstanceOf[js.UndefOr[Boolean]].toOption shouldBe Some(true))
+  }
 }
