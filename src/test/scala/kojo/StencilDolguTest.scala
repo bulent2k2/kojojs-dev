@@ -527,8 +527,9 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
       val tam = gülDüzü(n, kat, 130)
       val artımlı = new StencilDolgu()
       var k = 65; var yayın = 0
-      while (k < n) { artımlı.kur(tam.take(2 * k), boya)(() => ()); k += 65; yayın += 1 }
-      artımlı.kur(tam, boya)(() => ()); yayın += 1
+      // Aynı kuşak (#163): hepsi tek çokgenin büyüyen önekleri.
+      while (k < n) { artımlı.kur(tam.take(2 * k), boya, kuşak = 1)(() => ()); k += 65; yayın += 1 }
+      artımlı.kur(tam, boya, kuşak = 1)(() => ()); yayın += 1
       val baştan = new StencilDolgu(); baştan.kur(tam, boya)(() => ())
       val (fark, dolu) = karşılaştır(düğümüOku(w, artımlı), düğümüOku(w, baştan), hoşgörü = 0)
       info(s"kat $kat: $yayın yayın, yüklenen nokta ${artımlı.yüklenenNokta} (eski yol Σ önek ≈ ${yayın * n / 2}), yeniden ayırma ${artımlı.yenidenAyırma}, boyalı $dolu, farklı $fark")
@@ -547,11 +548,12 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
   }
 
   /**
-   * Uzantı kararının üç "hayır"ı: `temizle`, başka bir ilk nokta, kısalan
-   * dizi. Üçünde de baştan kurulmalı -- eski kuyruk yeni şekle sızmamalı --
-   * ve sonuç taze bir düğümle birebir olmalı.
+   * Uzantı kararının "hayır"ları (#163'ten sonra): `temizle`, yeni kuşak,
+   * kuşak verilmemesi ve (aynı kuşakta olamayacak ama savunma için) kısalan
+   * dizi. Hepsinde baştan kurulmalı -- eski kuyruk yeni şekle sızmamalı -- ve
+   * sonuç taze bir düğümle birebir olmalı.
    */
-  test("ARTIMLI KUR sıfırlanıyor: temizle / başka ilk nokta / kısalan dizi -> baştan, eski kuyruk sızmıyor") {
+  test("ARTIMLI KUR sıfırlanıyor: temizle / yeni kuşak / kuşaksız / kısalan dizi -> baştan, eski kuyruk sızmıyor") {
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
     val boya = DüzBoya(kojo.doodle.Color.red)
     val gül = gülDüzü(1000, 7, 130)
@@ -564,38 +566,41 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
       withClue(s"$ad: boyalı $dolu, farklı $fark -- ") { dolu should be > 100; fark shouldBe 0 }
     }
     val d = new StencilDolgu()
-    d.kur(gül, boya)(() => ())
-    // 1) temizle, sonra kare
-    d.temizle(); d.kur(kare, boya)(() => ())
+    d.kur(gül, boya, kuşak = 1)(() => ())
+    // 1) temizle, sonra kare -- AYNI kuşakla bile baştan (temizle düğümü boşaltır)
+    d.temizle(); d.kur(kare, boya, kuşak = 1)(() => ())
     withClue("temizle sonrası -- ") { d.yüklenenNokta shouldBe 1000 + 5; d.içindeMi(-100, 0) shouldBe false; d.içindeMi(90, 90) shouldBe true }
     birebir("temizle + kare", d, kare)
-    // 2) temizlemeden, ilk noktası farklı gül (p0 kare köşesi değil)
-    d.kur(gül, boya)(() => ())
-    withClue("başka ilk nokta -- ") { d.yüklenenNokta shouldBe 1000 + 5 + 1000 }
+    // 2) temizlemeden, yeni kuşakla gül
+    d.kur(gül, boya, kuşak = 2)(() => ())
+    withClue("yeni kuşak -- ") { d.yüklenenNokta shouldBe 1000 + 5 + 1000 }
     birebir("kare -> gül", d, gül)
-    // 3) aynı ilk nokta ama KISALAN dizi (önekin öneki)
+    // 3) aynı kuşakta KISALAN dizi (önekin öneki): kuşak içinde olamaz, yine baştan
     val kısa = gül.take(2 * 500)
-    d.kur(kısa, boya)(() => ())
+    d.kur(kısa, boya, kuşak = 2)(() => ())
     withClue("kısalan dizi -- ") { d.yüklenenNokta shouldBe 2005 + 500; d.noktaSayısı shouldBe 500 }
     birebir("gül -> yarısı", d, kısa)
-    // 4) ve yeniden uzantı: 500 -> 1000, yalnız 500 daha
-    d.kur(gül, boya)(() => ())
+    // 4) ve yeniden uzantı, aynı kuşak: 500 -> 1000, yalnız 500 daha
+    d.kur(gül, boya, kuşak = 2)(() => ())
     withClue("yeniden uzantı -- ") { d.yüklenenNokta shouldBe 2505 + 500 }
     birebir("yarısı -> gül", d, gül)
+    // 5) kuşaksız çağrı (varsayılan: her çağrı yeni) aynı gülde bile baştan
+    d.kur(gül, boya)(() => ())
+    withClue("kuşaksız -- ") { d.yüklenenNokta shouldBe 3005 + 1000 }
+    birebir("kuşaksız gül", d, gül)
     d.bırak()
     Future.successful(succeed)
   }
 
   /**
-   * SEZGİNİN KÖR NOKTASI, düğüm düzeyinde (core#43 incelemesi §1): aynı ilk
-   * nokta, aynı köşe sayısı, aynı son nokta, farklı orta. `temizle`siz `kur`
-   * "uzantı" der, hiç üçgen yazmaz ve A'nın yelpazesini B'nin boyasıyla
-   * çizer; `temizle` ile B. Sözleşme bu: çokgeni sıfırlayan her yol düğümü de
-   * sıfırlar (Turtle.turtlePathMoveTo, realSetFillPaint, realClear). Bu sav
-   * sözleşmenin NEDEN gerektiğini çiviliyor; Turtle'daki çağrılar bir alttaki
-   * savın konusu.
+   * ESKİ SEZGİNİN KÖR NOKTASI, düğüm düzeyinde (core#43 incelemesi §1, #163):
+   * aynı ilk nokta, aynı köşe sayısı, aynı son nokta, farklı orta. Sezgili
+   * `kur` bunu "uzantı" sayıyor, hiç üçgen yazmıyor ve A'nın yelpazesini
+   * B'nin boyasıyla çiziyordu (ölçüldü: B'ye göre 30 676 piksel farklı).
+   * Karar artık kuşakta: `temizle`siz, YENİ kuşakla `kur` B'yi çiziyor;
+   * kuşaksız çağrı da. Sezgi geri gelirse bu sav kırmızı.
    */
-  test("SEZGİNİN KÖR NOKTASI: aynı ilk/son nokta ve köşe sayısı, farklı orta -- temizle'siz kur A'yı gösterir, temizle ile B") {
+  test("KÖR NOKTA KAPANDI: aynı ilk/son nokta ve köşe sayısı, farklı orta -- temizle'siz ama yeni kuşakla kur B'yi çizer") {
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
     val mavi = DüzBoya(kojo.doodle.Color.blue); val kırmızı = DüzBoya(kojo.doodle.Color.red)
     def kapalıGül(r: Double): Array[Double] = {
@@ -605,42 +610,48 @@ class StencilDolguTest extends AsyncFunSuite with Matchers {
     }
     val a = kapalıGül(100); val b = kapalıGül(140)
     def taze(düz: Array[Double], boya: Boya): Uint8Array = { val t = new StencilDolgu(); t.kur(düz, boya)(() => ()); val p = düğümüOku(w, t); t.bırak(); p }
+    def taze2(düz: Array[Double]): StencilDolgu = { val t = new StencilDolgu(); t.kur(düz, mavi)(() => ()); t }
     val d = new StencilDolgu()
-    d.kur(a, mavi)(() => ())
-    d.kur(b, kırmızı)(() => ()) // temizle YOK: sezgi "uzantı" diyor
+    d.kur(a, mavi, kuşak = 1)(() => ())
+    d.kur(b, kırmızı, kuşak = 2)(() => ()) // temizle YOK, yeni kuşak
     val yüklenenSonra = d.yüklenenNokta
-    val (sızıntıA, _) = karşılaştır(düğümüOku(w, d), taze(a, kırmızı), hoşgörü = 0)
-    val (sızıntıB, doluB) = karşılaştır(düğümüOku(w, d), taze(b, kırmızı), hoşgörü = 0)
-    d.temizle(); d.kur(b, kırmızı)(() => ())
-    val (doğruB, _) = karşılaştır(düğümüOku(w, d), taze(b, kırmızı), hoşgörü = 0)
-    d.bırak()
-    info(s"temizle'siz: yüklenen $yüklenenSonra (252 = hiç üçgen yazılmadı), A'ya göre farklı $sızıntıA, B'ye göre $sızıntıB (boyalı $doluB); temizle ile B'ye göre $doğruB")
-    withClue(s"yüklenen $yüklenenSonra, A'ya farklı $sızıntıA, B'ye $sızıntıB, temizle sonrası $doğruB -- ") {
-      yüklenenSonra shouldBe 252   // kör nokta: B için tek nokta yazılmadı
-      sızıntıA shouldBe 0          // ... ve çizilen A'nın yelpazesi
-      sızıntıB should be > 1000
-      doğruB shouldBe 0
+    val (farkA, _) = karşılaştır(düğümüOku(w, d), taze(a, kırmızı), hoşgörü = 0)
+    val (farkB, doluB) = karşılaştır(düğümüOku(w, d), taze(b, kırmızı), hoşgörü = 0)
+    // İsabet de B'ye bakmalı: A ile B'nin ayrıştığı ızgara noktalarında d, B gibi.
+    val (ta, tb) = (taze2(a), taze2(b))
+    val ayrışan = for (x <- -150 to 150 by 5; y <- -150 to 150 by 5 if ta.içindeMi(x, y) != tb.içindeMi(x, y)) yield (x.toDouble, y.toDouble)
+    val isabetB = ayrışan.count { case (x, y) => d.içindeMi(x, y) == tb.içindeMi(x, y) }
+    ta.bırak(); tb.bırak()
+    val k = new StencilDolgu()
+    k.kur(a, mavi)(() => ()); k.kur(b, kırmızı)(() => ()) // kuşaksız: her çağrı yeni
+    val (kuşaksızB, _) = karşılaştır(düğümüOku(w, k), taze(b, kırmızı), hoşgörü = 0)
+    d.bırak(); k.bırak()
+    info(s"yeni kuşakla: yüklenen $yüklenenSonra (504 = B baştan yazıldı), A'ya göre farklı $farkA, B'ye göre $farkB (boyalı $doluB); kuşaksız B'ye göre $kuşaksızB")
+    withClue(s"yüklenen $yüklenenSonra, A'ya farklı $farkA, B'ye $farkB, kuşaksız $kuşaksızB -- ") {
+      yüklenenSonra shouldBe 504   // B için bütün noktalar yazıldı
+      farkB shouldBe 0             // çizilen B
+      farkA should be > 1000       // ... A değil
+      doluB should be > 1000
+      kuşaksızB shouldBe 0
+      ayrışan.size should be > 10  // düzenek: A ile B'nin isabeti bir yerde ayrışıyor
+      isabetB shouldBe ayrışan.size // isabet (içindeMi) de B'ye bakıyor, çizimle tutarlı
     }
     Future.successful(succeed)
   }
 
   /**
-   * SIFIRLAMA YOLUN KARARI, sezginin değil (core#43 incelemesi §1). Uzantı
-   * sezgisi yalnız uzunluğa, ilk noktaya ve eski son noktaya bakıyor; aynı
-   * noktadan başlayıp aynı köşe sayısıyla oraya kapanan ama ortası farklı iki
-   * şekli ayırt edemez (düğüm düzeyinde bir üstteki sav bunu gösteriyor).
-   * Boya değişimi ve kalem kalkık taşınma çokgeni sıfırlıyor; stencil düğümü
-   * de onlarla sıfırlanıyor (Turtle: taşındı ve boyaKuruldu'dan sonra temizle),
-   * yani sezgi yalnız hızlı yol, güvenlik ağı değil.
+   * SIFIRLAMA YOLUN KARARI (core#43 incelemesi §1, #163). Boya değişimi ve
+   * kalem kalkık taşınma çokgenin kuşağını artırıyor; canlı düğümün `kur`u
+   * kuşak değişince baştan kuruyor. Turtle'daki `temizle` çağrıları artık
+   * yalnız "boş çiz"; doğruluk kuşakta (kuşak sayacı BoyamaYoluTest'te).
    *
    * Üç komut bloğu kare sınırlarıyla ayrılıyor ki A ve B canlı düğüme
    * gerçekten yayınlansın (Resim{} gövdesi tek dilimde koşar, uğramazlardı) ve
-   * dilim büyük (her blok tek yayın, n == kurulu). MUTASYON DENENDİ: Turtle'daki
-   * iki temizle sökülünce de sav yeşil kalıyor -- kaplumbağa yolunda çift
-   * ÜRETİLEMİYOR: moveTo başlık + ileri ile gidiyor, kapanış noktası 1e-13
-   * sapıyor (ölçüldü: (0, -1.58e-13) ve (0, -2.24e-13)), setPosition ise
-   * çokgeni zaten kırıyor; sezgi "hayır" deyip baştan kuruyor. Yine de sav
-   * duruyor: yol düzeyinde sıfırlamanın piksel sonucu, sezgiden bağımsız.
+   * dilim büyük (her blok tek yayın, n == kurulu). MUTASYON (#163): canlı
+   * düğüme sabit kuşak verip Turtle'daki `temizle`leri sökmek bu savı kırıyor
+   * (ölçüldü: B farklı 30 676). Karar koordinata bakmadığı için kapanış
+   * noktasının 1e-13 sapması artık kurtarmıyor; eski sezgide aynı mutasyon
+   * yeşil kalıyordu. Yalnız `temizle`leri sökmek yeşil: doğruluk kuşakta.
    */
   test("SIFIRLAMA yolun kararı: aynı başlangıç, aynı köşe sayısı, farklı orta -- boya değişimi ve kalem kalkık taşınma stencil düğümünü temizliyor") {
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()

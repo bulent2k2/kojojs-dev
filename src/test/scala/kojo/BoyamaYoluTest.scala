@@ -84,4 +84,22 @@ class BoyamaYoluTest extends AnyFunSuite with Matchers {
     y.çizildi(5, 6)
     y.düzDizi.toSeq shouldBe Seq(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
   }
+
+  test("kuşak (#163): boyaKuruldu, taşındı ve temizle'de artıyor; çizildi'de artmıyor") {
+    val y = new BoyamaYolu
+    val k0 = y.kuşak
+    y.boyaKuruldu(0, 0)
+    val k1 = y.kuşak
+    y.çizildi(100, 0); y.çizildi(100, -100); y.çizildi(100, -100)
+    y.kuşak shouldBe k1 // köşe eklemek aynı çokgen: aynı kuşak
+    y.taşındı(500, 500)
+    val k2 = y.kuşak
+    y.çizildi(600, 500)
+    y.temizle()
+    val k3 = y.kuşak
+    y.boyaKuruldu(0, 0) // aynı noktadan yeniden: yine yeni kuşak
+    val k4 = y.kuşak
+    Seq(k0, k1, k2, k3, k4).distinct.size shouldBe 5
+    k1 should be > k0; k2 should be > k1; k3 should be > k2; k4 should be > k3
+  }
 }
