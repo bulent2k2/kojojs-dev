@@ -290,14 +290,23 @@ class KojoWorldKapatTest extends AsyncFunSuite with Matchers with BeforeAndAfter
       if (kare == 2) { var n = 0; while (n < resimSayısı) { küçükResim().draw(); n += 1 } }
       if (kare > 20) enAz = math.min(enAz, w.stage.children.length)
     }
-    bekle(2000).flatMap { _ =>
+    // Düzenek yalnız "pişirme başladı"yı istiyor. İlk sürüm 2 sn bekleyip
+    // çocukların yarıdan aza inmesini bekliyordu; yüklü makinede kırmızı
+    // (#178 incelemesi: enAz 115). Resimler birkaç kareye yayılarak geliyor
+    // ve pişirme çocuk sayısı bakeChildThreshold'un (150) altına inince
+    // duruyor, yani "yarıdan az" düzeneğin garantisi değil (ölçüldü: 148'de
+    // durdu). Pişene dek bekle (en çok 10 sn), sonra biraz daha.
+    def pişeneDek(kalan: Int): Future[Unit] =
+      if (kare > 20 && enAz < resimSayısı || kalan <= 0) bekle(300)
+      else bekle(100).flatMap(_ => pişeneDek(kalan - 1))
+    pişeneDek(100).flatMap { _ =>
       w.kapat()
       val kapanınca = w.stage.children.length
       w.erasePictures()
       w.size(200, 100)
       bekle(100).map { _ =>
         withClue(s"düzenek: resimler pişmiş olmalı (enAz=$enAz, resim=$resimSayısı) -- ") {
-          enAz should be < (resimSayısı / 2)
+          enAz should be < resimSayısı
         }
         withClue("kapat() pişmişleri sahneye geri koymalı (resetBake) -- ") {
           kapanınca should be >= resimSayısı
