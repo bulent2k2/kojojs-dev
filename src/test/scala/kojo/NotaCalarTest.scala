@@ -4,7 +4,6 @@ import org.scalatest.funsuite.AsyncFunSuite
 import org.scalatest.matchers.should.Matchers
 
 import scala.collection.mutable
-import scala.concurrent.Future
 import scala.scalajs.js
 
 /**
