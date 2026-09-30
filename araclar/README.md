@@ -42,6 +42,41 @@ türü/sayısı) göremez. Gerçek derleme denetimi `ornekler/ornekleri-dogrula.
 Plan ve ölçüm belgesi: Koco–iKojo Köprüsü (Claude artifact,
 <https://claude.ai/code/artifact/04147d3d-1a10-4b18-a586-d2a105a07764>).
 
+## `cevir-derle.py` — Türkçe örneklerin İngilizce çevirisi derleniyor mu (#183)
+
+iKojo'ya gelecek "Çevir" komutunun (#183) ölçüsü ve CI kapısı. `ornekler/`
+altındaki her Türkçe betik (iKojo'nun 16 örneği + masaüstü Koco'nun 124 betiği)
+için iki derleme yapılır: **Türkçe aslı** ve masaüstü çevirmeniyle üretilen
+**İngilizce çevirisi**. İkisi de sitedeki gibi yamalı derleyiciyle, derlenmiş
+iKojo sınıflarına karşı ve her betik ayrı derlenir (ayrıntı ve gerekçeler
+betiğin başında).
+
+| sütun | anlam |
+|---|---|
+| `tr` | Türkçe aslı derleniyor mu |
+| `en` | İngilizce çevirisi derleniyor mu |
+
+"Çeviri açığı" = `tr` geçti, `en` geçmedi: suç çevirmende ya da iKojo'nun
+İngilizce yüzeyinde. `tr` de geçmiyorsa betik masaüstüne özgü bir şey
+kullanıyordur; çevirinin konusu değil.
+
+İlk ölçüm (çevirmen: kojo@c09b8e6):
+
+| | Türkçesi derlenen | çevirisi derlenen | çeviri açığı |
+|---|---|---|---|
+| iKojo örnekleri (16) | 16 | 12 | 4 |
+| masaüstü örnekleri (124) | 64 | 24 | 40 |
+
+```sh
+araclar/cevir-derle.py --kojo ../kojo              # beklenenle karşılaştır (CI bunu koşar)
+araclar/cevir-derle.py --kojo ../kojo --guncelle   # cevir-derle.tsv'yi yeniden yaz
+```
+
+Masaüstü çevirmeni `kojo-cevirmen-surumu.txt`'deki commit'e sabit; `--kojo`
+klonu o commit'te olmalı ve TSV başlığı aynı SHA'yı taşımalı (araç üçünü de
+denetler). Sürüm yükseltmek: SHA'yı değiştir, `--guncelle`, ikisini aynı
+commit'te gönder. CI: `.github/workflows/cevir-derle.yml`.
+
 ## ornek-dizini.py
 
 Komut -> onu kullanan ÇALIŞAN örnek betik dizini (sozluk/ornekler.json).
