@@ -1,0 +1,59 @@
+name: çevir ve derle
+
+# #183 Aşama 0: Türkçe örnekler masaüstü çevirmeniyle İngilizceye çevrilince
+# iKojo'da derleniyor mu (araclar/cevir-derle.py). Beklenen durum
+# araclar/cevir-derle.tsv'de; gerileme de, listeden çıkarılmamış ilerleme de
+# kırmızı.
+#
+# Masaüstü çevirmeni SABİT bir commit'ten geliyor
+# (araclar/kojo-cevirmen-surumu.txt), bu yüzden bu iş PR'larda da koşuyor:
+# uretecler.yml'deki kojo-kaynak adımları yalnız master'da, çünkü onlar
+# kojo'nun EN SON hâlini okuyor ve orada bir değişiklik buradaki ilgisiz PR'ları
+# kırmızıya çevirirdi. Sabit commit'le o sorun yok.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  cevir-derle:
+    name: çevir ve derle
+    runs-on: ubuntu-latest
+    # Ölçüldü (4 çekirdek, sıcak önbellek): ~7 dk. Soğuk koşuda iki depo da
+    # derleniyor ve bağımlılıklar iniyor.
+    timeout-minutes: 45
+    env:
+      # Türkçe adlı .class dosyaları var; UTF-8 olmadan zinc çöküyor.
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: sabit çevirmen sürümü
+        id: surum
+        run: |
+          sha="$(grep -v '^#' araclar/kojo-cevirmen-surumu.txt | grep -m1 -E '^[0-9a-f]{40}$' || true)"
+          [ -n "$sha" ] || { echo "::error::araclar/kojo-cevirmen-surumu.txt'de 40 haneli bir SHA yok."; exit 1; }
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      # kojo-kaynak/ .gitignore'da (uretecler.yml ile aynı ad).
+      - uses: actions/checkout@v7
+        with:
+          repository: bulent2k2/kojo
+          ref: ${{ steps.surum.outputs.sha }}
+          path: kojo-kaynak
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          # sinamalar.yml ve kojo deposunun CI'ı ile aynı sürüm.
+          java-version: "21"
+          cache: sbt
+
+      # sbt'yi kojo klonundaki launcher jar'ıyla koşuyoruz (araç öyle çağırıyor);
+      # ayrıca sbt kurmaya gerek yok.
+      - name: çevir ve derle
+        run: python3 araclar/cevir-derle.py --kojo kojo-kaynak

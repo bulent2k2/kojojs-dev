@@ -1,0 +1,7 @@
+# araclar/cevir-derle.py'nin kullandığı masaüstü çevirmeninin (bulent2k2/kojo)
+# SABİT commit'i. CI bu commit'i klonlar. Masaüstündeki ilgisiz bir değişiklik
+# buradaki PR'ları kırmızıya çevirmesin diye sabit; bilinçli olarak yükseltilir:
+#   1. aşağıdaki SHA'yı değiştir,
+#   2. araclar/cevir-derle.py --kojo <o commit'teki kojo> --guncelle,
+#   3. ikisini aynı commit'te gönder (araç, TSV başlığındaki SHA ile bunu karşılaştırır).
+21a431c4c636778af1826acfdadd519fcadffcaa
