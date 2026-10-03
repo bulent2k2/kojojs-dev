@@ -38,7 +38,10 @@ betik kalırsa GERİLEME, beklenmeyen bir betik geçerse İLERLEME -- ikisi de
 kırmızı. İlerleme de kırmızı, çünkü düzelen betik listeden çıkarılmazsa bir
 sonraki gerileme görünmez olur. Yalnız durumlar karşılaştırılır; hata sayısı
 ve ilk ileti TSV'de bilgi olarak durur (bir iletinin sözcüğü değişince kapı
-kırılmasın).
+kırılmasın). Bir ayrıntı: `kaldı` ile `ayrıştırma` etiketinin kendisi ilk
+hata iletisinin bir düzenli ifadeyle (AYRISTIRMA) sınıflanmasından geliyor;
+bir betiğin ilk hatası tür hatasından ayrıştırma hatasına dönerse durum
+değişir ve kapı kırmızı olur. Sabit derleyiciyle bu belirlenimli.
 
 Masaüstü sürümü SABİT: CI, çevirmeni araclar/kojo-cevirmen-surumu.txt'deki
 commit'ten alır. Masaüstündeki ilgisiz bir değişiklik buradaki PR'ları
@@ -110,17 +113,38 @@ def ortam():
     return o
 
 
-def kos(komut, dizin=None):
-    p = subprocess.run(komut, cwd=dizin, env=ortam(), stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT, text=True, encoding='utf-8')
-    return p.returncode, p.stdout
+# Takılan bir scalac/sbt işin 45 dakikalık sınırına kadar bekletmesin (#184 incelemesi).
+# Betik başına derleme/çeviri normalde saniyeler (en uzun ~30 sn); sbt ile sınıf yolu
+# ilk soğuk koşuda dakikalar sürebiliyor.
+BETIK_ZAMAN_ASIMI = 300
+SBT_ZAMAN_ASIMI = 1200
+
+
+def kos(komut, dizin=None, zaman_asimi=BETIK_ZAMAN_ASIMI):
+    """(çıkış kodu, çıktı); zaman aşımında (None, çıktının sonu)."""
+    try:
+        p = subprocess.run(komut, cwd=dizin, env=ortam(), stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT, text=True, encoding='utf-8',
+                           timeout=zaman_asimi)
+        return p.returncode, p.stdout
+    except subprocess.TimeoutExpired as e:
+        cikti = e.stdout.decode('utf-8', 'replace') if isinstance(e.stdout, bytes) else (e.stdout or '')
+        return None, cikti
 
 
 def sinif_yolu(dizin, launcher, kapsam):
     """sbt 'export <kapsam>/fullClasspath' -- gerekiyorsa önce derler."""
     kod, cikti = kos(['java', '-Xms512M', '-Xmx2g', '-Xss2M', '-Dfile.encoding=UTF-8',
                       '-Dsun.jnu.encoding=UTF-8', '-Dsbt.log.noformat=true', '-jar', launcher,
-                      'export %s/fullClasspath' % kapsam], dizin)
+                      'export %s/fullClasspath' % kapsam], dizin, SBT_ZAMAN_ASIMI)
+    if kod is None:
+        sys.exit('HATA: %s sınıf yolu %d sn içinde alınamadı (sbt takıldı?):\n%s'
+                 % (dizin, SBT_ZAMAN_ASIMI, cikti[-3000:]))
+    # Aynı makinede iki koşu aynı sbt kilidini istiyor (ölçüldü: ikinci koşu düştü)
+    if kod != 0 and ('sbt.boot.lock' in cikti or 'Address already in use' in cikti):
+        sys.exit('HATA: %s için başka bir sbt koşuyor (sbt.boot.lock / Address already in use). '
+                 'Aynı makinede iki cevir-derle.py ya da sbt eşzamanlı koşamaz; ötekinin bitmesini bekleyin.'
+                 % dizin)
     satirlar = [s for s in cikti.splitlines() if s.strip() and not s.startswith('[')]
     if kod != 0 or not satirlar:
         sys.exit('HATA: %s sınıf yolu alınamadı (derleme hatası?):\n%s' % (dizin, cikti[-3000:]))
@@ -133,6 +157,8 @@ def cevir(kojo_yolu, girdi, cikti):
     kod, metin = kos(['java', '-Dfile.encoding=UTF-8', '-Dsun.jnu.encoding=UTF-8', '-cp', kojo_yolu,
                       'net.kogics.kojo.lite.i18n.tr.CevirmenMain', '--tr2en', girdi, '-o', cikti])
     # Çıkış 1 = "kaynak dilin anahtar sözcüğü kaldı" uyarısı; çıktı yine yazılmış olur
+    if kod is None:
+        return False, 'zaman aşımı (%d sn)' % BETIK_ZAMAN_ASIMI
     return os.path.exists(cikti), metin
 
 
@@ -147,6 +173,8 @@ def derle(derleyici, ikojo_yolu, govde, ad, dizin):
     kod, metin = kos(['java', '-Xss4m', '-Xmx1g', '-Dfile.encoding=UTF-8', '-cp', derleyici,
                       'scala.tools.nsc.Main', '-cp', ikojo_yolu, '-d', cikis,
                       '-Ystop-after:refchecks', '-Xmaxerrs', '100000', kaynak])
+    if kod is None:
+        return ('zaman aşımı', 0, 'derleme %d sn içinde bitmedi' % BETIK_ZAMAN_ASIMI)
     hatalar = [(int(m.group(2)), m.group(3)) for m in map(HATA.match, metin.splitlines()) if m]
     if kod == 0 and not hatalar:
         return ('geçti', 0, '')

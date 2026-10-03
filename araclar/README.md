@@ -72,6 +72,16 @@ araclar/cevir-derle.py --kojo ../kojo              # beklenenle karşılaştır 
 araclar/cevir-derle.py --kojo ../kojo --guncelle   # cevir-derle.tsv'yi yeniden yaz
 ```
 
+Karşılaştırılan yalnız **durumlar** (`geçti` / `kaldı` / `ayrıştırma` / `çevrilemedi` /
+`zaman aşımı`); hata sayısı ve ilk ileti bilgi için TSV'de durur. Etiketin kendisi ilk
+hata iletisinin düzenli ifadeyle sınıflanmasından geliyor: bir betiğin ilk hatası tür
+hatasından ayrıştırma hatasına dönerse kapı kırmızı olur (sabit derleyiciyle belirlenimli).
+Betik başına zaman sınırı 5 dakika, sbt ile sınıf yolu için 20; aşılırsa `zaman aşımı`.
+Sıradan PR'lara bedeli: `ornekler/` altına betik eklemek/değiştirmek ya da iKojo'nun İngilizce
+yüzeyine bir betiğin sonucunu değiştiren ad eklemek kapıyı kırmızı yapar ve `--guncelle` ister
+(~7-9 dk); masaüstündeki `bilinenTrEn` ile aynı ilke. Aynı makinede iki koşu aynı sbt kilidini
+ister, eşzamanlı çalıştırmayın.
+
 Masaüstü çevirmeni `kojo-cevirmen-surumu.txt`'deki commit'e sabit; `--kojo`
 klonu o commit'te olmalı ve TSV başlığı aynı SHA'yı taşımalı (araç üçünü de
 denetler). Sürüm yükseltmek: SHA'yı değiştir, `--guncelle`, ikisini aynı
