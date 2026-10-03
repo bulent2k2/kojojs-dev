@@ -1,5 +1,5 @@
 # araclar/cevir-derle.py sonucu -- ELLE DÜZENLEMEYİN, --guncelle ile yenileyin
-# çevirmen: bulent2k2/kojo@c09b8e6568b235c374579553bdfdd8bc9cf2754a
+# çevirmen: bulent2k2/kojo@21a431c4c636778af1826acfdadd519fcadffcaa
 # iKojo örnekleri (16): Türkçesi derlenen 16, çevirisi derlenen 12, çeviri açığı 4
 # masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 24, çeviri açığı 40
 # "çeviri açığı": Türkçesi derleniyor, İngilizce çevirisi derlenmiyor
@@ -65,8 +65,8 @@ masaustu/src/main/resources/samples/tr/face-multi.kojo	geçti	kaldı	8	27: not f
 masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	kaldı	3	28: not found: value flipX	28: not found: value yansıtX
 masaustu/src/main/resources/samples/tr/ferris-wheel.kojo	geçti	kaldı	13	1: not found: value runInBackground	
 masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	kaldı	2	13: too many arguments (found 2, expected 1) for method scale: (f: Double): kojo.PreDrawTransformc	25: not found: value aydınlık
-masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	kaldı	kaldı	12	5: not found: value setNoteInstrument	52: not found: type TuvalÇizim
-masaustu/src/main/resources/samples/tr/fireworks.kojo	geçti	kaldı	9	5: not found: value setNoteInstrument	
+masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	kaldı	kaldı	7	52: not found: type CanvasDraw	52: not found: type TuvalÇizim
+masaustu/src/main/resources/samples/tr/fireworks.kojo	geçti	kaldı	4	56: value isDrawn is not a member of kojo.CirclePic	
 masaustu/src/main/resources/samples/tr/flappy-ball.kojo	geçti	kaldı	3	46: value intersects is not a member of kojo.BatchPics	
 masaustu/src/main/resources/samples/tr/genart-cubic-disarray.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/genart-delaunay.kojo	kaldı	kaldı	2	9: not found: value onMouseClick	9: not found: value fareyeTıklıyınca
