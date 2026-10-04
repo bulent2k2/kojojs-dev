@@ -341,6 +341,35 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
     b.noteTimeLeftMillis shouldBe 600
   }
 
+  test("notaÇalıcıyıDurdur, notaÇalıcıyıKapat ve stopNotePlayer aynı çalıcıyı susturur ve imleci sıfırlar") {
+    import kojo.syntax.Builtins
+    implicit val kojoWorld: KojoWorld = new TestKojoWorld()
+    val b = new Builtins()
+    val s = new SahteBağlam
+    b.notaÇalar.bağlam = s.ctx
+    val tr = b.trTurtle
+    var beklenenSusan = 0
+    var saat = 0.0
+    def dene(durdur: () => Unit): Unit = {
+      tr.notaÇal(60, 1000); tr.akorÇal(Seq(64, 67), 1000) // üç osilatör, imleç 2.0
+      b.noteTimeLeftMillis shouldBe 2000
+      durdur()
+      beklenenSusan += 3
+      s.susturulan shouldBe beklenenSusan
+      b.noteTimeLeftMillis shouldBe 0
+      saat += 5.0
+      s.saat(saat)
+      tr.notaÇal(72, 100)                          // eski sıranın ardına değil, hemen
+      s.başlar.last shouldBe saat +- 1e-9
+      b.stopNotePlayer()                           // sıradakini temizle; sonraki turun temiz başlaması için
+      beklenenSusan += 1
+    }
+    dene(() => tr.notaÇalıcıyıDurdur())
+    dene(() => tr.notaÇalıcıyıKapat())
+    dene(() => b.stopNotePlayer())
+    succeed
+  }
+
   test("gerçek ses motorunda (OfflineAudioContext) akorun üç notası birlikte duyulur, sonraki nota akor bitince") {
     val Çevrimdışı = js.Dynamic.global.OfflineAudioContext
     if (js.isUndefined(Çevrimdışı)) cancel("OfflineAudioContext yok")
