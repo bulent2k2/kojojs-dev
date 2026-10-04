@@ -527,4 +527,96 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
 
     succeed
   }
+
+  /**
+   * `ornekler/17-melodi.kojo`'nun gövdesi, Koco anahtar kelimeleri çıkarılmış
+   * hâliyle; gözcüsü `araclar/ornek-kopya-denetle.py` (`melodi` ve
+   * `melodiyiÇal`). Örnek gerçek derleyiciye gönderilemiyor (bkz. yukarıdakiler),
+   * ama burada ADLAR derleniyor VE melodi gerçekten çalıcıya yazılıyor:
+   * gerçek bir `OfflineAudioContext`'e 101 nota (biri es) sıraya girince
+   * `kalanNotaSüresi` nota sürelerinin toplamını vermeli. Es sayılmazsa
+   * (`notaSus` imleci ilerletmezse) 33 000 çıkar; `buAn - t0` ise birkaç
+   * milisaniye verirdi -- örneğin anlattığı tuzak bu.
+   */
+  test("17-melodi.kojo'nun kitaplık adları prelude ile derleniyor ve melodi sıraya giriyor") {
+    import kojo.{TurkishTurtle, Turtle, Picture}
+    import kojo.doodle.Color._
+    import kojo.Speed._
+    import kojo.RepeatCommands._
+    import kojo.syntax.Builtins
+    import scala.scalajs.js
+    implicit val kojoWorld = new TestKojoWorld()
+    val builtins = new Builtins()
+    import builtins._
+    import turtle._
+    import trTurtle._
+
+    val Çevrimdışı = js.Dynamic.global.OfflineAudioContext
+    if (js.isUndefined(Çevrimdışı)) cancel("OfflineAudioContext yok")
+    builtins.notaÇalar.bağlam = js.Dynamic.newInstance(Çevrimdışı)(1, 44100, 44100)
+
+    def melodi(): Diz[(Sayı, Sayı)] = {
+      val bir = 500
+      val iki = 2 * bir
+      val v8 = bir / 2
+      val v16 = v8 / 2
+      val es = -1
+      Diz(
+        (60, iki), (64, iki),
+        //
+        (67, iki - v8), (66, v16), (67, v16),
+        (69, v8), (67, v8),
+        (65, v8), (64, v8),
+
+        (64, iki - v8), (63, v16), (64, v16),
+        (65, v8), (64, v8), (62, v8), (60, v8),
+
+        (59, bir - v8), (60, v16), (62, v16), (60, bir),
+        (72, bir), (67, v8 + v16), (67, v16),
+        (67, bir), (64, v8), (es, v8),
+
+        (60, v8), (64, v8), (67, v8), (72, v8),
+        (72, v8), (69, v8), (65, bir + v8),
+        (65, v8), (67, v8), (69, v8),
+        (69, v8), (67, v8), (64, bir + v8),
+        (64, bir - v16), (62, v16), (60, bir),
+        (76, bir - v16), (76, v16), (76, iki + bir + v8),
+        (74, v16), (72, v16), (71, v16), (72, v16), (71, v16), (69, v16), (67, v16),
+        (69, v16), (67, v16), (65, v16),
+        (64, v8), (65, v16), (67, v16), (69, v16), (71, v16), (72, v16), (69, v16),
+        (69, v16), (67, v16), (65, v16), (64, v16),
+        (64, v16), (62, v16), (60, v16), (59, v16),
+        (60, bir), (64, iki), (65, bir), (61, bir),
+        (62, iki - v8), (62, v16), (61, v16), (62, v8), (64, v8),
+        (65, bir), (65, iki - v8), (69, v8), (67, v8), (65, v8),
+        (63, bir), (64, iki), (67, iki + v8), (69, v8), (71, v8), (72, v8),
+        //
+        (72, v8), (69, v8), (66, iki), (76, bir),
+        // arada majör gam aşağı (altıncıdan tabana, yedinci, taban)
+        (74, v8), (72, v8), (71, v8), (69, v8), (67, v8), (66, v8),
+        (67, bir)
+      )
+    }
+
+    def melodiyiÇal(parça: Diz[(Sayı, Sayı)]): Birim = {
+      for ((nota, süre) <- parça) {
+        if (nota < 0) notaSus(süre) else notaÇal(nota, süre)
+      }
+    }
+
+    notaÇalgısınıKur(Çalgı.Piyano)
+    val parça = melodi()
+    // Melodinin kendisi: bir düzenleme notaları sessizce değiştirmesin.
+    parça.size shouldBe 101
+    parça.count(_._1 < 0) shouldBe 1
+    parça.head shouldBe ((60, 1000))
+    parça.last shouldBe ((67, 500))
+    parça.map(_._2).sum shouldBe 33250
+
+    melodiyiÇal(parça)
+    kalanNotaSüresi shouldBe 33250 // es dahil: toplam süre, sıraya koyma süresi değil
+    satıryaz(s"Melodi ${kalanNotaSüresi / 1000.0} saniye sürecek")
+
+    succeed
+  }
 }
