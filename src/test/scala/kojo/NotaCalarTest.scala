@@ -32,10 +32,13 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
       connect = (_: js.Any) => (),
       disconnect = () => { susturulan += 1 }
     )
+    var devamEdildi = 0
     val ctx: js.Dynamic = js.Dynamic.literal(
       currentTime = 0.0,
       destination = düğüm()
     )
+    ctx.resume = () => { devamEdildi += 1 }
+    def askıya(): Unit = ctx.state = "suspended"
     ctx.createOscillator = () => {
       val o = düğüm()
       o.frequency = js.Dynamic.literal(value = 0.0)
@@ -112,6 +115,17 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
     s.başlar.last shouldBe 0.5 +- 1e-9
   }
 
+  test("durdur akorun (beraberÇal grubunun) HER osilatörünü susturur ve imleci sıfırlar") {
+    val (n, s) = çalıcı()
+    n.akorÇal(Seq(60, 64, 67, 71), 1000, 80)
+    n.beraberÇal(Seq((48, 500), (52, 2000)), 80)
+    n.durdur()
+    s.susturulan shouldBe 6
+    s.saat(0.2)
+    n.çal(72, 100, 80)
+    s.başlar.last shouldBe 0.2 +- 1e-9
+  }
+
   test("sınırlar masaüstüyle aynı; süre eksiyse imleç geri gitmez") {
     val (n, s) = çalıcı()
     an[IllegalArgumentException] should be thrownBy n.çal(128, 10, 80)
@@ -119,6 +133,8 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
     an[IllegalArgumentException] should be thrownBy n.çalgıyıKur(128)
     n.çal(60, 200, 80); n.çal(60, -50, 80); n.çal(62, 100, 80)
     yakın(s.başlar, Seq(0.0, 0.2, 0.2))
+    // eksi süreli notanın bitişi başlangıcının önüne düşmez (başla'dan başlıyor)
+    yakın(s.bitişler, Seq(0.2, 0.2, 0.3))
   }
 
   test("notaÇal ile playNote aynı imleci paylaşır; Çalgı = Instrument") {
@@ -180,6 +196,38 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
     s.düzeyler.tail.map(d => d * d).sum shouldBe (tek * tek) +- 1e-9
   }
 
+  test("tepe güvenliği: toplam düzey hiçbir grupta 0.95'i aşmaz; n <= 10'a kadar 0.3/√n") {
+    for (k <- 1 to 16) {
+      val (n, s) = çalıcı()
+      n.akorÇal(60 until (60 + k), 100, 127)
+      s.düzeyler.size shouldBe k
+      s.düzeyler.sum should be <= (0.95 + 1e-9)
+      if (k <= 10) s.düzeyler.foreach(d => d shouldBe (0.3 / math.sqrt(k)) +- 1e-9)
+      else s.düzeyler.foreach(d => d shouldBe (0.95 / k) +- 1e-9)
+    }
+    succeed
+  }
+
+  test("ses = 0 ufak tabanla çalar (exponentialRamp sıfırdan başlayamaz); varsayılan ses 80") {
+    val (n, s) = çalıcı()
+    n.çal(60, 100, 0)
+    s.düzeyler.head shouldBe 1e-4 +- 1e-12
+  }
+
+  test("bağlam askıdaysa çal, akorÇal ve sus onu sürdürür; askıda değilse dokunmaz") {
+    val (n, s) = çalıcı()
+    n.çal(60, 100, 80)
+    s.devamEdildi shouldBe 0
+    s.askıya()
+    n.çal(62, 100, 80); n.akorÇal(Seq(64, 67), 100, 80); n.sus(100)
+    s.devamEdildi shouldBe 3
+    // sus ilk çağrı olsa bile bağlamı sürdürür (sonraki nota duyulur)
+    val (n2, s2) = çalıcı()
+    s2.askıya()
+    n2.sus(100)
+    s2.devamEdildi shouldBe 1
+  }
+
   test("beraberÇal önce HEPSİNİ doğrular: biri sınır dışıysa hiçbir nota sıraya girmez; boş dizi bir şey yapmaz") {
     val (n, s) = çalıcı()
     an[IllegalArgumentException] should be thrownBy n.beraberÇal(Seq((60, 100), (128, 100)), 80)
@@ -189,6 +237,10 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
     n.beraberÇal(Seq.empty, 80)
     n.akorÇal(Seq.empty, 100, 80)
     s.osilatörler shouldBe empty
+    // boş dizi bağlamı da kurmaz (AudioContext yaratmak yan etki sayılır)
+    val taze = new NotaÇalar
+    taze.beraberÇal(Seq.empty, 80); taze.akorÇal(Seq.empty, 100, 80)
+    (taze.bağlam == null) shouldBe true
     n.çal(62, 100, 80)               // imleç kıpırdamamış: hemen
     yakın(s.başlar, Seq(0.0))
   }
@@ -224,6 +276,15 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
     new NotaÇalar().kalanMiliSaniye shouldBe 0
   }
 
+  test("kalanMiliSaniye en yakın milisaniyeye yuvarlar (tavana değil)") {
+    val (n, s) = çalıcı()
+    n.çal(60, 300, 80)
+    s.saat(0.0006)                   // kalan 299.4 ms
+    n.kalanMiliSaniye shouldBe 299
+    s.saat(0.0001)                   // kalan 299.9 ms
+    n.kalanMiliSaniye shouldBe 300
+  }
+
   test("İngilizce ve Türkçe yüzey aynı çalıcıya gidiyor: playChord/playTogether/playRest/noteTimeLeftMillis = akorÇal/beraberÇal/notaSus/kalanNotaSüresi") {
     import kojo.syntax.Builtins
     implicit val kojoWorld: KojoWorld = new TestKojoWorld()
@@ -243,10 +304,23 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
     // (72, 100), (76, 300) çifti ters çevrilirse yalnız frekans/bitiş sırası değişir.
     yakın(s.frekanslar, Seq(60, 64, 67, 71, 72, 76, 79, 60).map(NotaÇalar.frekans))
     yakın(s.bitişler, Seq(0.1, 0.1, 0.2, 0.2, 0.3, 0.5, 0.6, 0.9))
+    // Varsayılan ses = 80 dört yüzeyde de aynı: iki notalı gruplar 80/127·0.3/√2, tek notalar 80/127·0.3
+    val d1 = 80 / 127.0 * 0.3
+    val d2 = d1 / math.sqrt(2)
+    yakın(s.düzeyler, Seq(d2, d2, d2, d2, d2, d2, d1, d1))
     b.noteTimeLeftMillis shouldBe 900
     tr.kalanNotaSüresi shouldBe 900
-    an[IllegalArgumentException] should be thrownBy tr.akorÇal(Seq(60, 200), 100)
-    an[IllegalArgumentException] should be thrownBy b.playTogether(Seq((60, 100), (-1, 100)))
+    // Türkçe yüzey notaÇal gibi Türkçe ileti veriyor; İngilizce yüzey çalıcının İngilizce iletisini
+    intercept[IllegalArgumentException](tr.akorÇal(Seq(60, 200), 100)).getMessage should include("nota 0 ile 127")
+    intercept[IllegalArgumentException](tr.akorÇal(Seq(60), 100, 128)).getMessage should include("ses 0 ile 127")
+    intercept[IllegalArgumentException](tr.beraberÇal(Seq((60, 100), (-1, 100)))).getMessage should include("nota 0 ile 127")
+    intercept[IllegalArgumentException](b.playTogether(Seq((60, 100), (-1, 100)))).getMessage should include("Note pitch")
+    s.osilatörler.size shouldBe 8 // hiçbiri sıraya girmedi
+    // ses parametresi dört yüzeyde de çalıcıya iletiliyor (varsayılan 80 değil)
+    tr.akorÇal(Seq(60, 64), 100, 40); tr.beraberÇal(Seq((60, 100), (64, 100)), 40)
+    b.playChord(Seq(60, 64), 100, 40); b.playTogether(Seq((60, 100), (64, 100)), 40)
+    s.düzeyler.drop(8).foreach(d => d shouldBe (40 / 127.0 * 0.3 / math.sqrt(2)) +- 1e-9)
+    s.düzeyler.size shouldBe 16
   }
 
   test("gerçek ses motorunda (OfflineAudioContext) akorun üç notası birlikte duyulur, sonraki nota akor bitince") {
@@ -289,6 +363,28 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
         ölçüm(1)._2 shouldBe empty         // es: sessiz
         ölçüm(2)._2 shouldBe Seq(72)       // yalnız sonraki nota
         ölçüm(3)._2 shouldBe empty         // toplam süre 0.9
+      }
+    }
+  }
+
+  test("gerçek ses motorunda (OfflineAudioContext) 16 eş fazlı nota, ses 127: kırpılma yok") {
+    val Çevrimdışı = js.Dynamic.global.OfflineAudioContext
+    if (js.isUndefined(Çevrimdışı)) cancel("OfflineAudioContext yok")
+    val örnekHızı = 44100
+    val ctx = js.Dynamic.newInstance(Çevrimdışı)(1, (örnekHızı * 0.4).toInt, örnekHızı)
+    val n = new NotaÇalar
+    n.bağlam = ctx
+    n.çalgıyıKur(Instrument.TRUMPET)       // kare dalga: en yüksek tepe
+    n.akorÇal(Seq.fill(16)(60), 300, 127)    // aynı perde: bütün osilatörler eş fazlı
+    val söz = ctx.startRendering().asInstanceOf[js.Promise[js.Dynamic]]
+    söz.toFuture.map { tampon =>
+      val a = tampon.getChannelData(0).asInstanceOf[js.typedarray.Float32Array]
+      var tepe = 0.0; var i = 0
+      while (i < a.length) { tepe = math.max(tepe, math.abs(a(i).toDouble)); i += 1 }
+      withClue(f"tepe $tepe%.3f -- ") {
+        NotaÇalar.dalga(Instrument.TRUMPET) shouldBe "square"
+        tepe should be > 0.5               // gerçekten ses var
+        tepe should be <= 0.96
       }
     }
   }
