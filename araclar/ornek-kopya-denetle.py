@@ -39,11 +39,14 @@ import sys
     ('ornekler/14-agir-dolgu.kojo', 'src/test/scala/kojo/TurkishPreludeTest.scala', 'gül'),
     ('ornekler/15-mesh-olcumu.kojo', 'src/test/scala/kojo/TurkishPreludeTest.scala', 'gülÇiz'),
     ('ornekler/16-yuz-bin-komut.kojo', 'src/test/scala/kojo/TurkishPreludeTest.scala', 'üstÜsteGül'),
+    ('ornekler/17-melodi.kojo', 'src/test/scala/kojo/TurkishPreludeTest.scala', 'melodi'),
+    ('ornekler/17-melodi.kojo', 'src/test/scala/kojo/TurkishPreludeTest.scala', 'melodiyiÇal'),
 ]
 
 # Örnekte Koco anahtar kelimeleri var, kopyada Scala'nınkiler. Karşılaştırma
 # çeviriden SONRA: sınanan şey gövdenin aynılığı, yazımın değil.
-ANAHTAR = [('tanım', 'def'), ('dez', 'val'), ('den', 'var')]
+ANAHTAR = [('tanım', 'def'), ('dez', 'val'), ('den', 'var'),
+           ('için', 'for'), ('eğer', 'if'), ('yoksa', 'else')]
 
 
 def gövde(metin, ad, anahtarlar):

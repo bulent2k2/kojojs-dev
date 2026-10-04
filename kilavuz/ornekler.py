@@ -203,6 +203,7 @@ IKOJO_BASLIK = {
     '14-agir-dolgu.kojo': 'Ağır dolgu',
     '15-mesh-olcumu.kojo': 'Dolgu çizim maliyeti',
     '16-yuz-bin-komut.kojo': 'Yüz bin komut',
+    '17-melodi.kojo': 'Melodi',
 }
 
 ROZETLER = {

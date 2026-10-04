@@ -323,6 +323,24 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
     s.düzeyler.size shouldBe 16
   }
 
+  test("Diz(...) ve değişebilir diziler akorÇal/beraberÇal/playChord/playTogether'a girer (Dizi'ye daralmaz)") {
+    import kojo.syntax.Builtins
+    implicit val kojoWorld: KojoWorld = new TestKojoWorld()
+    val b = new Builtins()
+    val s = new SahteBağlam
+    b.notaÇalar.bağlam = s.ctx
+    val tr = b.trTurtle
+    import tr.Diz
+    // Türkçe sürüm `Diz` adını sunuyor: Diz(...) bir collection.Seq döndürür, immutable.Seq değil.
+    tr.akorÇal(Diz(60, 64), 100)                         // 0.0 - 0.1
+    tr.beraberÇal(Diz((67, 100), (71, 300)))             // 0.1 - 0.4
+    b.playChord(mutable.ArrayBuffer(72, 76), 100)        // 0.4 - 0.5
+    b.playTogether(mutable.ArrayBuffer((79, 100)))       // 0.5 - 0.6
+    yakın(s.başlar, Seq(0.0, 0.0, 0.1, 0.1, 0.4, 0.4, 0.5))
+    yakın(s.frekanslar, Seq(60, 64, 67, 71, 72, 76, 79).map(NotaÇalar.frekans))
+    b.noteTimeLeftMillis shouldBe 600
+  }
+
   test("gerçek ses motorunda (OfflineAudioContext) akorun üç notası birlikte duyulur, sonraki nota akor bitince") {
     val Çevrimdışı = js.Dynamic.global.OfflineAudioContext
     if (js.isUndefined(Çevrimdışı)) cancel("OfflineAudioContext yok")
