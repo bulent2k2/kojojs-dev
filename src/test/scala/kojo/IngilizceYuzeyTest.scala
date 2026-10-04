@@ -79,4 +79,41 @@ class IngilizceYuzeyTest extends AsyncFunSuite with Matchers {
     b.Costume.car shouldBe "/media/costumes/car.png"
     b.Costume.womanWaving shouldBe "/media/costumes/womanwaving.png"
   }
+
+  test("scale(fx, fy) = büyüt(x, y): iki argümanlı, aynı dönüştürücü") {
+    val b = yeni()
+    import b._
+    val tr = b.trTurtle
+    val ing = Picture.rectangle(10, 20)
+    val türkçe = tr.Resim.dikdörtgen(10, 20)
+    draw(scale(2, 3) -> ing)
+    tr.çiz(tr.büyüt(2, 3) -> türkçe)
+    val (a, t) = (ing.tnode.scale, türkçe.tnode.scale)
+    (a.x, a.y) shouldBe ((2.0, 3.0))
+    (t.x, t.y) shouldBe ((a.x, a.y))
+    // tek argümanlı hâl bozulmadı
+    val tek = Picture.rectangle(5, 5)
+    draw(scale(4) -> tek)
+    (tek.tnode.scale.x, tek.tnode.scale.y) shouldBe ((4.0, 4.0))
+  }
+
+  test("Rectangle'ın getMinX/getMaxY/...: Türkçe tuvalAlanı x, y, X, Y ile aynı") {
+    val b = yeni()
+    import b._
+    val tr = b.trTurtle
+    val cb = canvasBounds
+    cb.getMinX shouldBe cb.x
+    cb.getMinY shouldBe cb.y
+    cb.getMaxX shouldBe tr.tuvalAlanı.X
+    cb.getMaxY shouldBe tr.tuvalAlanı.Y
+    cb.getWidth shouldBe tr.tuvalAlanı.en
+    cb.getHeight shouldBe tr.tuvalAlanı.boy
+    cb.getCenterX shouldBe (cb.x + cb.width / 2)
+    cb.getCenterY shouldBe (cb.y + cb.height / 2)
+    cb.getMaxY should be > cb.getMinY
+    // Test dünyasının tuvali kare: en/boy karışsa fark edilmezdi. Kare olmayanla da sına.
+    val r = new pixiscalajs.PIXI.Rectangle(10, 20, 30, 40)
+    (r.getMinX, r.getMinY, r.getMaxX, r.getMaxY) shouldBe ((10.0, 20.0, 40.0, 60.0))
+    (r.getCenterX, r.getCenterY, r.getWidth, r.getHeight) shouldBe ((25.0, 40.0, 30.0, 40.0))
+  }
 }
