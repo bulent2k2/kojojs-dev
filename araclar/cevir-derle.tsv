@@ -1,7 +1,7 @@
 # araclar/cevir-derle.py sonucu -- ELLE DÜZENLEMEYİN, --guncelle ile yenileyin
 # çevirmen: bulent2k2/kojo@21a431c4c636778af1826acfdadd519fcadffcaa
 # iKojo örnekleri (16): Türkçesi derlenen 16, çevirisi derlenen 12, çeviri açığı 4
-# masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 30, çeviri açığı 34
+# masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 32, çeviri açığı 32
 # "çeviri açığı": Türkçesi derleniyor, İngilizce çevirisi derlenmiyor
 betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
 01-ilk-adimlar.kojo	geçti	geçti	0		
@@ -48,7 +48,7 @@ masaustu/src/main/resources/samples/tr/angles.kojo	geçti	kaldı	4	28: value arc
 masaustu/src/main/resources/samples/tr/animated-square-creation.kojo	kaldı	kaldı	15	10: value linearGradient is not a member of object kojo.doodle.Color	36: not found: value Geçiş
 masaustu/src/main/resources/samples/tr/arduino-prog.kojo	ayrıştırma	ayrıştırma	1	13: To compile XML syntax, the scala.xml package must be on the classpath.	13: To compile XML syntax, the scala.xml package must be on the classpath.
 masaustu/src/main/resources/samples/tr/bounce-collision.kojo	geçti	geçti	0		
-masaustu/src/main/resources/samples/tr/bounce-friction.kojo	geçti	kaldı	8	11: value getMaxY is not a member of pixiscalajs.PIXI.Rectangle	
+masaustu/src/main/resources/samples/tr/bounce-friction.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/bounce-gravity.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/bounce-reflect.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/bounce-start.kojo	geçti	geçti	0		
@@ -64,7 +64,7 @@ masaustu/src/main/resources/samples/tr/eye.kojo	geçti	kaldı	1	9: value radialM
 masaustu/src/main/resources/samples/tr/face-multi.kojo	geçti	kaldı	8	36: value act is not a member of kojo.Turtle	
 masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	kaldı	3	28: not found: value flipX	28: not found: value yansıtX
 masaustu/src/main/resources/samples/tr/ferris-wheel.kojo	geçti	kaldı	1	1: not found: value runInBackground	
-masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	kaldı	2	13: too many arguments (found 2, expected 1) for method scale: (f: Double): kojo.PreDrawTransformc	25: not found: value aydınlık
+masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	kaldı	1	25: not found: value brit	25: not found: value aydınlık
 masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	kaldı	kaldı	7	52: not found: type CanvasDraw	52: not found: type TuvalÇizim
 masaustu/src/main/resources/samples/tr/fireworks.kojo	geçti	kaldı	4	56: value isDrawn is not a member of kojo.CirclePic	
 masaustu/src/main/resources/samples/tr/flappy-ball.kojo	geçti	kaldı	3	46: value intersects is not a member of kojo.BatchPics	
@@ -78,7 +78,7 @@ masaustu/src/main/resources/samples/tr/genart-tri-mesh.kojo	geçti	kaldı	3	15: 
 masaustu/src/main/resources/samples/tr/hunted-fp.kojo	kaldı	kaldı	7	41: not found: value net	41: not found: value net
 masaustu/src/main/resources/samples/tr/hunted.kojo	kaldı	kaldı	23	64: not found: value flipY	64: not found: value yansıtY
 masaustu/src/main/resources/samples/tr/image-collage.kojo	geçti	kaldı	4	10: not found: value setPenFont	
-masaustu/src/main/resources/samples/tr/image-right-split.kojo	geçti	kaldı	2	10: too many arguments (found 2, expected 1) for method scale: (f: Double): kojo.PreDrawTransformc	
+masaustu/src/main/resources/samples/tr/image-right-split.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/instruction-palette.kojo	ayrıştırma	ayrıştırma	1	33: To compile XML syntax, the scala.xml package must be on the classpath.	33: To compile XML syntax, the scala.xml package must be on the classpath.
 masaustu/src/main/resources/samples/tr/kojo-documentation.kojo	ayrıştırma	ayrıştırma	1	19: To compile XML syntax, the scala.xml package must be on the classpath.	19: To compile XML syntax, the scala.xml package must be on the classpath.
 masaustu/src/main/resources/samples/tr/kojo-kilavuz/duvar-tenisi.kojo	geçti	kaldı	2	34: value update is not a member of kojo.Picture	
@@ -135,7 +135,7 @@ masaustu/src/main/resources/samples/tr/tan-theta.kojo	geçti	kaldı	1	16: value 
 masaustu/src/main/resources/samples/tr/tangram-skier.kojo	kaldı	kaldı	6	55: not enough arguments for method trans: (x: Double, y: Double): kojo.PreDrawTransformc.	59: not found: value yansıtY
 masaustu/src/main/resources/samples/tr/tic-tac-toe.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/tree0.kojo	geçti	geçti	0		
-masaustu/src/main/resources/samples/tr/tree1.kojo	kaldı	kaldı	2	13: too many arguments (found 2, expected 1) for method scale: (f: Double): kojo.PreDrawTransformc	25: not found: value aydınlık
+masaustu/src/main/resources/samples/tr/tree1.kojo	kaldı	kaldı	1	25: not found: value brit	25: not found: value aydınlık
 masaustu/src/main/resources/samples/tr/tree2.kojo	kaldı	kaldı	1	27: value linearGradient is not a member of object kojo.doodle.Color	27: type mismatch;
 masaustu/src/main/resources/samples/tr/tune1.kojo	kaldı	kaldı	4	1: not found: value MusicScore	1: not found: value MusicScore
 masaustu/src/main/resources/samples/tr/tune2.kojo	kaldı	kaldı	7	2: not found: value MusicScore	2: not found: value MusicScore
