@@ -8,10 +8,15 @@
 // notayı bir ZAMAN ÇİZELGESİNE yazıp hemen döner. Döngü birkaç milisaniyede
 // biter, melodi ise yarım dakika çalar. Bu yüzden melodinin ne kadar süreceğini
 // `buAn - başlangıç` ile ölçemezsin: o, notaları sıraya koyma süresidir.
-// Çalacak notaların toplam süresini `kalanNotaSüresi` söyler (milisaniye).
+// Çalacak notaların toplam süresini `kalanNotaSüresi` söyler (milisaniye;
+// tarayıcı sesi açtıktan sonra birkaç ms oynayabilir, o yüzden "yaklaşık").
 //
-// ES: listede perde yerine -1 yazılan satır notaSus'a gidiyor: ses çıkarmadan
-// o kadar bekler. (Eskiden bunun için duyulmayacak kadar kalın bir nota çalınırdı.)
+// TEKRAR ÇALIŞTIRMA: notalar sıraya yazıldığı için melodi çalarken Çalıştır'a
+// yeniden basarsan ikinci melodi birincinin ARDINA eklenir. Betik bu yüzden
+// başta stopNotePlayer() ile sıradaki notaları siler.
+//
+// ES: perde olarak -1 yazılan (es, süre) çifti notaSus'a gidiyor: ses
+// çıkarmadan o kadar bekler.
 //
 // AKOR: aynı anda birkaç nota çalmak için akorÇal ve beraberÇal var; melodinin
 // altına bas eklemek gibi. Masaüstünde yok, yalnız iKojo'da:
@@ -70,6 +75,7 @@ tanım melodiyiÇal(parça: Diz[(Sayı, Sayı)]): Birim = {
   }
 }
 
+stopNotePlayer()
 notaÇalgısınıKur(Çalgı.Piyano)
 melodiyiÇal(melodi())
-satıryaz(s"Melodi ${kalanNotaSüresi / 1000.0} saniye sürecek")
+satıryaz(s"Melodi yaklaşık ${kalanNotaSüresi / 1000.0} saniye sürecek")

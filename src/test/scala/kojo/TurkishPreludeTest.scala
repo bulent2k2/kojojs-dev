@@ -553,7 +553,15 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
 
     val Çevrimdışı = js.Dynamic.global.OfflineAudioContext
     if (js.isUndefined(Çevrimdışı)) cancel("OfflineAudioContext yok")
-    builtins.notaÇalar.bağlam = js.Dynamic.newInstance(Çevrimdışı)(1, 44100, 44100)
+    val bağlam = js.Dynamic.newInstance(Çevrimdışı)(1, 44100, 44100)
+    // Kaç osilatör (= gerçekten çalan nota) yaratıldığını say: es SESSİZ olmalı.
+    var osilatörSayısı = 0
+    val özgünOsilatör = bağlam.createOscillator
+    bağlam.updateDynamic("createOscillator")({ () =>
+      osilatörSayısı += 1
+      özgünOsilatör.call(bağlam)
+    }: js.Function0[js.Any])
+    builtins.notaÇalar.bağlam = bağlam
 
     def melodi(): Diz[(Sayı, Sayı)] = {
       val bir = 500
@@ -604,18 +612,24 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       }
     }
 
+    stopNotePlayer()
     notaÇalgısınıKur(Çalgı.Piyano)
     val parça = melodi()
-    // Melodinin kendisi: bir düzenleme notaları sessizce değiştirmesin.
+    // Melodinin kendisi: uzunluk, es sayısı, ilk/son nota, toplam süre ve iki
+    // konum ağırlıklı toplam (perde ve süre dizilişi: ortadaki bir nota ya da
+    // toplamı koruyan bir süre değişimi de yakalanır).
     parça.size shouldBe 101
     parça.count(_._1 < 0) shouldBe 1
     parça.head shouldBe ((60, 1000))
     parça.last shouldBe ((67, 500))
     parça.map(_._2).sum shouldBe 33250
+    parça.zipWithIndex.map { case ((nota, _), i) => (i + 1) * nota }.sum shouldBe 342972
+    parça.zipWithIndex.map { case ((_, süre), i) => (i + 1) * süre }.sum shouldBe 1722125
 
     melodiyiÇal(parça)
     kalanNotaSüresi shouldBe 33250 // es dahil: toplam süre, sıraya koyma süresi değil
-    satıryaz(s"Melodi ${kalanNotaSüresi / 1000.0} saniye sürecek")
+    osilatörSayısı shouldBe 100 // 101 notadan biri es: ses çıkarmıyor
+    satıryaz(s"Melodi yaklaşık ${kalanNotaSüresi / 1000.0} saniye sürecek")
 
     succeed
   }
