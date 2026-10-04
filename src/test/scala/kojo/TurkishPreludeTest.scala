@@ -612,7 +612,7 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       }
     }
 
-    stopNotePlayer()
+    notaÇalıcıyıDurdur()
     notaÇalgısınıKur(Çalgı.Piyano)
     val parça = melodi()
     // Melodinin kendisi: uzunluk, es sayısı, ilk/son nota, toplam süre ve iki

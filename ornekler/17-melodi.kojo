@@ -13,7 +13,7 @@
 //
 // TEKRAR ÇALIŞTIRMA: notalar sıraya yazıldığı için melodi çalarken Çalıştır'a
 // yeniden basarsan ikinci melodi birincinin ARDINA eklenir. Betik bu yüzden
-// başta stopNotePlayer() ile sıradaki notaları siler.
+// başta notaÇalıcıyıDurdur() ile sıradaki notaları siler.
 //
 // ES: perde olarak -1 yazılan (es, süre) çifti notaSus'a gidiyor: ses
 // çıkarmadan o kadar bekler.
@@ -75,7 +75,7 @@ tanım melodiyiÇal(parça: Diz[(Sayı, Sayı)]): Birim = {
   }
 }
 
-stopNotePlayer()
+notaÇalıcıyıDurdur()
 notaÇalgısınıKur(Çalgı.Piyano)
 melodiyiÇal(melodi())
 satıryaz(s"Melodi yaklaşık ${kalanNotaSüresi / 1000.0} saniye sürecek")

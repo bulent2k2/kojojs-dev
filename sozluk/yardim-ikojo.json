@@ -1,0 +1,58 @@
+{
+  "notaÇal": {
+    "tür": "komut",
+    "imza": "notaÇal(nota, süreMiliSaniye, ses = 80)",
+    "açıklama": "Bir notayı Web Audio ile çalar. nota MIDI perdesidir (60 = orta do, 69 = la, 440 Hz), ses 0-127. BEKLEMEZ: notayı bir zaman çizelgesine yazıp hemen döner; notalar birbirinin ardına çalar (masaüstündeki gibi). Süreyi ölçmek için buAn değil kalanNotaSüresi kullan.",
+    "örnek": "notaÇalgısınıKur(Çalgı.Piyano)\nnotaÇal(60, 500)\nnotaÇal(64, 500)\nnotaÇal(67, 1000)",
+    "sonuç": "do-mi-sol arpej, toplam 2 saniye",
+    "not": "Tarayıcılar sesi ilk tıklamadan sonra açar; sıraya girenler o zaman çalmaya başlar."
+  },
+  "notaÇalgısınıKur": {
+    "tür": "komut",
+    "imza": "notaÇalgısınıKur(çalgı)",
+    "açıklama": "Bundan sonraki notaÇal çağrılarının çalgısını seçer (0-127; Çalgı.Piyano, Çalgı.ElektroPiyano, Çalgı.AkustikBas…). Web Audio'da kaba bir yaklaşım: çalgı bir dalga biçimine eşlenir.",
+    "örnek": "notaÇalgısınıKur(Çalgı.ElektroPiyano)\nnotaÇal(60, 500)",
+    "sonuç": "",
+    "not": ""
+  },
+  "notaSus": {
+    "tür": "komut",
+    "imza": "notaSus(süreMiliSaniye)",
+    "açıklama": "Sessiz bekleyiş (es): ses çıkarmaz, sıradaki nota süre kadar sonra başlar. Melodi listesinde es'i göstermek için perde yerine -1 yazıp notaSus'a yönlendirmek yaygın.",
+    "örnek": "notaÇal(60, 250)\nnotaSus(250)\nnotaÇal(67, 500)",
+    "sonuç": "do, çeyrek es, sol",
+    "not": "Yalnız iKojo'da; masaüstünde karşılığı yok."
+  },
+  "akorÇal": {
+    "tür": "komut",
+    "imza": "akorÇal(notalar, süreMiliSaniye, ses = 80)",
+    "açıklama": "Notaların HEPSİ aynı anda başlar ve aynı süre çalar; sonraki nota o kadar sonra başlar. Ses düzeyi nota sayısının karekökü kadar bölünür, yani akor tek nota kadar yüksek çalar (çok kalabalık akorda cızırdamasın diye daha da kısılır). Listedeki her nota 0-127 olmalı; biri dışarıdaysa hiçbiri çalmaz.",
+    "örnek": "akorÇal(Dizi(48, 52, 55), 1000)",
+    "sonuç": "do majör, 1 saniye",
+    "not": "Yalnız iKojo'da; masaüstünde karşılığı yok."
+  },
+  "beraberÇal": {
+    "tür": "komut",
+    "imza": "beraberÇal(süreliNotalar, ses = 80)",
+    "açıklama": "(nota, süre) çiftlerinin hepsi aynı anda başlar, her nota kendi süresince çalar; sonraki nota EN UZUN notanın bitişinde başlar. Melodiyle bası beraber çalmak için. Önce hepsi doğrulanır: biri sınır dışıysa hiçbiri çalmaz; boş liste bir şey yapmaz.",
+    "örnek": "beraberÇal(Dizi((67, 500), (43, 1000)))",
+    "sonuç": "sol 0,5 sn, bas 1 sn; sonraki nota 1 sn sonra",
+    "not": "Yalnız iKojo'da; masaüstünde karşılığı yok."
+  },
+  "kalanNotaSüresi": {
+    "tür": "komut",
+    "imza": "kalanNotaSüresi",
+    "açıklama": "Sıradaki notaların bitmesine kalan süre (milisaniye); çalan yoksa 0. Nota döngüsünden hemen sonra çağrılırsa melodinin toplam süresidir. buAn - başlangıç bunu vermez: notaÇal beklemediği için o fark yalnız notaları sıraya koyma süresidir.",
+    "örnek": "notaÇal(60, 500)\nnotaÇal(64, 500)\nkalanNotaSüresi",
+    "sonuç": "1000 (tarayıcı sesi açtıktan sonra birkaç ms daha az olabilir)",
+    "not": "Yalnız iKojo'da; masaüstünde karşılığı yok."
+  },
+  "notaÇalıcıyıDurdur": {
+    "tür": "komut",
+    "imza": "notaÇalıcıyıDurdur()",
+    "açıklama": "Çalmakta olan ve sıradaki bütün notaları susturur, zaman imlecini sıfırlar: bundan sonraki notaÇal hemen çalar. notaÇalıcıyıKapat ile aynı. Masaüstünde Çalıştır/Durdur bunu kendiliğinden yapar; iKojo'da betik kendisi çağırmalı, yoksa melodi çalarken Çalıştır'a basınca ikinci melodi birincinin ardına eklenir.",
+    "örnek": "notaÇal(60, 5000)\nnotaÇalıcıyıDurdur()\nnotaÇal(64, 500)",
+    "sonuç": "ilk nota susar, mi hemen çalar",
+    "not": "Masaüstünde İngilizce adıyla var: stopNotePlayer."
+  }
+}

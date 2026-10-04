@@ -1,8 +1,8 @@
 package kojo
 
 /**
- * sozluk/yardim.json'daki yöntem örneklerinin iKojo API'sine karşı
- * DERLENDİĞİNİ sınar. Sözlük her örneğin altına "Örnek sınanıyor" yazıyor;
+ * sozluk/yardim.json'daki yöntem örneklerinin ve sozluk/yardim-ikojo.json'daki
+ * iKojo komutu örneklerinin iKojo API'sine karşı DERLENDİĞİNİ sınar. Sözlük her örneğin altına "Örnek sınanıyor" yazıyor;
  * bu dosya o sözü iKojo tarafında da tutuyor.
  *
  * Üretilmiştir; kaynak: araclar/yardim-derleme-uret.py
@@ -26,7 +26,8 @@ object YardimOrnekDerlemeDeneme
     with kojo.tr.DizimYöntemleri
     with kojo.tr.MiskinDizinYöntemleri
     with kojo.tr.KuyrukYöntemleri
-    with kojo.tr.DizikYöntemleri {
+    with kojo.tr.DizikYöntemleri
+    with kojo.tr.SesYöntemleri {
 
   // adımı
   def y_ad_m_(): Any = {
@@ -976,5 +977,50 @@ object YardimOrnekDerlemeDeneme
   // önüneEkleHepsini
   def y__n_neEkleHepsini(): Any = {
     Dizin(3, 4).önüneEkleHepsini(Dizin(1, 2))
+  }
+
+  // akorÇal
+  def y_akor_al(): Any = {
+    akorÇal(Dizi(48, 52, 55), 1000)
+  }
+
+  // beraberÇal
+  def y_beraber_al(): Any = {
+    beraberÇal(Dizi((67, 500), (43, 1000)))
+  }
+
+  // kalanNotaSüresi
+  def y_kalanNotaS_resi(): Any = {
+    notaÇal(60, 500)
+    notaÇal(64, 500)
+    kalanNotaSüresi
+  }
+
+  // notaSus
+  def y_notaSus(): Any = {
+    notaÇal(60, 250)
+    notaSus(250)
+    notaÇal(67, 500)
+  }
+
+  // notaÇal
+  def y_nota_al(): Any = {
+    notaÇalgısınıKur(Çalgı.Piyano)
+    notaÇal(60, 500)
+    notaÇal(64, 500)
+    notaÇal(67, 1000)
+  }
+
+  // notaÇalgısınıKur
+  def y_nota_alg_s_n_Kur(): Any = {
+    notaÇalgısınıKur(Çalgı.ElektroPiyano)
+    notaÇal(60, 500)
+  }
+
+  // notaÇalıcıyıDurdur
+  def y_nota_al_c_y_Durdur(): Any = {
+    notaÇal(60, 5000)
+    notaÇalıcıyıDurdur()
+    notaÇal(64, 500)
   }
 }
