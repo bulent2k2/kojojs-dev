@@ -116,4 +116,74 @@ class IngilizceYuzeyTest extends AsyncFunSuite with Matchers {
     (r.getMinX, r.getMinY, r.getMaxX, r.getMaxY) shouldBe ((10.0, 20.0, 40.0, 60.0))
     (r.getCenterX, r.getCenterY, r.getWidth, r.getHeight) shouldBe ((25.0, 40.0, 30.0, 40.0))
   }
+
+  test("Picture.update: yazı resminde çalışır (dönüştürücü içinden de), ötekilerde masaüstü gibi desteklenmiyor") {
+    val b = yeni()
+    import b._
+    val yazı = Picture.text("ilk")
+    val sarılı: Picture = trans(1, 1) * penColor(kojo.doodle.Color.red) -> yazı // duvar-tenisi.kojo'daki biçim
+    sarılı.update("ikinci")
+    yazı.textNode.text shouldBe "ikinci"
+    // Türkçe güncelle aynı yere yazıyor
+    val tr = b.trTurtle
+    val trYazı = Picture.text("a")
+    tr.ResimMetotları(trYazı).güncelle("tr")
+    trYazı.textNode.text shouldBe "tr"
+    // yazı olmayan: masaüstü notSupported = UnsupportedOperationException
+    an[UnsupportedOperationException] should be thrownBy Picture.rectangle(10, 10).update("x")
+    an[UnsupportedOperationException] should be thrownBy (trans(1, 1) -> Picture.rectangle(10, 10)).update("x")
+  }
+
+  test("Turtle.act / react = Türkçe davran / tepkiVer") {
+    class KareDünya extends TestKojoWorld {
+      var kare: Option[() => Unit] = None
+      override def animate(fn: => Unit): Unit = kare = Some(() => fn)
+    }
+    implicit val dünya: KareDünya = new KareDünya
+    val b = new Builtins()
+    b.turtle0.setAnimationDelay(0)
+    val t = b.newTurtle(0, 0)
+    var çalışma = 0
+    t.act { k => çalışma += 1; k.forward(10) } // bir kez, hemen
+    çalışma shouldBe 1
+    t.react { k => k.forward(1) }
+    dünya.kare should not be empty
+    dünya.kare.foreach { f => f(); f(); f() } // 3 kare
+    oku(t).map { p => p._1 shouldBe 0.0 +- 1e-9; p._2 shouldBe 13.0 +- 1e-9 }
+  }
+
+  test("Color.*Gradient: Türkçe Renk.* değişimlerle aynı boya; fillColor/setFillColor Boya alır") {
+    import kojo.doodle.Color
+    implicit val dünya: KojoWorld = new TestKojoWorld()
+    val b = new Builtins()
+    val tr = b.trTurtle
+    def özet(boya: Boya): Any = boya match {
+      case DüzBoya(r)         => ("düz", r)
+      case DokuBoya(_, m, y)  => ("doku", y, m.a, m.b, m.c, m.d, m.tx, m.ty)
+    }
+    val d = Seq(0.0, 0.7, 1.0)
+    val r = Seq(Color.red, Color.green, Color.blue)
+    özet(Color.linearGradient(0, 0, Color.red, 10, 20, Color.blue, true)) shouldBe
+      özet(tr.Renk.doğrusalDeğişim(0, 0, Color.red, 10, 20, Color.blue, true))
+    özet(Color.radialGradient(5, 6, Color.red, 40, Color.blue)) shouldBe
+      özet(tr.Renk.merkezdenDışarıDoğruDeğişim(5, 6, Color.red, 40, Color.blue))
+    özet(Color.linearMultipleGradient(0, 0, 30, 40, d, r)) shouldBe
+      özet(tr.Renk.doğrusalÇokluDeğişim(0, 0, 30, 40, d, r))
+    özet(Color.radialMultipleGradient(0, 0, 25, d, r, true)) shouldBe
+      özet(tr.Renk.merkezdenDışarıDoğruÇokluDeğişim(0, 0, 25, d, r, true))
+    // farklı girdi farklı boya (karşılaştırma boş değil): yarıçap matrisi değiştiriyor
+    if (PixiUyum.beşVeÜstü)
+      özet(Color.radialGradient(0, 0, Color.red, 40, Color.blue)) should not be
+        özet(Color.radialGradient(0, 0, Color.red, 80, Color.blue))
+
+    // Boya setFillColor / fillColor üzerinden setFillPaint'e gidiyor
+    class Casus extends TextPic("a", 15, Color.red) {
+      var gelen: Option[Boya] = None
+      override def setFillPaint(boya: Boya): Unit = gelen = Some(boya)
+    }
+    val g = Color.linearGradient(0, 0, Color.red, 1, 1, Color.blue)
+    val c1 = new Casus; c1.setFillColor(g); c1.gelen shouldBe Some(g)
+    // dönüştürücü işlevi çizim anında koşuyor
+    val c2 = new Casus; (b.fillColor(g) -> c2).draw(); c2.gelen shouldBe Some(g)
+  }
 }
