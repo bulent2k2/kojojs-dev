@@ -175,6 +175,18 @@ jobs:
       - name: yardım gezinti şeridi her yerde aynı sırada mı
         run: python3 araclar/gezinti-denetle.py --editor kojojs-editor
 
+      # Editördeki ÜRETİLMİŞ Yardım sayfaları (yardimSkala, yardimKomutlar,
+      # yardimOrnekler) bu depodaki üreteçlerin çıktısı ve editöre ELLE
+      # kopyalanıyor; yenilenmezse sayfa açılıyor, yalnız eski içerik
+      # gösteriliyor ve hiçbir şey kırmızı yanmıyordu. Ekim 2026'da üç sayfa
+      # bayat bulundu: "ikojo" yerine "iKojo" yazımı (Skala 15, Komutlar 18
+      # satır), dört yeni örnek ve bir cümle. Üretim geçici bir kopyada koşuyor,
+      # editör klonuna dokunmuyor. Klonsuz yalnız yardimSkala ve yardimKomutlar
+      # denetlenir; yardimOrnekler için masaüstü klonu gerekiyor (aşağıda,
+      # yalnız push'ta). Aynı BEDEL: editörün varsayılan dalının başını alıyor.
+      - name: editördeki üretilmiş Yardım sayfaları üreteçle aynı mı (Skala, Komutlar)
+        run: python3 araclar/editor-uretilmis-denetle.py --editor kojojs-editor
+
       - name: sözlükteki gömülü YARDIM bloğu yardim.json ile aynı mı
         run: python3 araclar/sozluk-denetle.py
 
@@ -291,6 +303,14 @@ jobs:
       - name: masaüstünde de tuş adları deve yazımda mı
         if: github.event_name == 'push'
         run: python3 araclar/tus-yazim-denetle.py kojo-kaynak
+
+      # yardimOrnekler'in tazeliği: ornekler.py örnek başlıklarını masaüstü
+      # klonundan (Bundle_tr.properties) okuyor, yani yukarıdaki klonsuz adım
+      # onu göremiyor. Klon yalnız push'ta çekildiği için burada da yalnız
+      # push'ta; PR'larda yardimOrnekler denetlenmez (betik bunu açıkça yazar).
+      - name: editördeki üretilmiş Yardım sayfaları üreteçle aynı mı (üçü de)
+        if: github.event_name == 'push'
+        run: python3 araclar/editor-uretilmis-denetle.py --editor kojojs-editor --kojo kojo-kaynak
 
       # kilavuz/html/ornekler.html ÜRETİLMİŞ ama üreteci (kilavuz/ornekler.py)
       # bu işte hiç koşmuyordu: listeyi ornekler/README.md tablosundan, başlıkları
