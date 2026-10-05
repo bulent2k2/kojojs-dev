@@ -1,7 +1,7 @@
 # araclar/cevir-derle.py sonucu -- ELLE DÜZENLEMEYİN, --guncelle ile yenileyin
-# çevirmen: bulent2k2/kojo@c009316c1d6ddcbc5a6dbe0eb7fdefc40ce54673
+# çevirmen: bulent2k2/kojo@f50c8fd10d9269c02aa2b7018c6b7daa4dc5bbc1
 # iKojo örnekleri (17): Türkçesi derlenen 17, çevirisi derlenen 14, çeviri açığı 3
-# masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 47, çeviri açığı 17
+# masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 49, çeviri açığı 15
 # "çeviri açığı": Türkçesi derleniyor, İngilizce çevirisi derlenmiyor
 betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
 01-ilk-adimlar.kojo	geçti	geçti	0		
@@ -26,13 +26,13 @@ masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	kaldı	
 masaustu/installer/examples/othello/menu_tr.kojo.installed	ayrıştırma	ayrıştırma	1	6: To compile XML syntax, the scala.xml package must be on the classpath.	6: To compile XML syntax, the scala.xml package must be on the classpath.
 masaustu/installer/examples/othello/tr/alfabeta.kojo	kaldı	kaldı	184	6: not found: type Oda	6: not found: type Oda
 masaustu/installer/examples/othello/tr/anaTanimlar.kojo	geçti	geçti	0		
-masaustu/installer/examples/othello/tr/araYuz.kojo	kaldı	kaldı	77	7: not found: type ETahta	7: not found: type ETahta
+masaustu/installer/examples/othello/tr/araYuz.kojo	kaldı	kaldı	76	7: not found: type ETahta	7: not found: type ETahta
 masaustu/installer/examples/othello/tr/bellek.kojo	kaldı	kaldı	6	4: not found: type ETahta	4: not found: type ETahta
 masaustu/installer/examples/othello/tr/durum.kojo	kaldı	kaldı	5	3: not found: type Tahta	3: not found: type Tahta
 masaustu/installer/examples/othello/tr/eTahta.kojo	kaldı	kaldı	125	6: not found: type Taş	6: not found: type Taş
 masaustu/installer/examples/othello/tr/otello.kojo	kaldı	kaldı	7	9: not found: value Siyah	9: not found: value Siyah
 masaustu/installer/examples/othello/tr/tahta.kojo	kaldı	kaldı	141	5: type Vector takes type parameters	6: not found: type Taş
-masaustu/installer/examples/tiledgame/game_tr.kojo.installed	kaldı	kaldı	9	7: not found: value installDir	7: not found: value kurulumDizini
+masaustu/installer/examples/tiledgame/game_tr.kojo.installed	kaldı	kaldı	7	7: not found: value installDir	7: not found: value kurulumDizini
 masaustu/src/main/resources/challenge/tr/get-started.kojo	ayrıştırma	ayrıştırma	1	153: To compile XML syntax, the scala.xml package must be on the classpath.	153: To compile XML syntax, the scala.xml package must be on the classpath.
 masaustu/src/main/resources/challenge/tr/oykucu.kojo	ayrıştırma	ayrıştırma	1	80: To compile XML syntax, the scala.xml package must be on the classpath.	80: To compile XML syntax, the scala.xml package must be on the classpath.
 masaustu/src/main/resources/ka-bridge/tr/sample.kojo	kaldı	kaldı	27	5: not found: value pinMode	5: not found: value pinMode
@@ -42,7 +42,7 @@ masaustu/src/main/resources/mathgames/tr/make-fractions.kojo	kaldı	kaldı	22	10
 masaustu/src/main/resources/robosim/tr/cevre.kojo	geçti	geçti	0		
 masaustu/src/main/resources/robosim/tr/obstacle-furthest.kojo	kaldı	kaldı	3	17: not found: value duvarlar	17: not found: value duvarlar
 masaustu/src/main/resources/robosim/tr/obstacle-greedy.kojo	kaldı	kaldı	3	17: not found: value duvarlar	17: not found: value duvarlar
-masaustu/src/main/resources/robosim/tr/robot.kojo	kaldı	kaldı	2	13: value showAxes is not a member of kojo.Picture	13: value eksenleriGöster is not a member of kojo.Picture
+masaustu/src/main/resources/robosim/tr/robot.kojo	kaldı	kaldı	1	13: value showAxes is not a member of kojo.Picture	13: value eksenleriGöster is not a member of kojo.Picture
 masaustu/src/main/resources/samples/tr/addition-game.kojo	kaldı	kaldı	11	44: not found: value ay	44: not found: value ay
 masaustu/src/main/resources/samples/tr/angle-experiment.kojo	kaldı	kaldı	2	23: value length is not a member of pixiscalajs.PIXI.Rectangle	34: not found: value doğrultu
 masaustu/src/main/resources/samples/tr/angles.kojo	geçti	geçti	0		
@@ -54,7 +54,7 @@ masaustu/src/main/resources/samples/tr/bounce-gravity.kojo	geçti	geçti	0
 masaustu/src/main/resources/samples/tr/bounce-reflect.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/bounce-start.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/bounce-table.kojo	geçti	geçti	0		
-masaustu/src/main/resources/samples/tr/car-ride.kojo	geçti	kaldı	1	93: value stopAnimation is not a member of kojo.Mp3Player	
+masaustu/src/main/resources/samples/tr/car-ride.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/circles.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/collidium.kojo	geçti	kaldı	3	29: not found: value TexturePaint	
 masaustu/src/main/resources/samples/tr/crazy-square.kojo	geçti	geçti	0		
@@ -66,8 +66,8 @@ masaustu/src/main/resources/samples/tr/face-multi.kojo	geçti	geçti	0
 masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	kaldı	3	28: not found: value flipX	28: not found: value yansıtX
 masaustu/src/main/resources/samples/tr/ferris-wheel.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	kaldı	1	25: not found: value brit	25: not found: value aydınlık
-masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	kaldı	kaldı	7	52: not found: type CanvasDraw	52: not found: type TuvalÇizim
-masaustu/src/main/resources/samples/tr/fireworks.kojo	geçti	kaldı	4	56: value isDrawn is not a member of kojo.CirclePic	
+masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	kaldı	kaldı	4	52: not found: type CanvasDraw	52: not found: type TuvalÇizim
+masaustu/src/main/resources/samples/tr/fireworks.kojo	geçti	kaldı	1	56: value isDrawn is not a member of kojo.CirclePic	
 masaustu/src/main/resources/samples/tr/flappy-ball.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/genart-cubic-disarray.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/genart-delaunay.kojo	kaldı	kaldı	2	9: not found: value onMouseClick	9: not found: value fareyeTıklıyınca
@@ -75,9 +75,9 @@ masaustu/src/main/resources/samples/tr/genart-hypnotic-squares.kojo	kaldı	kald�
 masaustu/src/main/resources/samples/tr/genart-joy-division.kojo	geçti	kaldı	5	23: type mismatch;	
 masaustu/src/main/resources/samples/tr/genart-mondrian.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/genart-tiled-lines.kojo	geçti	kaldı	1	19: value length is not a member of cevirdenetimi.E070.Köşegen	
-masaustu/src/main/resources/samples/tr/genart-tri-mesh.kojo	geçti	kaldı	3	15: too many arguments (found 2, expected 1) for method empty: (implicit evidence$4: scala.reflect.ClassTag[cevirdenetimi.E071.Point]): Array[cevirdenetimi.E071.Point]	
+masaustu/src/main/resources/samples/tr/genart-tri-mesh.kojo	geçti	kaldı	2	56: value setPosition is not a member of pixiscalajs.PIXI.Graphics	
 masaustu/src/main/resources/samples/tr/hunted-fp.kojo	kaldı	kaldı	7	41: not found: value net	41: not found: value net
-masaustu/src/main/resources/samples/tr/hunted.kojo	kaldı	kaldı	20	64: not found: value flipY	64: not found: value yansıtY
+masaustu/src/main/resources/samples/tr/hunted.kojo	kaldı	kaldı	19	64: not found: value flipY	64: not found: value yansıtY
 masaustu/src/main/resources/samples/tr/image-collage.kojo	geçti	kaldı	4	10: not found: value setPenFont	
 masaustu/src/main/resources/samples/tr/image-right-split.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/instruction-palette.kojo	ayrıştırma	ayrıştırma	1	33: To compile XML syntax, the scala.xml package must be on the classpath.	33: To compile XML syntax, the scala.xml package must be on the classpath.
@@ -94,9 +94,9 @@ masaustu/src/main/resources/samples/tr/l-systems.kojo	kaldı	kaldı	2	40: value 
 masaustu/src/main/resources/samples/tr/lamp-animation.kojo	kaldı	kaldı	7	10: value setPosition is not a member of pixiscalajs.PIXI.Graphics	11: value yayÇiz is not a member of pixiscalajs.PIXI.Graphics
 masaustu/src/main/resources/samples/tr/lamp-animation2.kojo	kaldı	kaldı	5	35: not found: value Transition	35: not found: value Geçiş
 masaustu/src/main/resources/samples/tr/lighted-star.kojo	kaldı	kaldı	3	17: not found: value SpotLight	17: not found: value SahneIşığı
-masaustu/src/main/resources/samples/tr/lunar-lander.kojo	geçti	kaldı	1	63: value setVisible is not a member of kojo.Picture	
+masaustu/src/main/resources/samples/tr/lunar-lander.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/mandelbrot.kojo	kaldı	kaldı	22	144: type mismatch;	136: not found: type İmge
-masaustu/src/main/resources/samples/tr/memory-cards.kojo	geçti	kaldı	6	12: value length is not a member of pixiscalajs.PIXI.Rectangle	
+masaustu/src/main/resources/samples/tr/memory-cards.kojo	geçti	kaldı	5	12: value length is not a member of pixiscalajs.PIXI.Rectangle	
 masaustu/src/main/resources/samples/tr/multiplication-game.kojo	kaldı	kaldı	11	44: not found: value ay	44: not found: value ay
 masaustu/src/main/resources/samples/tr/nbody-four-by-hand.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/nbody-four.kojo	geçti	geçti	0		
