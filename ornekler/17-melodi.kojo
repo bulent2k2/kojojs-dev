@@ -76,7 +76,7 @@ tanım melodiyiÇal(parça: Diz[(Sayı, Sayı)]): Birim = {
   }
 }
 
-notaÇalarıKapat() // önceki notaları sil: melodiyi bir düğmeden yeniden başlatırken gerekir
+notaÇalarıKapat() // sıra burada zaten boş; melodiyi bir düğmeden yeniden başlatırken gerekir
 notaÇalgısınıKur(Çalgı.Piyano)
 melodiyiÇal(melodi())
 satıryaz(s"Melodi yaklaşık ${kalanNotaSüresi / 1000.0} saniye sürecek")

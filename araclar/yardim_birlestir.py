@@ -19,11 +19,12 @@ import json
 import os
 
 ALANLAR_KOMUT = ('imza', 'açıklama', 'örnek')  # sonuç ve not isteğe bağlı
+İZİNLİ_ALANLAR = ('tür', 'imza', 'açıklama', 'örnek', 'sonuç', 'not')
 
 
 def satir(ad, girdi):
     s = json.dumps(girdi, ensure_ascii=False, separators=(',', ':'))
-    return '  %s:%s' % (json.dumps(ad, ensure_ascii=False), s.replace('<', '\\u003c'))
+    return '  %s:%s' % (json.dumps(ad, ensure_ascii=False).replace('<', '\\u003c'), s.replace('<', '\\u003c'))
 
 
 def ikojoGirdileri(yol):
@@ -32,6 +33,10 @@ def ikojoGirdileri(yol):
     for ad, g in veri.items():
         if g.get('tür') != 'komut':
             raise SystemExit("%s: %s için tür 'komut' olmalı" % (os.path.basename(yol), ad))
+        bilinmeyen = [a for a in g if a not in İZİNLİ_ALANLAR]
+        if bilinmeyen:
+            raise SystemExit('%s: %s için bilinmeyen alan: %s (izinli: %s)' % (
+                os.path.basename(yol), ad, ', '.join(bilinmeyen), ', '.join(İZİNLİ_ALANLAR)))
         eksik = [a for a in ALANLAR_KOMUT if not g.get(a)]
         if eksik:
             raise SystemExit('%s: %s için alan eksik: %s' % (os.path.basename(yol), ad, ', '.join(eksik)))

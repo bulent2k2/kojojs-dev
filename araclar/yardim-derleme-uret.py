@@ -119,6 +119,8 @@ def main():
     if os.path.exists(ikojoYolu):
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         import yardim_birlestir
+        # birlesik: yardim.json ile anahtar çakışırsa (ve alan/tür hatalarında) SESLİ hata
+        yardim_birlestir.birlesik(io.open(kaynak, encoding='utf-8').read(), ikojoYolu)
         komutlar = [(ad, g['örnek']) for ad, g in sorted(yardim_birlestir.ikojoGirdileri(ikojoYolu).items())]
 
     def adı(ad):

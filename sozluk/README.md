@@ -53,8 +53,9 @@ Yenilemek için (kojo deposunda):
     ./sbt.sh 'Test/runMain net.kogics.kojo.araclar.YardımDışaAktar \
               <kojojs-dev>/sozluk/yardim.json'
 
-sonra koco-sozlugu.html içindeki `const YARDIM = {...}` bloğunu bu dosyayla
-değiştirin (tek dosya kalsın diye gömülü: sayfa hem iframe'de hem file://
+sonra `araclar/yardim-gom.py` çalıştırın: koco-sozlugu.html içindeki
+`const YARDIM = {...}` bloğunu yardim.json (+ aşağıdaki yardim-ikojo.json) ile
+doldurur (tek dosya kalsın diye gömülü: sayfa hem iframe'de hem file://
 ile açılıyor, fetch çalışmazdı).
 
 ### iKojo'ya özgü paneller: `yardim-ikojo.json`
@@ -64,7 +65,7 @@ komutların (`akorÇal`, `beraberÇal`, `notaSus`, `kalanNotaSüresi`) paneli or
 yaşayamaz. Onlar ELLE yazılan `yardim-ikojo.json`'da: `tür` her zaman `"komut"`,
 alanlar `imza`, `açıklama`, `örnek` (zorunlu), `sonuç`, `not` (isteğe bağlı).
 Aynı dosya iKojo'da masaüstüyle ortak olan ses adlarının (`notaÇal`,
-`notaÇalgısınıKur`, `notaÇalarıDurdur`) iKojo'ya göre yazılmış panellerini de
+`notaÇalgısınıKur`, `notaÇalarıKapat`) iKojo'ya göre yazılmış panellerini de
 taşıyor. Masaüstü `help.scala`'sında bu adların paneli yok; orada eklenirse
 iki dosyada aynı anahtar olur ve araçlar hata verir (sessizce ezmek yok).
 

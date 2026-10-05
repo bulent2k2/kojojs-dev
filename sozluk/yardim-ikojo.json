@@ -53,6 +53,6 @@
     "açıklama": "Çalmakta olan ve sıradaki bütün notaları susturur, zaman imlecini sıfırlar: bundan sonraki notaÇal hemen çalar. notaÇalarıDurdur ile aynı. Çalıştır ve Durdur düğmeleri için gerekmez (ikisi de sayfayı yeniden yükleyip sesi keser); betiğin kendi içinden, örneğin bir düğmeyle melodiyi baştan başlatırken ya da yarıda kesmek isterken kullanılır.",
     "örnek": "notaÇal(60, 5000)\nnotaÇalarıKapat()\nnotaÇal(64, 500)",
     "sonuç": "ilk nota susar, mi hemen çalar",
-    "not": "Masaüstünde İngilizce adıyla var: stopNotePlayer."
+    "not": "Masaüstünde de var (stopNotePlayer)."
   }
 }
