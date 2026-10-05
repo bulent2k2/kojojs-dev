@@ -289,7 +289,7 @@ class IngilizceYuzeyTest extends AsyncFunSuite with Matchers {
     val s: collection.Seq[String] = collection.Seq("a", "b", "c")
     val karisik: collection.Seq[String] = b.shuffle(s)
     karisik.sorted shouldBe s
-    // Array de (masaüstündeki gibi koleksiyon sayılır) ve boş koleksiyon patlamıyor
+    // boş koleksiyon patlamıyor (Array ile çağrı bu testte DENENMİYOR)
     b.shuffle(Vector.empty[Int]) shouldBe Vector.empty[Int]
   }
 }
