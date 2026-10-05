@@ -178,6 +178,18 @@ jobs:
       - name: sözlükteki gömülü YARDIM bloğu yardim.json ile aynı mı
         run: python3 araclar/sozluk-denetle.py
 
+      # sozluk/ornekler.json (komut -> çalışan örnek dizini) üretilmiş ama commit'li
+      # ve eskiyince SESSİZ: eski bağlantılar hâlâ çalışıyor, yalnız yeni örnekler
+      # ve adlar eksik kalıyor. Eylül 2026'da 17 gün eski bir dosya 14 örneği ve
+      # 21 adı gösterememişti (bkz. sozluk/README.md). Üreteç deterministik, yani
+      # yeniden üretim ağaçtakini değiştirmemeli; değiştiriyorsa aşağıdaki son
+      # adım kırmızı yakar. Editör klonu yukarıdaki adımın klonu: aynı BEDEL
+      # geçerli (editörün varsayılan dalının başı), editörde bir örnek değişince
+      # buradaki PR'lar kızarır ve `ornekler.json` tazelenmeli. Düğümü (node)
+      # üreteç CATS tablosunu okumak için kullanıyor; ubuntu-latest'te var.
+      - name: çalışan örnek dizini editörle güncel mi (üret; aşağıda fark denetlenir)
+        run: python3 araclar/ornek-dizini.py kojojs-editor
+
       # Sözlüğün key:"val" tablosu ELLE tutulan HTML: kodda bir renk adı
       # eklenip tabloya yansıtılmazsa hiçbir şey hata vermez, sayfa sessizce
       # eski veriyi gösterir. Eylül 2026'da tam bu oldu -- koddaki 39 ada
@@ -344,5 +356,6 @@ jobs:
             echo "  araclar/gosteri-uret.py --scala"
             echo "  araclar/yardim-derleme-uret.py"
             echo "  python3 kilavuz/uret.py"
+            echo "  python3 araclar/ornek-dizini.py <kojojs-editor klonu>   # sonra editörde ./sync-sozluk.sh"
             exit 1
           fi

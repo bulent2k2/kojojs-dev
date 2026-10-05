@@ -103,20 +103,33 @@ gömülü `html`'i cümleyi zaten taşıyor, ikinci kez basmak yineleme olurdu.
 ## Çalışan örnek bağlantıları
 
 Panellerde "Bunu kullanan çalışan örnekler" bölümü var: komutu gerçekten
-kullanan, sitede ÇALIŞAN betiklere `/?zrc=...` bağlantısı. 980 addan 317'sinde
-en az bir örnek var (599 bağlantı, 373 benzersiz betik).
+kullanan, sitede ÇALIŞAN betiklere `/?zrc=...` bağlantısı. Ekim 2026'da 1205 adın
+338'inde en az bir örnek var (633 bağlantı, 385 benzersiz betik). Bu sayılar
+kaynak değişince kayar; güncelini betiğin çıktısı söyler.
 
 Kaynak: kojojs-editor'daki yardım sayfalarının kendi "çalıştır" bağlantıları
-(kojoOgren, yardimKomutlar, yardimSkala, benzetim -- toplam 595 betik).
+(kojoOgren, yardimKomutlar, yardimSkala, benzetim -- Ekim 2026'da 600 betik).
 `zrc` dizgeleri OLDUĞU GİBİ taşınıyor, yeniden sıkıştırma yok; yani bozuk
 bağlantı üretme riski yok.
 
     araclar/ornek-dizini.py <kojojs-editor dizini>
 
+Üretici DETERMİNİSTİK (aynı girdiyle iki koşu bayt bayt aynı; ölçüldü). Girdisi
+iki yerde: editördeki dört sayfa ve bu sayfanın CATS tablosu. İkisi de
+değişince `ornekler.json` eskir ve hiçbir şey hata vermez: eski dosya hâlâ
+geçerli bağlantılar taşır, yalnız yeni örnekleri ve adları göstermez.
+Eylül 2026'da tam bu oldu: dosya 17 Eylül'de üretilmişti, sonra `kilavuz/uret.py`
+gzip başlığının işletim sistemi baytını 0xff'e sabitledi (her bağlantı değişti,
+çözülmüş betikler aynı) ve editöre 14 örnek eklendi; yeniden üretince 373
+yerine 385 betik ve 317 yerine 338 ad çıktı. Bu yüzden `uretecler.yml`
+dosyayı editörün güncel ağacına karşı yeniden üretip farkı kırmızı sayıyor.
+Düzeltmek için: `araclar/ornek-dizini.py ../kojojs-editor`, çıkan dosyayı
+commit'leyin ve editördeki kopyayı `sync-sozluk.sh` ile eşleyin.
+
 12 satırdan uzun betikler ATLANIYOR: onlar adı GÖSTERMİYOR, içinde geçiyor
 sadece. Her ad için en çok 3 örnek, kısadan uzuna.
 
-ornekler.json gömülmüyor, ayrı duruyor (182 KB) ve sayfa açılınca çekiliyor.
+ornekler.json gömülmüyor, ayrı duruyor (~205 KB) ve sayfa açılınca çekiliyor.
 Sebep: bağlantılar zaten yalnız site ayaktayken anlamlı. Dosya gelmezse o
 bölüm görünmüyor, sözlüğün gerisi çalışmaya devam ediyor. DİKKAT: sunulan
 kopyaya koco-sozlugu.html ile BİRLİKTE ornekler.json de kopyalanmalı.
