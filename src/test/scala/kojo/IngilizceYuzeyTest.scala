@@ -186,4 +186,77 @@ class IngilizceYuzeyTest extends AsyncFunSuite with Matchers {
     // dönüştürücü işlevi çizim anında koşuyor
     val c2 = new Casus; (b.fillColor(g) -> c2).draw(); c2.gelen shouldBe Some(g)
   }
+
+  test("Picture.intersects = collidesWith = Türkçe çarpıştı/kesişir: çarpışma ve çarpışmama") {
+    implicit val dünya: KojoWorld = new TestKojoWorld()
+    val b = new Builtins()
+    import b._
+    val tr = b.trTurtle
+    def kutu = PictureT { t => (1 to 4).foreach { _ => t.forward(50); t.right() } }
+    val a1 = trans(-25, 0) -> kutu; val a2 = trans(25, 0) -> kutu          // değiyor
+    val u1 = trans(-25.01, 0) -> kutu; val u2 = trans(25.01, 0) -> kutu    // değmiyor
+    Seq(a1, a2, u1, u2).foreach(_.draw())
+    for { _ <- a1.ready; _ <- a2.ready; _ <- u1.ready; _ <- u2.ready } yield {
+      a1.intersects(a2) shouldBe true
+      a2.intersects(a1) shouldBe true
+      u1.intersects(u2) shouldBe false
+      a1.intersects(a2) shouldBe a1.collidesWith(a2)
+      u1.intersects(u2) shouldBe u1.collidesWith(u2)
+      tr.ResimMetotları(a1).çarpıştı(a2) shouldBe a1.intersects(a2)
+      tr.ResimMetotları(u1).çarpıştı(u2) shouldBe u1.intersects(u2)
+    }
+  }
+
+  test("Picture.arc = Resim.yay: aynı konum ve boyut; runInBackground gövdeyi hemen koşuyor") {
+    val b = yeni()
+    import b._
+    val tr = b.trTurtle
+    val ing = Picture.arc(50, 90)
+    val büyük = Picture.arc(100, 90)
+    val türkçe = tr.Resim.yay(50, 90)
+    Seq(ing, büyük, türkçe).foreach(_.draw())
+    var koştu = 0
+    runInBackground { koştu += 1 }
+    tr.artalandaOynat { koştu += 10 }
+    koştu shouldBe 11
+    for { _ <- ing.ready; _ <- büyük.ready; _ <- türkçe.ready } yield {
+      val (x, y) = (ing.bounds, türkçe.bounds)
+      (x.x, x.y, x.width, x.height) shouldBe ((y.x, y.y, y.width, y.height))
+      // 90 derecelik, yarıçapı 50 olan yay: ~50 x 50 (kalem kalınlığı payıyla)
+      x.width shouldBe 50.0 +- 4.0
+      x.height shouldBe 50.0 +- 4.0
+      // yarıçap gerçekten kullanılıyor: yarıçap 100 olan daha büyük
+      büyük.bounds.height should be > x.height
+    }
+  }
+
+  test("showGameTimeCountdown = oyunSüresiniGeriyeSayarakGöster: saniyede bir geri sayar, sıfırda durdurur") {
+    class SaatDünya extends TestKojoWorld {
+      var aralık = -1L
+      var tik: Option[() => Unit] = None
+      var durdu = 0
+      override def timer(ms: Long)(fn: => Unit): Unit = { aralık = ms; tik = Some(() => fn) }
+      override def stopAnimation(): Unit = durdu += 1
+    }
+    def sür(kur: (Builtins, KojoWorld) => Unit): SaatDünya = {
+      implicit val d: SaatDünya = new SaatDünya
+      val b = new Builtins()
+      kur(b, d)
+      d
+    }
+    val ing = sür((b, _) => b.showGameTimeCountdown(3, "Bitti"))
+    val tr = sür((b, _) => b.trTurtle.oyunSüresiniGeriyeSayarakGöster(3, "Bitti"))
+    ing.aralık shouldBe 1000L; tr.aralık shouldBe 1000L
+    Seq(ing, tr).foreach { d =>
+      d.tik.foreach(_()); d.tik.foreach(_())
+      d.durdu shouldBe 0      // 3 -> 1: henüz bitmedi
+      d.tik.foreach(_())
+      d.durdu shouldBe 1      // 0: ileti + durdur
+    }
+    // bitiş iletisi ad-yoluyla (by-name): sıfıra varınca değerlendiriliyor, öncesinde değil
+    var değerlendi = 0
+    val iki = sür((b, _) => b.showGameTimeCountdown(2, { değerlendi += 1; "ileti" }))
+    iki.tik.foreach(_()); değerlendi shouldBe 0
+    iki.tik.foreach(_()); değerlendi shouldBe 1
+  }
 }
