@@ -259,4 +259,37 @@ class IngilizceYuzeyTest extends AsyncFunSuite with Matchers {
     iki.tik.foreach(_()); değerlendi shouldBe 0
     iki.tik.foreach(_()); değerlendi shouldBe 1
   }
+
+  test("round = yuvarla: aynı formül (yarımlar yukarı), basamaklı ve basamaksız, Int de kabul") {
+    val b = yeni()
+    val tr = b.trTurtle
+    b.round(2.5) shouldBe 3.0
+    b.round(-2.5) shouldBe -2.0            // math.round: yarımlar +sonsuza doğru
+    b.round(2.345, 2) shouldBe 2.35
+    b.round(1234.5678, -2) shouldBe 1200.0
+    b.round(7) shouldBe 7.0                // Int argüman
+    // masaüstü örneği: round(epochTime - başlangıç) ve round(t, 2)
+    for (x <- Seq(0.0, 0.49, 0.5, 1.005, 2.675, -0.5, -1.5, 123456.789, 1e-3); d <- Seq(0, 1, 2, 3)) {
+      withClue(s"x=$x d=$d: ") { b.round(x, d) shouldBe tr.yuvarla(x, d) }
+    }
+    succeed
+  }
+
+  test("shuffle = rastgeleKarıştır: aynı elemanlar, aynı koleksiyon türü, aynı tohumla aynı sıra") {
+    val b = yeni()
+    val tr = b.trTurtle
+    val v = Vector(1 to 10: _*)
+    b.setRandomSeed(42); val a = b.shuffle(v)
+    val tip: Vector[Int] = a                         // Vector -> Vector
+    tip.sorted shouldBe v
+    tip should not be v                              // 10 elemanda aynı sırada kalma ihtimali 1/10!
+    b.setRandomSeed(42); tr.rastgeleKarıştır(v) shouldBe a   // Türkçe aynı Random'u kullanıyor
+    b.setRandomSeed(7); b.shuffle(v) should not be a         // tohum gerçekten etkili
+    // masaüstünün imzası: collection.Seq alıp collection.Seq veriyor; betikler böyle çağırır
+    val s: collection.Seq[String] = collection.Seq("a", "b", "c")
+    val karisik: collection.Seq[String] = b.shuffle(s)
+    karisik.sorted shouldBe s
+    // boş koleksiyon patlamıyor (Array ile çağrı bu testte DENENMİYOR)
+    b.shuffle(Vector.empty[Int]) shouldBe Vector.empty[Int]
+  }
 }
