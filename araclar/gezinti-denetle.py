@@ -8,7 +8,7 @@ NEDEN AYRI BİR SAV: şerit ÜÇ ayrı yerde kopyalı ve hiçbiri ötekini görm
 
   kilavuz/uret.py      GEZINTI listesi   -> yardimSkala, yardimKomutlar
   kilavuz/ornekler.py  gömülü HTML       -> yardimOrnekler
-  kojojs-editor        elle yazılmış     -> yardim, yardimSozluk, yardimFarklar
+  kojojs-editor        elle yazılmış     -> yardim, yardimKitapcik, yardimSozluk, yardimFarklar
 
 Biri değişip ötekiler kalırsa çubuk sayfadan sayfaya farklı sıralanır. Kullanıcı
 bunu hemen görür ama derleme, sınama ve dağıtım sessizce geçer: uret.py'nin
@@ -38,7 +38,7 @@ VARSAYILAN_EDITOR = os.path.join(KOK, '..', 'kojojs-editor')
 
 # Elle tutulan sayfalar (kojojs-editor). Üretilenler buraya girmez: onlar
 # zaten uret.py/ornekler.py çıktısı, yani kaynağı denetlemek yetiyor.
-ELLE = ['yardim.scala.html', 'yardimSozluk.scala.html', 'yardimFarklar.scala.html']
+ELLE = ['yardim.scala.html', 'yardimKitapcik.scala.html', 'yardimSozluk.scala.html', 'yardimFarklar.scala.html']
 
 BAG = re.compile(r'<a href="(/yardim(?:/[a-z]+)?)"[^>]*>([^<]+)</a>')
 
