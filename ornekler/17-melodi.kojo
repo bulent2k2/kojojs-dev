@@ -11,9 +11,10 @@
 // Çalacak notaların toplam süresini `kalanNotaSüresi` söyler (milisaniye;
 // tarayıcı sesi açtıktan sonra birkaç ms oynayabilir, o yüzden "yaklaşık").
 //
-// TEKRAR ÇALIŞTIRMA: notalar sıraya yazıldığı için melodi çalarken Çalıştır'a
-// yeniden basarsan ikinci melodi birincinin ARDINA eklenir. Betik bu yüzden
-// başta stopNotePlayer() ile sıradaki notaları siler.
+// SESİ KESMEK: Çalıştır ve Durdur düğmeleri sayfayı yeniler, çalan melodi kesilir.
+// Betiğin KENDİ içinden (bir düğme, bir zamanlayıcı) melodiyi baştan başlatmak ya da
+// yarıda kesmek istersen notaÇalarıKapat() (= notaÇalarıDurdur()) sıradaki bütün
+// notaları siler; yoksa yeni notalar eskilerin ardına eklenir.
 //
 // ES: perde olarak -1 yazılan (es, süre) çifti notaSus'a gidiyor: ses
 // çıkarmadan o kadar bekler.
@@ -75,7 +76,7 @@ tanım melodiyiÇal(parça: Diz[(Sayı, Sayı)]): Birim = {
   }
 }
 
-stopNotePlayer()
+notaÇalarıKapat() // sıra burada zaten boş; melodiyi bir düğmeden yeniden başlatırken gerekir
 notaÇalgısınıKur(Çalgı.Piyano)
 melodiyiÇal(melodi())
 satıryaz(s"Melodi yaklaşık ${kalanNotaSüresi / 1000.0} saniye sürecek")

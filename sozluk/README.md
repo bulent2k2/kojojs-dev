@@ -53,9 +53,31 @@ Yenilemek için (kojo deposunda):
     ./sbt.sh 'Test/runMain net.kogics.kojo.araclar.YardımDışaAktar \
               <kojojs-dev>/sozluk/yardim.json'
 
-sonra koco-sozlugu.html içindeki `const YARDIM = {...}` bloğunu bu dosyayla
-değiştirin (tek dosya kalsın diye gömülü: sayfa hem iframe'de hem file://
+sonra `araclar/yardim-gom.py` çalıştırın: koco-sozlugu.html içindeki
+`const YARDIM = {...}` bloğunu yardim.json (+ aşağıdaki yardim-ikojo.json) ile
+doldurur (tek dosya kalsın diye gömülü: sayfa hem iframe'de hem file://
 ile açılıyor, fetch çalışmazdı).
+
+### iKojo'ya özgü paneller: `yardim-ikojo.json`
+
+`yardim.json` her yenilemede masaüstünden BAŞTAN yazılıyor; masaüstünde bulunmayan
+komutların (`akorÇal`, `beraberÇal`, `notaSus`, `kalanNotaSüresi`) paneli orada
+yaşayamaz. Onlar ELLE yazılan `yardim-ikojo.json`'da: `tür` her zaman `"komut"`,
+alanlar `imza`, `açıklama`, `örnek` (zorunlu), `sonuç`, `not` (isteğe bağlı).
+Aynı dosya iKojo'da masaüstüyle ortak olan ses adlarının (`notaÇal`,
+`notaÇalgısınıKur`, `notaÇalarıKapat`) iKojo'ya göre yazılmış panellerini de
+taşıyor. Masaüstü `help.scala`'sında bu adların paneli yok; orada eklenirse
+iki dosyada aynı anahtar olur ve araçlar hata verir (sessizce ezmek yok).
+
+    araclar/yardim-gom.py            # yardim.json + yardim-ikojo.json -> sayfaya göm
+    araclar/yardim-gom.py --denetle  # yazmadan: gömme güncel mi
+    araclar/sozluk-denetle.py        # CI'daki denetim: gömülü blok == birleşim
+    araclar/yardim-derleme-uret.py   # örnekleri iKojo'ya karşı DERLEYEN testi üretir
+
+`komut` panelinin altında "masaüstünde sınanıyor" DENMEZ (orada sınanmıyor);
+"Örnek iKojo'da derleniyor" yazar ve bu söz doğru: `yardim-derleme-uret.py`
+her `komut` örneğini `YardimOrnekDerlemeDeneme`'ye taşıyor, bozuk bir örnek
+test derlemesini kırıyor. Örnekler yalnız DERLENİYOR, çalıştırılmıyor.
 
 ### `türler` alanı
 

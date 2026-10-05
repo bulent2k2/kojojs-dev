@@ -17,7 +17,7 @@ gosteri-uret.py ile aynı kalıp; oradaki gibi anahtar sözcükler İngilizceye
 
 Kullanım:
   araclar/yardim-derleme-uret.py            # varsayılan yollar
-  araclar/yardim-derleme-uret.py <yardim.json> <hedef.scala>
+  araclar/yardim-derleme-uret.py <yardim.json> <hedef.scala> [<yardim-ikojo.json>]
 """
 import io
 import json
@@ -31,8 +31,8 @@ ANAHTAR = [('dez ', 'val '), ('den ', 'var '), ('tanım ', 'def '), ('eğer ', '
 BASLIK = '''package kojo
 
 /**
- * sozluk/yardim.json'daki yöntem örneklerinin iKojo API'sine karşı
- * DERLENDİĞİNİ sınar. Sözlük her örneğin altına "Örnek sınanıyor" yazıyor;
+ * sozluk/yardim.json'daki yöntem örneklerinin ve sozluk/yardim-ikojo.json'daki
+ * iKojo komutu örneklerinin iKojo API'sine karşı DERLENDİĞİNİ sınar. Sözlük her örneğin altına "Örnek sınanıyor" yazıyor;
  * bu dosya o sözü iKojo tarafında da tutuyor.
  *
  * Üretilmiştir; kaynak: araclar/yardim-derleme-uret.py
@@ -56,7 +56,8 @@ object YardimOrnekDerlemeDeneme
     with kojo.tr.DizimYöntemleri
     with kojo.tr.MiskinDizinYöntemleri
     with kojo.tr.KuyrukYöntemleri
-    with kojo.tr.DizikYöntemleri {
+    with kojo.tr.DizikYöntemleri
+    with kojo.tr.SesYöntemleri {
 
 '''
 
@@ -111,17 +112,28 @@ def main():
     bicimDenetle(kaynak, yöntemler)
     örnekler = [(ad, g['örnek']) for ad, g in yöntemler]
 
+    # iKojo'ya özgü komutlar (elle yazılan yardim-ikojo.json): masaüstünde yok,
+    # yani derlendiklerini yalnız burası söyleyebilir.
+    ikojoYolu = sys.argv[3] if len(sys.argv) > 3 else os.path.join(kok, 'sozluk', 'yardim-ikojo.json')
+    komutlar = []
+    if os.path.exists(ikojoYolu):
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import yardim_birlestir
+        # birlesik: yardim.json ile anahtar çakışırsa (ve alan/tür hatalarında) SESLİ hata
+        yardim_birlestir.birlesik(io.open(kaynak, encoding='utf-8').read(), ikojoYolu)
+        komutlar = [(ad, g['örnek']) for ad, g in sorted(yardim_birlestir.ikojoGirdileri(ikojoYolu).items())]
+
     def adı(ad):
         return 'y_' + re.sub(r'[^A-Za-z0-9]', '_', ad)
 
     gövde = []
-    for ad, kod in örnekler:
+    for ad, kod in örnekler + komutlar:
         satırlar = '\n'.join('    ' + s for s in ingilizce(kod).split('\n'))
         gövde.append('  // %s\n  def %s(): Any = {\n%s\n  }' % (ad, adı(ad), satırlar))
 
     with io.open(hedef, 'w', encoding='utf-8') as d:
         d.write(BASLIK + '\n\n'.join(gövde) + '\n}\n')
-    print('%s yazıldı (%d örnek)' % (os.path.normpath(hedef), len(örnekler)))
+    print('%s yazıldı (%d örnek, %d iKojo komutu)' % (os.path.normpath(hedef), len(örnekler), len(komutlar)))
 
 
 if __name__ == '__main__':

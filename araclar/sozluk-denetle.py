@@ -21,6 +21,9 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import yardim_birlestir  # noqa: E402
+
 BAŞ = 'const YARDIM = {'
 
 
@@ -42,14 +45,17 @@ def main():
     kok = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
     jsonYolu = sys.argv[1] if len(sys.argv) > 1 else os.path.join(kok, 'sozluk', 'yardim.json')
     htmlYolu = sys.argv[2] if len(sys.argv) > 2 else os.path.join(kok, 'sozluk', 'koco-sozlugu.html')
+    ikojoYolu = sys.argv[3] if len(sys.argv) > 3 else os.path.join(kok, 'sozluk', 'yardim-ikojo.json')
 
     with io.open(jsonYolu, encoding='utf-8') as d:
-        kaynak = d.read()
+        # Sayfaya yardim.json + elle yazılan yardim-ikojo.json'un BİRLEŞİMİ gömülür
+        # (bkz. yardim_birlestir.py; gömmeyi araclar/yardim-gom.py yapar).
+        kaynak = yardim_birlestir.birlesik(d.read(), ikojoYolu)
     with io.open(htmlYolu, encoding='utf-8') as d:
         gömülü = gömülüBlok(d.read())
 
     if gömülü == kaynak:
-        print('aynı: gömülü YARDIM bloğu == %s' % os.path.basename(jsonYolu))
+        print('aynı: gömülü YARDIM bloğu == %s + %s' % (os.path.basename(jsonYolu), os.path.basename(ikojoYolu)))
         return
 
     # Farkı anlamlı anlatmak için anahtar düzeyinde karşılaştır.
@@ -61,7 +67,7 @@ def main():
     eksik = sorted(set(a) - set(b))
     fazla = sorted(set(b) - set(a))
     başka = sorted(k for k in set(a) & set(b) if a[k] != b[k])
-    print('FARKLI: gömülü YARDIM bloğu %s ile aynı değil' % os.path.basename(jsonYolu), file=sys.stderr)
+    print('FARKLI: gömülü YARDIM bloğu %s + %s birleşimi ile aynı değil' % (os.path.basename(jsonYolu), os.path.basename(ikojoYolu)), file=sys.stderr)
     for etiket, liste in (('sayfada eksik', eksik), ('sayfada fazla', fazla), ('içeriği farklı', başka)):
         if liste:
             kesik = ' (ilk 8)' if len(liste) > 8 else ''
@@ -69,8 +75,8 @@ def main():
                   file=sys.stderr)
     if not (eksik or fazla or başka):
         print('  anahtarlar aynı, yalnız biçim/sıra farkı', file=sys.stderr)
-    sys.exit('Gömmeyi tazeleyin: yardim.json içeriğini koco-sozlugu.html\'deki\n'
-             '`const YARDIM = {...}` bloğunun yerine koyun (bkz. sozluk/README.md).')
+    sys.exit('Gömmeyi tazeleyin: araclar/yardim-gom.py (yardim.json + yardim-ikojo.json ->\n'
+             'koco-sozlugu.html\'deki `const YARDIM = {...}` bloğu; bkz. sozluk/README.md).')
 
 
 if __name__ == '__main__':
