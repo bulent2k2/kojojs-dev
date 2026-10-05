@@ -215,7 +215,7 @@ canlandır {
             // Tek süpürme adımı bitti; sonraki adımların hiçbiri kare kare
             // devinim istemiyor. Döngüyü açık bırakmak her karede boşuna bir
             // denetim demek olurdu.
-            canlandırmayıDurdur()
+            durdur()
         }
     }
 }

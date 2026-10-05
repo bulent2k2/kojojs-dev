@@ -1,6 +1,6 @@
 # araclar/cevir-derle.py sonucu -- ELLE DÜZENLEMEYİN, --guncelle ile yenileyin
 # çevirmen: bulent2k2/kojo@c009316c1d6ddcbc5a6dbe0eb7fdefc40ce54673
-# iKojo örnekleri (17): Türkçesi derlenen 17, çevirisi derlenen 13, çeviri açığı 4
+# iKojo örnekleri (17): Türkçesi derlenen 17, çevirisi derlenen 14, çeviri açığı 3
 # masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 47, çeviri açığı 17
 # "çeviri açığı": Türkçesi derleniyor, İngilizce çevirisi derlenmiyor
 betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
@@ -14,7 +14,7 @@ betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
 08-kumanda-kolu.kojo	geçti	geçti	0		
 09-nerede-ve-dokunma.kojo	geçti	geçti	0		
 10-anahtar-kelimeler.kojo	geçti	geçti	0		
-11-acilar-ve-radyan.kojo	geçti	kaldı	1	218: not found: value stopAnimationActivity	
+11-acilar-ve-radyan.kojo	geçti	geçti	0		
 12-uc-cisim.kojo	geçti	geçti	0		
 13-xox-yenilmez.kojo	geçti	geçti	0		
 14-agir-dolgu.kojo	geçti	geçti	0		
