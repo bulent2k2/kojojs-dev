@@ -1,7 +1,7 @@
 # araclar/cevir-derle.py sonucu -- ELLE DÜZENLEMEYİN, --guncelle ile yenileyin
 # çevirmen: bulent2k2/kojo@c009316c1d6ddcbc5a6dbe0eb7fdefc40ce54673
 # iKojo örnekleri (17): Türkçesi derlenen 17, çevirisi derlenen 13, çeviri açığı 4
-# masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 45, çeviri açığı 19
+# masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 47, çeviri açığı 17
 # "çeviri açığı": Türkçesi derleniyor, İngilizce çevirisi derlenmiyor
 betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
 01-ilk-adimlar.kojo	geçti	geçti	0		
@@ -26,7 +26,7 @@ masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	kaldı	
 masaustu/installer/examples/othello/menu_tr.kojo.installed	ayrıştırma	ayrıştırma	1	6: To compile XML syntax, the scala.xml package must be on the classpath.	6: To compile XML syntax, the scala.xml package must be on the classpath.
 masaustu/installer/examples/othello/tr/alfabeta.kojo	kaldı	kaldı	184	6: not found: type Oda	6: not found: type Oda
 masaustu/installer/examples/othello/tr/anaTanimlar.kojo	geçti	geçti	0		
-masaustu/installer/examples/othello/tr/araYuz.kojo	kaldı	kaldı	78	7: not found: type ETahta	7: not found: type ETahta
+masaustu/installer/examples/othello/tr/araYuz.kojo	kaldı	kaldı	77	7: not found: type ETahta	7: not found: type ETahta
 masaustu/installer/examples/othello/tr/bellek.kojo	kaldı	kaldı	6	4: not found: type ETahta	4: not found: type ETahta
 masaustu/installer/examples/othello/tr/durum.kojo	kaldı	kaldı	5	3: not found: type Tahta	3: not found: type Tahta
 masaustu/installer/examples/othello/tr/eTahta.kojo	kaldı	kaldı	125	6: not found: type Taş	6: not found: type Taş
@@ -44,7 +44,7 @@ masaustu/src/main/resources/robosim/tr/obstacle-furthest.kojo	kaldı	kaldı	3	17
 masaustu/src/main/resources/robosim/tr/obstacle-greedy.kojo	kaldı	kaldı	3	17: not found: value duvarlar	17: not found: value duvarlar
 masaustu/src/main/resources/robosim/tr/robot.kojo	kaldı	kaldı	2	13: value showAxes is not a member of kojo.Picture	13: value eksenleriGöster is not a member of kojo.Picture
 masaustu/src/main/resources/samples/tr/addition-game.kojo	kaldı	kaldı	11	44: not found: value ay	44: not found: value ay
-masaustu/src/main/resources/samples/tr/angle-experiment.kojo	kaldı	kaldı	3	23: value length is not a member of pixiscalajs.PIXI.Rectangle	34: not found: value doğrultu
+masaustu/src/main/resources/samples/tr/angle-experiment.kojo	kaldı	kaldı	2	23: value length is not a member of pixiscalajs.PIXI.Rectangle	34: not found: value doğrultu
 masaustu/src/main/resources/samples/tr/angles.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/animated-square-creation.kojo	kaldı	kaldı	13	14: value setPosition is not a member of pixiscalajs.PIXI.Graphics	36: not found: value Geçiş
 masaustu/src/main/resources/samples/tr/arduino-prog.kojo	ayrıştırma	ayrıştırma	1	13: To compile XML syntax, the scala.xml package must be on the classpath.	13: To compile XML syntax, the scala.xml package must be on the classpath.
@@ -73,7 +73,7 @@ masaustu/src/main/resources/samples/tr/genart-cubic-disarray.kojo	geçti	geçti	
 masaustu/src/main/resources/samples/tr/genart-delaunay.kojo	kaldı	kaldı	2	9: not found: value onMouseClick	9: not found: value fareyeTıklıyınca
 masaustu/src/main/resources/samples/tr/genart-hypnotic-squares.kojo	kaldı	kaldı	2	3: not found: value setDrawingCanvasSize	22: not found: value konum
 masaustu/src/main/resources/samples/tr/genart-joy-division.kojo	geçti	kaldı	5	23: type mismatch;	
-masaustu/src/main/resources/samples/tr/genart-mondrian.kojo	geçti	kaldı	1	52: not found: value shuffle	
+masaustu/src/main/resources/samples/tr/genart-mondrian.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/genart-tiled-lines.kojo	geçti	kaldı	1	19: value length is not a member of cevirdenetimi.E070.Köşegen	
 masaustu/src/main/resources/samples/tr/genart-tri-mesh.kojo	geçti	kaldı	3	15: too many arguments (found 2, expected 1) for method empty: (implicit evidence$4: scala.reflect.ClassTag[cevirdenetimi.E071.Point]): Array[cevirdenetimi.E071.Point]	
 masaustu/src/main/resources/samples/tr/hunted-fp.kojo	kaldı	kaldı	7	41: not found: value net	41: not found: value net
@@ -95,8 +95,8 @@ masaustu/src/main/resources/samples/tr/lamp-animation.kojo	kaldı	kaldı	7	10: v
 masaustu/src/main/resources/samples/tr/lamp-animation2.kojo	kaldı	kaldı	5	35: not found: value Transition	35: not found: value Geçiş
 masaustu/src/main/resources/samples/tr/lighted-star.kojo	kaldı	kaldı	3	17: not found: value SpotLight	17: not found: value SahneIşığı
 masaustu/src/main/resources/samples/tr/lunar-lander.kojo	geçti	kaldı	1	63: value setVisible is not a member of kojo.Picture	
-masaustu/src/main/resources/samples/tr/mandelbrot.kojo	kaldı	kaldı	23	90: not found: value round	136: not found: type İmge
-masaustu/src/main/resources/samples/tr/memory-cards.kojo	geçti	kaldı	7	12: value length is not a member of pixiscalajs.PIXI.Rectangle	
+masaustu/src/main/resources/samples/tr/mandelbrot.kojo	kaldı	kaldı	22	144: type mismatch;	136: not found: type İmge
+masaustu/src/main/resources/samples/tr/memory-cards.kojo	geçti	kaldı	6	12: value length is not a member of pixiscalajs.PIXI.Rectangle	
 masaustu/src/main/resources/samples/tr/multiplication-game.kojo	kaldı	kaldı	11	44: not found: value ay	44: not found: value ay
 masaustu/src/main/resources/samples/tr/nbody-four-by-hand.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/nbody-four.kojo	geçti	geçti	0		
@@ -106,7 +106,7 @@ masaustu/src/main/resources/samples/tr/nbody-three.kojo	geçti	geçti	0
 masaustu/src/main/resources/samples/tr/nbody-two.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/oyku-tanimlari.kojo	ayrıştırma	ayrıştırma	1	18: To compile XML syntax, the scala.xml package must be on the classpath.	18: To compile XML syntax, the scala.xml package must be on the classpath.
 masaustu/src/main/resources/samples/tr/penta-pattern.kojo	geçti	geçti	0		
-masaustu/src/main/resources/samples/tr/physics-fma.kojo	geçti	kaldı	1	32: too many arguments (found 2, expected 1) for method println: (x: Any): Unit	
+masaustu/src/main/resources/samples/tr/physics-fma.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/physics-uvats.kojo	geçti	kaldı	4	27: value erase is not a member of kojo.Turtle	
 masaustu/src/main/resources/samples/tr/pong.kojo	geçti	kaldı	4	94: missing argument list for method exists in class Option of type (p: kojo.Picture => Boolean): Boolean	
 masaustu/src/main/resources/samples/tr/prime-factors.kojo	geçti	kaldı	1	3: not found: value switchToWorksheetPerspective	
@@ -143,5 +143,5 @@ masaustu/src/main/resources/samples/tr/tune2.kojo	kaldı	kaldı	7	2: not found: 
 masaustu/src/main/resources/samples/tr/turtle-controller.kojo	kaldı	kaldı	5	24: not found: value interpret	24: not found: value yorumla
 masaustu/src/main/resources/samples/tr/two-turtle-interaction.kojo	geçti	kaldı	2	12: type mismatch;	
 masaustu/src/main/resources/samples/tr/two-turtle-interaction2.kojo	geçti	kaldı	2	20: type mismatch;	
-masaustu/src/main/resources/samples/tr/unit-circle.kojo	geçti	kaldı	3	101: not found: value round	
+masaustu/src/main/resources/samples/tr/unit-circle.kojo	geçti	kaldı	2	104: too many arguments (found 3, expected 2) for method text: (s0: Any, fontSize: Int): kojo.TextPic	
 masaustu/src/main/resources/samples/tr/widgets-canvas.kojo	ayrıştırma	ayrıştırma	1	8: To compile XML syntax, the scala.xml package must be on the classpath.	8: To compile XML syntax, the scala.xml package must be on the classpath.
