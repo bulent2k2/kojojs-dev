@@ -1011,16 +1011,16 @@ object YardimOrnekDerlemeDeneme
     notaÇal(67, 1000)
   }
 
+  // notaÇalarıKapat
+  def y_nota_alar_Kapat(): Any = {
+    notaÇal(60, 5000)
+    notaÇalarıKapat()
+    notaÇal(64, 500)
+  }
+
   // notaÇalgısınıKur
   def y_nota_alg_s_n_Kur(): Any = {
     notaÇalgısınıKur(Çalgı.ElektroPiyano)
     notaÇal(60, 500)
-  }
-
-  // notaÇalıcıyıDurdur
-  def y_nota_al_c_y_Durdur(): Any = {
-    notaÇal(60, 5000)
-    notaÇalıcıyıDurdur()
-    notaÇal(64, 500)
   }
 }

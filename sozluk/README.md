@@ -64,7 +64,7 @@ komutların (`akorÇal`, `beraberÇal`, `notaSus`, `kalanNotaSüresi`) paneli or
 yaşayamaz. Onlar ELLE yazılan `yardim-ikojo.json`'da: `tür` her zaman `"komut"`,
 alanlar `imza`, `açıklama`, `örnek` (zorunlu), `sonuç`, `not` (isteğe bağlı).
 Aynı dosya iKojo'da masaüstüyle ortak olan ses adlarının (`notaÇal`,
-`notaÇalgısınıKur`, `notaÇalıcıyıDurdur`) iKojo'ya göre yazılmış panellerini de
+`notaÇalgısınıKur`, `notaÇalarıDurdur`) iKojo'ya göre yazılmış panellerini de
 taşıyor. Masaüstü `help.scala`'sında bu adların paneli yok; orada eklenirse
 iki dosyada aynı anahtar olur ve araçlar hata verir (sessizce ezmek yok).
 

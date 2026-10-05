@@ -341,7 +341,7 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
     b.noteTimeLeftMillis shouldBe 600
   }
 
-  test("notaÇalıcıyıDurdur, notaÇalıcıyıKapat ve stopNotePlayer aynı çalıcıyı susturur ve imleci sıfırlar") {
+  test("notaÇalarıDurdur, notaÇalarıKapat ve stopNotePlayer aynı çalıcıyı susturur ve imleci sıfırlar") {
     import kojo.syntax.Builtins
     implicit val kojoWorld: KojoWorld = new TestKojoWorld()
     val b = new Builtins()
@@ -364,8 +364,8 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
       b.stopNotePlayer()                           // sıradakini temizle; sonraki turun temiz başlaması için
       beklenenSusan += 1
     }
-    dene(() => tr.notaÇalıcıyıDurdur())
-    dene(() => tr.notaÇalıcıyıKapat())
+    dene(() => tr.notaÇalarıDurdur())
+    dene(() => tr.notaÇalarıKapat())
     dene(() => b.stopNotePlayer())
     succeed
   }
