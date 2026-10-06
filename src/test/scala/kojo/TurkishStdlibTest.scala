@@ -778,9 +778,11 @@ class TurkishStdlibTest extends AnyFunSuite with Matchers {
     Renkler.kırmızı.çevirOranla(1.0 / 3) shouldBe Renkler.kırmızı.spin(120)
     Renkler.gri.dahaAçıkYap(0.2) shouldBe Renkler.gri.lighten(0.2)
     Renkler.gri.dahaKoyuYap(0.2) shouldBe Renkler.gri.darken(0.2)
-    // Font(ad, boy) masaüstündeki java.awt.Font yapıcısının iki değişkenli hâli
-    Font("JetBrains Mono", 40) shouldBe yazıyüzü("JetBrains Mono", 40)
-    Font("serif", 12).boy shouldBe 12
+    // Font(ad, boy) masaüstündeki java.awt.Font yapıcısının iki değişkenli hâli. Betik önsözünde
+    // `Font` İngilizce yüzeyden (Builtins.Font) gelir ve Yazıyüzü ile AYNI türü (kojo.Font) üretir;
+    // bu eklentili harness builtins'i içermediği için doğrudan kojo.Font sınanıyor.
+    kojo.Font("JetBrains Mono", 40) shouldBe yazıyüzü("JetBrains Mono", 40)
+    kojo.Font("serif", 12).boy shouldBe 12
   }
 
   test("Dizim: çok boyutlu boş/doldur, iç katman Array (tic-tac-toe, genart-tri-mesh)") {

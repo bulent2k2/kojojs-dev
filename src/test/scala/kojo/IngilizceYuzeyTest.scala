@@ -292,4 +292,60 @@ class IngilizceYuzeyTest extends AsyncFunSuite with Matchers {
     // boş koleksiyon patlamıyor (Array ile çağrı bu testte DENENMİYOR)
     b.shuffle(Vector.empty[Int]) shouldBe Vector.empty[Int]
   }
+  // Masaüstü Picture.text/textu: (içerik, boy = 15, renk = kırmızı), (içerik, font), (içerik, font, renk).
+  // `unit-circle` Koco örneğinin İngilizce çevirisi `Picture.text(s, Font(ad, boy), renk)` çağırıyor
+  // ve bunlar yoktu (#197).
+  private def yüz(p: TextPic): Any = p.textNode.style.asInstanceOf[scala.scalajs.js.Dynamic].fontFamily
+  private def boyu(p: TextPic): Double = p.textNode.style.fontSize.asInstanceOf[Double]
+  private def dolgu(p: TextPic): Any = p.textNode.style.fill
+
+  test("Picture.text/textu: (boy, renk), (font), (font, renk); yazı boyu font'tan gelir, varsayılan renk kırmızı") {
+    val b = yeni()
+    import b._
+    val red = Color.red.toCanvas
+    val yalın = Picture.text("a")
+    boyu(yalın) shouldBe 15.0
+    dolgu(yalın) shouldBe red
+    val renkli = Picture.text("b", 30, Color.blue)
+    boyu(renkli) shouldBe 30.0
+    dolgu(renkli) shouldBe Color.blue.toCanvas
+    val f = Font("monospace", 40)
+    // font'lu iki biçim: boy 15 DEĞİL, font'un boyu; yüz font'un adı; varsayılan renk kırmızı
+    val fontlu = Picture.text("c", f)
+    (boyu(fontlu), yüz(fontlu), dolgu(fontlu)) shouldBe ((40.0, "monospace", red))
+    val fontluRenkli = Picture.text("d", f, Color.green)
+    (boyu(fontluRenkli), yüz(fontluRenkli), dolgu(fontluRenkli)) shouldBe ((40.0, "monospace", Color.green.toCanvas))
+    // textu: aynı biçim (örtük KojoWorld ister; resmi çizmediğimiz için ayrı bir dünya yeter)
+    implicit val dünya: KojoWorld = new TestKojoWorld()
+    val u = Picture.textu("e", f, Color.blue)
+    (boyu(u), yüz(u), dolgu(u)) shouldBe ((40.0, "monospace", Color.blue.toCanvas))
+    // font verilmeyen biçimler yazı yüzünü AYARLAMIYOR: PIXI'nin varsayılanı kalır
+    yüz(yalın) should not be "monospace"
+    yüz(renkli) should not be "monospace"
+  }
+
+  test("Font = Yazıyüzü: tek tür; Türkçe Resim.yazı İngilizce Font'u, Picture.text Türkçe yazıyüzü'nü kabul ediyor") {
+    val b = yeni()
+    import b._
+    val tr = b.trTurtle
+    // aynı tür ve eşit değer
+    val ing: kojo.Font = Font("serif", 12)
+    val türkçe: kojo.Font = tr.yazıyüzü("serif", 12)
+    ing shouldBe türkçe
+    (türkçe.name, türkçe.size, türkçe.style) shouldBe (("serif", 12, 0))
+    // Türkçe alan adları (ad, boy, biçem) eskisi gibi
+    (tr.YazıyüzüMetotları(ing).ad, tr.YazıyüzüMetotları(ing).boy, tr.YazıyüzüMetotları(ing).kalınMı) shouldBe (("serif", 12, false))
+    // çapraz: Türkçe Resim.yazı İngilizce Font ile, İngilizce Picture.text Türkçe yazıyüzü ile
+    val a = tr.Resim.yazı("x", Font("monospace", 33), tr.Renkler.mavi).asInstanceOf[TextPic]
+    (boyu(a), yüz(a)) shouldBe ((33.0, "monospace"))
+    val c = Picture.text("y", tr.yazıyüzü("cursive", 21), Color.red)
+    (boyu(c), yüz(c)) shouldBe ((21.0, "cursive"))
+  }
+
+  test("TextPic.copy yazı yüzünü koruyor (eskiden varsayılan yüze dönüyordu)") {
+    val b = yeni()
+    import b._
+    val kopya = Picture.text("a", Font("monospace", 20), Color.red).copy.asInstanceOf[TextPic]
+    (boyu(kopya), yüz(kopya)) shouldBe ((20.0, "monospace"))
+  }
 }
