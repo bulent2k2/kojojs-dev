@@ -71,6 +71,28 @@ class OkumaTest extends AnyFunSuite with Matchers {
     pencereyle(Some("2.5"))(b.trTurtle.kesirOku("?"))._1 shouldBe 2.5
   }
 
+  test("sayılar kırpılarak okunur (#201): cep klavyesinin eklediği boşluk hata vermez") {
+    val b = yeni()
+    pencereyle(Some("5 "))(b.trTurtle.sayıOku("?"))._1 shouldBe 5
+    pencereyle(Some(" 7"))(b.trTurtle.sayıOku("?"))._1 shouldBe 7
+    pencereyle(Some(" 2.5 "))(b.trTurtle.kesirOku("?"))._1 shouldBe 2.5
+    pencereyle(Some("5 "))(b.readInt("?"))._1 shouldBe 5
+    pencereyle(Some(" 2.5 "))(b.readDouble("?"))._1 shouldBe 2.5
+  }
+
+  test("satıroku / readln kırpmaz: yazıda boşluk anlamlı") {
+    val b = yeni()
+    pencereyle(Some(" a b "))(b.trTurtle.satıroku("?"))._1 shouldBe " a b "
+    pencereyle(Some(" a b "))(b.readln("?"))._1 shouldBe " a b "
+  }
+
+  test("yalnız boşluk hâlâ hata; ileti girileni olduğu gibi (boşluklarıyla) gösteriyor") {
+    val b = yeni()
+    pencereyle(Some("   "))(iletisi(b.trTurtle.sayıOku("?")))._1 shouldBe "Sayı bekleniyordu: \"   \""
+    pencereyle(Some("5 x"))(iletisi(b.trTurtle.kesirOku("?")))._1 shouldBe "Sayı bekleniyordu: \"5 x\""
+    pencereyle(Some("   "))(try { b.readInt("?"); false } catch { case _: NumberFormatException => true })._1 shouldBe true
+  }
+
   test("iptal: Türkçe katman Türkçe, İngilizce katman eskisi gibi") {
     val b = yeni()
     pencereyle(None)(iletisi(b.trTurtle.satıroku("?")))._1 shouldBe "Okuma iptal edildi."
