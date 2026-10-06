@@ -26,6 +26,7 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 | `15-mesh-olcumu.kojo` | **Örnek değil, ölçü aleti**: kesişen bir şekli her karede yeniden çizen döngünün saniyede kaç kare verdiğini sayar (bkz. aşağıdaki not) |
 | `16-yuz-bin-komut.kojo` | **Ölçü aleti**: 100 000 kaplumbağa komutunu tek bir dolgulu şekil olarak çizer ve süresini yazar — komut pompasının hızı, dolguyla (bkz. aşağıdaki not) |
 | `17-melodi.kojo` | `notaÇal` ile bir ezgi, `notaSus` ile es, `kalanNotaSüresi` ile toplam süre; `akorÇal` / `beraberÇal` ile aynı anda çalan notalar (yalnız iKojo) |
+| `18-birim-cember.kojo` | Dönen bir topun yatay ve dikey izdüşümü **kosinüs** ve **sinüs** dalgasını çizer; `canlandır`, `kalemKalınlığı`, `Resim.renkliYazı` (telefon ekranına göre düzenlendi) |
 
 ## Nasıl çalıştırılır
 
