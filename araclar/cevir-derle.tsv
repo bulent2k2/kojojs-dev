@@ -1,7 +1,7 @@
 # araclar/cevir-derle.py sonucu -- ELLE DÜZENLEMEYİN, --guncelle ile yenileyin
 # çevirmen: bulent2k2/kojo@f50c8fd10d9269c02aa2b7018c6b7daa4dc5bbc1
 # iKojo örnekleri (17): Türkçesi derlenen 17, çevirisi derlenen 14, çeviri açığı 3
-# masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 49, çeviri açığı 15
+# masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 50, çeviri açığı 14
 # "çeviri açığı": Türkçesi derleniyor, İngilizce çevirisi derlenmiyor
 betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
 01-ilk-adimlar.kojo	geçti	geçti	0		
@@ -26,7 +26,7 @@ masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	kaldı	
 masaustu/installer/examples/othello/menu_tr.kojo.installed	ayrıştırma	ayrıştırma	1	6: To compile XML syntax, the scala.xml package must be on the classpath.	6: To compile XML syntax, the scala.xml package must be on the classpath.
 masaustu/installer/examples/othello/tr/alfabeta.kojo	kaldı	kaldı	184	6: not found: type Oda	6: not found: type Oda
 masaustu/installer/examples/othello/tr/anaTanimlar.kojo	geçti	geçti	0		
-masaustu/installer/examples/othello/tr/araYuz.kojo	kaldı	kaldı	76	7: not found: type ETahta	7: not found: type ETahta
+masaustu/installer/examples/othello/tr/araYuz.kojo	kaldı	kaldı	75	7: not found: type ETahta	7: not found: type ETahta
 masaustu/installer/examples/othello/tr/bellek.kojo	kaldı	kaldı	6	4: not found: type ETahta	4: not found: type ETahta
 masaustu/installer/examples/othello/tr/durum.kojo	kaldı	kaldı	5	3: not found: type Tahta	3: not found: type Tahta
 masaustu/installer/examples/othello/tr/eTahta.kojo	kaldı	kaldı	125	6: not found: type Taş	6: not found: type Taş
@@ -143,5 +143,5 @@ masaustu/src/main/resources/samples/tr/tune2.kojo	kaldı	kaldı	7	2: not found: 
 masaustu/src/main/resources/samples/tr/turtle-controller.kojo	kaldı	kaldı	5	24: not found: value interpret	24: not found: value yorumla
 masaustu/src/main/resources/samples/tr/two-turtle-interaction.kojo	geçti	kaldı	2	12: type mismatch;	
 masaustu/src/main/resources/samples/tr/two-turtle-interaction2.kojo	geçti	kaldı	2	20: type mismatch;	
-masaustu/src/main/resources/samples/tr/unit-circle.kojo	geçti	kaldı	2	104: too many arguments (found 3, expected 2) for method text: (s0: Any, fontSize: Int): kojo.TextPic	
+masaustu/src/main/resources/samples/tr/unit-circle.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/widgets-canvas.kojo	ayrıştırma	ayrıştırma	1	8: To compile XML syntax, the scala.xml package must be on the classpath.	8: To compile XML syntax, the scala.xml package must be on the classpath.
