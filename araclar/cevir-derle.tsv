@@ -1,6 +1,6 @@
 # araclar/cevir-derle.py sonucu -- ELLE DÜZENLEMEYİN, --guncelle ile yenileyin
 # çevirmen: bulent2k2/kojo@3056e4d8781dc2b7ed2c90a23739c047ed212581
-# iKojo örnekleri (17): Türkçesi derlenen 17, çevirisi derlenen 14, çeviri açığı 3
+# iKojo örnekleri (18): Türkçesi derlenen 18, çevirisi derlenen 15, çeviri açığı 3
 # masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 50, çeviri açığı 14
 # "çeviri açığı": Türkçesi derleniyor, İngilizce çevirisi derlenmiyor
 betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
@@ -21,6 +21,7 @@ betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
 15-mesh-olcumu.kojo	geçti	kaldı	1	147: value get is not a member of cevirdenetimi.E014.builtins.trTurtle.BuAn	
 16-yuz-bin-komut.kojo	geçti	geçti	0		
 17-melodi.kojo	geçti	geçti	0		
+18-birim-cember.kojo	geçti	geçti	0		
 masaustu/installer/examples/anagram/anagram_tr.kojo.installed	kaldı	kaldı	5	6: not found: value sözcükDizininiYükle	6: not found: value sözcükDizininiYükle
 masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	kaldı	2	24: not found: value installDir	24: not found: value installDir
 masaustu/installer/examples/othello/menu_tr.kojo.installed	ayrıştırma	ayrıştırma	1	6: To compile XML syntax, the scala.xml package must be on the classpath.	6: To compile XML syntax, the scala.xml package must be on the classpath.
@@ -74,7 +75,7 @@ masaustu/src/main/resources/samples/tr/genart-delaunay.kojo	kaldı	kaldı	2	9: n
 masaustu/src/main/resources/samples/tr/genart-hypnotic-squares.kojo	kaldı	kaldı	2	3: not found: value setDrawingCanvasSize	22: not found: value konum
 masaustu/src/main/resources/samples/tr/genart-joy-division.kojo	geçti	kaldı	5	23: type mismatch;	
 masaustu/src/main/resources/samples/tr/genart-mondrian.kojo	geçti	geçti	0		
-masaustu/src/main/resources/samples/tr/genart-tiled-lines.kojo	geçti	kaldı	1	19: value length is not a member of cevirdenetimi.E070.Köşegen	
+masaustu/src/main/resources/samples/tr/genart-tiled-lines.kojo	geçti	kaldı	1	19: value length is not a member of cevirdenetimi.E071.Köşegen	
 masaustu/src/main/resources/samples/tr/genart-tri-mesh.kojo	geçti	kaldı	2	56: value setPosition is not a member of pixiscalajs.PIXI.Graphics	
 masaustu/src/main/resources/samples/tr/hunted-fp.kojo	kaldı	kaldı	7	41: not found: value net	41: not found: value net
 masaustu/src/main/resources/samples/tr/hunted.kojo	kaldı	kaldı	19	64: not found: value flipY	64: not found: value yansıtY
@@ -114,7 +115,7 @@ masaustu/src/main/resources/samples/tr/primes.kojo	geçti	kaldı	1	5: not found:
 masaustu/src/main/resources/samples/tr/radiance.kojo	kaldı	kaldı	1	15: type mismatch;	15: type mismatch;
 masaustu/src/main/resources/samples/tr/random-dots.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/rangoli.kojo	geçti	geçti	0		
-masaustu/src/main/resources/samples/tr/read-vector-bargraph.kojo	kaldı	kaldı	6	3: not found: value setOutputBackground	22: value boşluk is not a member of cevirdenetimi.T110.builtins.trTurtle.Resim
+masaustu/src/main/resources/samples/tr/read-vector-bargraph.kojo	kaldı	kaldı	6	3: not found: value setOutputBackground	22: value boşluk is not a member of cevirdenetimi.T111.builtins.trTurtle.Resim
 masaustu/src/main/resources/samples/tr/read-vector-mean.kojo	geçti	kaldı	5	2: not found: value toggleFullScreenOutput	
 masaustu/src/main/resources/samples/tr/scala-tutorial.kojo	ayrıştırma	ayrıştırma	1	36: To compile XML syntax, the scala.xml package must be on the classpath.	36: To compile XML syntax, the scala.xml package must be on the classpath.
 masaustu/src/main/resources/samples/tr/shapes-cols.kojo	geçti	geçti	0		
@@ -125,8 +126,8 @@ masaustu/src/main/resources/samples/tr/spiral-effects.kojo	kaldı	kaldı	2	20: n
 masaustu/src/main/resources/samples/tr/spiral-hexagon-tiles.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/spiral-square-tiles.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/spiral.kojo	geçti	geçti	0		
-masaustu/src/main/resources/samples/tr/sprite-animation.kojo	kaldı	kaldı	3	17: method position in class Turtle cannot be accessed as a member of kojo.Turtle from object E121 in package cevirdenetimi	17: value konum is not a member of cevirdenetimi.T121.k1.Kaplumbağa
-masaustu/src/main/resources/samples/tr/sprite-boundary-polygon.kojo	kaldı	kaldı	2	47: value repaint is not a member of kojo.Picture	47: value çizBaştan is not a member of cevirdenetimi.T122.builtins.trTurtle.Resim
+masaustu/src/main/resources/samples/tr/sprite-animation.kojo	kaldı	kaldı	3	17: method position in class Turtle cannot be accessed as a member of kojo.Turtle from object E122 in package cevirdenetimi	17: value konum is not a member of cevirdenetimi.T122.k1.Kaplumbağa
+masaustu/src/main/resources/samples/tr/sprite-boundary-polygon.kojo	kaldı	kaldı	2	47: value repaint is not a member of kojo.Picture	47: value çizBaştan is not a member of cevirdenetimi.T123.builtins.trTurtle.Resim
 masaustu/src/main/resources/samples/tr/square-pattern.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/square.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/subtraction-game.kojo	kaldı	kaldı	11	45: not found: value ay	45: not found: value ay
