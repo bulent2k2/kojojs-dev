@@ -217,18 +217,18 @@ class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers with BeforeAndAfter
   test("ucuz ve BİTMİŞ bir şekle başkasının süresi fatura edilmiyor") {
     // Aynı kusurun daha kötü biçimi (#130 incelemesi): orada sayı yanlıştı ama
     // ŞEKİL doğruydu; burada ikisi de yanlış. Ağır bir şekil daha bitmeden,
-    // araya giren 4 noktalık bitmiş bir kare onun birikimini üstleniyor ve
-    // kullanıcıya O KARENİN nokta sayısını yarıya indirmesi öğütleniyordu.
+    // araya giren 120 noktalık (tabanın üstünde) bitmiş bir şekil onun birikimini üstleniyor ve
+    // kullanıcıya O ŞEKLİN nokta sayısını yarıya indirmesi öğütleniyordu.
     sıfırla(); panelKur()
     val ağır = new ŞekilBirikimi
     val kare = new ŞekilBirikimi
     rapor.üçgenlemeBitti(ağır, 45.0, 800, bitti = false) // erken eşiğin altında
-    rapor.üçgenlemeBitti(kare, 2.0, 4, bitti = true)
+    rapor.üçgenlemeBitti(kare, 2.0, 120, bitti = true) // taban (enAzNokta = 100) üstü: yoksa susar ve sınama anlamsızlaşır
     withClue(s"panel: '$panelMetni' -- ") {
       // Küresel birikimde 45 + 2 = 47 ms > 16.7 ve bitti=true, yani panele
-      // "47 ms sürdü (4 nokta)" düşerdi.
+      // "47 ms sürdü (120 nokta)" düşerdi.
       rapor.düşenNotSayısı shouldBe 0
-      panelMetni should not include "4 nokta"
+      panelMetni should not include "120 nokta"
     }
   }
 
