@@ -30,7 +30,13 @@ class CizildiTest extends AsyncFunSuite with Matchers {
     var i = 0; while (i < 4) { t.forward(20); t.right(90); i += 1 }
   }
 
-  /** (çizmeden önce, çizince, silince) */
+  private def bekle(ms: Int): scala.concurrent.Future[Unit] = {
+    val söz = scala.concurrent.Promise[Unit]()
+    org.scalajs.dom.window.setTimeout(() => söz.success(()), ms)
+    söz.future
+  }
+
+  /** (çizmeden önce, çizince, silince) -- eşzamanlı; kaplumbağa resminin ASENKRON erase'i ayrı sınanıyor */
   private def üçAn(p: Picture): (Boolean, Boolean, Boolean) = {
     val önce = p.isDrawn
     p.draw()
@@ -49,13 +55,41 @@ class CizildiTest extends AsyncFunSuite with Matchers {
     succeed
   }
 
-  test("sarmalayıcılar: Transform ve PreDraw/PostDraw doğru cevap veriyor") {
-    // Transform: kendi draw()'ını çalıştırıyor. PreDraw/PostDraw: draw()'ı ezip
-    // içerideki resme `tpic.draw()` diyor, kendi imini koymuyor -- isDrawn ikisini birleştirmeli.
-    withClue("trans: ") { üçAn(b.trans(5, 5) -> b.Picture.circle(10)) shouldBe beklenen }
+  test("sarmalayıcılar: PreDraw (trans dahil), PostDraw ve düz Transform doğru cevap veriyor") {
+    // `trans(..)` bir PreDrawTransform. PreDraw/PostDraw draw()'ı ezip içerideki resme
+    // `tpic.draw()` diyor, kendi imini koymuyor; düz Transform Picture.draw()'ı kullanıyor ve
+    // kendi imini koyuyor (içeriye yalnız realDraw gidiyor). isDrawn ikisini de doğru söylemeli.
+    withClue("trans (PreDraw): ") { üçAn(b.trans(5, 5) -> b.Picture.circle(10)) shouldBe beklenen }
     withClue("preDraw: ") { üçAn(b.preDrawTransform(_ => ()) -> b.Picture.circle(10)) shouldBe beklenen }
     withClue("postDraw: ") { üçAn(b.postDrawTransform(_ => ()) -> b.Picture.circle(10)) shouldBe beklenen }
+    // Düz Transform: bugün alt sınıfı yok; PicTransformer'daki `super.isDrawn ||` onun içindi.
+    // `isDrawn = tpic.isDrawn`e indirgenirse BURASI kırmızı olur (içerideki resim `draw()` görmedi).
+    final case class DüzSarmalayıcı(p: Picture) extends Transform(p) {
+      def copy = DüzSarmalayıcı(p.copy)
+    }
+    withClue("düz Transform: ") { üçAn(DüzSarmalayıcı(b.Picture.circle(10))) shouldBe beklenen }
     succeed
+  }
+
+  test("çizilmemiş resimde erase() çizili yapmıyor (fireworks tam böyle: sil, sonra çiz)") {
+    withClue("daire: ") { val p = b.Picture.circle(10); p.erase(); p.isDrawn shouldBe false }
+    withClue("yazı: ") { val p = b.Picture.text("a", 12); p.erase(); p.isDrawn shouldBe false }
+    val k = kare()
+    k.erase() // TurtlePicture.erase asenkron (ready.foreach): bir kare bekle, sonra bak
+    bekle(30).map { _ =>
+      k.isDrawn shouldBe false
+      k.draw()
+      k.isDrawn shouldBe true
+    }
+  }
+
+  test("kaplumbağa resminin erase()'ı (asenkron) isDrawn'ı sıfırlamıyor") {
+    val k = kare()
+    k.draw()
+    k.ready.flatMap { _ =>
+      k.erase()
+      bekle(30).map { _ => k.isDrawn shouldBe true } // erase'in ready.foreach geri çağrısı koştu
+    }
   }
 
   test("grup çizilince çocukları da çizili; çizilmeden önce hiçbiri değil") {
@@ -65,6 +99,8 @@ class CizildiTest extends AsyncFunSuite with Matchers {
     (g.isDrawn, a.isDrawn, c.isDrawn) shouldBe ((false, false, false))
     g.draw()
     (g.isDrawn, a.isDrawn, c.isDrawn) shouldBe ((true, true, true))
+    g.erase()
+    bekle(30).map { _ => (g.isDrawn, a.isDrawn, c.isDrawn) shouldBe ((true, true, true)) } // erase sıfırlamıyor
   }
 
   test("çizilen kopya değil asıl çizili: copy yeni, çizilmemiş bir resim") {
