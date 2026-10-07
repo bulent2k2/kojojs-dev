@@ -118,19 +118,22 @@ class UcgenlemeGercekRenderTest extends AsyncFunSuite with Matchers with BeforeA
     implicit val w: KojoWorldImpl = dünyaKurYaDaİptal()
     panelKur()
     saatiKur()
+    // Stencil'siz dünya (yedek yol): 101 nokta stencil'li dünyada Eşik'in (64) üstü, yani hiç
+    // üçgenlenmez ve not düşmezdi. Bu sınama libtess yolundaki not teslimini ölçüyor (#180).
+    w.stencilDolgu = false
 
     val t = new Turtle(0, 0)
     t.setAnimationDelay(0)
     t.invisible()
     t.setFillColor(kojo.doodle.Color.blue)
     var i = 0
-    while (i < 4) { t.forward(60); t.right(90); i += 1 }
+    while (i < 100) { t.forward(6); t.right(3.6); i += 1 } // 101 nokta: tabanın (ÜçgenlemeUyarısı.enAzNokta, #180) üstü
 
     notuBekle(3000).map { n =>
       withClue(s"panel: '$panelMetni' -- ") {
         n shouldBe 1
         panelMetni should include("sürdü") // durmuş şekil: kesin biçim
-        panelMetni should include("(5 nokta)") // ve şeklin TAMAMI
+        panelMetni should include("(101 nokta)") // ve şeklin TAMAMI
       }
     }
   }

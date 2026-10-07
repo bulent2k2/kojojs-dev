@@ -68,8 +68,10 @@ class UcgenlemeKancaTest extends AsyncFunSuite with Matchers {
       import t._
       invisible(); setAnimationDelay(0); setFillColor(blue)
       kaplumbağa = t
+      // 120 kenarlı çokgen (~121 nokta): ÜÇGENLEME TABANININ (ÜçgenlemeUyarısı.enAzNokta, #180) üstünde.
+      // Eskiden dört kenarlı kare yetiyordu; küçük şekil artık susuyor (UcgenlemeKucukSekilTest).
       var i = 0
-      while (i < 4) { forward(50); right(90); i += 1 }
+      while (i < 120) { forward(5); right(3); i += 1 }
     }
     p.draw()
     for (_ <- p.ready) yield {

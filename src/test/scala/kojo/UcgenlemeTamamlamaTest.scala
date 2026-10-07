@@ -101,7 +101,7 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
     t.invisible()
     t.setFillColor(kojo.doodle.Color.blue)
     var i = 0
-    while (i < 4) { t.forward(60); t.right(90); i += 1 }
+    while (i < 100) { t.forward(6); t.right(3.6); i += 1 } // 101 nokta: tabanın (ÜçgenlemeUyarısı.enAzNokta, #180) üstü
 
     val söz = Promise[Int]()
     t.sync { () =>
@@ -169,7 +169,7 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
     t.invisible()
     t.setFillColor(kojo.doodle.Color.blue)
     var i = 0
-    while (i < 4) { t.forward(60); t.right(90); i += 1 }
+    while (i < 100) { t.forward(6); t.right(3.6); i += 1 } // 101 nokta: tabanın (ÜçgenlemeUyarısı.enAzNokta, #180) üstü
     (w, t)
   }
 
@@ -309,7 +309,7 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
     val (w, t) = kareÇizenKur()
     val söz = Promise[Unit]()
     t.sync { () =>
-      w.boyalarıBoşalt() // 5 noktada yayın
+      w.boyalarıBoşalt() // 101 noktada yayın
       var i = 0
       while (i < 4) { t.forward(60); t.right(90); i += 1 } // şekil büyüyor, yayın YOK
       window.setTimeout(
@@ -324,7 +324,7 @@ class UcgenlemeTamamlamaTest extends AsyncFunSuite with Matchers with BeforeAndA
     söz.future.map { _ =>
       withClue(s"panel: '$panelMetni' -- ") {
         w.üçgenlemeRaporu.düşenNotSayısı shouldBe 1
-        panelMetni should include("(9 nokta)") // 5 değil: bekleyen yayın da sayıldı
+        panelMetni should include("(105 nokta)") // 101 değil: bekleyen yayın da sayıldı
         // Durmuş şekil KESİN biçimde konuşuyor, ama doğru sayıyla. Bu satır
         // aynı zamanda SIRAYI çiviliyor: son yayında toplam 60 ms, yani erken
         // eşiğin üstünde -- "durdu" önce bakılmazsa erkenÇarpan araya girip
