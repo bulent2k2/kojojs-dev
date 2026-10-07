@@ -84,7 +84,7 @@ class UcgenlemeResimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
   private def kareResmi()(implicit w: TestKojoWorld): TurtlePicture = TurtlePicture { t =>
     t.setFillColor(kojo.doodle.Color.blue)
     var i = 0
-    while (i < 4) { t.forward(60); t.right(90); i += 1 }
+    while (i < 100) { t.forward(6); t.right(3.6); i += 1 } // 101 nokta: tabanın (ÜçgenlemeUyarısı.enAzNokta, #180) üstü
   }
 
   /**
@@ -116,7 +116,7 @@ class UcgenlemeResimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
       withClue(s"panel: '$panelMetni' -- ") {
         n shouldBe 1
         panelMetni should include("sürdü")
-        panelMetni should include("(5 nokta)")
+        panelMetni should include("(101 nokta)")
       }
     }
   }
@@ -129,7 +129,7 @@ class UcgenlemeResimTest extends AsyncFunSuite with Matchers with BeforeAndAfter
     boşalınca(w, r).map { n =>
       withClue(s"panel: '$panelMetni' -- ") {
         n shouldBe 1
-        panelMetni should include("(5 nokta)")
+        panelMetni should include("(101 nokta)")
       }
     }
   }

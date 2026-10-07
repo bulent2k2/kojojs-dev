@@ -284,4 +284,53 @@ class UcgenlemeUyarisiTest extends AnyFunSuite with Matchers with BeforeAndAfter
     panelMetni shouldBe ""
     w.kapat() // idempotent
   }
+
+  // ---- Küçük şekil (#180) ---------------------------------------------------
+
+  test("KÜÇÜK şekil (kare, 5 nokta) soğuk başlangıçta 27 ms sürse de not düşmüyor (#180)") {
+    // Kaydın tekrarı: `boyamaRenginiKur(rastgeleRenk); yinele(4) { ileri(100); sağ(90) }`
+    // ilk çalıştırmada "27 ms sürdü (5 nokta)" ve "noktayı yarıya indir" öğüdü basıyordu.
+    // 5 noktada maliyet algoritmadan gelemez (ÜçgenlemeUyarısı.enAzNokta).
+    sıfırla(); val panel = panelKur()
+    rapor.üçgenlemeBitti(birikim, 27.0, 5, bitti = true)
+    withClue(s"panel: '$panelMetni' -- ") {
+      rapor.düşenNotSayısı shouldBe 0
+      panel.childNodes.length shouldBe 0
+    }
+  }
+
+  test("taban sınırı: 99 nokta susuyor, 100 nokta konuşuyor (süre ve bitti aynı)") {
+    sıfırla(); panelKur()
+    rapor.üçgenlemeBitti(birikim, 30.0, 99, bitti = true)
+    rapor.düşenNotSayısı shouldBe 0
+    sıfırla(); panelKur()
+    rapor.üçgenlemeBitti(birikim, 30.0, 100, bitti = true)
+    rapor.düşenNotSayısı shouldBe 1
+    panelMetni should include("100 nokta")
+  }
+
+  test("şekilDurdu da tabana uyuyor: 5 noktalı durmuş şekil susuyor, 100 noktalı konuşuyor") {
+    sıfırla(); panelKur()
+    val küçük = new ŞekilBirikimi
+    küçük.toplamMs = 27.0; küçük.sonNoktaSayısı = 5
+    rapor.şekilDurdu(küçük)
+    rapor.düşenNotSayısı shouldBe 0
+    küçük.bildirildi shouldBe false // bildirilmedi: şekil sonra büyürse konuşabilsin
+
+    val büyük = new ŞekilBirikimi
+    büyük.toplamMs = 27.0; büyük.sonNoktaSayısı = 100
+    rapor.şekilDurdu(büyük)
+    rapor.düşenNotSayısı shouldBe 1
+  }
+
+  test("küçük evrenin süresi birikiyor: şekil tabanı geçince toplam konuşuyor") {
+    // Taban SUSTURUYOR, SİLMİYOR: 50 noktalıkken harcanan 10 ms de kullanıcının ödediği bedel.
+    sıfırla(); panelKur()
+    rapor.üçgenlemeBitti(birikim, 10.0, 50, bitti = false)
+    rapor.düşenNotSayısı shouldBe 0
+    rapor.üçgenlemeBitti(birikim, 10.0, 120, bitti = true)
+    rapor.düşenNotSayısı shouldBe 1
+    panelMetni should include("20 ms")
+    panelMetni should include("120 nokta")
+  }
 }
