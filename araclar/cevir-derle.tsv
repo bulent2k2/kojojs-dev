@@ -1,7 +1,7 @@
 # araclar/cevir-derle.py sonucu -- ELLE DÜZENLEMEYİN, --guncelle ile yenileyin
 # çevirmen: bulent2k2/kojo@3056e4d8781dc2b7ed2c90a23739c047ed212581
 # iKojo örnekleri (18): Türkçesi derlenen 18, çevirisi derlenen 15, çeviri açığı 3
-# masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 50, çeviri açığı 14
+# masaüstü örnekleri (124): Türkçesi derlenen 64, çevirisi derlenen 51, çeviri açığı 13
 # "çeviri açığı": Türkçesi derleniyor, İngilizce çevirisi derlenmiyor
 betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
 01-ilk-adimlar.kojo	geçti	geçti	0		
@@ -68,7 +68,7 @@ masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	kaldı	3	28: not found: 
 masaustu/src/main/resources/samples/tr/ferris-wheel.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	kaldı	1	25: not found: value brit	25: not found: value aydınlık
 masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	kaldı	kaldı	4	52: not found: type CanvasDraw	52: not found: type TuvalÇizim
-masaustu/src/main/resources/samples/tr/fireworks.kojo	geçti	kaldı	1	56: value isDrawn is not a member of kojo.CirclePic	
+masaustu/src/main/resources/samples/tr/fireworks.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/flappy-ball.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/genart-cubic-disarray.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/genart-delaunay.kojo	kaldı	kaldı	2	9: not found: value onMouseClick	9: not found: value fareyeTıklıyınca
