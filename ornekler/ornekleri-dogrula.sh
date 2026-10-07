@@ -20,6 +20,10 @@
 # NOT: kabuk değişken adları ASCII olmalı (bash Türkçe karakter kabul etmiyor).
 # Betikler yalnızca yazılımcık GÖVDESİ; buradaki prelude onları sarmalar --
 # kojojs-editor'ün application.conf'undaki defaultSource ile aynı olmalı.
+# `// $FiddleStart` / `// $FiddleEnd` işaretleri de ONUNLA aynı: router `// #yükle`
+# satırlarını yalnız bu işaretler arasında genişletir. Bu yüzden sunucunun
+# (router) KOCO_ORNEKLER'i bu dizine bakmalı; yoksa `#yükle` kullanan betikler
+# içe alınamadan "bulunamadı" ile kalır (yerel yığın: KOCO_ORNEKLER=<bu dizin>).
 set -u
 KOCO="${KOCO:-https://ikojo.fly.dev}"
 DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -66,13 +70,15 @@ object ScalaFiddle {
     import turtle._
     import svTurtle._
     import trTurtle._
+
+  // $FiddleStart
 PRE
   cat "$1"
   # printf, echo DEĞİL: betik satır sonuyla bitmiyorsa (duvar-tenisi ve
   # duvar-tenisi2 böyle) ve son satırı yorumsa, `}` yorumun içine giriyor;
   # object ScalaFiddle hiç kapanmıyor ve derleyici bambaşka bir yerde
   # "Missing closing brace" diyor. Baştaki \n bunu kesin olarak önler.
-  printf '\n}\n'
+  printf '\n  // $FiddleEnd\n}\n'
 }
 
 # Betik adı: verilen kökün altındaki göreli yol (TSV anahtarı olarak kararlı kalsın)

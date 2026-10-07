@@ -11,10 +11,13 @@ dosya söyler:
   `platform`, eksik adlar ve engeller. Statik tarama; her API değişikliğinde yenilenir.
 - `derleme.tsv` — `../ornekleri-dogrula.sh -g masaustu/derleme.tsv masaustu`
   çıktısı: gerçek `/compile` sonucu, betik başına `geçti` / `kaldı` / `sunucu`
-  (HTTP 200 dönmedi; betiğin değil sunucunun sorunu, gerileme sayılmaz). **Henüz
-  üretilmedi**; ilk kez canlı ya da yerel sunucuya karşı koşulup repoya alınmalı.
+  (HTTP 200 dönmedi; betiğin değil sunucunun sorunu, gerileme sayılmaz).
   Sonraki koşular `-b masaustu/derleme.tsv` ile karşılaştırılır: gerileme varsa
-  çıkış kodu 1, ilerleme varsa ⬆ ile yazılır.
+  çıkış kodu 1, ilerleme varsa ⬆ ile yazılır. Sunucu **yamalı (Türkçe anahtar
+  sözcüklü) derleyiciyle** koşmalı ve router'ın `KOCO_ORNEKLER`'i bu `ornekler/`
+  dizinine bakmalı: `#yükle` satırlarını router genişletiyor; yoksa bölünmüş
+  örnekler (robosim, Othello…) içe alınamadan "bulunamadı" ile kalır. Başlık
+  satırı koşunun tarihini ve sunucuyu yazar.
 
 Güncelleme (kojo klonundan yeniden kopyalar, `KAYNAK.txt`'yi yazar):
 
