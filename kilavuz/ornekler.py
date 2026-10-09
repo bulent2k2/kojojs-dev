@@ -253,13 +253,38 @@ def satır_html(baslik, göreli, durum_haritası, ikojo=False, aciklama=None):
             % (html.escape(yol), html.escape(baslik), ac, r, html.escape(os.path.basename(göreli))))
 
 
-def bolum(baslik, renk, alt, satirlar, baslik_url=None):
+TR_ASCII = str.maketrans('çğıöşüÇĞİÖŞÜ', 'cgiosuCGIOSU')
+
+
+def kimlik_yap(baslik, kullanilan):
+    """Bölüm başlığından sayfa içi bağlantı kimliği: 'Yeni Başlayanlar İçin' -> yeni-baslayanlar-icin."""
+    s = re.sub(r'[^a-z0-9]+', '-', baslik.translate(TR_ASCII).lower()).strip('-') or 'bolum'
+    k, n = s, 2
+    while k in kullanilan:
+        k, n = '%s-%d' % (s, n), n + 1
+    kullanilan.add(k)
+    return k
+
+
+def bolum(baslik, renk, alt, satirlar, dizin, baslik_url=None):
+    """Bir bölümün HTML'i; bölümü `dizin`e de yazar (içindekiler için: kimlik, başlık, renk, betik sayısı)."""
+    kimlik = kimlik_yap(baslik, {d[0] for d in dizin})
+    dizin.append((kimlik, baslik, renk, len(satirlar)))
     b = html.escape(baslik)
     if baslik_url:
         b = '<a href="%s">%s</a>' % (baslik_url, b)
-    return ('<section>\n<h2><span class="im" style="background:%s"></span>%s</h2>\n'
+    return ('<section id="%s">\n<h2><span class="im" style="background:%s"></span>%s'
+            '<a class="yukari" href="#icindekiler">↑ içindekiler</a></h2>\n'
             '<p class="alt">%s</p>\n<ul class="liste">\n%s</ul>\n</section>\n'
-            % (renk, b, alt, ''.join(satirlar)))
+            % (kimlik, renk, b, alt, ''.join(satirlar)))
+
+
+def icindekiler(dizin):
+    """Kahraman kutusunun altındaki kısayol şeridi: sayfa uzun, Fizik'e ya da Benzetim'e kaydırmadan gidilsin."""
+    baglar = ''.join('  <a href="#%s"><span class="im" style="background:%s"></span>%s<span class="sayi">%d</span></a>\n'
+                     % (k, renk, html.escape(b), n) for k, b, renk, n in dizin)
+    return ('<nav class="icindekiler" id="icindekiler" aria-label="İçindekiler">\n'
+            '  <span class="etiket">İçindekiler</span>\n%s</nav>\n' % baglar)
 
 
 CSS = """
@@ -269,9 +294,22 @@ CSS = """
         .kahraman h1 { margin: 0 0 8px; font-size: 30px; font-weight: 700; }
         .kahraman h1 .vurgu { color: var(--kirmizi); }
         .kahraman p { margin: 0; font-size: 17px; color: #404551; max-width: 64ch; }
+        .icindekiler { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 36px; }
+        .icindekiler .etiket { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+            color: var(--soluk); margin-right: 4px; }
+        .icindekiler a { display: inline-flex; align-items: center; gap: 8px; background: #fff;
+            border: 1px solid var(--cizgi); border-radius: 20px; padding: 5px 12px 5px 9px;
+            font-size: 14px; font-weight: 500; color: var(--metin); }
+        .icindekiler a:hover { border-color: var(--kirmizi); color: var(--kirmizi); text-decoration: none; }
+        .icindekiler .im { width: 8px; height: 16px; border-radius: 2px; display: inline-block; }
+        .icindekiler .sayi { color: var(--soluk); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+        /* yapışkan üst şerit başlığı örtmesin: çipten gelince başlık şeridin altında dursun */
+        section, .icindekiler { scroll-margin-top: 76px; }
         section { margin-bottom: 40px; }
         h2 { font-size: 21px; font-weight: 700; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
         h2 .im { width: 10px; height: 22px; border-radius: 3px; display: inline-block; }
+        h2 .yukari { margin-left: auto; font-size: 12.5px; font-weight: 500; color: var(--soluk); white-space: nowrap; }
+        h2 .yukari:hover { color: var(--kirmizi); }
         section > .alt { color: var(--soluk); margin: 0 0 14px; font-size: 15px; }
         ul.liste { list-style: none; margin: 0; padding: 0; background: #fff;
             border: 1px solid var(--cizgi); border-radius: 10px; overflow: hidden; }
@@ -302,6 +340,9 @@ CSS = """
             border-top: 1px solid var(--cizgi); padding-top: 24px; }
         @media (max-width: 640px) {
             .ust-bar .geri { display: none; }
+            section, .icindekiler { scroll-margin-top: 112px; }  /* şerit iki satıra sarılıyor */
+            .icindekiler { gap: 6px; }
+            .icindekiler a { font-size: 13px; padding: 4px 10px 4px 8px; gap: 6px; }
             ul.liste li { flex-direction: column; align-items: flex-start; gap: 6px; }
             ul.liste .sag { width: 100%; }
             .kahraman { padding: 24px; } .kahraman h1 { font-size: 25px; }
@@ -375,6 +416,7 @@ def main():
     durum_haritası, kaynak_türü, kaynak_yolu = durumlar()
 
     parçalar = [BAS % CSS]
+    dizin = []             # içindekiler: (kimlik, başlık, renk, betik sayısı), bölüm sırasıyla
     menüdekiler = set()
     eksik_dosya = []
 
@@ -396,18 +438,18 @@ def main():
     parçalar.append(bolum('Başlangıç', RENKLER['baslangic'],
                           'iKoco için yazılmış örnekler; sırayla ilerlemek için. '
                           'Kaynakları <a href="%s">ornekler/</a> dizininde.' % ORNEKLER_URL,
-                          satırlar, baslik_url=ORNEKLER_URL))
+                          satırlar, dizin, baslik_url=ORNEKLER_URL))
 
     # 2) Sergi
     for anahtar, kalemler in sergi_gruplari:
         parçalar.append(bolum(bas.get(anahtar, 'Sergi'), RENKLER['sergi'],
                               'Masaüstü Koco\'nun Sergi menüsündeki gösteri programları.',
-                              satirlari_yap(kalemler)))
+                              satirlari_yap(kalemler), dizin))
 
     # 3) Örnekler menüsü, masaüstündeki grup sırasıyla
     for i, (anahtar, kalemler) in enumerate(ornek_gruplari):
         parçalar.append(bolum(bas.get(anahtar, anahtar), GRUP_RENKLERI[i % len(GRUP_RENKLERI)],
-                              'Masaüstü Örnekler menüsündeki grup.', satirlari_yap(kalemler)))
+                              'Masaüstü Örnekler menüsündeki grup.', satirlari_yap(kalemler), dizin))
 
     # 4) Menülerde geçmeyen betikler (kılavuz parçaları, othello modülleri...)
     kalanlar = []
@@ -424,7 +466,10 @@ def main():
                     for g in sorted(kalanlar)]
         parçalar.append(bolum('Öteki betikler', RENKLER['oteki'],
                               'Menülerde geçmeyen dosyalar: kılavuz bölümleri, oyun modülleri, '
-                              'başka betiklerin içe aldığı parçalar.', satırlar))
+                              'başka betiklerin içe aldığı parçalar.', satırlar, dizin))
+
+    # içindekiler kahraman kutusunun hemen altına (bölümler bilinince)
+    parçalar.insert(1, icindekiler(dizin))
 
     # rozet açıklaması
     sayım = {}
