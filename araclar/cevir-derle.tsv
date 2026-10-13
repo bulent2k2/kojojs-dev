@@ -1,7 +1,7 @@
 # araclar/cevir-derle.py sonucu -- ELLE DÜZENLEMEYİN, --guncelle ile yenileyin
 # çevirmen: bulent2k2/kojo@3056e4d8781dc2b7ed2c90a23739c047ed212581
 # iKojo örnekleri (18): Türkçesi derlenen 18, çevirisi derlenen 15, çeviri açığı 3
-# masaüstü örnekleri (127): Türkçesi derlenen 68, çevirisi derlenen 52, çeviri açığı 16
+# masaüstü örnekleri (127): Türkçesi derlenen 70, çevirisi derlenen 52, çeviri açığı 18
 # "çeviri açığı": Türkçesi derleniyor, İngilizce çevirisi derlenmiyor
 betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
 01-ilk-adimlar.kojo	geçti	geçti	0		
@@ -67,7 +67,7 @@ masaustu/src/main/resources/samples/tr/estimating-pi-mc.kojo	geçti	geçti	0
 masaustu/src/main/resources/samples/tr/eye-effects.kojo	kaldı	kaldı	2	17: not found: value noise	17: not found: value gürültü
 masaustu/src/main/resources/samples/tr/eye.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/face-multi.kojo	geçti	geçti	0		
-masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	kaldı	3	28: not found: value flipX	28: not found: value yansıtX
+masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	kaldı	2	28: not found: value blur	28: not found: value bulanık
 masaustu/src/main/resources/samples/tr/ferris-wheel.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	kaldı	1	25: not found: value brit	25: not found: value aydınlık
 masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	geçti	geçti	0		
@@ -81,7 +81,7 @@ masaustu/src/main/resources/samples/tr/genart-mondrian.kojo	geçti	geçti	0
 masaustu/src/main/resources/samples/tr/genart-tiled-lines.kojo	geçti	kaldı	1	19: value length is not a member of cevirdenetimi.E074.Köşegen	
 masaustu/src/main/resources/samples/tr/genart-tri-mesh.kojo	geçti	kaldı	2	56: value setPosition is not a member of pixiscalajs.PIXI.Graphics	
 masaustu/src/main/resources/samples/tr/hunted-fp.kojo	kaldı	kaldı	7	41: not found: value net	41: not found: value net
-masaustu/src/main/resources/samples/tr/hunted.kojo	kaldı	kaldı	19	64: not found: value flipY	64: not found: value yansıtY
+masaustu/src/main/resources/samples/tr/hunted.kojo	geçti	kaldı	16	98: not found: value onAnimationStart	
 masaustu/src/main/resources/samples/tr/image-collage.kojo	geçti	kaldı	4	10: not found: value setPenFont	
 masaustu/src/main/resources/samples/tr/image-right-split.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/instruction-palette.kojo	ayrıştırma	ayrıştırma	1	33: To compile XML syntax, the scala.xml package must be on the classpath.	33: To compile XML syntax, the scala.xml package must be on the classpath.
@@ -137,7 +137,7 @@ masaustu/src/main/resources/samples/tr/subtraction-game.kojo	kaldı	kaldı	11	45
 masaustu/src/main/resources/samples/tr/synchronized-squares.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/synchronized-squares2.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/tan-theta.kojo	geçti	geçti	0		
-masaustu/src/main/resources/samples/tr/tangram-skier.kojo	kaldı	kaldı	6	55: not enough arguments for method trans: (x: Double, y: Double): kojo.PreDrawTransformc.	59: not found: value yansıtY
+masaustu/src/main/resources/samples/tr/tangram-skier.kojo	geçti	kaldı	1	55: not enough arguments for method trans: (x: Double, y: Double): kojo.PreDrawTransformc.	
 masaustu/src/main/resources/samples/tr/tic-tac-toe.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/tree0.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/tree1.kojo	kaldı	kaldı	1	25: not found: value brit	25: not found: value aydınlık
