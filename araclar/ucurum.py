@@ -79,8 +79,10 @@ PLATFORM = collections.OrderedDict([
                       'Java2D imge işleme')),
     ('canlandırma',  (re.compile(r'\b(?:Canlandırma|Geçiş|canlandırmaDizisi|Transition|animSeq)\b'),
                       'Transition/Canlandırma API')),
-    ('tuvalçizim',   (re.compile(r'\b(?:Grafik2B|canlandırTuvalÇizimle|tuvalÇizim\w*)\b'),
-                      'Graphics2D tuval çizimi')),
+    # Eskiz / TuvalÇizim / canlandırTuvalÇizimle artık iKojo'da (HTML canvas, kojo.CanvasDraw);
+    # kalan engel yalnız ham Graphics2D (Grafik2B)
+    ('tuvalçizim',   (re.compile(r'\b(?:Grafik2B)\b'),
+                      'ham Graphics2D (AWT)')),
     ('çini',         (re.compile(r'\b(?:ÇiniDünyası|TileWorld|BirSayfaKostüm|SpriteSheet)\b'),
                       'Çini dünyası (TileWorld)')),
     ('geo',          (re.compile(r'\b(?:GeoYol|GeoNokta|geo\.)\b'),

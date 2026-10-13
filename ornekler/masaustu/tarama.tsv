@@ -1,5 +1,5 @@
 # ucurum.py tarama sonucu (tanımlayıcı taraması, derleme değil)
-# masaüstü kojo: f6afce7
+# masaüstü kojo: 8d6b83b
 betik	durum	satır	engel	eksik	biçim
 installer/examples/anagram/anagram_tr.kojo.installed	platform	60	yükle		
 installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	platform	48	dosya		
@@ -27,7 +27,7 @@ src/main/resources/samples/tr/addition-game.kojo	platform	191	arayüz	Sütun Sı
 src/main/resources/samples/tr/angle-experiment.kojo	çalışır	72			
 src/main/resources/samples/tr/angles.kojo	çalışır	141			
 src/main/resources/samples/tr/animated-square-creation.kojo	platform	72	canlandırma	Doğrusal DörtlüGirdiÇıktı Geçiş YumuşakGeçiş canlandırmaEşzamanlı	
-src/main/resources/samples/tr/arduino-prog.kojo	platform	122	öykü,dosya	Dosya dosyalar içinde seç yükle	
+src/main/resources/samples/tr/arduino-prog.kojo	platform	122	öykü,dosya	Dosya dosyalar içinde seç	
 src/main/resources/samples/tr/bounce-collision.kojo	çalışır	68			
 src/main/resources/samples/tr/bounce-friction.kojo	çalışır	32			
 src/main/resources/samples/tr/bounce-gravity.kojo	çalışır	20			
@@ -39,9 +39,9 @@ src/main/resources/samples/tr/circles.kojo	çalışır	16
 src/main/resources/samples/tr/collidium.kojo	çalışır	152			
 src/main/resources/samples/tr/crazy-square.kojo	çalışır	93			
 src/main/resources/samples/tr/dragon-curve.kojo	çalışır	25			
-src/main/resources/samples/tr/eskiz-gezginler.kojo	eksik-ad	47		Eskiz TuvalÇizim artalan eskizden fırça fırçaAğırlığı fırçasız	
-src/main/resources/samples/tr/eskiz-gul.kojo	eksik-ad	58		Eskiz TuvalÇizim artalan dönüşümüGeriYükle dönüşümüKaydet eskizden fırça fırçaAğırlığı	
-src/main/resources/samples/tr/eskiz-halkalar.kojo	eksik-ad	51		Eskiz TuvalÇizim artalan boyasız eskizden fırça fırçaAğırlığı	
+src/main/resources/samples/tr/eskiz-gezginler.kojo	çalışır	47			
+src/main/resources/samples/tr/eskiz-gul.kojo	çalışır	58			
+src/main/resources/samples/tr/eskiz-halkalar.kojo	çalışır	51			
 src/main/resources/samples/tr/estimating-pi-mc.kojo	çalışır	27			
 src/main/resources/samples/tr/eye-effects.kojo	eksik-ad	22		gürültü sahneIşığı	
 src/main/resources/samples/tr/eye.kojo	çalışır	25			
@@ -49,7 +49,7 @@ src/main/resources/samples/tr/face-multi.kojo	çalışır	108
 src/main/resources/samples/tr/fern.kojo	eksik-ad	36		bulanık	
 src/main/resources/samples/tr/ferris-wheel.kojo	çalışır	44			
 src/main/resources/samples/tr/fib-tree.kojo	eksik-ad	33		aydınlık	
-src/main/resources/samples/tr/fireworks-canvas.kojo	platform	125	tuvalçizim	TuvalÇizim canlandırTuvalÇizimle fırça fırçaAğırlığı fırçasız	
+src/main/resources/samples/tr/fireworks-canvas.kojo	çalışır	125			
 src/main/resources/samples/tr/fireworks.kojo	çalışır	132			
 src/main/resources/samples/tr/flappy-ball.kojo	çalışır	79			
 src/main/resources/samples/tr/genart-cubic-disarray.kojo	çalışır	44			
@@ -60,7 +60,7 @@ src/main/resources/samples/tr/genart-mondrian.kojo	çalışır	63
 src/main/resources/samples/tr/genart-tiled-lines.kojo	çalışır	40			
 src/main/resources/samples/tr/genart-tri-mesh.kojo	çalışır	67			
 src/main/resources/samples/tr/hunted-fp.kojo	çalışır	121			
-src/main/resources/samples/tr/hunted.kojo	eksik-ad	172		silVeÇizimBiriminiKur	
+src/main/resources/samples/tr/hunted.kojo	çalışır	172			
 src/main/resources/samples/tr/image-collage.kojo	çalışır	25			
 src/main/resources/samples/tr/image-right-split.kojo	çalışır	22			
 src/main/resources/samples/tr/instruction-palette.kojo	platform	326	öykü		
@@ -116,7 +116,7 @@ src/main/resources/samples/tr/subtraction-game.kojo	platform	192	arayüz	Sütun 
 src/main/resources/samples/tr/synchronized-squares.kojo	çalışır	29			
 src/main/resources/samples/tr/synchronized-squares2.kojo	çalışır	30			
 src/main/resources/samples/tr/tan-theta.kojo	çalışır	22			
-src/main/resources/samples/tr/tangram-skier.kojo	eksik-ad	149		silVeÇizimBiriminiKur	
+src/main/resources/samples/tr/tangram-skier.kojo	çalışır	149			
 src/main/resources/samples/tr/tic-tac-toe.kojo	çalışır	272			
 src/main/resources/samples/tr/tree0.kojo	çalışır	35			
 src/main/resources/samples/tr/tree1.kojo	eksik-ad	33		aydınlık	
