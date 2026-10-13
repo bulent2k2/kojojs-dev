@@ -419,10 +419,24 @@ class Builtins(implicit kojoWorld: KojoWorld) {
   val picStackCentered = GPics2
   type PicScreen = kojo.PicScreen
 
+  // Çizim birimi (masaüstü Pixel/Cm/Inch, clearWithUL): bkz. KojoWorld.birimÖlçeği
+  type UnitLen = kojo.UnitLen
+  val Pixel = kojo.Pixel
+  val Cm = kojo.Cm
+  val Inch = kojo.Inch
+  def clearWithUL(ul: UnitLen): Unit = {
+    kojoWorld.birimiKur(ul)
+    turtle.clear()
+    turtle.setPenThickness(2 / ul.pikselOranı) // sil() kalemi sıfırlamıyor: ekranda 2 piksel kalsın
+  }
+
   def transform(fn: Picture => Unit) = preDrawTransform(fn)
   def preDrawTransform(fn: Picture => Unit) = PreDrawTransformc(fn)
   def postDrawTransform(fn: Picture => Unit) = PostDrawTransformc(fn)
 
+  // Masaüstü flipX / flipY dönüştürücüleri: flipX X ekseni çevresinde (Y ters), flipY Y ekseni çevresinde (X ters)
+  def flipX = transform(_.flipX())
+  def flipY = transform(_.flipY())
   def rot(angle: Double) = transform(_.rotate(angle))
   // Masaüstü Kojo'daki rotp (picture/package.scala): verilen noktanın
   // ÇEVRESİNDE döndürür. Resim üstündeki rotateAboutPoint yöntemi zaten
