@@ -1,5 +1,5 @@
 # ornekleri-dogrula.sh sonucu -- 2026-10-13 -- https://ikojo.fly.dev
-# geçti: 64   kaldı: 62   sunucu: 1
+# geçti: 68   kaldı: 58   sunucu: 1
 betik	durum	özet
 masaustu/installer/examples/anagram/anagram_tr.kojo.installed	kaldı	1 hata: 23: not found: value sözcükDizininiYükle dez sözlük: Dizin[Sözcük] = sözcükDizininiYükle                             ^
 masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	2 hata: 41: not found: value installDir     dez path = installDir + s + "examples" + s + "anagram" + s + "tr" + s + "sozcukler.txt"                ^
@@ -39,9 +39,9 @@ masaustu/src/main/resources/samples/tr/circles.kojo	geçti
 masaustu/src/main/resources/samples/tr/collidium.kojo	geçti	
 masaustu/src/main/resources/samples/tr/crazy-square.kojo	geçti	
 masaustu/src/main/resources/samples/tr/dragon-curve.kojo	geçti	
-masaustu/src/main/resources/samples/tr/eskiz-gezginler.kojo	kaldı	5 hata: 37: not found: type TuvalÇizim     tanım adım(tuval: TuvalÇizim) {                       ^
-masaustu/src/main/resources/samples/tr/eskiz-gul.kojo	kaldı	5 hata: 34: not found: type Eskiz sınıf Gül yayar Eskiz {                 ^
-masaustu/src/main/resources/samples/tr/eskiz-halkalar.kojo	kaldı	5 hata: 36: not found: type TuvalÇizim     tanım göster(tuval: TuvalÇizim) {                         ^
+masaustu/src/main/resources/samples/tr/eskiz-gezginler.kojo	geçti	
+masaustu/src/main/resources/samples/tr/eskiz-gul.kojo	geçti	
+masaustu/src/main/resources/samples/tr/eskiz-halkalar.kojo	geçti	
 masaustu/src/main/resources/samples/tr/estimating-pi-mc.kojo	geçti	
 masaustu/src/main/resources/samples/tr/eye-effects.kojo	kaldı	2 hata: 34: not found: value gürültü dez resim2 = gürültü(40, 1) -> resim              ^
 masaustu/src/main/resources/samples/tr/eye.kojo	geçti	
@@ -49,7 +49,7 @@ masaustu/src/main/resources/samples/tr/face-multi.kojo	geçti
 masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	3 hata: 45: not found: value yansıtX     yansıtX -> (soluk(230) * bulanık(2) -> eğreltiOtuResim),     ^
 masaustu/src/main/resources/samples/tr/ferris-wheel.kojo	geçti	
 masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	1 hata: 42: not found: value aydınlık             götür(2, büyüklük - 5) * aydınlık(0.05) -> Resim.dizi(                                      ^
-masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	kaldı	4 hata: 69: not found: type TuvalÇizim     tanım göster(tuval: TuvalÇizim) {                         ^
+masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	geçti	
 masaustu/src/main/resources/samples/tr/fireworks.kojo	geçti	
 masaustu/src/main/resources/samples/tr/flappy-ball.kojo	geçti	
 masaustu/src/main/resources/samples/tr/genart-cubic-disarray.kojo	geçti	
