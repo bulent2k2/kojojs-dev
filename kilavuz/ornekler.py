@@ -391,6 +391,7 @@ BAS = """<!DOCTYPE html>
             <a href="/yardim/sozluk">Sözlük</a>
             <a href="/yardim/skala">Skala</a>
             <a href="/yardim/farklar">Farklar</a>
+            <a href="/yardim/secenekler">Seçenekler</a>
         </nav>
         <a href="/" class="geri">← Düzenleme penceresine dön</a>
     </div>
