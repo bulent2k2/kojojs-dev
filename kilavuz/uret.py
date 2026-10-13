@@ -91,11 +91,11 @@ KILAVUZLAR = collections.OrderedDict([
 # Yardım sayfaları arası gezinti şeridi.
 # SIRA ÜÇ YERDE KOPYALI: burası (yardimSkala + yardimKomutlar), kilavuz/ornekler.py
 # (yardimOrnekler) ve kojojs-editor'deki elle tutulan sayfalar (yardim, yardimKitapcik,
-# yardimSozluk, yardimFarklar). Ayrışırsa çubuk
+# yardimSozluk, yardimFarklar, yardimSecenekler). Ayrışırsa çubuk
 # sayfadan sayfaya farklı sıralanır; araclar/gezinti-denetle.py bunu yakalıyor.
 GEZINTI = [('/yardim', 'Yardım'), ('/yardim/ornekler', 'Örnekler'), ('/yardim/kitapcik', 'Kitapçık'),
            ('/yardim/komutlar', 'Komutlar'), ('/yardim/sozluk', 'Sözlük'), ('/yardim/skala', 'Skala'),
-           ('/yardim/farklar', 'Farklar')]
+           ('/yardim/farklar', 'Farklar'), ('/yardim/secenekler', 'Seçenekler')]
 
 # iKojo'da olmayan masaüstü adı -> iKojo karşılığı (bilinenler). Boş dizge: karşılığı yok.
 KARSILIK = {
