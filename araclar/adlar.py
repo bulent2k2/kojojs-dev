@@ -46,6 +46,10 @@ EŞLEŞMELER = [
      'src/main/scala/kojo/tr/renk.scala', 'renk adları'),
     ('tuşlar', 'src/main/scala/net/kogics/kojo/lite/i18n/tr/klavye.scala',
      'src/main/scala/kojo/tr/klavye.scala', 'tuş adları'),
+    # Eskiz yüzeyi (kojo#88): iki tarafta da `implicit class canvasDrawMethods` -- AYNI ad.
+    # Bilinen boşluklar bilerek: şekil/imge (AWT), Yazıyüzü (sınıf içi tür takma adı).
+    ('canvasDrawMethods', 'src/main/scala/net/kogics/kojo/lite/i18n/tr/tuvalcizim.scala',
+     'src/main/scala/kojo/tr/tuvalcizim.scala', 'TuvalÇizim'),
 ]
 
 ÜYE = re.compile(r'\b(?:def|val|var|lazy\s+val|type)\s+(`[^`]+`|[^\s(\[:=,)]+)', re.U)
@@ -89,9 +93,10 @@ def üyeler(yol, kapsayıcı):
             s = soy(d.read())
     except OSError as e:
         sys.exit('okunamadı: %s (%s)' % (yol, e))
-    m = re.search(r'\bobject\s+%s\b' % re.escape(kapsayıcı), s)
+    # object, trait ya da (implicit) class: TuvalÇizim yöntemleri bir `implicit class` içinde
+    m = re.search(r'\b(?:object|(?:implicit\s+)?class|trait)\s+%s\b' % re.escape(kapsayıcı), s)
     if not m:
-        sys.exit('%s içinde "object %s" bulunamadı' % (yol, kapsayıcı))
+        sys.exit('%s içinde "object/class %s" bulunamadı' % (yol, kapsayıcı))
     i = s.find('{', m.end())
     # Gövdesiz bildirim (`object X extends Y`) sonraki bloğu yutar: araya
     # bir bildirim girmişse gövde yok demektir.

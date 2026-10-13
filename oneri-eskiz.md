@@ -5,7 +5,10 @@
 tam `TuvalÇizim` yüzeyinin iKoco'da da çalışması; masaüstünde yazılan eskiz
 betikleri tarayıcıda derlenip çizebilsin.
 
-**Durum (2026-10-11):** inceleme ve öneri. Bu PR yalnız belge; kod değişikliği
+**Durum (2026-10-13): Dilim 1 ve 2 uygulandı** (aşağıdaki "Uygulama notları"); Dilim 3
+(Çevir sürümü, kılavuz, iKoco örneği) ve dağıtım sonrası ölçüm bekliyor.
+
+**Önceki durum (2026-10-11):** inceleme ve öneri. Bu PR yalnız belge; kod değişikliği
 yok. Aşağıdaki "ölçüldü" işaretli her şeyi iki depoda (kojo `565d55f`, kojojs-dev
 `75d74f8`) okuyarak ya da çalıştırarak doğruladım; "ölçülmedi" işaretliler
 tahmindir ve ilgili dilimde ölçülmesi gerekir.
@@ -204,3 +207,50 @@ dersi: kojojs-dev'in master push denetimi editördeki şablonla karşılaştır�
    Canvas karşılığıyla (yazı değeri) ayrı imza mı?
 3. **Sıra:** Dilim 0'ı eskizden önce, tek başına mı birleştirelim? Önerim evet:
    küçük, kod değiştirmiyor ve #88'in iKoco'ya bugün ne yaptığını gösteriyor.
+
+---
+
+## 8. Uygulama notları (2026-10-13, Dilim 1-2)
+
+Kod: `kojo/CanvasDraw.scala` (yüzey), `kojo/SketchPic.scala` (canvas + tek Sprite),
+`syntax/Builtins.scala` (`Picture.fromSketch`, `canvasSketch`, `animateWithCanvasDraw`,
+`animateWithSetupCanvasDraw`), `tr/eskiz.scala`, `tr/tuvalcizim.scala`, `tr/resim.scala`
+(`Resim.eskizden`), `TurkishTurtle` (`tuvalEskizi`, `canlandırTuvalÇizimle`,
+`canlandırKurulumluTuvalÇizimle`). Sınama: `EskizTest` (21).
+
+**§6'daki "ölçülmedi"lerden şimdi ölçülenler**
+
+- *Koordinat eşlemesi (§3.4):* masaüstü `Java2DPic` `Graphics2D`yi HAM görüntü
+  koordinatlarında (y aşağı) veriyor ve görüntüyü y'si yukarı sahneye
+  `drawImage(img, 0, 0)` ile koyuyor: eskizde (x, y) = sahnenin (x, y) noktası, görüntü
+  baş aşağı. iKoco'da bağlam ham, sprite dönüştürülmüyor (ImagePic'in aksine) ve yazı
+  masaüstü gibi `scale(1, -1)` ile çiziliyor. Beklenen pikseller GERÇEK Java2D'den
+  (başsız `BufferedImage`, `Arc2D`/`Rectangle2D`/`Line2D`) okundu ve `EskizTest`te çivili.
+- *Yay yönü:* Java `Arc2D` ham koordinatta artan açıyı saat yönünün TERSİNE sayıyor;
+  Canvas'ta açı = -a, `anticlockwise` = uzunluk > 0. `yayKöşesi` (Rich2DPath formülü)
+  çeyrek ve yarım daire için Java2D'yle karşılaştırıldı.
+- *`rect`:* 3. ve 4. değer genişlik/yükseklik (§4 tablosundaki not doğrulandı);
+  fırça uçları: `SQUARE` (düz uç!), `PROJECT` (kare uç), `ROUND`.
+- *Yapısal tür (§7.1):* Scala.js 1.20.2 / 2.13.18'de yapısal tür çağrısı ÇALIŞIYOR
+  (`new { def setup(cd) ...; def drawLoop(cd) ... }`, `EskizTest`). Karar: İngilizce
+  `fromSketch` masaüstüyle aynı yapısal imzayı taşıyor; Türkçe `Eskiz` düz `trait`
+  (masaüstünde de öyle) ve yansıma kullanmadan işlevleri doğrudan veriyor.
+- *Sızıntı:* 200 eskiz kur-çiz-sil, `TextureCache`/`BaseTextureCache` büyümüyor.
+- *Gerçek derleyici:* `cevir-derle.py`: `eskiz-gezginler/gul/halkalar` Türkçesi
+  `kaldı` -> `geçti`; `fireworks-canvas` hem Türkçe hem çeviri `geçti`.
+
+**Kararlar (§7.2):** `karışımKipi` ve `blendMode` `java.awt.Composite` yerine Canvas'ın
+`globalCompositeOperation` adını (yazı) alıyor; `şekil(java.awt.Shape)` ve `imge(...)`
+yok (`adlar.py` bunları "bilinen boşluk" diye izliyor).
+
+**Hâlâ ölçülmedi:** telefonda yüzey boyutu x `devicePixelRatio` ve kare başına doku
+yüklemesi maliyeti (yüzey bugün CSS pikseli boyutunda, ekran yoğunluğu yok sayılıyor);
+canlı sitede örnek betiklerin görsel sonucu (`derleme.tsv` dağıtımdan sonra tazelenmeli).
+
+**Dağıtım sonrası yapılacak (bu PR'a bilerek girmedi):** `araclar/ucurum.py`ın `tuvalçizim`
+platform kuralı (artık yalnız `Grafik2B`) ve `ornekler/masaustu/tarama.tsv` yenilemesi,
+canlı derleme sonucuyla (`derleme.tsv`) birlikte tek seferde yapılmalı. Şimdi yapılsaydı
+`ornekler.html` (ve editördeki `yardimOrnekler`) `fireworks-canvas`ı "gerçek derlemede
+kaldı" diye gösterirdi: canlı site henüz yeni kitaplığı taşımıyor.
+
+**Bilinen sınır (inceleme notu, #216):** `KojoWorld.animate`ın döngüyü durduracak tutamacı yok. `SketchPic.erase` eskizi etkisizleştiriyor ama rAF zinciri dünya kapanana (ya da `durdur()`a) kadar boş dönüyor ve yüzeyin canvas belleğini (800x600x4 ~ 1,9 MB; `ölçekÇarpanı 2` ile 4 kat) tutuyor. Tipik betikte tek eskiz var ve her Çalıştır'da dünya kapanıyor; aynı koşuda çok sayıda eskiz kurup silen betiklerde birikir. `durdur()` sonrası sil + çiz yeni bir zincir kuruyor (`nesil`), eskisi etkisiz kalıyor.

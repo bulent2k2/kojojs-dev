@@ -1,7 +1,7 @@
 # araclar/cevir-derle.py sonucu -- ELLE DÜZENLEMEYİN, --guncelle ile yenileyin
 # çevirmen: bulent2k2/kojo@3056e4d8781dc2b7ed2c90a23739c047ed212581
 # iKojo örnekleri (18): Türkçesi derlenen 18, çevirisi derlenen 15, çeviri açığı 3
-# masaüstü örnekleri (127): Türkçesi derlenen 64, çevirisi derlenen 51, çeviri açığı 13
+# masaüstü örnekleri (127): Türkçesi derlenen 68, çevirisi derlenen 52, çeviri açığı 16
 # "çeviri açığı": Türkçesi derleniyor, İngilizce çevirisi derlenmiyor
 betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
 01-ilk-adimlar.kojo	geçti	geçti	0		
@@ -60,9 +60,9 @@ masaustu/src/main/resources/samples/tr/circles.kojo	geçti	geçti	0
 masaustu/src/main/resources/samples/tr/collidium.kojo	geçti	kaldı	3	29: not found: value TexturePaint	
 masaustu/src/main/resources/samples/tr/crazy-square.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/dragon-curve.kojo	geçti	geçti	0		
-masaustu/src/main/resources/samples/tr/eskiz-gezginler.kojo	kaldı	kaldı	5	20: not found: type CanvasDraw	20: not found: type TuvalÇizim
-masaustu/src/main/resources/samples/tr/eskiz-gul.kojo	kaldı	kaldı	5	17: not found: type Eskiz	17: not found: type Eskiz
-masaustu/src/main/resources/samples/tr/eskiz-halkalar.kojo	kaldı	kaldı	5	19: not found: type CanvasDraw	19: not found: type TuvalÇizim
+masaustu/src/main/resources/samples/tr/eskiz-gezginler.kojo	geçti	kaldı	1	46: value eskizden is not a member of object cevirdenetimi.E056.builtins.Picture	
+masaustu/src/main/resources/samples/tr/eskiz-gul.kojo	geçti	kaldı	1	57: value eskizden is not a member of object cevirdenetimi.E057.builtins.Picture	
+masaustu/src/main/resources/samples/tr/eskiz-halkalar.kojo	geçti	kaldı	1	50: value eskizden is not a member of object cevirdenetimi.E058.builtins.Picture	
 masaustu/src/main/resources/samples/tr/estimating-pi-mc.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/eye-effects.kojo	kaldı	kaldı	2	17: not found: value noise	17: not found: value gürültü
 masaustu/src/main/resources/samples/tr/eye.kojo	geçti	geçti	0		
@@ -70,7 +70,7 @@ masaustu/src/main/resources/samples/tr/face-multi.kojo	geçti	geçti	0
 masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	kaldı	3	28: not found: value flipX	28: not found: value yansıtX
 masaustu/src/main/resources/samples/tr/ferris-wheel.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	kaldı	1	25: not found: value brit	25: not found: value aydınlık
-masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	kaldı	kaldı	4	52: not found: type CanvasDraw	52: not found: type TuvalÇizim
+masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/fireworks.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/flappy-ball.kojo	geçti	geçti	0		
 masaustu/src/main/resources/samples/tr/genart-cubic-disarray.kojo	geçti	geçti	0		
