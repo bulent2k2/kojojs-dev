@@ -252,3 +252,5 @@ platform kuralı (artık yalnız `Grafik2B`) ve `ornekler/masaustu/tarama.tsv` y
 canlı derleme sonucuyla (`derleme.tsv`) birlikte tek seferde yapılmalı. Şimdi yapılsaydı
 `ornekler.html` (ve editördeki `yardimOrnekler`) `fireworks-canvas`ı "gerçek derlemede
 kaldı" diye gösterirdi: canlı site henüz yeni kitaplığı taşımıyor.
+
+**Bilinen sınır (inceleme notu, #216):** `KojoWorld.animate`ın döngüyü durduracak tutamacı yok. `SketchPic.erase` eskizi etkisizleştiriyor ama rAF zinciri dünya kapanana (ya da `durdur()`a) kadar boş dönüyor ve yüzeyin canvas belleğini (800x600x4 ~ 1,9 MB; `ölçekÇarpanı 2` ile 4 kat) tutuyor. Tipik betikte tek eskiz var ve her Çalıştır'da dünya kapanıyor; aynı koşuda çok sayıda eskiz kurup silen betiklerde birikir. `durdur()` sonrası sil + çiz yeni bir zincir kuruyor (`nesil`), eskisi etkisiz kalıyor.

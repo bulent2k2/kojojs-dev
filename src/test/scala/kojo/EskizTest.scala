@@ -324,4 +324,24 @@ class EskizTest extends AnyFunSuite with Matchers {
     canlandırKurulumluTuvalÇizimle(t => kurulum += 1)(t => ())
     kurulum shouldBe 1
   }
+
+  test("durdur() sonrası sil + çiz: yeni döngü kuruluyor, eski zincir etkisiz (tek döngü adım atar)") {
+    val kayıtlı = new TestKojoWorld {
+      var döngüler = Vector.empty[() => Unit]
+      override def animate(fn: => Unit): Unit = { döngüler :+= (() => fn) }
+    }
+    var döngü = 0
+    val p = new SketchPic(_ => (), _ => döngü += 1, 1, b.setRandomSeed)(kayıtlı)
+    p.draw()
+    kayıtlı.döngüler.size shouldBe 1
+    kayıtlı.döngüler(0)()
+    döngü shouldBe 1
+    p.erase()
+    p.draw() // canlandırma arada durdurulmuş olabilir: yeni zincir gerek
+    kayıtlı.döngüler.size shouldBe 2
+    kayıtlı.döngüler(0)() // eski zincir artık etkisiz
+    döngü shouldBe 1
+    kayıtlı.döngüler(1)()
+    döngü shouldBe 2
+  }
 }

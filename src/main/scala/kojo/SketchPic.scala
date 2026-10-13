@@ -71,7 +71,12 @@ class SketchPic(
   val tnode = katman
 
   private var kuruldu = false
-  private var başladı = false
+  // Her (yeniden) çizimde yeni bir döngü kuruluyor; eskileri `nesil` karşılaştırmasıyla etkisiz kalıyor.
+  // Neden: KojoWorld.animate'in döngüyü durduracak tutamacı yok; `durdur()` sonrası sil+çiz ile
+  // yeniden çizilen eskiz, döngü bir kez kuruldu diye canlanmıyordu. Eski (ölü ya da canlı) zincirler
+  // her karede boş dönüyor ve dünya kapanana ya da canlandırma durana kadar sürüyor -- animate'in
+  // genel davranışı; yüzeyin belleği de o zamana kadar tutuluyor.
+  private var nesil = 0
   private var silindi = false
 
   makeDone()
@@ -96,10 +101,9 @@ class SketchPic(
       yükle()
     }
     kojoWorld.addLayer(katman)
-    if (!başladı) {
-      başladı = true
-      kojoWorld.animate { adım() }
-    }
+    nesil += 1
+    val benim = nesil
+    kojoWorld.animate { if (benim == nesil) adım() }
   }
 
   def erase(): Unit = {
