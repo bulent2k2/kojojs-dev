@@ -175,6 +175,21 @@ jobs:
       - name: yardım gezinti şeridi her yerde aynı sırada mı
         run: python3 araclar/gezinti-denetle.py --editor kojojs-editor
 
+      # Çevirmen pini kojojs-core'dakiyle kopmasın. Sitedeki Çevir düğmesi router'ın kopyasını,
+      # cevir-derle kapısı bu depodaki pini kullanıyor; kopunca sessizdi (kojojs-core#80: bu depo
+      # düzeltilmiş çevirmeni ölçüp "geçti" derken canlı site eski kopyayla `Picture.eskizden` üretti).
+      # Karar tablosu araclar/pin-denetle.py başında: bu depo geride/ayrışmış -> kırmızı, önde -> uyarı.
+      # Karşı yönü kojojs-core'daki router/pin-denetle.sh kapatıyor.
+      - uses: actions/checkout@v7
+        with:
+          repository: bulent2k2/kojojs-core
+          path: kojojs-core-kaynak
+      - name: kojo geçmişi (iki sabit commit'in ata/torun ilişkisi için)
+        run: |
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/bulent2k2/kojo.git kojo-gecmis
+      - name: çevirmen pini kojojs-core router'ınkinden geride değil mi
+        run: python3 araclar/pin-denetle.py --core kojojs-core-kaynak --kojo kojo-gecmis
+
       # Editördeki ÜRETİLMİŞ Yardım sayfaları (yardimSkala, yardimKomutlar,
       # yardimOrnekler) bu depodaki üreteçlerin çıktısı ve editöre ELLE
       # kopyalanıyor; yenilenmezse sayfa açılıyor, yalnız eski içerik
