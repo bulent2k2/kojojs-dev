@@ -166,6 +166,10 @@ class Builtins(implicit kojoWorld: KojoWorld) {
   type CanvasDraw = kojo.CanvasDraw
   import scala.language.reflectiveCalls
 
+  // Masaüstü `tCanvas.onAnimationStart`: canlandırma başlarken çağrılır. Tarayıcıda hemen çalışır
+  // (Türkçe `canlandırmaBaşlayınca`); çevirmen bu ada çeviriyor.
+  def onAnimationStart(fn: => Unit): Unit = fn
+
   // Masaüstü canvasSketch / animateWithCanvasDraw / animateWithSetupCanvasDraw
   def canvasSketch(
       sketch: {
@@ -544,6 +548,14 @@ class Builtins(implicit kojoWorld: KojoWorld) {
         },
         scaleOutFactor: Double = 1
     ): Picture = new SketchPic(cd => sketch.setup(cd), cd => sketch.drawLoop(cd), scaleOutFactor, setRandomSeed)
+
+    // Türkçe `Eskiz` alt sınıfları (kurulum / çizimDöngüsü) Türkçe→İngilizce çevirilince `extends Eskiz`
+    // olarak kalıyor ve `Picture.fromSketch(new Gül)` çağrısına gidiyor (çevirmen, kojo#88). Masaüstünde
+    // bu derlenmiyordu ("Eskiz alt sınıfı İngilizceye çevrilemez"); burada kabul ediliyor.
+    // Varsayılan bağımsız değişken yalnız yapısal türlü biçimde olabilir, o yüzden iki ayrı imza.
+    def fromSketch(sketch: kojo.tr.Eskiz): Picture = fromSketch(sketch, 1.0)
+    def fromSketch(sketch: kojo.tr.Eskiz, scaleOutFactor: Double): Picture =
+      new SketchPic(sketch.kurulum, sketch.çizimDöngüsü, scaleOutFactor, setRandomSeed)
 
     def fromVertexShape(fn: VertexShape => Unit) = fromPath { g =>
       fn(new VertexShape(g))

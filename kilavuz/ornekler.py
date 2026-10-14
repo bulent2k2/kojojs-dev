@@ -205,6 +205,7 @@ IKOJO_BASLIK = {
     '16-yuz-bin-komut.kojo': 'Yüz bin komut',
     '17-melodi.kojo': 'Melodi',
     '18-birim-cember.kojo': 'Birim çember',
+    '19-eskiz-gul.kojo': 'Eskiz: gül eğrisi',
 }
 
 ROZETLER = {

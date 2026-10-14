@@ -195,6 +195,61 @@ yazı("Yazma denemesi yapalım...")
 ```
 <!-- masaüstü -->
 
+## Eskiz: piksel üzerine çizmek
+
+Her küçük çizgi için yeni bir `Resim` yaratmak sahneyi şişirir. **Eskiz** tek bir tuval resmidir: çizdiklerin piksel olarak birikir, yani istediğin kadar çizgi çizebilirsin. `kurulum` bir kez, `çizimDöngüsü` her karede çalışır; ikisi de aynı **TuvalÇizim** yüzeyine çizer. Yüzey kareler arasında silinmez: `artalan` çağırmazsan çizdiklerin kalır (iz bırakmanın yolu bu).
+
+| Komut | Açıklama | Örnekler |
+|---|---|---|
+| `Resim.eskizden(eskiz)` | `Eskiz` alt sınıfından tek bir tuval resmi yapar; `çiz(...)` ile çizilir | (aşağıdaki örnek) |
+| `tuvalEskizi(eskiz)` | `çiz(Resim.eskizden(eskiz))` ile aynı | |
+| `canlandırTuvalÇizimle(tuval => ...)` | Kısa yol: her karede verilen işlev tuvale çizer | |
+| `tuval.artalan(siyah)` | Tüm tuvali boyar. Saydam renk (`artalan(0, 0, 0, 20)`) öncekini soldurur | |
+| `tuval.fırça(kırmızı)`, `tuval.fırçaAğırlığı(3)`, `tuval.fırçasız()` | Çizgi rengi, kalınlığı, çizgisiz | |
+| `tuval.boya(mavi)`, `tuval.boyasız()` | Dolgu rengi, dolgusuz | |
+| `tuval.çizgi(x1, y1, x2, y2)`, `tuval.elips(x, y, en, boy)` | Çizgi; elips (en ve boy tam boydur) | |
+| `tuval.dikdörtgen(x, y, en, boy)` | Dikkat: son iki değer köşe değil, en ve boy | |
+| `tuval.dönüşümüKaydet()` / `tuval.dönüşümüGeriYükle()` | `götür`, `döndürDerece`, `büyüt` dönüşümlerini geri alır (boyayı geri almaz) | |
+| `tuval.döngüyüDurdur()` | Bu eskizin döngüsünü durdurur | |
+
+Eskizin koordinatları tuvalin sol alt köşesinden başlar: betiğin başında `başlangıçNoktasıAltSolKöşeOlsun()` de çağır. Yüzey gerçek bir resim olduğundan her karede tuvalin tamamı yeniden gönderilir; telefonlardaki maliyeti henüz ölçülmedi, çok büyük tuvallerde kare hızı düşebilir.
+
+İz bırakan bir gezgin:
+
+```scala
+silVeSakla()
+başlangıçNoktasıAltSolKöşeOlsun()
+dez en = tuvalAlanı.eni
+dez boy = tuvalAlanı.boyu
+
+sınıf Gezgin yayar Eskiz {
+    den x = en / 2
+    den y = boy / 2
+
+    tanım kurulum(tuval: TuvalÇizim) {
+        tuval.artalan(siyah)
+    }
+
+    tanım çizimDöngüsü(tuval: TuvalÇizim) {
+        tuval.boya(0, 0, 0, 20) // soldurucu örtü
+        tuval.fırçasız()
+        tuval.dikdörtgen(0, 0, en, boy)
+
+        dez eskiX = x
+        dez eskiY = y
+        x = enUfağı(en, enİrisi(0.0, x + rastgeleKesir(-7.0, 7.0)))
+        y = enUfağı(boy, enİrisi(0.0, y + rastgeleKesir(-7.0, 7.0)))
+        tuval.fırça(Renk.adas(rastgeleKesir(360), 1, 0.5, 0.9))
+        tuval.fırçaAğırlığı(2)
+        tuval.çizgi(eskiX, eskiY, x, y)
+    }
+}
+
+çiz(Resim.eskizden(yeni Gezgin))
+```
+
+Daha uzun bir örnek için [Örnekler](/yardim/ornekler) sayfasındaki "Eskiz: gül eğrisi"ne bak.
+
 ## Bilgi veren komutlar
 
 Bu komutların değerini masaüstünde çıktı gözü kendiliğinden gösterir; tarayıcıda `satıryaz` içine al.
