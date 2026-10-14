@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 pin-denetle.py -- araclar/kojo-cevirmen-surumu.txt (bu depo) ile kojojs-core'un
-router/CEVIRMEN_SURUMU'ndaki çevirmen commit'i kopmuş mu.
+router/TRANSLATOR_VERSION'ndaki çevirmen commit'i kopmuş mu.
 
 NEDEN: çevirmen iki yerde SABİT bir kojo commit'ine bağlı. Burada `cevir-derle` ölçüm kapısı
 kendi pinini kullanıyor; sitedeki Çevir düğmesi ise kojojs-core'daki router'ın kopyasını. Kopunca
@@ -52,11 +52,11 @@ def main():
     ap.add_argument('--kojo', required=True)
     a = ap.parse_args()
     benim = sha_oku(SURUM)
-    onun = sha_oku(os.path.join(a.core, 'router', 'CEVIRMEN_SURUMU'))
+    onun = sha_oku(os.path.join(a.core, 'router', 'TRANSLATOR_VERSION'))
     if not benim:
         sys.exit('HATA: %s içinde 40 haneli SHA yok' % SURUM)
     if not onun:
-        sys.exit('HATA: kojojs-core/router/CEVIRMEN_SURUMU içinde 40 haneli SHA yok')
+        sys.exit('HATA: kojojs-core/router/TRANSLATOR_VERSION içinde 40 haneli SHA yok')
     if benim == onun:
         print('aynı: kojojs-dev ve router çevirmeni kojo@%s' % benim[:12])
         return 0
@@ -71,7 +71,7 @@ def main():
         return 1
     if ata_mi(a.kojo, onun, benim):
         print('::warning::kojojs-dev çevirmeni (kojo@%s) router\'dakinden (kojo@%s) ÖNDE. '
-              'kojojs-core de yükseltilmeli: router/CEVIRMEN_SURUMU + router/cevirmen-esitle.sh.' % (benim[:12], onun[:12]))
+              'kojojs-core de yükseltilmeli: router/TRANSLATOR_VERSION + router/translator-sync.sh.' % (benim[:12], onun[:12]))
         return 0
     print('::error::kojojs-dev (kojo@%s) ve router (kojo@%s) çevirmen commit\'leri AYRIŞMIŞ (biri öbürünün atası değil).' % (benim[:12], onun[:12]))
     return 1

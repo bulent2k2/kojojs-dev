@@ -90,7 +90,7 @@ commit'te gönder. CI: `.github/workflows/cevir-derle.yml`.
 ### `pin-denetle.py` — çevirmen pini kojojs-core'dakiyle kopmasın
 
 Aynı çevirmen iki yerde sabit: burada `kojo-cevirmen-surumu.txt` (ölçüm kapısı) ve
-kojojs-core'da `router/CEVIRMEN_SURUMU` (sitedeki Çevir düğmesi). Kopunca sessizdi: bu depo
+kojojs-core'da `router/TRANSLATOR_VERSION` (sitedeki Çevir düğmesi). Kopunca sessizdi: bu depo
 güncel çevirmeni ölçüp "geçti" derken canlı site eski kopyayla `Picture.eskizden` üretti
 (kojojs-core#80). Bu araç iki pini kojo geçmişinde karşılaştırır: aynı geçer, **bu depo geride**
 ya da **ayrışmış** kırmızı, **bu depo önde** geçer + uyarı (iki depo tek PR'da değişemediğinden
@@ -118,8 +118,8 @@ elle işledi (754 → 980) ve o turu kimse tetiklemedi, göz kararı başladı.
 Bu araç aradaki farkı sayıyla söylüyor.
 
 Kaynak: masaüstü sözlüğünün **iki yarısı** da —
-`ceviri-sozlugu.tsv` (üretilmiş: sarmalayıcılardan türetilip derleyici
-sondasından geçmiş çiftler) ve `ceviri-kurallar.tsv` (üretecin yanlış
+`translation-dictionary.tsv` (üretilmiş: sarmalayıcılardan türetilip derleyici
+sondasından geçmiş çiftler) ve `translation-rules.tsv` (üretecin yanlış
 seçimlerini geçersiz kılan elle kurallar). Yalnız üretilmişi okumak sahte
 çelişki üretiyor: `zıpla` sayfada `hop`, üretilmiş TSV'de `saveStyle`, ve kural
 dosyası zaten `tr>en zıpla * hop` diyor.

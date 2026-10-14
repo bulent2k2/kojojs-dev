@@ -17,7 +17,7 @@ import scala.scalajs.js
  * (düzeltme: kojo#94). Bu sınama o sınıf hatayı (derlenir ama çizmez) yakalamak için duruyor.
  *
  * KOPYA: `FireworksCanvasEn.gövde` bu depodaki `ornekler/masaustu/.../tr/fireworks-canvas.kojo`nun
- * `CevirmenMain --tr2en` çıktısıdır (çevirmen: araclar/kojo-cevirmen-surumu.txt), YORUMLARI
+ * `TranslatorMain --tr2en` çıktısıdır (çevirmen: araclar/kojo-cevirmen-surumu.txt), YORUMLARI
  * ve çevirmenin yapıştırdığı ÇIKTIYA DOKUNULMADAN. Çevirmen sürümü yükseltilince bu kopya
  * yeniden üretilmeli; elle düzeltmek sınamanın amacını (çevirmenin ürettiği) boşa çıkarır.
  */

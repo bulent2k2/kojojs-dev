@@ -4,7 +4,7 @@
 cevir-derle.py -- Türkçe örnekler İngilizceye çevrilince iKojo'da derleniyor mu.
 
 NEDEN (#183, Aşama 0): iKojo'ya bir "Çevir" komutu geliyor; masaüstü Koco'nun
-çevirmenini (bulent2k2/kojo: lite/i18n/tr/cevirmen.scala) kullanacak. Kaç
+çevirmenini (bulent2k2/kojo: lite/i18n/tr/translator.scala) kullanacak. Kaç
 örneğin çevirisinin gerçekten derlendiğini SAYIYLA bilmek, ve bu sayının
 sessizce düşmemesi gerekiyor. Bu araç o ölçümü tekrarlanabilir ve CI'da
 koşan bir kapı yapıyor.
@@ -12,7 +12,7 @@ koşan bir kapı yapıyor.
 NE YAPIYOR: ornekler/*.kojo (iKojo) ve ornekler/masaustu/** (masaüstü Koco)
 altındaki her Türkçe betik için:
   1. Türkçe ASLINI derler.
-  2. Masaüstü çevirmeniyle (CevirmenMain --tr2en) İngilizceye çevirir ve
+  2. Masaüstü çevirmeniyle (TranslatorMain --tr2en) İngilizceye çevirir ve
      ÇEVİRİYİ derler.
   3. İki durumu da yazar ve araclar/cevir-derle.tsv'deki beklenenle
      karşılaştırır.
@@ -33,7 +33,7 @@ bu aracın ilk sürümü o yüzden 16/16 dedi, doğrusu 12/16'ydı (ölçüldü)
 refchecks'ten sonraki evreler (Scala.js dönüşümü, bağlama) koşmuyor: bu bir
 tür denetimi kapısı, "sitede çalışır" kanıtı değil.
 
-KAPI (CevirmenDerlemeTest.bilinenTrEn ile aynı ilke): beklenen "geçti" bir
+KAPI (TranslatorCompileTest.bilinenTrEn ile aynı ilke): beklenen "geçti" bir
 betik kalırsa GERİLEME, beklenmeyen bir betik geçerse İLERLEME -- ikisi de
 kırmızı. İlerleme de kırmızı, çünkü düzelen betik listeden çıkarılmazsa bir
 sonraki gerileme görünmez olur. Yalnız durumlar karşılaştırılır; hata sayısı
@@ -155,7 +155,7 @@ def sinif_yolu(dizin, launcher, kapsam):
 
 def cevir(kojo_yolu, girdi, cikti):
     kod, metin = kos(['java', '-Dfile.encoding=UTF-8', '-Dsun.jnu.encoding=UTF-8', '-cp', kojo_yolu,
-                      'net.kogics.kojo.lite.i18n.tr.CevirmenMain', '--tr2en', girdi, '-o', cikti])
+                      'net.kogics.kojo.lite.i18n.tr.TranslatorMain', '--tr2en', girdi, '-o', cikti])
     # Çıkış 1 = "kaynak dilin anahtar sözcüğü kaldı" uyarısı; çıktı yine yazılmış olur
     if kod is None:
         return False, 'zaman aşımı (%d sn)' % BETIK_ZAMAN_ASIMI
