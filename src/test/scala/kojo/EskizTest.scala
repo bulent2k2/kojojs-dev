@@ -344,4 +344,25 @@ class EskizTest extends AnyFunSuite with Matchers {
     kayıtlı.döngüler(1)()
     döngü shouldBe 2
   }
+
+  test("Türkçe Eskiz alt sınıfı İngilizce çevirisiyle: Picture.fromSketch(new Gül) ve onAnimationStart") {
+    // Çevirmen `çiz(Resim.eskizden(yeni Gül))` -> `draw(Picture.fromSketch(new Gül))` yapıyor; sınıf `extends Eskiz` kalıyor.
+    var kurulum, döngü = 0
+    class Gül extends kojo.tr.Eskiz {
+      def kurulum(tuval: CanvasDraw): Unit = { Gül.this.k += 1; tuval.fill(255, 0, 0); tuval.noStroke() }
+      var k = 0
+      def çizimDöngüsü(tuval: CanvasDraw): Unit = { döngü += 1; tuval.rect(0, 0, 10, 10) }
+    }
+    val g = new Gül
+    val p = b.Picture.fromSketch(g).asInstanceOf[SketchPic]
+    val q = b.Picture.fromSketch(g, 2.0).asInstanceOf[SketchPic]
+    p.draw(); p.adım()
+    g.k shouldBe 1
+    döngü shouldBe 1
+    alfa(p, 5, 5) shouldBe 255
+    q.tuvalElemanı.width shouldBe 1600
+    var basladi = false
+    b.onAnimationStart { basladi = true }
+    basladi shouldBe true
+  }
 }

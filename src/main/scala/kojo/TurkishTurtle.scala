@@ -578,7 +578,7 @@ class TurkishTurtle(val englishTurtle: TurtleAPI, builtins: syntax.Builtins)(imp
   def çıktıYazıRenginiKur(renk: Renk): Birim = {}
   def çıktıyıSil(): Birim = builtins.clearOutput() // clearOutput = {}; 6 betikte ilk hata buydu
   // masaüstünde canlandırma başlarken çağrılır; burada hemen çalışır
-  def canlandırmaBaşlayınca(işlev: => Birim): Birim = işlev
+  def canlandırmaBaşlayınca(işlev: => Birim): Birim = builtins.onAnimationStart(işlev)
   // masaüstünde ayrı iş parçacığı; tarayıcıda tek iş parçacığı var, hemen çalışır
   def artalandaOynat(kod: => Birim): Birim = builtins.runInBackground(kod)
 

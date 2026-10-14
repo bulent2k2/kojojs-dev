@@ -74,9 +74,16 @@ class TestKojoWorld extends KojoWorld {
   def frameCounter: Long = 0
   def setRefreshRate(fps: Int): Unit = {}
 
+  // `animate` KENDİLİĞİNDEN dönmüyor; kaydedilen kareleri `kareleriSür` elle sürüyor
+  // (canlı çalışma sınaması: İngilizce çevirisi gerçekten çiziyor mu).
+  private val canlandırmalar = scala.collection.mutable.ArrayBuffer.empty[() => Unit]
   def animate(fn: => Unit): Unit = {
-
+    canlandırmalar += (() => fn)
   }
+  private[kojo] def kareleriSür(n: Int): Unit =
+    (1 to n).foreach(_ => canlandırmalar.toList.foreach(_()))
+  /** Sahnedeki katmanlar (eklenme sırasıyla). */
+  private[kojo] def katmanlar: Seq[DisplayObject] = stage.children.toSeq
 
   // `animate` burada hiçbir şey yapmıyor, yani canlandırma KENDİLİĞİNDEN hiç
   // dönmüyor. Sınamalar canlandırma içindeki davranışı görebilsin diye bayrak
@@ -279,5 +286,7 @@ class TestKojoWorld extends KojoWorld {
   def zoomXY(xfactor: Double, yfactor: Double, cx: Double, cy: Double): Unit = {}
   def resetView(): Unit = {}
   def toggleFullScreenCanvas(): Unit = {}
-  def canvasBounds: Rectangle = new Rectangle(0, 0, 1, 1)
+  // Varsayılan 1x1; canvasBounds'a bakan betikleri koşturan sınamalar değeri kurabilir.
+  private[kojo] var sınırlar: Rectangle = new Rectangle(0, 0, 1, 1)
+  def canvasBounds: Rectangle = sınırlar
 }
