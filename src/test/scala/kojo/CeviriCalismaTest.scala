@@ -11,9 +11,10 @@ import scala.scalajs.js
  * derlemekle kalmıyor, tuvale gerçekten çiziyor mu.
  *
  * NEDEN: `araclar/cevir-derle.py` kapısı yalnız tür denetimi yapıyor ("sitede çalışır" kanıtı
- * değil). `fireworks-canvas.kojo`nun çevirisi o kapıdan GEÇİYOR, ama `tuval.nokta(x, y)`
- * `tuval.vertex(x, y)`e çevriliyor: `vertex` bir şekle köşe ekler, nokta ÇİZMEZ, şekil
- * açılmadan çağrılınca da istisna atar. Betik derleniyor ve ilk parçacıkta düşüyor.
+ * değil). `fireworks-canvas.kojo`nun çevirisi o kapıdan GEÇİYORDU, ama eski çevirmen
+ * `tuval.nokta(x, y)`yi `tuval.vertex(x, y)`e çeviriyordu: `vertex` bir şekle köşe ekler, nokta
+ * ÇİZMEZ, şekil açılmadan çağrılınca da istisna atar. Betik derleniyor, ilk parçacıkta düşüyordu
+ * (düzeltme: kojo#94). Bu sınama o sınıf hatayı (derlenir ama çizmez) yakalamak için duruyor.
  *
  * KOPYA: `FireworksCanvasEn.gövde` bu depodaki `ornekler/masaustu/.../tr/fireworks-canvas.kojo`nun
  * `CevirmenMain --tr2en` çıktısıdır (çevirmen: araclar/kojo-cevirmen-surumu.txt), YORUMLARI
@@ -86,7 +87,7 @@ object FireworksCanvasEn {
         def visible(tuval: CanvasDraw) {
             tuval.stroke(ColorMaker.hsla(arıRenk, 1, 0.5, yaşamSüresi / 255))
             tuval.strokeWeight(if(tohum) 4 else 2)
-            tuval.vertex(yer.x, yer.y)
+            tuval.point(yer.x, yer.y)
         }
     }
 
@@ -199,18 +200,17 @@ class CeviriCalismaTest extends AnyFunSuite with Matchers {
     renkliPiksel(tuval(w)) should be > 10
   }
 
-  // BİLİNEN AÇIK (çevirmen, kojo 8d6b83b): `tuval.nokta(x, y)` `tuval.vertex(x, y)`e çevriliyor.
-  // `nokta`nın İngilizcesi ALICIYA bağlı (GeoNokta.nokta = vertex, TuvalÇizim.nokta = point,
-  // Kaplumbağa.nokta = dot) ve çevirmen sözcük düzeyinde çalışıp alıcının türünü bilmiyor
-  // (ceviri-kurallar.tsv: "en sık kullanılan"). Betik DERLENİYOR (cevir-derle.tsv: geçti), ama
-  // çalışınca ilk parçacıkta düşüyor. Çeviri düzelip kopya yeniden üretilince BU SINAMA KIRMIZI olur:
-  // o zaman aşağıdaki sav `renkliPiksel(...) should be > 200`e çevrilmeli.
-  test("BİLİNEN AÇIK: fireworks-canvas İngilizce çevirisi derleniyor ama çalışınca `vertex` beginShape olmadan düşüyor") {
+  // Çevirmen kojo 4af4e3a'dan beri `tuval.nokta(x, y)`yi `tuval.point(x, y)`e çeviriyor (alıcı
+  // `tuval: TuvalÇizim` bildirimli ya da canlandırTuvalÇizimle lambda parametresi; bkz. kojo#94).
+  // Önceki sürümde `vertex`e çevriliyor, betik derlenip çalışınca beginShape olmadan düşüyordu.
+  test("fireworks-canvas İngilizce çevirisi çalışıyor: 400 kare sonra tuvalde RENKLİ piksel var (parçacıklar çiziliyor)") {
     implicit val w: TestKojoWorld = dünya()
     val b = new kojo.syntax.Builtins()
     b.setRandomSeed(7)
     FireworksCanvasEn.gövde(b)
-    val hata = intercept[Throwable] { w.kareleriSür(400) }
-    hata.getMessage should include("beginShape")
+    w.kareleriSür(400)
+    val n = renkliPiksel(tuval(w))
+    info(s"renkli piksel: $n")
+    n should be > 200
   }
 }
