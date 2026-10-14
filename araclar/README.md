@@ -87,6 +87,20 @@ klonu o commit'te olmalı ve TSV başlığı aynı SHA'yı taşımalı (araç ü
 denetler). Sürüm yükseltmek: SHA'yı değiştir, `--guncelle`, ikisini aynı
 commit'te gönder. CI: `.github/workflows/cevir-derle.yml`.
 
+### `pin-denetle.py` — çevirmen pini kojojs-core'dakiyle kopmasın
+
+Aynı çevirmen iki yerde sabit: burada `kojo-cevirmen-surumu.txt` (ölçüm kapısı) ve
+kojojs-core'da `router/CEVIRMEN_SURUMU` (sitedeki Çevir düğmesi). Kopunca sessizdi: bu depo
+güncel çevirmeni ölçüp "geçti" derken canlı site eski kopyayla `Picture.eskizden` üretti
+(kojojs-core#80). Bu araç iki pini kojo geçmişinde karşılaştırır: aynı geçer, **bu depo geride**
+ya da **ayrışmış** kırmızı, **bu depo önde** geçer + uyarı (iki depo tek PR'da değişemediğinden
+yükseltme PR'ı kendi kendini kırmızıya çevirmesin). Karşı yön kojojs-core'daki
+`router/pin-denetle.sh`. CI: `üreteçler` iş akışı.
+
+```
+araclar/pin-denetle.py --core ../kojojs-core --kojo ../kojo
+```
+
 ## ornek-dizini.py
 
 Komut -> onu kullanan ÇALIŞAN örnek betik dizini (sozluk/ornekler.json).
