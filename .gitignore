@@ -24,3 +24,8 @@ kojo-kaynak/
 # (araclar/gezinti-denetle.py --editor kojojs-editor; #151). kojo-kaynak/ ile
 # aynı sebep: izlenmezse "üretilenler ağaçtakiyle aynı mı" adımı kırmızı yanar.
 kojojs-editor/
+
+# CI'nın çevirmen pini denetimi için (araclar/pin-denetle.py) çektiği kojojs-core klonu ve
+# kojo geçmişi; "ağaç kirli mi" adımı bunları izlenmeyen dosya saymasın.
+kojojs-core-kaynak/
+kojo-gecmis/
