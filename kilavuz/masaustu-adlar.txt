@@ -1,4 +1,4 @@
-# uret.py: masaüstü Koco TR API adları (master). Elle düzenleme.
+# uret.py: masaüstü Koco TR API adları (kojo). Elle düzenleme.
 *
 +
 -
@@ -79,6 +79,8 @@ ElektroKuyruklu
 ElektroPiyano
 EnUfağı
 Enİrisi
+Eskiz
+EskizUyarlayıcı
 EsnekDizik
 EsnekDizikYöntemleri
 EsnekDizim
@@ -371,7 +373,9 @@ açı
 açı2
 açıkGri
 açımla
+açısalEğriKöşesi
 açısalEğriNoktası
+açısalKöşe
 açısalNokta
 açıyaDön
 açıÖlçeriGizle
@@ -418,6 +422,7 @@ bellekli
 benzerDönüşümKur
 benzerDönüşümUygula
 beyaz
+bezierKöşesi
 bezierNoktası
 bi
 bileşim
@@ -483,6 +488,7 @@ cancel
 canlan
 canlandır
 canlandırEvreyle
+canlandırKurulumluTuvalÇizimle
 canlandırTuvalÇizimle
 canlandırYenidenÇizerek
 canlandırmaBaşlayınca
@@ -558,6 +564,7 @@ doğrusalDeğişim
 doğrusalÇokluDeğişim
 doğruÇiz
 doğu
+drawLoop
 dumpCompletions
 dur
 durakla
@@ -565,11 +572,16 @@ duraklaMiliSaniye
 durdur
 dön
 döndür
+döndürDerece
 döndürMerkezli
+döndürRadyan
+döngüdeMi
 döngülüÇal
 döngüyüDurdur
 dönüştür
 dönüşüm
+dönüşümüGeriYükle
+dönüşümüKaydet
 düz
 düzleştir
 düzİşle
@@ -619,10 +631,13 @@ enİrisiBelki
 epic
 equals
 escape
+eskizden
 etkinliğiKur
 ev
 evDizini
 eüssü
+eğikBirleşim
+eğriKöşesi
 eğriNoktası
 eğriÇiz
 eşEkle
@@ -649,6 +664,8 @@ fark
 filtre
 fırça
 fırçaAğırlığı
+fırçaBirleşimi
+fırçaUcu
 fırçasız
 g
 geometri
@@ -711,6 +728,7 @@ ikileHepsini
 ikileKonumla
 ikileSırayla
 ikiliyiAç
+ikinciDereceKöşe
 ikinciDereceNokta
 ikiyeAyır
 ikiyeAyırİşle
@@ -773,8 +791,10 @@ kaplumbağa0
 kaplumbağadan
 karalamadan
 kare
+kareUç
 karekökü
 karesi
+karışımKipi
 karşılıklıMı
 katla
 kayarÖbekli
@@ -819,6 +839,7 @@ koşulla
 ksilofon1
 ksilofon2
 kumandaKolu
+kurulum
 kurulumDizini
 kutudanÇıkar
 kutuyaKoy
@@ -832,6 +853,7 @@ kuzey
 kym
 kyms
 kökDizinler
+köşe
 köşegen
 küme
 kümeye
@@ -899,6 +921,8 @@ noktalı_virgül
 noktayaDön
 noktayaGit
 notaÇal
+notaÇalarıDurdur
+notaÇalarıKapat
 notaÇalgısınıKur
 o
 odakDinleyiciEkle
@@ -928,6 +952,7 @@ pembe
 pencereİçindekiOdağıİste
 permütasyonlar
 piSayısı
+projeUç
 q
 r
 radyana
@@ -941,6 +966,7 @@ rastgeleNormalKesir
 rastgeleRenk
 rastgeleSayı
 rastgeleSeçim
+rastgeleTohum
 rastgeleTohumunuKur
 rastgeleUzun
 rastgeleÇanEğrisinden
@@ -1000,6 +1026,7 @@ sağdaÇiniVarMı
 scala
 sekme
 sesMp3üÇal
+setup
 seçenekleriKur
 seçilince
 seçİşle
@@ -1013,6 +1040,7 @@ sil_geri
 silipSakla
 sinüs
 sinüsünAçısı
+sivriBirleşim
 siyah
 sol
 solMu
@@ -1112,6 +1140,7 @@ tuvalAlanı
 tuvalBoyutOranınıKur
 tuvalBoyutlarınıKur
 tuvalBölgesi
+tuvalEskizi
 tuvalSınırları
 tuvalden
 tuvaleYaz
@@ -1215,6 +1244,7 @@ yatayBoşluk
 yatayDüzeniKur
 yatayMerkezKonumu
 yay
+yayKöşesi
 yayÇiz
 yaz
 yazı
@@ -1259,6 +1289,7 @@ yukarıdakiÇiniyeTaşı
 yukarıdaÇiniVarMı
 yumuşakGeçiş
 yuvarla
+yuvarlakUç
 yöney
 yöneye
 yıl
@@ -1311,6 +1342,7 @@ zıpla
 çizgi
 çizgiKenar
 çizili
+çizimDöngüsü
 çizimSonrasıİşlev
 çizimiKaydet
 çizimiKaydetBoy
@@ -1343,6 +1375,8 @@ zıpla
 önalanıKur
 öneAl
 önler
+öntanımlı
+öntanımlıDeğerle
 önyükle
 önü
 önüneEkle
@@ -1380,3 +1414,5 @@ zıpla
 ışınlarıAç
 ışınlarıKapat
 şekil
+şekilBaşla
+şekilBitir
