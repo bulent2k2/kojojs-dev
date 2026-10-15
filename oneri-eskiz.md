@@ -111,6 +111,9 @@ Kaynak: `lite/Builtins.scala` (`SketchRunner`), `lite/CanvasDraw.scala`,
    geniş tuvalde çarpan buna göre kısılıyor. Sınır: her cihazda tek ölçüm koşusu, ±4 ms
    gürültü (Adreno'da x1 > x1,5, Mac'te x1 57 fps; ısınma ya da arka plan yükü olabilir);
    daha zayıf cihazlarda ve hızlı bir masaüstü PC'de ölçülmedi.
+
+   Grafikler, tam tablo ve açık işler: <https://claude.ai/artifact/UGWtau8USAYNcqWHd8KJi7>
+   (yeni cihaz eklendikçe orada güncelleniyor; buradaki tablo o andaki özet).
 4. **Koordinatlar.** `artalan`, dönüşümün tersiyle yüzeyin tamamını boyuyor
    (`bgRectCoords`); `yazı` ve `imge` y'si ters çevrilerek çiziliyor
    (`drawText`: `scale(1, -1)`). #88 de **bu eşlemeyi doğrulamadığını** yazıyor.
