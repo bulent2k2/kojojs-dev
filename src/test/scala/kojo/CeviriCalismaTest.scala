@@ -161,6 +161,73 @@ object FireworksCanvasEn {
   }
 }
 
+/**
+ * `eskiz-gezginler.kojo`nun (masaüstü, Türkçe) `TranslatorMain --tr2en` çıktısı, kojo 7b69c98 ile. Fireworks
+ * gibi YORUMLARA ve çıktıya dokunulmadan; çevirmen sürümü yükseltilince yeniden üretilmeli.
+ * Bu kopya "sketch sınıfı" dönüşümünü sınar: `yayar Eskiz` atılmış, `kurulum`/`çizimDöngüsü` adları
+ * `setup`/`drawLoop` olmuş; `Picture.fromSketch` onları AD ile buluyor.
+ */
+object GezginlerEn {
+  import kojo.doodle.Color._
+  import kojo.Speed._
+  import kojo.RepeatCommands._
+  import kojo.syntax.Builtins
+
+  def gövde(builtins: Builtins)(implicit kojoWorld: KojoWorld): Unit = {
+    import builtins._
+    import turtle._
+    import svTurtle._
+    import trTurtle._
+    // Eskiz örneği: iz bırakan gezginler.
+    // Her gezgin her karede rastgele küçük bir adım atar ve arkasında renkli bir iz bırakır.
+    // İzler zamanla sönüyor: her karede tuvalin üstüne çok saydam siyah bir örtü çekiliyor.
+    //
+    // Neden Eskiz? Her adım için yeni bir Resim (örneğin Resim.daire) çizseydik, Kojo birkaç
+    // dakika sonra "Too many pics" sınırına (60000) takılıp çizmeyi bırakırdı (#87).
+    // Eskiz tek bir Resim: çizdikleri piksel olduğundan sınır yok, istediğiniz kadar çalışır.
+    cleari()
+    originBottomLeft() // eskiz resmi tuvalin sol alt köşesinden başlar
+
+    val en = canvasBounds.width
+    val boy = canvasBounds.height
+    val gezginSayısı = 12
+    val adımBoyu = 7.0
+
+    class Gezgin(arıRenk: Double) {
+        var x = en / 2
+        var y = boy / 2
+
+        def by(tuval: CanvasDraw) {
+            val eskiX = x
+            val eskiY = y
+            x = math.min(en, math.max(0.0, x + randomDouble(-adımBoyu, adımBoyu))) // kenarda durur
+            y = math.min(boy, math.max(0.0, y + randomDouble(-adımBoyu, adımBoyu)))
+            tuval.stroke(ColorMaker.hsla(arıRenk, 1, 0.5, 0.9))
+            tuval.strokeWeight(2)
+            tuval.line(eskiX, eskiY, x, y)
+        }
+    }
+
+    class Gezginler {
+        val gezginler = (1 to gezginSayısı).map(i => new Gezgin(i * 360.0 / gezginSayısı))
+
+        def setup(tuval: CanvasDraw) {
+            tuval.background(black)
+        }
+
+        def drawLoop(tuval: CanvasDraw) {
+            tuval.fill(0, 0, 0, 20) // soldurucu örtü
+            tuval.noStroke()
+            tuval.rect(0, 0, en, boy)
+            gezginler.foreach(_.by(tuval))
+        }
+    }
+
+    draw(Picture.fromSketch(new Gezginler))
+
+  }
+}
+
 class CeviriCalismaTest extends AnyFunSuite with Matchers {
   private def dünya(): TestKojoWorld = {
     val w = new TestKojoWorld()
@@ -209,6 +276,17 @@ class CeviriCalismaTest extends AnyFunSuite with Matchers {
     b.setRandomSeed(7)
     FireworksCanvasEn.gövde(b)
     w.kareleriSür(400)
+    val n = renkliPiksel(tuval(w))
+    info(s"renkli piksel: $n")
+    n should be > 200
+  }
+
+  test("eskiz-gezginler İngilizce çevirisi çalışıyor: sketch sınıfı (setup/drawLoop) bulunuyor ve tuvale renkli iz çiziliyor") {
+    implicit val w: TestKojoWorld = dünya()
+    val b = new kojo.syntax.Builtins()
+    b.setRandomSeed(7)
+    GezginlerEn.gövde(b)
+    w.kareleriSür(200)
     val n = renkliPiksel(tuval(w))
     info(s"renkli piksel: $n")
     n should be > 200
