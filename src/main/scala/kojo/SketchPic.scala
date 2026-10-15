@@ -29,7 +29,10 @@ import scala.scalajs.js
  *                    doku sınırına sığacak kadar (bkz. `SketchPic.otomatikÇarpan`). Neden 2: iki
  *                    telefonda ölçüldü (oneri-eskiz.md "Ekran yoğunluğu"), x2 ikisinde de akıcı,
  *                    x3 orta sınıf cihazda kare bütçesini (16,7 ms) aşıyor. Varsayılan 1 kalıyor,
- *                    çünkü f koordinat uzayını değiştirir (`canvasBounds` yüzey pikseli olur).
+ *                    çünkü açık f koordinat uzayını değiştirir (`canvasBounds` yüzey pikseli olur).
+ *                    Otomatik kipte ise bağlama bir kez `scale(f)` uygulanır: koordinatlar sahne
+ *                    birimi kalır (aynı betik her cihazda aynı yerde ve aynı boyda), yalnız keskinlik
+ *                    artar. `cd.width`/`cd.height` de sahne birimidir.
  */
 class SketchPic(
     kurulum: CanvasDraw => Unit,
@@ -67,7 +70,7 @@ class SketchPic(
   private[kojo] def tuvalElemanı: dom.html.Canvas = tuval
 
   /** Kullanıcıya verilen yüzey. */
-  val cd = new CanvasDraw(tuval, yüzeyEni, yüzeyBoyu, tohumla)
+  val cd = new CanvasDraw(tuval, yüzeyEni, yüzeyBoyu, tohumla, if (ölçekÇarpanı == 0) f else 1.0)
 
   private var bt: js.Dynamic = _
 

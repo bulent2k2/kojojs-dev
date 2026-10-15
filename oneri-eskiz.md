@@ -81,9 +81,12 @@ Kaynak: `lite/Builtins.scala` (`SketchRunner`), `lite/CanvasDraw.scala`,
    **Ekran yoğunluğu (`ölçekÇarpanı = 0`).** Site `devicePixelRatio`yu kullanmıyor
    (`rendererOptions` `resolution = 1`), yani yoğun ekranlarda eskiz büyütülüp biraz
    bulanık görünür. `0` değeri çarpanı `min(devicePixelRatio, 2)` yapar, yüzeyin en
-   uzun kenarı cihazın doku sınırını aşmayacak biçimde, en az 1. Varsayılan 1 kalıyor:
-   f koordinat uzayını değiştirir (kullanıcının koordinatı yüzey pikseli), o yüzden
-   betiğin sabit sayıları cihaza göre kaymasın. Ölçüm (800x600 sahne, kare başı 40 çizgi,
+   uzun kenarı cihazın doku sınırını aşmayacak biçimde, en az 1. Varsayılan 1 kalıyor
+   ve açık `ölçekÇarpanı = 2` gibi değerlerde kullanıcının koordinatı yüzey pikseli
+   (eskisi gibi). Otomatik kipte ise bağlama bir kez `scale(f)` uygulanıyor: koordinatlar
+   sahne birimi kalıyor, aynı betik her cihazda aynı yerde ve aynı boyda çiziyor, yalnız
+   keskinlik artıyor (`cd.width`/`cd.height` de sahne birimi). Bu, #230 incelemesinin
+   bulgusuydu: ilk sürümde otomatik kipte koordinatlar cihaza göre kayıyordu. Ölçüm (800x600 sahne, kare başı 40 çizgi,
    `baseTexture.update()` + render + `readPixels`, 90 kare, ms, iş med / p95):
 
    | cihaz | x1 | x1,5 | x2 | x3 |
