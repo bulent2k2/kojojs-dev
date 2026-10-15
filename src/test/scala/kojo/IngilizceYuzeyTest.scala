@@ -7,7 +7,7 @@ import scala.concurrent.{Future, Promise}
 
 /**
  * Masaüstü Kojo'nun İngilizce adları iKojo'da da olmalı: Koco -> Kojo çevirmeni
- * (bulent2k2/kojo, lite/i18n/tr/cevirmen.scala) Türkçe bir betiği bu adlara
+ * (bulent2k2/kojo, lite/i18n/tr/translator.scala) Türkçe bir betiği bu adlara
  * çeviriyor ve çıkan betik derlenmeli (kojojs-dev#183 Aşama 3). Bu adlar
  * `araclar/cevir-derle.py` kapısında "çeviri açığı" olarak görünüyordu.
  *

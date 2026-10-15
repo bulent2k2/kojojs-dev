@@ -153,7 +153,7 @@ class NotaCalarTest extends AsyncFunSuite with Matchers {
     s.türler shouldBe Seq("sine", "sine", "triangle")
     an[IllegalArgumentException] should be thrownBy tr.notaÇalgısınıKur(200)
 
-    // Koco -> Kojo çevirmeninin (kojo: ceviri-sozlugu.tsv) seçtiği karşılıklar
+    // Koco -> Kojo çevirmeninin (kojo: translation-dictionary.tsv) seçtiği karşılıklar
     val ç = tr.Çalgı
     val I = b.Instrument
     Seq(

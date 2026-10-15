@@ -141,8 +141,8 @@ girdiğinde sessizce eskiyor. Farkı ölçen araç:
 
     araclar/sozluk-kapsam.py --kojo <kojo klonu>
 
-Masaüstünün üretilmiş çeviri sözlüğüyle (`ceviri-sozlugu.tsv` + elle
-`ceviri-kurallar.tsv`) karşılaştırıp üç liste veriyor: sayfada olmayan adlar
+Masaüstünün üretilmiş çeviri sözlüğüyle (`translation-dictionary.tsv` + elle
+`translation-rules.tsv`) karşılaştırıp üç liste veriyor: sayfada olmayan adlar
 (kaynak dosyaya göre öbeklenmiş), sayfanın başka bir yazım biçimiyle örtük
 kapsadıkları, ve çelişen çiftler. Rapor, kapı değil; hangi adın sayfaya
 gireceğine küratör karar verir. Ayrıntı: `../araclar/README.md`.

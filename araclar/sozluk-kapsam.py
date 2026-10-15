@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 sozluk-kapsam.py -- koco-sozlugu.html ile masaüstü Koco'nun ÜRETİLMİŞ çeviri
-sözlüğünü (bulent2k2/kojo: src/main/resources/i18n/tr/ceviri-sozlugu.tsv)
+sözlüğünü (bulent2k2/kojo: src/main/resources/i18n/tr/translation-dictionary.tsv)
 karşılaştırır.
 
 NEDEN: sözlük sayfasındaki 1022 satır bir kez üretilip SONRA ELLE düzeltildi
@@ -23,7 +23,7 @@ tam onu kapatmak için var. ornek-dizini.py'nin kojojs-editor dizinini argüman
 alması da aynı gerekçe.
 
 SÖZLÜĞÜN İKİ YARISI: üretilmiş TSV tek başına masaüstü sözlüğü DEĞİL. Yanında
-`ceviri-kurallar.tsv` duruyor: üretecin yanlış seçimlerini geçersiz kılmak için
+`translation-rules.tsv` duruyor: üretecin yanlış seçimlerini geçersiz kılmak için
 tam bu amaçla yazılmış elle kurallar. Yalnız üretilmişi okumak sahte çelişki
 üretiyor -- ölçüldü, `zıpla` sayfada `hop`, üretilmiş TSV'de `saveStyle`, ve
 kural dosyası zaten `tr>en zıpla * hop` diyor (kendi notu: "gövdeli tanım;
@@ -78,8 +78,8 @@ import sys
 BURASI = os.path.dirname(os.path.abspath(__file__))
 IKOJO = os.path.dirname(BURASI)
 SAYFA = os.path.join(IKOJO, 'sozluk', 'koco-sozlugu.html')
-TSV_YOLU = os.path.join('src', 'main', 'resources', 'i18n', 'tr', 'ceviri-sozlugu.tsv')
-KURAL_YOLU = os.path.join('src', 'main', 'resources', 'i18n', 'tr', 'ceviri-kurallar.tsv')
+TSV_YOLU = os.path.join('src', 'main', 'resources', 'i18n', 'tr', 'translation-dictionary.tsv')
+KURAL_YOLU = os.path.join('src', 'main', 'resources', 'i18n', 'tr', 'translation-rules.tsv')
 
 # Sayfadaki veri satırı: ["ingilizce","türkçe","açıklama"]  (tek satır; baştaki
 # boşluk yutuluyor -- sayfa yeniden biçimlenip girintilenirse satır SESSİZCE
