@@ -250,7 +250,7 @@ class TurkishPreludeTest extends AnyFunSuite with Matchers {
       val ç = yazıÇerçevesi("selam", 20)
       tuvalBoyutlarınıKur(400, 300)
       oyunSüresiniGeriyeSayarakGöster(30, "Bitti", kırmızı)
-      dal.tepkiVer { d => d.kaydır(dal.hızınıDönüştür(Yöney2B(1, 0))) }
+      dal.tepkiVer { d => d.hızınıDönüştür(Yöney2B(1, 0)) }
       davran { k => k.ileri(1) }
       val v = sahneKenarındanYansıtma(yz, Yöney2B(1, 1)); engeldenYansıtma(yz, v, dal)
       val t: Uzun = buAn
