@@ -78,6 +78,24 @@ Kaynak: `lite/Builtins.scala` (`SketchRunner`), `lite/CanvasDraw.scala`,
    `döngüdeMi` bunu okur.
 3. **`ölçekÇarpanı`.** Yüzey `genişlik × f` ve `yükseklik × f` piksel, resim
    `1/f` ölçeklenir (daha ince çizgi için).
+   **Ekran yoğunluğu (`ölçekÇarpanı = 0`).** Site `devicePixelRatio`yu kullanmıyor
+   (`rendererOptions` `resolution = 1`), yani yoğun ekranlarda eskiz büyütülüp biraz
+   bulanık görünür. `0` değeri çarpanı `min(devicePixelRatio, 2)` yapar, yüzeyin en
+   uzun kenarı cihazın doku sınırını aşmayacak biçimde, en az 1. Varsayılan 1 kalıyor:
+   f koordinat uzayını değiştirir (kullanıcının koordinatı yüzey pikseli), o yüzden
+   betiğin sabit sayıları cihaza göre kaymasın. Ölçüm (800x600 sahne, kare başı 40 çizgi,
+   `baseTexture.update()` + render + `readPixels`, 90 kare, ms, iş med / p95):
+
+   | cihaz | x1 | x1,5 | x2 | x3 |
+   |---|---|---|---|---|
+   | PowerVR C-Series, 8 GB (DPR 2,625) | 10,1 / 14,4 | 9,2 / 13,5 | 11,1 / 15,1 | 13,0 / 18,1 |
+   | Adreno 620, 4 GB (DPR 2,625) | 13,2 / 19,4 | 9,0 / 17,5 | 12,1 / 17,5 | 17,1 / 22,6 |
+
+   x2 iki cihazda da 16,7 ms bütçesinin altında; x3 Adreno 620'de bütçeyi aşıyor, o yüzden
+   üst sınır 2. Bellek (hesap): x2 için tuval + GPU dokusu ≈ 15 MiB, x3 için ≈ 33 MiB.
+   Adreno 620'de en büyük doku 4096 px (öbüründe 8192): geniş tuvalde çarpan buna göre kısılıyor.
+   Sınır: tek bir ölçüm koşusu, ±4 ms gürültü (Adreno'da x1 > x1,5 ısınmadan olabilir);
+   daha zayıf cihazlarda ölçülmedi.
 4. **Koordinatlar.** `artalan`, dönüşümün tersiyle yüzeyin tamamını boyuyor
    (`bgRectCoords`); `yazı` ve `imge` y'si ters çevrilerek çiziliyor
    (`drawText`: `scale(1, -1)`). #88 de **bu eşlemeyi doğrulamadığını** yazıyor.

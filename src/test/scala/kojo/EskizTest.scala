@@ -185,6 +185,32 @@ class EskizTest extends AnyFunSuite with Matchers {
     sprite.scale.x shouldBe 0.5 +- 1e-12
   }
 
+  test("ölçekÇarpanı 0 (otomatik): min(dpr, 2), doku sınırına sığacak kadar, 1'in altına inmez") {
+    val oç = SketchPic.otomatikÇarpan _
+    oç(1, 800, 600, 8192) shouldBe 1.0
+    oç(2.625, 800, 600, 8192) shouldBe 2.0 // iki telefonda ölçülen DPR; üst sınır 2
+    oç(1.5, 800, 600, 8192) shouldBe 1.5
+    oç(3, 800, 600, 8192) shouldBe 2.0
+    oç(2.625, 1400, 600, 2800) shouldBe 2.0 // tam sığıyor
+    oç(2, 1400, 600, 2000) shouldBe (2000.0 / 1400) +- 1e-12 // doku sınırı çarpanı kısar
+    oç(2, 5000, 600, 4096) shouldBe 1.0 // sığmasa bile 1'in altına inmez
+    oç(0.75, 800, 600, 8192) shouldBe 1.0 // DPR < 1 çarpanı küçültmez
+    oç(2, 800, 600, 0) shouldBe 2.0 // sınır bilinmiyorsa uygulanmaz
+  }
+
+  test("ölçekÇarpanı 0 gerçek yolda: DPR ve cihaz doku sınırından hesaplanıyor; yüzey ve sprite buna uyuyor; negatif 1 kalıyor") {
+    val p = new SketchPic(_ => (), _ => (), 0, b.setRandomSeed)
+    p.draw()
+    val beklenen = SketchPic.otomatikÇarpan(dom.window.devicePixelRatio, 800, 600, SketchPic.enBüyükDoku)
+    p.çarpan shouldBe beklenen
+    p.çarpan should (be >= 1.0 and be <= 2.0)
+    p.tuvalElemanı.width shouldBe math.round(800 * beklenen).toInt
+    p.tuvalElemanı.height shouldBe math.round(600 * beklenen).toInt
+    p.tnode.asInstanceOf[pixiscalajs.PIXI.Container].children(0).scale.x shouldBe (1 / beklenen) +- 1e-12
+    SketchPic.enBüyükDoku should be >= 2048.0
+    new SketchPic(_ => (), _ => (), -3, b.setRandomSeed).çarpan shouldBe 1.0
+  }
+
   test("blendMode(\"lighter\") renkleri toplar") {
     val p = eskiz(cd => {
       cd.noStroke(); cd.blendMode("lighter")
