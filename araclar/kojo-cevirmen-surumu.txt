@@ -4,4 +4,4 @@
 #   1. aşağıdaki SHA'yı değiştir,
 #   2. araclar/cevir-derle.py --kojo <o commit'teki kojo> --guncelle,
 #   3. ikisini aynı commit'te gönder (araç, TSV başlığındaki SHA ile bunu karşılaştırır).
-7b69c9843ebd7c253f1ef58a5ebd9675f321f0a3
+99d0811ac0f2979d3e36d26df3e23f4db4e7de01
