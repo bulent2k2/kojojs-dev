@@ -228,6 +228,147 @@ object GezginlerEn {
   }
 }
 
+/**
+ * `eskiz-gul.kojo`nun (masaüstü, Türkçe) `TranslatorMain --tr2en` çıktısı, kojo 99d0811 ile; yorumlara ve çıktıya dokunulmadan. iKoco'nun `19-eskiz-gul.kojo` örneğinin GÖVDESİ bununla aynıdır (yalnız yorumlar farklı), o yüzden ayrıca gömülmedi.
+ */
+object GulEn {
+  import kojo.doodle.Color._
+  import kojo.Speed._
+  import kojo.RepeatCommands._
+  import kojo.syntax.Builtins
+
+  def gövde(builtins: Builtins)(implicit kojoWorld: KojoWorld): Unit = {
+    import builtins._
+    import turtle._
+    import svTurtle._
+    import trTurtle._
+    // Eskiz örneği: gül eğrisi (rhodonea). r = kosinüs(k * açı), k = n / d.
+    // Eğri kare kare, her karede biraz daha uzayarak çiziliyor; renk açıyla değişiyor.
+    // Eğri kapanınca birkaç saniye bekleyip yeni bir (n, d) seçilir.
+    //
+    // Dönüşüm kaydet/geri yükle örneği de var: merkeze götür ile çizip dışarıyı bozmuyoruz.
+    // Eskiz tek bir Resim olduğundan, binlerce küçük çizgi "Too many pics" sınırına takılmaz (#87).
+    cleari()
+    originBottomLeft() // eskiz resmi tuvalin sol alt köşesinden başlar
+
+    val en = canvasBounds.width
+    val boy = canvasBounds.height
+    val yarıçap = 0.45 * math.min(en, boy)
+    val seçenekler = Seq((7, 4), (5, 3), (9, 4), (5, 2), (8, 5), (3, 1))
+    val karedeAdım = 40       // her karede kaç küçük çizgi
+    val açıAdımı = 0.01
+
+    class Gül {
+        var (n, d) = seçenekler(0)
+        var angle = 0.0
+        var bekleme = 0
+
+        def yarıçapı(a: Double) = yarıçap * math.cos(n.toDouble / d * a)
+
+        def yeniSeç(tuval: CanvasDraw) {
+            val (n2, d2) = seçenekler(random(seçenekler.length))
+            n = n2; d = d2
+            angle = 0.0
+            tuval.background(black)
+        }
+
+        def setup(tuval: CanvasDraw) {
+            tuval.background(black)
+        }
+
+        def drawLoop(tuval: CanvasDraw) {
+            if (angle > 2 * math.Pi * d) {   // eğri kapandı
+                bekleme += 1
+                if (bekleme > 180) { bekleme = 0; yeniSeç(tuval) }
+            }
+            else {
+                tuval.pushMatrix()
+                tuval.translate(en / 2, boy / 2)
+                tuval.strokeWeight(2)
+                repeat(karedeAdım) {
+                    val a2 = angle + açıAdımı
+                    val (x1, y1) = (yarıçapı(angle) * math.cos(angle), yarıçapı(angle) * math.sin(angle))
+                    val (x2, y2) = (yarıçapı(a2) * math.cos(a2), yarıçapı(a2) * math.sin(a2))
+                    tuval.stroke(ColorMaker.hsla((angle * 180 / math.Pi) % 360, 1, 0.55, 1))
+                    tuval.line(x1, y1, x2, y2)
+                    angle = a2
+                }
+                tuval.popMatrix()
+            }
+        }
+    }
+
+    draw(Picture.fromSketch(new Gül))
+  }
+}
+
+/**
+ * `eskiz-halkalar.kojo`nun (masaüstü, Türkçe) `TranslatorMain --tr2en` çıktısı, kojo 99d0811 ile; yorumlara ve çıktıya dokunulmadan.
+ */
+object HalkalarEn {
+  import kojo.doodle.Color._
+  import kojo.Speed._
+  import kojo.RepeatCommands._
+  import kojo.syntax.Builtins
+
+  def gövde(builtins: Builtins)(implicit kojoWorld: KojoWorld): Unit = {
+    import builtins._
+    import turtle._
+    import svTurtle._
+    import trTurtle._
+    // Eskiz örneği: su yüzeyinde halkalar.
+    // Rastgele yerlere damlalar düşer; her damla genişleyen ve sönen halkalar bırakır.
+    // Her karede tuval baştan boyanıyor (artalan) ve canlı halkaların hepsi yeniden çiziliyor:
+    // iz kalmıyor, ama yüzlerce elips bile tek bir Resim, yani tek bir eskiz.
+    //
+    // Burada neden Resim.daire değil de eskiz? Her halka her karede yeni bir Resim olsaydı
+    // Kojo kısa sürede "Too many pics" sınırına (60000) takılırdı (#87).
+    cleari()
+    originBottomLeft() // eskiz resmi tuvalin sol alt köşesinden başlar
+
+    val en = canvasBounds.width
+    val boy = canvasBounds.height
+    val enBüyükYarıçap = 0.18 * math.min(en, boy)
+
+    class Halka(x: Double, y: Double, arıRenk: Double) {
+        var yaş = 0.0
+        def ölüMü = yaş >= 1.0
+        def by() { yaş += 0.012 }
+        def visible(tuval: CanvasDraw) {
+            val opac = 1.0 - yaş            // yaşlandıkça sönüyor
+            val r = enBüyükYarıçap * yaş
+            tuval.noFill()
+            tuval.strokeWeight(3 * opac + 0.5)
+            tuval.stroke(ColorMaker.hsla(arıRenk, 0.8, 0.6, opac))
+            tuval.ellipse(x, y, 2 * r, 2 * r)
+            tuval.ellipse(x, y, 1.3 * r, 1.3 * r)  // iç halka
+        }
+    }
+
+    class Su {
+        val halkalar = ArrayBuffer.empty[Halka]
+
+        def setup(tuval: CanvasDraw) {
+            tuval.background(0, 20, 50)
+        }
+
+        def drawLoop(tuval: CanvasDraw) {
+            if (randomDouble(1) < 0.06) {
+                halkalar.append(new Halka(randomDouble(en), randomDouble(boy), randomDouble(160, 220)))
+            }
+            halkalar.filterInPlace(h => !h.ölüMü)
+            tuval.background(0, 20, 50)
+            halkalar.foreach { h =>
+                h.by()
+                h.visible(tuval)
+            }
+        }
+    }
+
+    draw(Picture.fromSketch(new Su))
+  }
+}
+
 class CeviriCalismaTest extends AnyFunSuite with Matchers {
   private def dünya(): TestKojoWorld = {
     val w = new TestKojoWorld()
@@ -287,6 +428,28 @@ class CeviriCalismaTest extends AnyFunSuite with Matchers {
     b.setRandomSeed(7)
     GezginlerEn.gövde(b)
     w.kareleriSür(200)
+    val n = renkliPiksel(tuval(w))
+    info(s"renkli piksel: $n")
+    n should be > 200
+  }
+
+  test("eskiz-gul İngilizce çevirisi çalışıyor: 200 kare sonra tuvalde renkli gül eğrisi var") {
+    implicit val w: TestKojoWorld = dünya()
+    val b = new kojo.syntax.Builtins()
+    b.setRandomSeed(7)
+    GulEn.gövde(b)
+    w.kareleriSür(200)
+    val n = renkliPiksel(tuval(w))
+    info(s"renkli piksel: $n")
+    n should be > 200
+  }
+
+  test("eskiz-halkalar İngilizce çevirisi çalışıyor: 300 kare sonra tuvalde renkli halkalar var") {
+    implicit val w: TestKojoWorld = dünya()
+    val b = new kojo.syntax.Builtins()
+    b.setRandomSeed(7)
+    HalkalarEn.gövde(b)
+    w.kareleriSür(300)
     val n = renkliPiksel(tuval(w))
     info(s"renkli piksel: $n")
     n should be > 200
