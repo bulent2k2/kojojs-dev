@@ -1,5 +1,5 @@
 # ornekleri-dogrula.sh sonucu -- 2026-10-15 -- https://ikojo.fly.dev
-# geçti: 68   kaldı: 58   sunucu: 1
+# geçti: 70   kaldı: 56   sunucu: 1
 betik	durum	özet
 masaustu/installer/examples/anagram/anagram_tr.kojo.installed	kaldı	1 hata: 23: not found: value sözcükDizininiYükle dez sözlük: Dizin[Sözcük] = sözcükDizininiYükle                             ^
 masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	2 hata: 41: not found: value installDir     dez path = installDir + s + "examples" + s + "anagram" + s + "tr" + s + "sozcukler.txt"                ^
@@ -46,7 +46,7 @@ masaustu/src/main/resources/samples/tr/estimating-pi-mc.kojo	geçti
 masaustu/src/main/resources/samples/tr/eye-effects.kojo	kaldı	2 hata: 34: not found: value gürültü dez resim2 = gürültü(40, 1) -> resim              ^
 masaustu/src/main/resources/samples/tr/eye.kojo	geçti	
 masaustu/src/main/resources/samples/tr/face-multi.kojo	geçti	
-masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	3 hata: 45: not found: value yansıtX     yansıtX -> (soluk(230) * bulanık(2) -> eğreltiOtuResim),     ^
+masaustu/src/main/resources/samples/tr/fern.kojo	kaldı	2 hata: 45: not found: value bulanık     yansıtX -> (soluk(230) * bulanık(2) -> eğreltiOtuResim),                              ^
 masaustu/src/main/resources/samples/tr/ferris-wheel.kojo	geçti	
 masaustu/src/main/resources/samples/tr/fib-tree.kojo	kaldı	1 hata: 42: not found: value aydınlık             götür(2, büyüklük - 5) * aydınlık(0.05) -> Resim.dizi(                                      ^
 masaustu/src/main/resources/samples/tr/fireworks-canvas.kojo	geçti	
@@ -60,7 +60,7 @@ masaustu/src/main/resources/samples/tr/genart-mondrian.kojo	geçti
 masaustu/src/main/resources/samples/tr/genart-tiled-lines.kojo	geçti	
 masaustu/src/main/resources/samples/tr/genart-tri-mesh.kojo	geçti	
 masaustu/src/main/resources/samples/tr/hunted-fp.kojo	kaldı	7 hata: 58: not found: value net val cd = new net.kogics.kojo.fpgaming.CollisionDetector()              ^
-masaustu/src/main/resources/samples/tr/hunted.kojo	kaldı	3 hata: 81: not found: value yansıtY     yansıtY * döndür(120) * götür(1.5, 0) -> parça7,     ^
+masaustu/src/main/resources/samples/tr/hunted.kojo	geçti	
 masaustu/src/main/resources/samples/tr/image-collage.kojo	geçti	
 masaustu/src/main/resources/samples/tr/image-right-split.kojo	geçti	
 masaustu/src/main/resources/samples/tr/instruction-palette.kojo	kaldı	1 hata: 50: To compile XML syntax, the scala.xml package must be on the classpath. Please see https://github.com/scala/scala-xml for details.     <div style={ headerSty
@@ -116,7 +116,7 @@ masaustu/src/main/resources/samples/tr/subtraction-game.kojo	kaldı	10 hata: 62:
 masaustu/src/main/resources/samples/tr/synchronized-squares.kojo	geçti	
 masaustu/src/main/resources/samples/tr/synchronized-squares2.kojo	geçti	
 masaustu/src/main/resources/samples/tr/tan-theta.kojo	geçti	
-masaustu/src/main/resources/samples/tr/tangram-skier.kojo	kaldı	5 hata: 76: not found: value yansıtY     boyaRengi(mavi) * yansıtY * döndür(120) * götür(1.5, 0) -> r7,                       ^
+masaustu/src/main/resources/samples/tr/tangram-skier.kojo	geçti	
 masaustu/src/main/resources/samples/tr/tic-tac-toe.kojo	geçti	
 masaustu/src/main/resources/samples/tr/tree0.kojo	geçti	
 masaustu/src/main/resources/samples/tr/tree1.kojo	kaldı	1 hata: 42: not found: value aydınlık             götür(0, büyüklük - 5) * aydınlık(0.05) -> Resim.dizi(                                      ^
