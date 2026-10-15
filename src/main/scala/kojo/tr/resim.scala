@@ -387,7 +387,10 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
       case _                      => None
     }
     // Devre 2: küçük özellikler
-    def hızınıDönüştür(yy: Yöney2B): Yöney2B = yy.rotate(r.heading) // transv: yöneyi resmin yönüne çevir
+    // transv: resmi yöney kadar TAŞIR (masaüstü Picture.transv = translate(v.x, v.y), yani resmin kendi
+    // çerçevesinde). Eskiden yöneyi döndürüp geri veriyordu ve hiçbir şeyi taşımıyordu: masaüstü betikleri
+    // (hunted: `r.hızınıDönüştür(yeniHızYöneyi)`) derleniyor ama kovalayanlar kıpırdamıyordu.
+    def hızınıDönüştür(yy: Yöney2B): Birim = r.translate(yy.x, yy.y)
     def tepkiVer(işlev: Resim => Birim): Birim = kb.animate(işlev(r)) // react: her karede
     def canlan(işlev: Resim => Birim): Birim = tepkiVer(işlev)
   }
