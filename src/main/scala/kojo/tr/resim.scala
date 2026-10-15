@@ -51,6 +51,7 @@ trait ResimYöntemleri extends TemelTürler with RenkYöntemleri with NoktaYönt
     def dikeyBoşluk(boşluk: Kesir): Resim = kb.Picture.vgap(boşluk)
     def yoldan(işlev: pixiscalajs.PIXI.Graphics => Birim): Resim = kb.Picture.fromPath(işlev)
     // masaüstü Resim.eskizden: tek bir tuval resmi, çizilenler piksel -- bkz. tr/eskiz.scala, SketchPic
+    // ölçekÇarpanı 0 = otomatik (ekran yoğunluğu, en çok 2); varsayılan 1 koordinatları sabit tutar
     def eskizden(eskiz: Eskiz, ölçekÇarpanı: Kesir = 1): Resim =
       new kojo.SketchPic(eskiz.kurulum, eskiz.çizimDöngüsü, ölçekÇarpanı, kb.setRandomSeed)
     // masaüstü: Resim.noktadan { gn => gn.başla(); gn.nokta(x, y); ...; gn.bitir() } (VertexShape)

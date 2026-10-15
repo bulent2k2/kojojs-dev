@@ -185,6 +185,56 @@ class EskizTest extends AnyFunSuite with Matchers {
     sprite.scale.x shouldBe 0.5 +- 1e-12
   }
 
+  test("ölçekÇarpanı 0 (otomatik): min(dpr, 2), doku sınırına sığacak kadar, 1'in altına inmez") {
+    val oç = SketchPic.otomatikÇarpan _
+    oç(1, 800, 600, 8192) shouldBe 1.0
+    oç(2.625, 800, 600, 8192) shouldBe 2.0 // iki telefonda ölçülen DPR; üst sınır 2
+    oç(1.5, 800, 600, 8192) shouldBe 1.5
+    oç(3, 800, 600, 8192) shouldBe 2.0
+    oç(2.625, 1400, 600, 2800) shouldBe 2.0 // tam sığıyor
+    oç(2, 1400, 600, 2000) shouldBe (2000.0 / 1400) +- 1e-12 // doku sınırı çarpanı kısar
+    oç(2, 5000, 600, 4096) shouldBe 1.0 // sığmasa bile 1'in altına inmez
+    oç(0.75, 800, 600, 8192) shouldBe 1.0 // DPR < 1 çarpanı küçültmez
+    oç(2, 800, 600, 0) shouldBe 2.0 // sınır bilinmiyorsa uygulanmaz
+  }
+
+  test("ölçekÇarpanı 0 gerçek yolda: DPR ve cihaz doku sınırından hesaplanıyor; yüzey ve sprite buna uyuyor; negatif 1 kalıyor") {
+    val p = new SketchPic(_ => (), _ => (), 0, b.setRandomSeed)
+    p.draw()
+    val beklenen = SketchPic.otomatikÇarpan(dom.window.devicePixelRatio, 800, 600, SketchPic.enBüyükDoku)
+    p.çarpan shouldBe beklenen
+    p.çarpan should (be >= 1.0 and be <= 2.0)
+    p.tuvalElemanı.width shouldBe math.round(800 * beklenen).toInt
+    p.tuvalElemanı.height shouldBe math.round(600 * beklenen).toInt
+    p.tnode.asInstanceOf[pixiscalajs.PIXI.Container].children(0).scale.x shouldBe (1 / beklenen) +- 1e-12
+    SketchPic.enBüyükDoku should be >= 2048.0
+    // otomatik kipte koordinatlar cihaza göre DEĞİŞMEZ: sahne birimi (inceleme, #230)
+    p.cd.width shouldBe 800.0 +- 1e-9
+    p.cd.height shouldBe 600.0 +- 1e-9
+    new SketchPic(_ => (), _ => (), -3, b.setRandomSeed).çarpan shouldBe 1.0
+  }
+
+  test("otomatik kipte (CanvasDraw ölçek 2): koordinatlar sahne birimi; çizim, çizgi kalınlığı ve artalan yüzeyde 2 kat") {
+    val c = dom.document.createElement("canvas").asInstanceOf[dom.html.Canvas]
+    c.width = 1600; c.height = 1200
+    val cd = new CanvasDraw(c, 1600, 1200, b.setRandomSeed, 2.0)
+    cd.width shouldBe 800.0
+    cd.height shouldBe 600.0
+    cd.background(0, 0, 255) // tüm yüzey, sahne birimiyle (0,0)-(800,600) olarak boyanır
+    cd.fill(255, 0, 0); cd.noStroke()
+    cd.rect(700, 500, 10, 10) // sahne birimi: yüzeyde (1400,1000)-(1420,1020)
+    val g = c.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+    def px(x: Int, y: Int) = { val d = g.getImageData(x, y, 1, 1).data; (d(0).toInt, d(1).toInt, d(2).toInt, d(3).toInt) }
+    px(1410, 1010) shouldBe ((255, 0, 0, 255)) // kırmızı kare, 2 kat büyük
+    px(1395, 1010) shouldBe ((0, 0, 255, 255)) // karenin dışı: artalan
+    px(1599, 1199) shouldBe ((0, 0, 255, 255)) // artalan yüzeyin son pikseline kadar
+    px(0, 0) shouldBe ((0, 0, 255, 255))
+    cd.stroke(0, 255, 0); cd.strokeWeight(10); cd.line(100, 100, 300, 100) // yüzeyde kalınlık 20 px
+    px(400, 200) shouldBe ((0, 255, 0, 255))
+    px(400, 208) shouldBe ((0, 255, 0, 255)) // 2 kat kalınlık (20 px): merkezden 8 px yukarıda hâlâ yeşil (ölçeksiz 10 px kalınlıkta olmazdı)
+    px(400, 214) shouldBe ((0, 0, 255, 255)) // 10 px'ten uzak: artalan
+  }
+
   test("blendMode(\"lighter\") renkleri toplar") {
     val p = eskiz(cd => {
       cd.noStroke(); cd.blendMode("lighter")
