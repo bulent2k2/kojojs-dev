@@ -93,12 +93,31 @@ Kaynak: `lite/Builtins.scala` (`SketchRunner`), `lite/CanvasDraw.scala`,
    |---|---|---|---|---|
    | PowerVR C-Series, 8 GB (DPR 2,625) | 10,1 / 14,4 | 9,2 / 13,5 | 11,1 / 15,1 | 13,0 / 18,1 |
    | Adreno 620, 4 GB (DPR 2,625) | 13,2 / 19,4 | 9,0 / 17,5 | 12,1 / 17,5 | 17,1 / 22,6 |
+   | Intel Iris Plus Mac, Electron (DPR 2,4) | 6,6 / 10,6 | 4,9 / 7,6 | 6,2 / 8,5 | 6,0 / 9,8 |
+   | RTX 4070 SUPER PC, Chrome (DPR 1) | 0,9 / 11,1 | 0,8 / 1,2 | 0,7 / 0,8 | 1,2 / 1,5 |
 
-   x2 iki cihazda da 16,7 ms bütçesinin altında; x3 Adreno 620'de bütçeyi aşıyor, o yüzden
-   üst sınır 2. Bellek (hesap): x2 için tuval + GPU dokusu ≈ 15 MiB, x3 için ≈ 33 MiB.
-   Adreno 620'de en büyük doku 4096 px (öbüründe 8192): geniş tuvalde çarpan buna göre kısılıyor.
-   Sınır: tek bir ölçüm koşusu, ±4 ms gürültü (Adreno'da x1 > x1,5 ısınmadan olabilir);
-   daha zayıf cihazlarda ölçülmedi.
+   Ekranın gerçek kare hızı (fps; kare aralığı medyanı ms ile):
+
+   | cihaz | x1 | x1,5 | x2 | x3 |
+   |---|---|---|---|---|
+   | PowerVR C-Series | 60 (16,7) | 60 (16,7) | 60 (16,7) | 60 (16,7) |
+   | Adreno 620 | 60 (16,7) | 60 (16,7) | 60 (16,7) | 60 (16,7) |
+   | Intel Iris Plus Mac | 57 (17,6) | 58 (17,3) | 60 (16,8) | **47 (21,4)** |
+   | RTX 4070 SUPER PC (179 Hz ekran) | 179 (5,6) | 179 (5,6) | 179 (5,6) | 179 (5,6) |
+
+   x2 dört cihazda da akıcı. x3 Adreno 620'de iş süresiyle bütçeyi (16,7 ms) aşıyor; Mac'te
+   iş süresi 6 ms'de kaldığı halde kare hızı 47'ye düşüyor, yani darboğaz çizim + yükleme
+   değil, büyük dokunun ekrana sunulması. Bu yüzden iş süresine tek başına bakmak yetmez,
+   kare hızı da ölçülmeli. Üst sınır 2. Bellek (hesap): x2 için tuval + GPU dokusu ≈ 15 MiB,
+   x3 için ≈ 33 MiB. En büyük doku: Adreno 620'de 4096 px, PowerVR'da 8192, Mac'te 16384;
+   geniş tuvalde çarpan buna göre kısılıyor. Sınır: her cihazda tek ölçüm koşusu, ±4 ms
+   gürültü (Adreno'da x1 > x1,5, Mac'te x1 57 fps; ısınma ya da arka plan yükü olabilir);
+   daha zayıf cihazlarda ölçülmedi. Hızlı PC'de ×1 p95 11,1 ms ortanca 0,9 ms'ye göre bir ısınma
+   sıçraması gibi görünüyor. Bu PC 3440×1440 ekranda DPR 1 bildiriyor, yani otomatik kip orada
+   ×1 seçer; daha keskin istenirse çarpan elle verilir.
+
+   Grafikler, tam tablo ve açık işler: <https://claude.ai/artifact/UGWtau8USAYNcqWHd8KJi7>
+   (yeni cihaz eklendikçe orada güncelleniyor; buradaki tablo o andaki özet).
 4. **Koordinatlar.** `artalan`, dönüşümün tersiyle yüzeyin tamamını boyuyor
    (`bgRectCoords`); `yazı` ve `imge` y'si ters çevrilerek çiziliyor
    (`drawText`: `scale(1, -1)`). #88 de **bu eşlemeyi doğrulamadığını** yazıyor.
