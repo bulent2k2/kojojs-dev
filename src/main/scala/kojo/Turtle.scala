@@ -469,7 +469,7 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
     // sürerken -- taban kuyruğa gidiyor ve iç kuyruk bitince sırasını alıyor. Eskiden
     // `commandQ` (en içteki kuyruk) kullanılıyordu: komut PopQ'nun ARKASINA düşüyor,
     // realPopQ'daki `assert(commandQ.size == 0)` patlıyor ve pompa kalıcı ölüyordu (#213).
-    (if (içKuyruğaYazılıyor) commandQs.head else commandQs.last).enqueue(komut)
+    commandQs.head.enqueue(komut)
     if (pompa.komutGirdi()) kojoWorld.scheduleLater(queueHandler)
   }
 
