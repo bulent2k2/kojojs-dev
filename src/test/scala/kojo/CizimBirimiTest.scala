@@ -54,6 +54,12 @@ class CizimBirimiTest extends AnyFunSuite with Matchers {
     w.stage.scale.y shouldBe -(96.0 / 2.54) +- 1e-9
     w.resetView()
     w.stage.scale.x shouldBe (96.0 / 2.54) +- 1e-9
+    // #237: yaklaş birime göre göreli (masaüstü camScale ile aynı)
+    w.zoomXY(0.5, 0.5, 0, 0)
+    w.stage.scale.x shouldBe 0.5 * (96.0 / 2.54) +- 1e-9
+    w.stage.scale.y shouldBe -0.5 * (96.0 / 2.54) +- 1e-9
+    w.zoomXY(1, 1, 0, 0)
+    w.stage.scale.x shouldBe (96.0 / 2.54) +- 1e-9
     w.kapat()
   }
 
