@@ -52,7 +52,14 @@ trait Picture {
   def erase(): Unit
   def moveToFront() = kojoWorld.moveToFront(tnode)
   def moveToBack() = kojoWorld.moveToBack(tnode)
-  def position: Point = tnode.position
+  // KOPYA, masaüstü gibi (picture/pics.scala: `new core.Point(o.getX, o.getY)`).
+  // tnode.position PIXI'nin CANLI ObservablePoint'i; onu vermek iki yerde iz
+  // bırakıyordu: (1) `dez p = r.konum; r.konumuKur(p.x + 10, p.y);
+  // r.konumuKur(p.x - 10, p.y)` masaüstünde eski yerin 10 soluna, burada eski
+  // yere dönüyordu; (2) noktaya yazmak (`r.konum.x = 5`) resmi transformDone'suz
+  // taşıyor, çarpışma geometrisi eski yerde kalıyordu. Taşımak için setPosition.
+  // Ölçüm: KonumKopyaTest.
+  def position: Point = Point(tnode.position.x, tnode.position.y)
   def heading = tnode.rotation.toDegrees
   def setOpacity(opac: Double) {
     tnode.alpha = opac
