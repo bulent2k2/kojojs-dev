@@ -517,6 +517,9 @@ class Turtle(x: Double, y: Double, forPic: Boolean = false, costume: String = nu
   // private[kojo]: bunlar yalnız `sync` ile kuyruğun doğru noktasında okunuyor
   // (readPosition / readHeading, Türkçesi konumuOku / yönüOku). Dışarıya
   // AÇILMIYOR -- anlık bir okuma kuyruktaki komutlardan önceki değeri verirdi.
+  // Bilerek CANLI (Picture.position'ın tersine): yalnız içeride, x/y'si hemen
+  // okunarak kullanılıyor ve hareket döngüsünün sıcak yolunda; dışarıya giden
+  // tek yol readPosition, o da kopya veriyor (KonumKopyaTest, KonumOkumaTest).
   private[kojo] def position = turtleImage.position
 
   private def headingRadians = turtleImage.rotation

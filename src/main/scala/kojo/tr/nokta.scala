@@ -11,9 +11,11 @@ import pixiscalajs.PIXI
  * `type Dikdörtgen = Rectangle` var; burada iKojo'nun PIXI karşılıklarına
  * bağlanıyorlar.
  *
- * PIXI.Point'in x/y'si `var` -- yani nokta DEĞİŞEBİLİR. `resim.konum`'un
- * döndürdüğü nokta resmin canlı konumudur, kopyası değil; saklamak istersen
- * `kopyası` kullan.
+ * PIXI.Point'in x/y'si `var` -- yani nokta DEĞİŞEBİLİR. Ama `resim.konum`
+ * (masaüstündeki gibi) her çağrıda YENİ bir kopya verir: saklanan nokta resim
+ * taşınınca değişmez, noktaya yazmak da resmi taşımaz (taşımak için
+ * `konumuKur`). `kaplumbağa.konumuOku` ve `fareKonumu` da kopya verir.
+ * Ölçüm: KonumKopyaTest.
  */
 trait NoktaYöntemleri extends TemelTürler with BelkiYöntemleri {
   type Nokta = PIXI.Point
