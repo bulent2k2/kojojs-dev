@@ -30,6 +30,7 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 | `19-eskiz-gul.kojo` | **Eskiz**: gül eğrisi kare kare uzar, renk açıyla değişir; `Eskiz`, `Resim.eskizden`, `TuvalÇizim` (`artalan`, `fırça`, `çizgi`, `götür`, `dönüşümüKaydet`). Çizilenler piksel: tek bir resim, binlerce çizgi nesne biriktirmez. Masaüstündeki `samples/tr/eskiz-gul.kojo` ile aynı |
 | `20-aceleci-yerlestirme.kojo` | **Aceleci (açgözlü) arama**: beş dörtgeni birbirinin üstüne bindirmeden küçük bir kutuya sığdırmak; yalnız iyileştiren hamleler kabul edilir, bu yüzden çoğu zaman ilk düştüğü çukurda takılır. `durum sınıf`, `canlandır`, `konumuKur`, `durdur` |
 | `21-benzetimli-tavlama.kojo` | Aynı bilmece **benzetimli tavlamayla** (simulated annealing): daha kötü bir yer de `eüssü(-fark / sıcaklık)` olasılıkla kabul edilir; geometrik soğuma, yeniden ısıtma, en iyi dizilişi saklama. Beş dörtgen 150 × 150'lik kareyi tam dolduruyor; `20-aceleci-yerlestirme.kojo` ile karşılaştırın |
+| `22-hayat-oyunu.kojo` | Conway'in **Hayat Oyunu**, etkileşimli: 128 × 128'lik dünyada deseni fareyle çiz (ölü hücreden basıp sürükle) ya da sil (canlıdan), sonra **Boşluk** ile başlat/durdur; N tek adım, C temizle, R son düzenlenen desene dön, 1-9/0 hız. Fare olaylarını dünyayı örten saydam bir resim yakalıyor (`fareyeBasınca`, `fareyiSürükleyince`); `tuşaBasınca`, `canlandır`, `Resim.dizi` |
 
 ## Nasıl çalıştırılır
 
