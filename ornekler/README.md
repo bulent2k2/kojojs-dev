@@ -28,6 +28,9 @@ bunları yamalı (scala-tr) derleyici tanır. ikojo.fly.dev bu derleyiciyi
 | `17-melodi.kojo` | `notaÇal` ile bir ezgi, `notaSus` ile es, `kalanNotaSüresi` ile toplam süre; `akorÇal` / `beraberÇal` ile aynı anda çalan notalar (yalnız iKojo) |
 | `18-birim-cember.kojo` | Dönen bir topun yatay ve dikey izdüşümü **kosinüs** ve **sinüs** dalgasını çizer; `canlandır`, `kalemKalınlığı`, `Resim.renkliYazı` (telefon ekranına göre düzenlendi) |
 | `19-eskiz-gul.kojo` | **Eskiz**: gül eğrisi kare kare uzar, renk açıyla değişir; `Eskiz`, `Resim.eskizden`, `TuvalÇizim` (`artalan`, `fırça`, `çizgi`, `götür`, `dönüşümüKaydet`). Çizilenler piksel: tek bir resim, binlerce çizgi nesne biriktirmez. Masaüstündeki `samples/tr/eskiz-gul.kojo` ile aynı |
+| `20-aceleci-yerlestirme.kojo` | **Aceleci (açgözlü) arama**: beş dörtgeni birbirinin üstüne bindirmeden küçük bir kutuya sığdırmak; yalnız iyileştiren hamleler kabul edilir, bu yüzden çoğu zaman ilk düştüğü çukurda takılır. `durum sınıf`, `canlandır`, `konumuKur`, `durdur` |
+| `21-benzetimli-tavlama.kojo` | Aynı bilmece **benzetimli tavlamayla** (simulated annealing): daha kötü bir yer de `eüssü(-fark / sıcaklık)` olasılıkla kabul edilir; geometrik soğuma, yeniden ısıtma, en iyi dizilişi saklama. Beş dörtgen 150 × 150'lik kareyi tam dolduruyor; `20-aceleci-yerlestirme.kojo` ile karşılaştırın |
+| `22-hayat-oyunu.kojo` | Conway'in **Hayat Oyunu**, etkileşimli ve telefona uygun: 128 × 128'lik dünyada deseni fareyle ya da parmakla çiz (ölü hücreden basıp sürükle) ya da sil (canlıdan); sol alttaki **düğmelerle** başlat/durdur, adım, temizle/başa dön. Klavye varsa Boşluk, N, C, R ve 1-9/0 (hız). Fare olaylarını dünyayı örten saydam bir resim, düğmeleri de kendi resimleri yakalıyor (`fareyeBasınca`, `fareyiSürükleyince`, `fareyeTıklayınca`); `tuşaBasınca`, `canlandır`, `Resim.dizi` |
 
 ## Nasıl çalıştırılır
 

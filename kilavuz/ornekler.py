@@ -206,6 +206,9 @@ IKOJO_BASLIK = {
     '17-melodi.kojo': 'Melodi',
     '18-birim-cember.kojo': 'Birim çember',
     '19-eskiz-gul.kojo': 'Eskiz: gül eğrisi',
+    '20-aceleci-yerlestirme.kojo': 'Aceleci yerleştirme',
+    '21-benzetimli-tavlama.kojo': 'Benzetimli tavlama',
+    '22-hayat-oyunu.kojo': 'Hayat Oyunu',
 }
 
 ROZETLER = {
