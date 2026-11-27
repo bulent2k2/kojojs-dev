@@ -25,7 +25,7 @@ betik	tr	en	en_hata	en_ilk_hata	tr_ilk_hata
 19-eskiz-gul.kojo	geçti	geçti	0		
 20-aceleci-yerlestirme.kojo	geçti	geçti	0		
 21-benzetimli-tavlama.kojo	geçti	geçti	0		
-22-hayat-oyunu.kojo	geçti	kaldı	9	57: value setPosition is not a member of pixiscalajs.PIXI.Graphics	
+22-hayat-oyunu.kojo	geçti	kaldı	9	61: value setPosition is not a member of pixiscalajs.PIXI.Graphics	
 masaustu/installer/examples/anagram/anagram_tr.kojo.installed	kaldı	kaldı	5	6: not found: value sözcükDizininiYükle	6: not found: value sözcükDizininiYükle
 masaustu/installer/examples/anagram/tr/sozcuk-dizinini-yukle.kojo	kaldı	kaldı	2	24: not found: value installDir	24: not found: value installDir
 masaustu/installer/examples/othello/menu_tr.kojo.installed	ayrıştırma	ayrıştırma	1	6: To compile XML syntax, the scala.xml package must be on the classpath.	6: To compile XML syntax, the scala.xml package must be on the classpath.
